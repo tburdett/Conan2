@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location">
+            <value>classpath:jdbc.properties</value>
+        </property>
+    </bean>
+
+
+    <bean name="DatabaseConanTaskDAO"
+          class="uk.ac.ebi.fgpt.conan.dao.DatabaseConanTaskDAO">
+        <property name="dataSource" ref="dataSource" />
+        <property name="pipelineService" ref="pipelineService" />
+        <property name="userDAO" ref="DatabaseConanUserDAO" />
+    </bean>
+
+    <bean name="DatabaseConanUserDAO"
+          class="uk.ac.ebi.fgpt.conan.dao.DatabaseConanUserDAO">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean id="dataSource"
+          class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+        <property name="poolPreparedStatements" value="true" />
+
+        <property name="maxOpenPreparedStatements" value="10" />
+        <property name="maxIdle" value="10" />
+        <property name="maxActive" value="10" />
+
+    </bean>
+
+    <!-- To create task for tests -->
+    <!-- Pipeline service -->
+    <bean name="pipelineService"
+          class="uk.ac.ebi.fgpt.conan.service.DefaultPipelineService">
+        <property name="userService" ref="userService" />
+        <property name="processService" ref="processService" />
+    </bean>
+
+    <!-- Process service -->
+    <bean name="processService"
+          class="uk.ac.ebi.fgpt.conan.service.SpiDiscoveryProcessService" />
+
+    <!-- User service -->
+    <bean name="userService"
+          class="uk.ac.ebi.fgpt.conan.service.DefaultUserService">
+        <property name="trustedDAO" ref="DatabaseConanUserDAO" />
+        <property name="verificationDAO" ref="ldapUserDAO" />
+    </bean>
+
+    <bean name="ldapUserDAO" class="uk.ac.ebi.fgpt.conan.dao.LdapConanUserDAO">
+        <property name="ldapTemplate" ref="ldapTemplate" />
+    </bean>
+    <bean name="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
+        <property name="contextSource" ref="contextSource" />
+    </bean>
+
+    <bean id="contextSource" class="org.springframework.ldap.core.support.LdapContextSource">
+        <property name="anonymousReadOnly" value="true" />
+        <property name="url" value="ldap://ldap.ebi.ac.uk:389" />
+        <property name="base" value="ou=people,dc=ebi,dc=ac,dc=uk" />
+    </bean>
+
+    <!-- Task service -->
+    <bean name="taskService"
+          class="uk.ac.ebi.fgpt.conan.service.DefaultTaskService">
+        <property name="pipelineService" ref="pipelineService" />
+        <property name="processService" ref="processService" />
+        <property name="taskFactory" ref="taskFactory" />
+        <property name="conanTaskDAO" ref="DatabaseConanTaskDAO" />
+    </bean>
+
+    <!-- Task service delegates all construction calls to a TaskFactory -->
+    <bean name="taskFactory"
+          class="uk.ac.ebi.fgpt.conan.factory.DefaultTaskFactory">
+        <property name="conanTaskDAO" ref="DatabaseConanTaskDAO" />
+        <property name="conanTaskListeners">
+            <util:set>
+                <bean class="uk.ac.ebi.fgpt.conan.factory.DAOWritingConanTaskListener" />
+            </util:set>
+        </property>
+    </bean>
+
+</beans>

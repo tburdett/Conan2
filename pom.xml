@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>uk.ac.ebi.fgpt</groupId>
+    <artifactId>conan2</artifactId>
+    <version>2.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Conan 2</name>
+    <url>http://www.ebi.ac.uk/arrayexpress</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>aggregate</id>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                        <phase>site</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-source</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>2.1</version>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- Reporting/Documentation output -->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <!-- Licensing -->
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License</name>
+            <url>http://www.gnu.org/copyleft/lesser.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <!-- Mailing Lists -->
+    <mailingLists>
+        <mailingList>
+            <name>AE2 Developers List</name>
+            <subscribe>ae2-dev@ebi.ac.uk</subscribe>
+            <unsubscribe>ae2-dev@ebi.ac.uk</unsubscribe>
+            <post>ae2-dev@ebi.ac.uk</post>
+        </mailingList>
+    </mailingLists>
+
+    <!-- Bug Tracker -->
+    <issueManagement>
+        <system>pivotal</system>
+        <url>https://www.pivotaltracker.com/projects/54920</url>
+    </issueManagement>
+
+    <!-- Developer Listing -->
+    <developers>
+        <developer>
+            <id>tburdett</id>
+            <name>Tony Burdett</name>
+            <email>tburdett@ebi.ac.uk</email>
+            <organization>EBI</organization>
+            <organizationUrl>http://www.ebi.ac.uk</organizationUrl>
+            <roles>
+                <role>administrator</role>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+            <properties />
+        </developer>
+        <developer>
+            <id>natalja</id>
+            <name>Natalja Kurbatova</name>
+            <email>natalja@ebi.ac.uk</email>
+            <organization>EBI</organization>
+            <organizationUrl>http://www.ebi.ac.uk</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+            <properties />
+        </developer>
+    </developers>
+
+    <!-- SVN connection -->
+    <scm>
+        <connection>
+            scm:svn:svn://bar.ebi.ac.uk
+        </connection>
+        <developerConnection>
+            scm:svn:svn://bar.ebi.ac.uk
+        </developerConnection>
+        <url>
+            http://bar.ebi.ac.uk:8080/trac/browser
+        </url>
+    </scm>
+
+    <!-- Maven repository deploy -->
+    <distributionManagement>
+        <downloadUrl>http://ebi.ac.uk/~tburdett/maven</downloadUrl>
+        <repository>
+            <id>bar.ebi.ac.uk-releases</id>
+            <name>bar.ebi.ac.uk-releases</name>
+            <url>http://bar.ebi.ac.uk:8081/artifactory/local-repo</url>
+        </repository>
+        <snapshotRepository>
+            <id>bar.ebi.ac.uk-snapshots</id>
+            <name>bar.ebi.ac.uk-snapshots</name>
+            <url>http://bar.ebi.ac.uk:8081/artifactory/local-repo</url>
+        </snapshotRepository>
+        <site>
+            <id>conan-docs-repo</id>
+            <url>http://dukkha.ebi.ac.uk:14054/conan2/documentation/</url>
+        </site>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>bar.ebi.ac.uk-releases</id>
+            <url>http://bar.ebi.ac.uk:8081/artifactory/local-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.6</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>conan</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <dependencies>
+                <!-- logging for tests -->
+                <dependency>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                    <version>1.6.0</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                    <version>1.2.14</version>
+                    <scope>test</scope>
+                </dependency>
+
+            </dependencies>
+
+            <modules>
+                <module>conan-service</module>
+                <module>conan-ui</module>
+                <module>conan-core-services</module>
+                <module>conan-ae-services</module>
+                <module>conan-ae1-processes</module>
+                <module>conan-ae2-processes</module>
+                <module>conan-atlas-processes</module>
+                <module>conan-demo-processes</module>
+            </modules>
+
+        </profile>
+
+        <profile>
+            <id>jndi-file-factory</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>jndi-file-factory</module>
+            </modules>
+        </profile>
+    </profiles>
+
+</project>

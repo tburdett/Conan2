@@ -1,0 +1,615 @@
+<!DOCTYPE html PUBLIC
+        "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="eng">
+
+<head>
+    <title>Conan 2</title>
+
+    <meta name="description" content="Conan 2 Autoloader"/>
+    <meta name="author" content="EBI Web Team"/>
+    <meta name="author" content="Tony Burdett"/>
+    <meta name="keywords" content="Conan 2, ArrayExpress2, autoloader"/>
+    <meta dir="ltr" content="ltr"/>
+    <meta http-equiv="Content-Language" content="en-GB"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+    <meta http-equiv="Window-target" content="_top"/>
+    <meta name="no-email-collection" content="http://www.unspam.com/noemailcollection/"/>
+
+    <script type="text/javascript" src="scripts/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="scripts/jquery-ui-1.8.5.custom.min.js"></script>
+    <script type="text/javascript" src="scripts/jquery-jcarousel-0.2.7.min.js"></script>
+    <script type="text/javascript" src="scripts/jquery-dataTables-1.7.3.min.js"></script>
+    <script type="text/javascript" src="scripts/jquery-form-2.4.5.js"></script>
+
+    <script type="text/javascript" src="scripts/conan2-core.js"></script>
+    <script type="text/javascript" src="scripts/conan2-ui.js"></script>
+
+    <link rel="stylesheet" href="css/conan2.css" type="text/css"/>
+    <link rel="stylesheet" href="css/jquery-ui-1.8.5.custom.css" type="text/css"/>
+    <!--<link rel="stylesheet" href="css/jquery-ui-1.8.6.curator.custom.css" type="text/css"/>-->
+    <!--<link rel="stylesheet" href="css/jquery-ui-1.8.6.perftest.custom.css" type="text/css"/>-->
+
+    <link rel="stylesheet" href="http://www.ebi.ac.uk/inc/css/contents.css" type="text/css"/>
+    <link rel="stylesheet" href="http://www.ebi.ac.uk/inc/css/userstyles.css" type="text/css"/>
+
+    <link rel="shortcut icon" href="images/favicon.ico"/>
+
+    <script src="http://www.ebi.ac.uk/inc/js/contents.js" type="text/javascript"></script>
+    <style type="text/css">
+        @media print {
+            body, .contents, .header, .contentsarea, .head {
+                position: relative;
+            }
+        }
+    </style>
+</head>
+
+<!-- Everything except the stuff between "conan contents" comments is from EBI templates -->
+<body onload="initUI(); if(navigator.userAgent.indexOf('MSIE') != -1) {document.getElementById('head').allowTransparency = true;}">
+<div class="headerdiv" id="headerdiv" style="position:absolute; z-index: 1;">
+    <iframe src="http://www.ebi.ac.uk/inc/head.html"
+            name="head"
+            id="head"
+            frameborder="0"
+            marginwidth="0px"
+            marginheight="0px"
+            scrolling="no"
+            width="100%"
+            style="position:absolute; z-index: 1; height: 57px;">
+        Your browser does not support inline frames or is currently configured not to display inline frames. Content can
+        be viewed at actual source page: http://www.ebi.ac.uk/inc/head.html
+    </iframe>
+</div>
+<div class="contents" id="contents">
+<table class="contentspane" id="contentspane" summary="The main content pane of the page" style="width: 100%">
+<tr>
+<td class="leftmargin"><img src="http://www.ebi.ac.uk/inc/images/spacer.gif" class="spacer" alt="spacer"/>
+</td>
+<td class="leftmenucell" id="leftmenucell">
+    <div class="leftmenu" id="leftmenu"><img src="http://www.ebi.ac.uk/inc/images/spacer.gif" class="spacer"
+                                             alt="spacer"/></div>
+</td>
+<td class="contentsarea" id="contentsarea">
+
+<div class="breadcrumbs">
+    <a href="http://www.ebi.ac.uk/" class="firstbreadcrumb">EBI</a>
+    <a href="http://www.ebi.ac.uk/arrayexpress">ArrayExpress</a>
+    <a href="index.html">Conan</a>
+    <a id="conan-admin-link" href="admin.html" style="display: none;">Setup</a>
+</div>
+
+<div id="conan-user-greeting" style="float: right; padding-left: 15px;">
+</div>
+
+
+<!-- Conan contents -->
+<div id="conan-content">
+<div id="conan-header">
+    <div id="conan-title">
+        <h1>Conan 2</h1>
+    </div>
+    <div id="conan-introduction">
+        Load experiments and array designs, in MAGE-TAB format, into ArrayExpress 2.
+    </div>
+</div>
+
+<div id="conan-body">
+<div id="conan-submissions">
+<div id="conan-submissions-title">
+    <h2>Submissions</h2>
+</div>
+
+<!-- submission explanation -->
+<div id="conan-submissions-introduction">
+    Make a submission to Conan. Experiments and Array Design MAGE-TAB files - referenced by accession or IDF
+    URL - are the normal submission types, but this may vary by pipeline. See
+    <a href="documentation/documentation.html">user documentation</a> for more information.
+</div>
+
+<!-- submissions actual content: build dynamically from retrieved pipelines -->
+<div id="conan-submissions-submitarea" class="conan-submissions-submitarea-panel" style="position: relative;">
+
+<!-- displayed whilst javascript is loaded and pipelines are retrieved via ajax -->
+<div id="conan-submissions-submitarea-loading"
+     class="conan-submissions-submitarea-panel"
+     style="text-align: center; padding-top: 20px;">
+    <img src="images/pipeline-loader.gif" alt="Loading"/> <br/>
+    Loading available pipelines...
+</div>
+
+<!-- shown once logged in, we ajax update this div with available pipelines for the user -->
+<div id="conan-submissions-submitarea-content"
+     class="conan-submissions-submitarea-panel"
+     style="display:none;">
+    <h3>Create new submission:</h3>
+
+    <div id="conan-submissions-submitarea-content-pipelines" class="conan-details">
+        <table>
+            <tr>
+                <td style="padding-top: 27px">
+                    <!-- select pipeline to run -->
+                    <div id="conan-submissions-pipeline" class="conan-submission-element-container">
+                        <label for="conan-submissions-pipeline-select" style="font-weight: bold; text-align: left;">
+                            Pipeline:<br/>
+                        </label>
+                        <select id="conan-submissions-pipeline-select"
+                                name="pipeline"
+                                title="Select the pipeline to run"
+                                onchange="displayUsageHelp(); selectPipeline($(this).val());"
+                                style="width:200px">
+                        </select>
+                    </div>
+                </td>
+                <td style="padding-top: 27px">
+                    <!-- select process to start from -->
+                    <div id="conan-submissions-process" class="conan-submission-element-container">
+                        <label for="conan-submissions-process-select" style="font-weight: bold; text-align: left;">
+                            Starting Process:<br/>
+                        </label>
+                        <select id="conan-submissions-process-select"
+                                name="process"
+                                title="Select the process to start from"
+                                onchange="displayUsageHelp();selectProcess($('#conan-submissions-process-select :selected').index());"
+                                style="width:250px">
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <!-- select parameters to use -->
+                    <div id="conan-submissions-parameters-wrapper"
+                         style="margin-left: 2px; margin-right: 2px;">
+                        <!-- single or batch modes are tabbed -->
+                        <ul>
+                            <li>
+                                <a href="#single">Single Submission</a>
+                            </li>
+                            <li class="conan-submissions-parameter-hideable">
+                                <a href="#multiple">Multiple Submission</a>
+                            </li>
+                            <li class="conan-submissions-parameter-hideable">
+                                <a href="#batch">Batch Submission</a>
+                            </li>
+                        </ul>
+
+                        <!-- single submission tab -->
+                        <div id="single" class="conan-parameters-tab-content">
+                            <div id="conan-submissions-parameters" class="conan-parameters">
+                            </div>
+
+                            <!-- submits a task using the currently selected values -->
+                            <div id="conan-submissions-button-container"
+                                 class="conan-submission-element-container"
+                                 style="padding-top: 19px;">
+                                <button id="conan-submissions-button"
+                                        class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                        onclick="displaySubmitDialog();">
+                                    <span class="ui-button-text">Go!</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- multiple submission tab -->
+                        <div id="multiple" class="conan-parameters-tab-content">
+                            <div id="conan-submissions-multi-parameters" class="conan-parameters">
+                            </div>
+
+                            <!-- submits a task using the currently selected values -->
+                            <div id="conan-submissions-multi-button-container"
+                                 class="conan-submission-element-container"
+                                 style="padding-top: 19px;">
+                                <button id="conan-submissions-multi-button"
+                                        class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                        onclick="displayMultiSubmitDialog();">
+                                    <span class="ui-button-text" style="font-weight: bold;">Go!</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- batch submission tab -->
+                        <div id="batch" class="conan-parameters-tab-content">
+                            <form id="conan-submissions-batch-parameter-form"
+                                  name="batch_fileupload"
+                                  method="post"
+                                  enctype="multipart/form-data"
+                                  action="api/generate-request/batch">
+                                <div id="conan-submissions-batch-parameters"
+                                     class="conan-parameters conan-submission-parameters-multiline-container">
+                                    <label id="conan-submissions-batch-parameter-fileupload-label"
+                                           for="conan-submissions-batch-parameter-fileupload">
+                                    </label>
+                                    <input id="conan-submissions-batch-parameter-fileupload"
+                                           name="batchFile"
+                                           type="file"/>
+                                    <input name="pipeline" type="hidden"/>
+                                    <input name="restApiKey" type="hidden"/>
+                                    <input name="startingProcessIndex" type="hidden"/>
+                                </div>
+
+                                <div id="conan-submissions-batch-button-container"
+                                     class="conan-submission-element-container"
+                                     style="padding-top: 19px;">
+                                    <button id="conan-submissions-batch-button"
+                                            type="submit"
+                                            class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+                                        <span class="ui-button-text" style="font-weight: bold;">Go!></span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="clear: both;"></div>
+
+    <!-- displayed if we have zero pipelines -->
+    <div id="conan-submissions-submitarea-content-error" style="display: none; width:100%;">
+        <p class="ui-state-error ui-corner-all" style="padding: 10px">
+                        <span style="float: left; margin-right: 0.3em;" class="ui-icon ui-icon-alert">
+                        </span>
+            No pipelines could be retrieved. The server may be down.
+        </p>
+    </div>
+
+    <!-- We autogenerate some quick context help about the selected pipeline/process here -->
+    <div id="conan-submissions-selected-pipeline-info">
+        <div id="conan-submissions-selected-pipeline-info-image">
+            <img src="images/help-browser.png" alt="Help:" style="float: left; padding-right: 10px"/>
+        </div>
+        <div id="conan-submissions-selected-pipeline-info-header">
+            <h4>Info:</h4>
+        </div>
+        <div id="conan-submissions-selected-pipeline-info-content">
+            <!-- Hint autogenerated depending on selected options -->
+            Note: info on selected pipeline goes here.
+        </div>
+    </div>
+</div>
+
+<!-- log in panel, should overlay submit area until user logs in -->
+<div id="conan-submissions-submitarea-login-overlay"
+     class="conan-submissions-submitarea-panel"
+     style="display:none;">
+    <div class="ui-overlay">
+        <div class="ui-widget-overlay"></div>
+        <div class="ui-widget-shadow ui-corner-all"
+             style="width: 744px; height: 97px; position: absolute; left: 50px; top: 35px;"></div>
+    </div>
+    <div style="position: absolute; width: 720px; height: 75px;left: 50px; top: 35px; padding: 10px;"
+         class="ui-widget ui-widget-content ui-corner-all">
+        <div class="ui-dialog-content ui-widget-content" style="background: none; border: 0;">
+            <p style="padding-bottom: 20px">
+                You must sign in with your email address to submit new jobs
+            </p>
+            <span>Email:</span>
+            <label for="conan-user-email-address">
+            </label>
+            <input id="conan-user-email-address"
+                   name="conan-user-email"
+                   title="conan-user-email"
+                   type="text"
+                   onkeypress="logInOnEnter(event);"
+                   style="width: 470px; padding-left: 5px;padding-right: 20px"
+                   class="ui-widget ui-widget-content"
+                    />
+            <button id="conan-log-in-button"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                    onclick="requestUser();">
+                <span class="ui-button-text" style="font-weight: bold;">Sign In!</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- guest user panel, should overlay submit area until user upgrades to submitter privileges-->
+<div id="conan-submissions-submitarea-guest-overlay"
+     class="conan-submissions-submitarea-panel"
+     style="display:none;">
+    <div class="ui-overlay">
+        <div class="ui-widget-overlay"></div>
+        <div class="ui-widget-shadow ui-corner-all"
+             style="width: 744px; height: 97px; position: absolute; left: 50px; top: 35px;"></div>
+    </div>
+    <div style="position: absolute; width: 720px; height: 75px;left: 50px; top: 35px; padding: 10px;"
+         class="ui-widget ui-widget-content ui-corner-all">
+        <div class="ui-dialog-content ui-widget-content" style="background: none; border: 0;">
+            <p style="padding-bottom: 20px">
+                You are currently logged in as a guest. You can view the progress of existing jobs, below, but you
+                cannot submit new jobs.
+            </p>
+
+            <p>
+                <a href="#" onclick="removeCookie('conanRestApiKey'); window.location.reload();">Log in</a>
+                with your recognised EBI email address to create new submissions.
+            </p>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+<div id="conan-queue" class="conan-leftaligned-panel">
+    <div id="conan-queue-title">
+        <h2>Queue</h2>
+    </div>
+
+    <div>
+        <div id="conan-queue-introduction">
+            Shows details of those tasks that are currently queued for Conan to execute.
+            <span id="hidden-task-info" style="display:none;">
+                Currently displaying only the most recent 200 tasks.
+                <span id="hidden-task-count"></span> older tasks out of
+                <span id="total-task-count"></span> in total are not shown.
+            </span>
+        </div>
+
+        <div id="conan-queue-content">
+            <div class="conan-details">
+                <div class="conan-table-wrapper">
+                    <table id="conan-queue-table" class="conan-details-table">
+                        <thead>
+                        <tr>
+                            <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                                Task
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                            </th>
+                            <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                                Pipeline
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                            </th>
+                            <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                                Next Process
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                            </th>
+                            <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                                Submitted By
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                            </th>
+                            <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                                Submission Time
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody id="conan-queue-content-tasks">
+
+                        </tbody>
+                    </table>
+                    <div style="text-align: right; height: 30px;">
+                        Stop selected tasks:
+                        <button id="conan-batch-selectall-button"
+                                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                onclick="checkAllTasksForRemoval();"
+                                title="Selects all tasks ready for them to be stopped">
+                            <span class="ui-button-text">Select all</span>
+                        </button>
+                        <button id="conan-batch-deselectall-button"
+                                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                onclick="uncheckAllTasksForRemoval();"
+                                title="Clears all selected tasks">
+                            <span class="ui-button-text">Deselect all</span>
+                        </button>
+                        <button id="conan-batch-stop-button"
+                                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                onclick="displayBatchStopDialog();"
+                                title="Stops all selected tasks">
+                            <span class="ui-button-text">Stop</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="conan-progress" class="conan-rightaligned-panel">
+    <div id="conan-progress-title">
+        <h2>Progress</h2>
+    </div>
+
+    <div>
+        <div id="conan-progress-introduction">
+            Shows details of those tasks that Conan is currently processing.
+        </div>
+
+        <div id="conan-progress-content">
+            <div class="conan-details">
+                <div class="conan-table-wrapper">
+                    <table id="conan-progress-table" class="conan-details-table">
+                        <thead>
+                        <tr>
+                            <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                                Task
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                            </th>
+                            <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                                Pipeline
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                            </th>
+                            <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                                Current Process
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                            </th>
+                            <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                                Submitted By
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                            </th>
+                            <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                                Start Time
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody id="conan-progress-content-tasks">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="conan-history">
+    <div id="conan-history-title">
+        <h2>History</h2>
+    </div>
+
+    <div>
+        <div id="conan-history-introduction">
+            Provenance information for every job submitted to Conan. This shows a brief overview of each submission,
+            including the ID assigned to this submission, the pipeline run, who submitted it, and when. For more
+            details,
+            click the submission ID to see the task summary page.
+        </div>
+
+        <div id="conan-history-content">
+            <div class="conan-details">
+                <table id="conan-history-table" class="conan-details-table">
+                    <thead>
+                    <tr>
+                        <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                            Task
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                        </th>
+                        <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                            Pipeline
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                        </th>
+                        <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                            Submitted By
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                        </th>
+                        <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                            Finish Time
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody id="conan-history-content-tasks">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- conan dialogs -->
+<div id="conan-submission-dialog" title="Create new submission?" style="display: none;">
+    <p class="ui-state-highlight ui-corner-all">
+        <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 20px 0;"></span>
+        Your submission will be created with the following parameters:<br/><br/>
+        <span id="conan-submission-dialog-parameters"></span>
+        and will start at <span id="conan-submission-dialog-process"></span><br/>
+        Is this correct?
+    </p>
+</div>
+
+<div id="conan-multi-submission-dialog" title="Create new multiple submission?" style="display: none;">
+    <p class="ui-state-highlight ui-corner-all">
+        <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 20px 0;"></span>
+        <span id="conan-multi-submission-dialog-message"></span><br/>
+        Is this correct?
+    </p>
+</div>
+
+<div id="conan-batch-submission-dialog" title="Create new batch submission?" style="display: none;">
+    <p class="ui-state-highlight ui-corner-all">
+        <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 20px 0;"></span>
+        <span id="conan-batch-submission-dialog-message"></span><br/>
+        Is this correct?
+    </p>
+</div>
+
+<div id="conan-batch-stop-dialog" title="Create new batch submission?" style="display: none;">
+    <p class="ui-state-highlight ui-corner-all">
+        <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 20px 0;"></span>
+        <span id="conan-batch-stop-dialog-message"></span><br/>
+        Are you sure?
+    </p>
+</div>
+
+<div id="conan-interaction-dialog" title="Attention!" style="display: none;">
+    <p class="ui-state-highlight ui-corner-all">
+        <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 50px 0;"></span>
+        <span id="conan-interaction-dialog-options"></span>
+    </p>
+
+</div>
+
+<div id="conan-info-message" title="Conan Submission Information" style="display: none;">
+    <p class="ui-state-highlight ui-corner-all">
+        <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 50px 0;"></span>
+        <span id="conan-info-message-text"></span>
+    </p>
+</div>
+
+<div id="conan-alert-message" title="Submission rejected!" style="display: none;">
+    <p class="ui-state-error ui-corner-all">
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
+        <span id="conan-alert-message-text"></span>
+    </p>
+</div>
+
+<div style="clear:both"></div>
+
+<!-- hidden div for disguising file upload: post response loads to an iframe here -->
+<div id="batch_fileupload_response" style="display:none;"></div>
+
+<img src="http://www.ebi.ac.uk/inc/images/spacer.gif" alt="spacer" height="50px"/>
+</div>
+<!-- end of Conan contents -->
+
+<img src="http://www.ebi.ac.uk/inc/images/spacer.gif" class="spacer" alt="spacer"/></td>
+<td class="rightmenucell" id="rightmenucell">
+    <div class="rightmenu" id="rightmenu"><img src="http://www.ebi.ac.uk/inc/images/spacer.gif"
+                                               class="spacer"
+                                               alt="spacer"/></div>
+</td>
+</tr>
+</table>
+<table class="footerpane" id="footerpane" summary="The main footer pane of the page"
+       style="position: fixed; bottom: 5px;">
+    <tr>
+        <td colspan="4" class="footerrow">
+            <div class="footerdiv" id="footerdiv" style="z-index:2;">
+                <iframe src="http://www.ebi.ac.uk/inc/foot.html"
+                        name="foot"
+                        frameborder="0"
+                        marginwidth="0px"
+                        marginheight="0px"
+                        scrolling="no"
+                        height="22px"
+                        width="100%"
+                        style="z-index:2;">
+                    Your browser does not support inline frames or is currently configured not to display inline frames.
+                    Content can be viewed at actual source page: http://www.ebi.ac.uk/inc/foot.html
+                </iframe>
+            </div>
+        </td>
+    </tr>
+</table>
+<script src="http://www.ebi.ac.uk/inc/js/footer.js" type="text/javascript"></script>
+</div>
+</body>
+</html>

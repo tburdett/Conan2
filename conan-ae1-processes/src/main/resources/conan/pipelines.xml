@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<conan-pipelines xmlns="http://www.ebi.ac.uk/arrayexpress/conan/pipelines"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://www.ebi.ac.uk/arrayexpress/conan/pipelines
+                                     http://www.ebi.ac.uk/arrayexpress/conan/pipelines.xsd">
+
+    <!--
+    Add xml elements to name your pipeline and chain processes together here
+    Note that the interface will display these pipelines in declaration order, with the first pipeline as the default
+    -->
+    <!--AE2 and AE1 combined processes-->
+    <pipeline name="Experiment Loading (Combined AE2/AE1)" creator="natalja">
+        <processes>
+            <process name="validation for AE2" />
+            <process name="experiment loading for AE2" />
+            <process name="scoring for AE2" />
+            <process name="afterloading for AE2" />
+            <process name="AE1 Validate" />
+            <process name="AE1 Load" />
+            <process name="AE1 Afterload" />
+            <process name="AE1 Archive" />
+            <process name="AE1 QM Calculation" />
+        </processes>
+    </pipeline>
+
+    <pipeline name="ADF Loading (Combined AE2/AE1)" creator="natalja">
+        <processes>
+            <process name="validation for AE2" />
+            <process name="adf loading for AE2" />
+            <process name="scoring for AE2" />
+            <process name="afterloading for AE2" />
+            <process name="AE1 Validate" />
+            <process name="AE1 Load" />
+            <process name="AE1 Afterload" />
+            <process name="AE1 Archive" />
+        </processes>
+    </pipeline>
+    <!-- AE1 processes -->
+    <pipeline name="AE1 Loading" creator="natalja">
+        <processes>
+            <process name="AE1 Validate" />
+            <process name="AE1 Load" />
+            <process name="AE1 Afterload" />
+            <process name="AE1 Archive" />
+            <process name="AE1 QM Calculation" />
+        </processes>
+    </pipeline>
+
+    <pipeline name="AE1 Loading with insert" creator="natalja">
+        <processes>
+            <process name="AE1 Validate with insert" />
+            <process name="AE1 Load with insert" />
+            <process name="AE1 Afterload" />
+            <process name="AE1 Archive" />
+        </processes>
+    </pipeline>
+
+    <pipeline name="AE1 Postloading" creator="natalja">
+        <processes>
+            <process name="AE1 Postload" />
+        </processes>
+    </pipeline>
+
+    <pipeline name="AE1 Unloading" creator="natalja">
+        <processes>
+            <process name="AE1 Unload" />
+        </processes>
+    </pipeline>
+
+</conan-pipelines>
