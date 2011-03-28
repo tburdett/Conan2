@@ -8,6 +8,10 @@ import uk.ac.ebi.fgpt.conan.model.ConanTask;
 import uk.ac.ebi.fgpt.conan.service.AbstractEmailResponderService;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -276,7 +280,10 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
         boolean reviewers_created = false;
         String accession = "";
         String name = "";
-        String releaseDate = "";
+        Date releaseDate = null;
+        Date today = null;
+
+        String releaseDateString = "";
         String activationDate = "";
         boolean public_record = false;
         String AE_URL = "http://www.ebi.ac.uk/arrayexpress/";
@@ -287,39 +294,59 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
         for (SubmitterDetails submitter : details) {
             accession = submitter.getAccession();
             name = submitter.getName();
-            releaseDate = submitter.getReleaseDate();
-            activationDate = submitter.getActivationDate();
-            if (submitter.getUsername().startsWith("Reviewer")) {
-                if (account_reviewers.length() == 0) {
-                    account_reviewers = "We have also created an additional user account for a reviewer(s).  " +
-                            "Please provide this login to journals for reviewer access. " +
-                            "Do not provide your own login details.\n\n";
-                }
-                account_reviewers = account_reviewers + "Reviewer's user account:\n\n" +
-                        "Username: " + submitter.getUsername() + "\n" +
-                        "Password: " + submitter.getPassword() + "\n\n";
-                reviewers_created = true;
+            try {
+              DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S.");
+              DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd");
+              releaseDate = df.parse(submitter.getReleaseDate());
+              releaseDateString = df2.format(releaseDate);
+
+              Calendar cal = Calendar.getInstance();
+              today = cal.getTime();
+              cal.setTime(releaseDate);
+              cal.add(Calendar.HOUR, 24);
+
+              if (cal.getTime().after(today))
+                public_record = true;
+
+
             }
-            else {
-                if (!submitter.getUsername().equals("guest")) {
-                    if (account_owners.length() == 0) {
-                        account_owners = "You can access your private data via a user account, " +
-                                "which has been created for you.\n" +
-                                "This is your ArrayExpress user account and should " +
-                                "not be shared.\n\n";
+            catch (Exception e){
+              releaseDateString =  submitter.getReleaseDate();
+            }
+
+            activationDate = submitter.getActivationDate();
+            if (!public_record){
+              if (submitter.getUsername().startsWith("Reviewer")) {
+                    if (account_reviewers.length() == 0) {
+                        account_reviewers = "We have also created an additional user account for a reviewer(s).  " +
+                                "Please provide this login to journals for reviewer access. " +
+                                "Do not provide your own login details.\n\n";
                     }
-                    account_owners = account_owners + "Your user account details are as follows:\n\n" +
+                    account_reviewers = account_reviewers + "Reviewer's user account:\n\n" +
                             "Username: " + submitter.getUsername() + "\n" +
-                            "Password: " + submitter.getPassword() + "\n" +
-                            "E-mail address: " + submitter.getEmail() + "\n\n";
-                    owners_created = true;
+                            "Password: " + submitter.getPassword() + "\n\n";
+                    reviewers_created = true;
                 }
                 else {
-                    public_record = true;
+                    if (!submitter.getUsername().equals("guest")) {
+                        if (account_owners.length() == 0) {
+                            account_owners = "You can access your private data via a user account, " +
+                                    "which has been created for you.\n" +
+                                    "This is your ArrayExpress user account and should " +
+                                    "not be shared.\n\n";
+                        }
+                        account_owners = account_owners + "Your user account details are as follows:\n\n" +
+                                "Username: " + submitter.getUsername() + "\n" +
+                                "Password: " + submitter.getPassword() + "\n" +
+                                "E-mail address: " + submitter.getEmail() + "\n\n";
+                        owners_created = true;
+                    }
+                    else {
+                        public_record = true;
+                    }
                 }
             }
         }
-
         if (!details.isEmpty()) {
             return "Dear ArrayExpress submitter,\n\n" +
                     "Your " +
@@ -332,7 +359,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                     (accession.startsWith("E") ? "Experiment" : "Array design") + " " +
                     "name: " + name + "\n" +
                     "ArrayExpress accession: " + accession + "\n" +
-                    "Specified release date: " + releaseDate + ".\n\n" +
+                    "Specified release date: " + releaseDateString + ".\n\n" +
                     (public_record ? "" :
                             "You will get a reminder email one month before the release " +
                                     "date but you can change the release date at any time by emailing " +
@@ -342,13 +369,13 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                                     "revised release date. If the release date is within one month you " +
                                     "will not be sent a reminder.\n\n") +
 
-                    (owners_created ? account_owners.trim() +
-                            "From http://www.ebi.ac.uk/arrayexpress/, go to the link \"Submitter/reviewer login\" " +
+                    (owners_created ? account_owners +
+                            "\nFrom http://www.ebi.ac.uk/arrayexpress/, go to the link \"Submitter/reviewer login\" " +
                             "login using your account details and query for the accession " +
                             "number of your experiment or array design.\n\n"
                             : "Your " + (accession.startsWith("E") ? "experiment" : "array design")
                                     + " is available under this link " + AE_URL) +
-                    (reviewers_created ? account_reviewers.trim() : "") +
+                    (reviewers_created ? account_reviewers : "") +
                     ((owners_created || reviewers_created) ?
                             "These user accounts will be activated on " + activationDate + " at " +
                                     "approximately 06:00 GMT.\n\n" : "") +
