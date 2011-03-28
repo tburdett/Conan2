@@ -42,4 +42,10 @@
         </processes>
     </pipeline>
 
+    <pipeline name="GEO Validation Only" creator="tburdett">
+        <processes>
+            <process name="geo validation" />
+        </processes>
+    </pipeline>
+
 </conan-pipelines>

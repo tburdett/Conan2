@@ -1,6 +1,5 @@
 package uk.ac.ebi.fgpt.conan.dao;
 
-import com.googlecode.ehcache.annotations.Cacheable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,7 +31,6 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
     /**
      * SQL queries required for Conan oracle DB
      */
-
     public static final String SEQUENCE_SELECT =
             "select SEQ_CONAN.NEXTVAL from dual";
 
@@ -101,11 +99,11 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
                     "from CONAN_PARAMETERS p, CONAN_TASKS t " +
                     "where p.TASK_ID = t.ID and (t.STATE = 'CREATED' or t.STATE = 'SUBMITTED' or t.STATE = 'RECOVERED' or t.STATE = 'PAUSED' or t.STATE = 'FAILED')";
     public static final String PARAMETER_SELECT_FOR_RUNNING_TASKS =
-            "select ID, PARAMETER_NAME, PARAMETER_VALUE, TASK_ID " +
+            "select p.ID, p.PARAMETER_NAME, p.PARAMETER_VALUE, p.TASK_ID " +
                     "from CONAN_PARAMETERS p, CONAN_TASKS t " +
                     "where p.TASK_ID = t.ID and t.STATE = 'RUNNING'";
     public static final String PARAMETER_SELECT_FOR_COMPLETED_TASKS =
-            "select ID, PARAMETER_NAME, PARAMETER_VALUE, TASK_ID " +
+            "select p.ID, p.PARAMETER_NAME, p.PARAMETER_VALUE, p.TASK_ID " +
                     "from CONAN_PARAMETERS p, CONAN_TASKS t " +
                     "where p.TASK_ID = t.ID and (t.STATE = 'COMPLETED' or t.STATE = 'ABORTED')";
     public static final String PARAMETER_INSERT =
@@ -172,7 +170,6 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         return true;
     }
 
-    @Cacheable(cacheName = "taskCache")
     public ConanTask<? extends ConanPipeline> getTask(String taskID) {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
         DatabaseRecoveredConanTask taskDB = getJdbcTemplate().queryForObject(TASK_SELECT_BY_ID,
@@ -334,7 +331,6 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         return taskDB;
     }
 
-    @Cacheable(cacheName = "allTasksCache")
     public List<ConanTask<? extends ConanPipeline>> getAllTasks() {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
         List<DatabaseRecoveredConanTask<? extends ConanPipeline>> conanTasks =
@@ -349,7 +345,6 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         return result;
     }
 
-    @Cacheable(cacheName = "allTasksCache")
     public List<ConanTask<? extends ConanPipeline>> getAllTasks(int maxRecords, int startingFrom) {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
 
@@ -368,7 +363,6 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         return result;
     }
 
-    @Cacheable(cacheName = "allTasksCache")
     public List<ConanTask<? extends ConanPipeline>> getAllTasks(int maxRecords, int startingFrom, String orderBy) {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
 
@@ -388,7 +382,6 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         return result;
     }
 
-    @Cacheable(cacheName = "pendingTasksCache")
     public List<ConanTask<? extends ConanPipeline>> getPendingTasks() {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
         List<DatabaseRecoveredConanTask<? extends ConanPipeline>> conanTasks =
@@ -403,7 +396,6 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         return result;
     }
 
-    @Cacheable(cacheName = "runningTasksCache")
     public List<ConanTask<? extends ConanPipeline>> getRunningTasks() {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
         List<DatabaseRecoveredConanTask<? extends ConanPipeline>> conanTasks =
@@ -418,7 +410,6 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         return result;
     }
 
-    @Cacheable(cacheName = "completedTasksCache")
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasks() {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
         List<DatabaseRecoveredConanTask<? extends ConanPipeline>> conanTasks =
@@ -433,7 +424,6 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         return result;
     }
 
-    @Cacheable(cacheName = "completedTasksCache")
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasks(int maxRecords, int startingFrom) {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
         List<DatabaseRecoveredConanTask<? extends ConanPipeline>> conanTasks =
@@ -451,7 +441,6 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         return result;
     }
 
-    @Cacheable(cacheName = "completedTasksCache")
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasks(int maxRecords,
                                                                       int startingFrom,
                                                                       String orderBy) {

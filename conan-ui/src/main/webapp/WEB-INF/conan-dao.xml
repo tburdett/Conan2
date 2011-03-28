@@ -3,28 +3,13 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:jee="http://www.springframework.org/schema/jee"
        xmlns:util="http://www.springframework.org/schema/util"
-       xmlns:ehcache="http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring"
        xsi:schemaLocation="
        http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/jee
        http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
        http://www.springframework.org/schema/util
-       http://www.springframework.org/schema/util/spring-util.xsd
-       http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring
-       http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd">
-
-    <!-- use ehcache at the dao level to minimise DB calls -->
-    <ehcache:annotation-driven />
-
-    <!-- configure caching of elements with a cache manager -->
-    <ehcache:config cache-manager="cacheManager">
-        <ehcache:evict-expired-elements interval="60" />
-    </ehcache:config>
-
-    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-        <property name="configLocation" value="/WEB-INF/ehcache.xml" />
-    </bean>
+       http://www.springframework.org/schema/util/spring-util.xsd">
 
     <!-- Conan Pipeline DAO, used in several places to fetch loaded pipelines -->
     <bean name="conanPipelineDAO" class="uk.ac.ebi.fgpt.conan.dao.XMLLoadingPipelineDAO">
