@@ -514,38 +514,6 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
                 default:
                     getJdbcTemplate().query(PARAMETER_SELECT, parameterMapper);
             }
-
-//                // query template for parameters
-//                getLog().debug("Recovering parameters for all task in batches...");
-//                NamedParameterJdbcTemplate namedTemplate = new NamedParameterJdbcTemplate(getJdbcTemplate());
-//
-//                // if we have more than 'maxQueryParams' genes, split into smaller queries
-//                List<String> taskIDs = new ArrayList<String>(tasksByID.keySet());
-//                boolean done = false;
-//                int startpos = 0;
-//                int endpos = maxQueryParams;
-//
-//                while (!done) {
-//                    List<String> taskIDsChunk;
-//                    if (endpos >= taskIDs.size()) {
-//                        // we've reached the last segment, so query all of these
-//                        taskIDsChunk = taskIDs.subList(startpos, taskIDs.size());
-//                        done = true;
-//                    }
-//                    else {
-//                        // still more left - take next sublist and increment counts
-//                        taskIDsChunk = taskIDs.subList(startpos, endpos);
-//                        startpos = endpos;
-//                        endpos += maxQueryParams;
-//                    }
-//
-//                    // now query for properties that map to one of these genes
-//                    MapSqlParameterSource propertyParams = new MapSqlParameterSource();
-//                    propertyParams.addValue("taskids", taskIDsChunk);
-//                    namedTemplate.query(PARAMETER_SELECT_BY_TASKS, propertyParams, parameterMapper);
-//                    getLog().debug("Fetched next batch of parameters (now mapped parameters for " +
-//                                           (done ? taskIDs.size() : startpos) + " / " + taskIDs.size() + " tasks)");
-//                }
         }
     }
 
@@ -572,37 +540,6 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
                 default:
                     getJdbcTemplate().query(PROCESS_SELECT, processMapper);
             }
-//                // query template for processes
-//                getLog().debug("Recovering processes for all task in batches...");
-//                NamedParameterJdbcTemplate namedTemplate = new NamedParameterJdbcTemplate(getJdbcTemplate());
-//
-//                // if we have more than 'maxQueryParams' genes, split into smaller queries
-//                List<String> taskIDs = new ArrayList<String>(tasksByID.keySet());
-//                boolean done = false;
-//                int startpos = 0;
-//                int endpos = maxQueryParams;
-//
-//                while (!done) {
-//                    List<String> taskIDsChunk;
-//                    if (endpos >= taskIDs.size()) {
-//                        // we've reached the last segment, so query all of these
-//                        taskIDsChunk = taskIDs.subList(startpos, taskIDs.size());
-//                        done = true;
-//                    }
-//                    else {
-//                        // still more left - take next sublist and increment counts
-//                        taskIDsChunk = taskIDs.subList(startpos, endpos);
-//                        startpos = endpos;
-//                        endpos += maxQueryParams;
-//                    }
-//
-//                    // now query for properties that map to one of these genes
-//                    MapSqlParameterSource propertyParams = new MapSqlParameterSource();
-//                    propertyParams.addValue("taskids", taskIDsChunk);
-//                    namedTemplate.query(PROCESS_SELECT_BY_TASKS, propertyParams, processMapper);
-//                    getLog().debug("Fetched next batch of processes (now mapped processes for " +
-//                                           (done ? taskIDs.size() : startpos) + " / " + taskIDs.size() + " tasks)");
-//                }
         }
     }
 

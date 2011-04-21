@@ -89,13 +89,14 @@ public class UnloadCleanupProcess extends AbstractLSFProcess {
             final File outputDir = new File(parentDir, ".conan");
 
             // lsf output file
-            return new File(outputDir, "experimentloader.lsfoutput.txt").getAbsolutePath();
+            return new File(outputDir, "unloadcleanup.lsfoutput.txt").getAbsolutePath();
         }
     }
 
     private String generateCleanupCommand(AccessionParameter accession) {
         // execute unloadCleanup script given environment and accession
         String environmentPath = ConanProperties.getProperty("environment.path");
-        return environmentPath + "software/unloadCleanup/unloadCleanup.sh -e " + environmentPath + " -a " + accession;
+        String ftpPath = ConanProperties.getProperty("full.ftp.location");
+        return environmentPath + "software/unloadCleanup/unloadCleanup.sh -a " + accession + " -f " + ftpPath;
     }
 }
