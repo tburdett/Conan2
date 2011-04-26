@@ -11,7 +11,7 @@
     -->
 
     <!-- AE2 processes -->
-    <pipeline name="AE2 Experiment Loading" creator="natalja" daemonized="false">
+    <pipeline name="AE2 Experiment Loading" creator="natalja" daemonized="true">
         <processes>
             <process name="validation" />
             <process name="experiment loading" />
@@ -23,6 +23,7 @@
     <pipeline name="AE2 Experiment Unloading" creator="natalja">
         <processes>
             <process name="experiment unloading" />
+            <process name="unload cleanup" />
         </processes>
     </pipeline>
 
@@ -32,13 +33,13 @@
             <process name="adf loading" />
             <process name="scoring" />
             <process name="afterloading" />
-            <!--<process name="adf reannotation" />-->
         </processes>
     </pipeline>
 
     <pipeline name="AE2 ADF Unloading" creator="natalja">
         <processes>
             <process name="adf unloading" />
+            <process name="unload cleanup" />
         </processes>
     </pipeline>
 

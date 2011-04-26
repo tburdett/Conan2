@@ -121,7 +121,7 @@
 
 .ui-widget-content {
     border: 1px solid #a78686;
-    background: #ead2d2 url(../../webapp/images/ui-bg_flat_75_ead2d2_40x100.png) 50% 50% repeat-x;
+    background: #ead2d2 url(../images/ui-bg_flat_75_ead2d2_40x100.png) 50% 50% repeat-x;
     color: #222222;
 }
 
@@ -131,7 +131,7 @@
 
 .ui-widget-header {
     border: 1px solid #a78686;
-    background: #c99c9c url(../../webapp/images/ui-bg_highlight-soft_75_c99c9c_1x100.png) 50% 50% repeat-x;
+    background: #c99c9c url(../images/ui-bg_highlight-soft_75_c99c9c_1x100.png) 50% 50% repeat-x;
     color: #222222;
     font-weight: bold;
 }
@@ -144,7 +144,7 @@
 ----------------------------------*/
 .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
     border: 1px solid #a78686;
-    background: #e8baba url(../../webapp/images/ui-bg_flat_75_e8baba_40x100.png) 50% 50% repeat-x;
+    background: #e8baba url(../images/ui-bg_flat_75_e8baba_40x100.png) 50% 50% repeat-x;
     font-weight: normal;
     color: #555555;
 }
@@ -156,7 +156,7 @@
 
 .ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus {
     border: 1px solid #999999;
-    background: #dbd7d7 url(../../webapp/images/ui-bg_flat_75_dbd7d7_40x100.png) 50% 50% repeat-x;
+    background: #dbd7d7 url(../images/ui-bg_flat_75_dbd7d7_40x100.png) 50% 50% repeat-x;
     font-weight: normal;
     color: #212121;
 }
@@ -168,7 +168,7 @@
 
 .ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active {
     border: 1px solid #a78686;
-    background: #d89c9c url(../../webapp/images/ui-bg_flat_65_d89c9c_40x100.png) 50% 50% repeat-x;
+    background: #d89c9c url(../images/ui-bg_flat_65_d89c9c_40x100.png) 50% 50% repeat-x;
     font-weight: normal;
     color: #212121;
 }
@@ -186,7 +186,7 @@
 ----------------------------------*/
 .ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
     border: 1px solid #fcefa1;
-    background: #fbf9ee url(../../webapp/images/ui-bg_glass_55_fbf9ee_1x400.png) 50% 50% repeat-x;
+    background: #fbf9ee url(../images/ui-bg_glass_55_fbf9ee_1x400.png) 50% 50% repeat-x;
     color: #363636;
 }
 
@@ -196,7 +196,7 @@
 
 .ui-state-error, .ui-widget-content .ui-state-error, .ui-widget-header .ui-state-error {
     border: 1px solid #cd0a0a;
-    background: #fef1ec url(../../webapp/images/ui-bg_inset-soft_95_fef1ec_1x100.png) 50% bottom repeat-x;
+    background: #fef1ec url(../images/ui-bg_inset-soft_95_fef1ec_1x100.png) 50% bottom repeat-x;
     color: #cd0a0a;
 }
 
@@ -231,35 +231,35 @@
 .ui-icon {
     width: 16px;
     height: 16px;
-    background-image: url(../../webapp/images/ui-icons_222222_256x240.png);
+    background-image: url(../images/ui-icons_222222_256x240.png);
 }
 
 .ui-widget-content .ui-icon {
-    background-image: url(../../webapp/images/ui-icons_222222_256x240.png);
+    background-image: url(../images/ui-icons_222222_256x240.png);
 }
 
 .ui-widget-header .ui-icon {
-    background-image: url(../../webapp/images/ui-icons_222222_256x240.png);
+    background-image: url(../images/ui-icons_222222_256x240.png);
 }
 
 .ui-state-default .ui-icon {
-    background-image: url(../../webapp/images/ui-icons_888888_256x240.png);
+    background-image: url(../images/ui-icons_888888_256x240.png);
 }
 
 .ui-state-hover .ui-icon, .ui-state-focus .ui-icon {
-    background-image: url(../../webapp/images/ui-icons_454545_256x240.png);
+    background-image: url(../images/ui-icons_454545_256x240.png);
 }
 
 .ui-state-active .ui-icon {
-    background-image: url(../../webapp/images/ui-icons_454545_256x240.png);
+    background-image: url(../images/ui-icons_454545_256x240.png);
 }
 
 .ui-state-highlight .ui-icon {
-    background-image: url(../../webapp/images/ui-icons_2e83ff_256x240.png);
+    background-image: url(../images/ui-icons_2e83ff_256x240.png);
 }
 
 .ui-state-error .ui-icon, .ui-state-error-text .ui-icon {
-    background-image: url(../../webapp/images/ui-icons_cd0a0a_256x240.png);
+    background-image: url(../images/ui-icons_cd0a0a_256x240.png);
 }
 
 /* positioning */
@@ -1032,7 +1032,7 @@
 
 /* Overlays */
 .ui-widget-overlay {
-    background: #aaaaaa url(../../webapp/images/ui-bg_flat_0_aaaaaa_40x100.png) 50% 50% repeat-x;
+    background: #aaaaaa url(../images/ui-bg_flat_0_aaaaaa_40x100.png) 50% 50% repeat-x;
     opacity: .30;
     filter: Alpha(Opacity = 30);
 }
@@ -1040,7 +1040,7 @@
 .ui-widget-shadow {
     margin: -8px 0 0 -8px;
     padding: 8px;
-    background: #aaaaaa url(../../webapp/images/ui-bg_flat_0_aaaaaa_40x100.png) 50% 50% repeat-x;
+    background: #aaaaaa url(../images/ui-bg_flat_0_aaaaaa_40x100.png) 50% 50% repeat-x;
     opacity: .30;
     filter: Alpha(Opacity = 30);
     -moz-border-radius: 8px;

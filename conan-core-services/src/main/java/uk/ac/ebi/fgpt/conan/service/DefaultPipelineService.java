@@ -54,7 +54,7 @@ public class DefaultPipelineService implements ConanPipelineService {
         // add any daemonized pipelines to the daemon service
         for (ConanPipeline conanPipeline : conanPipelines) {
             if (conanPipeline.isDaemonized()) {
-                getLog().debug("Pipeline '" + conanPipeline.getName() + "' " +
+                getLog().info("Pipeline '" + conanPipeline.getName() + "' " +
                         "is daemonized and will be added to daemon service");
                 if (getDaemonService() != null) {
                     getDaemonService().addPipeline(conanPipeline);
