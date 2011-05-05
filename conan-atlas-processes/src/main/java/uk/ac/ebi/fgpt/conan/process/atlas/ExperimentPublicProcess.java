@@ -21,11 +21,11 @@ import java.util.Map;
 /**
  * Javadocs go here!
  *
- * @author Tony Burdett
- * @date 15/02/11
+ * @author Natalja Kurbatova
+ * @date 05/05/11
  */
 @ServiceProvider
-public class ExperimentUnloadingProcess implements ConanProcess {
+public class ExperimentPublicProcess implements ConanProcess {
 
     private final Collection<ConanParameter> parameters;
     private final AccessionParameter accessionParameter;
@@ -38,7 +38,7 @@ public class ExperimentUnloadingProcess implements ConanProcess {
         return log;
     }
 
-    public ExperimentUnloadingProcess() {
+    public ExperimentPublicProcess() {
         parameters = new ArrayList<ConanParameter>();
         accessionParameter = new AccessionParameter();
         parameters.add(accessionParameter);
@@ -63,15 +63,13 @@ public class ExperimentUnloadingProcess implements ConanProcess {
 
         try{
 
-
-          URL loadRequest = new URL(atlas.ExperimentUnload + accession.getAccession());
-
+          URL loadRequest = new URL(atlas.ExperimentUpdatePublic + accession.getAccession());
 
           if (atlas.LogIn()){
            HashMap<String,Object> loadResults
              = mapper.readValue(loadRequest, typeRef);
 
-           //ToDo: try to unload from dev. instance and read out the results
+           //ToDo: try to update experiment and read out the results
            //to get true/false
 
           }
@@ -86,7 +84,7 @@ public class ExperimentUnloadingProcess implements ConanProcess {
     }
 
     public String getName() {
-        return "atlas experiment unloading";
+        return "atlas experiment private";
     }
 
     public Collection<ConanParameter> getParameters() {
