@@ -273,7 +273,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                 "A full report summary is available at http://dukkha.ebi.ac.uk:14054/conan2/summary/" + taskID;
     }
 
-    private String getConfirmationContent(String taskName, List<SubmitterDetails> details) {
+    public String getConfirmationContent(String taskName, List<SubmitterDetails> details) {
         String account_owners = "";
         boolean owners_created = false;
         String account_reviewers = "";
@@ -294,8 +294,9 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
         for (SubmitterDetails submitter : details) {
             accession = submitter.getAccession();
             name = submitter.getName();
+
             try {
-              DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S.");
+              DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
               DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd");
               releaseDate = df.parse(submitter.getReleaseDate());
               releaseDateString = df2.format(releaseDate);
@@ -370,7 +371,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                                     "will not be sent a reminder.\n\n") +
 
                     (owners_created ? account_owners +
-                            "\nFrom http://www.ebi.ac.uk/arrayexpress/, go to the link \"Submitter/reviewer login\" " +
+                            "From http://www.ebi.ac.uk/arrayexpress/, go to the link \"Submitter/reviewer login\" " +
                             "login using your account details and query for the accession " +
                             "number of your experiment or array design.\n\n"
                             : "Your " + (accession.startsWith("E") ? "experiment" : "array design")

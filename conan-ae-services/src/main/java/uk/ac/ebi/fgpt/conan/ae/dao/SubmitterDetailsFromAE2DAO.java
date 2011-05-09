@@ -7,6 +7,8 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -51,7 +53,8 @@ public class SubmitterDetailsFromAE2DAO implements SubmitterDetailsDAO {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<SubmitterDetails> getSubmitterDetailsByAccession(String accession, SubmitterDetails.ObjectType type) {
+    public List<SubmitterDetails> getSubmitterDetailsByAccession(
+        String accession, SubmitterDetails.ObjectType type) {
         if (type == SubmitterDetails.ObjectType.EXPERIMENT) {
             getLog().debug("Querying for experiment submitter details for " + accession);
             List<SubmitterDetails> result = getJdbcTemplate().query(EXP_SUBMITTER_DETAILS_SELECT,
@@ -83,6 +86,8 @@ public class SubmitterDetailsFromAE2DAO implements SubmitterDetailsDAO {
                 Calendar calendar = Calendar.getInstance();
                 calendar.add(Calendar.DATE, 1);
                 Date tomorrow = calendar.getTime();
+                DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd");
+                String activationDateString = df2.format(tomorrow);
 
                 getLog().debug("Submitter details row\n\t " +
                                        "(accession, activation date, name, release data, owner name, owner password, owner email):\n\t " +
@@ -94,7 +99,7 @@ public class SubmitterDetailsFromAE2DAO implements SubmitterDetailsDAO {
 
                 SubmitterDetails submitterDetails = new SubmitterDetails();
                 submitterDetails.setAccession(resultSet.getString(1));
-                submitterDetails.setActivationDate(tomorrow.toString());
+                submitterDetails.setActivationDate(activationDateString);
                 submitterDetails.setName(resultSet.getString(2));
                 submitterDetails.setReleaseDate(resultSet.getString(3));
 
