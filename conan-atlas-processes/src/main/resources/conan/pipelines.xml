@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<conan-pipelines xmlns="http://www.ebi.ac.uk/arrayexpress/conan/pipelines"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://www.ebi.ac.uk/arrayexpress/conan/pipelines
+                                     http://www.ebi.ac.uk/arrayexpress/conan/pipelines.xsd">
+
+    <!--
+    Add xml elements to name your pipeline and chain processes together here
+    Note that the interface will display these pipelines in declaration order, with the first pipeline as the default
+    -->
+
+    <!-- AE2 processes -->
+    <pipeline name="Atlas Experiment Loading" creator="natalja" daemonized="true">
+        <processes>
+            <process name="atlas validation" />
+            <process name="atlas experiment loading" />
+        </processes>
+    </pipeline>
+
+    <pipeline name="Atlas Experiment Unloading" creator="natalja">
+        <processes>
+            <process name="atlas experiment unloading" />
+        </processes>
+    </pipeline>
+
+    <pipeline name="Atlas Experiment Private" creator="natalja">
+        <processes>
+            <process name="atlas experiment private" />
+        </processes>
+    </pipeline>
+
+    <pipeline name="Atlas Experiment Public" creator="natalja">
+        <processes>
+            <process name="atlas experiment public" />
+        </processes>
+    </pipeline>
+
+</conan-pipelines>

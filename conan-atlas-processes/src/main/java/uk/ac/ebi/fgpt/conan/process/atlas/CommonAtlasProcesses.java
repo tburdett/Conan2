@@ -40,11 +40,11 @@ public class CommonAtlasProcesses {
         "&password=" +
         ConanProperties.getProperty("atlas.password");*/
 
-    String AtlasLogin = "http://lime.ebi.ac.uk:14032/gxa-load/" +
+    String AtlasLogin = ConanProperties.getProperty("atlas.path") +
         "admin?op=login&userName=" +
-        "autosubs" +
+         ConanProperties.getProperty("atlas.username") +
         "&password=" +
-        "password";
+         ConanProperties.getProperty("atlas.password");
 
     JsonFactory jsonFactory = new JsonFactory();
 
