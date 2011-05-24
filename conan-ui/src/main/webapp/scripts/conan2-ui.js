@@ -985,6 +985,7 @@ function displayPendingTasks() {
                         "</nobr>";
         var progressCol;
         var pipelineCol;
+        var nameCol;
         var date = new Date(pendingTask.creationDate);
         var dateCol = date.toLocaleTimeString() + ", " + date.toDateString();
 
@@ -1049,11 +1050,18 @@ function displayPendingTasks() {
             pipelineCol = pendingTask.pipeline.name;
         }
 
+        if (pendingTask.submitter.firstName == undefined) {
+            nameCol = pendingTask.submitter.surname;
+        }
+        else {
+            nameCol = pendingTask.submitter.firstName + " " + pendingTask.submitter.surname;
+        }
+
         var dataItem = [
             taskCol,
             pipelineCol,
             progressCol,
-            pendingTask.submitter.firstName + " " + pendingTask.submitter.surname,
+            nameCol,
             dateCol];
 
         table.fnAddData(dataItem, false);
@@ -1079,6 +1087,7 @@ function displayRunningTasks() {
 
         // column contents
         var pipelineCol;
+        var nameCol;
         var date = new Date(runningTask.startDate);
         var dateCol = date.toLocaleTimeString() + ", " + date.toDateString();
 
@@ -1104,13 +1113,20 @@ function displayRunningTasks() {
             pipelineCol = runningTask.pipeline.name;
         }
 
+        if (runningTask.submitter.firstName == undefined) {
+            nameCol = runningTask.submitter.surname;
+        }
+        else {
+            nameCol = runningTask.submitter.firstName + " " + runningTask.submitter.surname;
+        }
+
         var dataItem = [
             "<a id=\"task_" + runningTask.id + "\" href=\"summary/" + runningTask.id + "\" target=\"_blank\">" +
                     runningTask.name +
                     "</a>",
             pipelineCol,
             progressCol,
-            runningTask.submitter.firstName + " " + runningTask.submitter.surname,
+            nameCol,
             dateCol];
 
         table.fnAddData(dataItem, false);
@@ -1145,6 +1161,7 @@ function displayCompletedTasks() {
         var completedTask = completedTasks[i];
 
         var pipelineCol;
+        var nameCol;
         var date = new Date(completedTask.completionDate);
         var dateStr = date.toLocaleTimeString() + ", " + date.toDateString();
         // if this task was aborted, add note
@@ -1164,13 +1181,20 @@ function displayCompletedTasks() {
             pipelineCol = completedTask.pipeline.name;
         }
 
+        if (completedTask.submitter.firstName == undefined) {
+            nameCol = completedTask.submitter.surname;
+        }
+        else {
+            nameCol = completedTask.submitter.firstName + " " + completedTask.submitter.surname;
+        }
+
         table.fnAddData([
                             "<a id=\"task_" + completedTask.id + "\" href=\"summary/" + completedTask.id +
                                     "\" target=\"_blank\">" +
                                     completedTask.name +
                                     "</a>",
                             pipelineCol,
-                            completedTask.submitter.firstName + " " + completedTask.submitter.surname,
+                            nameCol,
                             dateStr], false);
     }
 

@@ -37,8 +37,8 @@ public class DaemonInputsForAE1DAO implements ConanDaemonInputsDAO {
     }
 
 
-    public ConanParameter getParameterType() {
-        return new MAGEMLAccessionParameter();
+    public Class<? extends ConanParameter> getParameterType() {
+        return MAGEMLAccessionParameter.class;
     }
 
     public List<String> getParameterValues() {

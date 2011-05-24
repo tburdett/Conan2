@@ -21,7 +21,7 @@ public interface ConanDaemonInputsDAO {
      *
      * @return the parameter type this DAO supplies
      */
-    ConanParameter getParameterType();
+    Class<? extends ConanParameter> getParameterType();
 
     /**
      * A list of values, in desired submission order, that should be used to create daemon mode submissions

@@ -62,9 +62,6 @@ public class DefaultPipelineService implements ConanPipelineService {
                             "was flagged as daemonized but will not be started");
                 }
             }
-            else {
-                getLog().debug("Pipeline '" + conanPipeline.getName() + "' is not daemonized");
-            }
         }
     }
 

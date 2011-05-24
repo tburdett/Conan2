@@ -37,8 +37,8 @@ public class DaemonInputsForAE2DAO implements ConanDaemonInputsDAO {
     }
 
 
-    public ConanParameter getParameterType() {
-        return new AccessionParameter();
+    public Class<? extends ConanParameter> getParameterType() {
+        return AccessionParameter.class;
     }
 
     public List<String> getParameterValues() {

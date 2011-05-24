@@ -9,7 +9,9 @@
        http://www.springframework.org/schema/util/spring-util.xsd">
 
     <!-- Pipeline service -->
-    <bean name="pipelineService" class="uk.ac.ebi.fgpt.conan.service.DefaultPipelineService">
+    <bean name="pipelineService"
+          class="uk.ac.ebi.fgpt.conan.service.DefaultPipelineService"
+          init-method="loadPipelines">
         <property name="pipelineDAO" ref="conanPipelineDAO" />
         <property name="daemonService" ref="daemonService" />
     </bean>
