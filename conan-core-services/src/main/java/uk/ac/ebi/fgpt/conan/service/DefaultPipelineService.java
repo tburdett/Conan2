@@ -21,8 +21,6 @@ import java.util.List;
 public class DefaultPipelineService implements ConanPipelineService {
     private ConanPipelineDAO pipelineDAO;
 
-    private ConanUserService userService;
-    private ConanProcessService processService;
     private ConanDaemonService daemonService;
 
     private Logger log = LoggerFactory.getLogger(getClass());
@@ -63,6 +61,9 @@ public class DefaultPipelineService implements ConanPipelineService {
                     getLog().warn("No DaemonService was configured - pipeline '" + conanPipeline.getName() + "' " +
                             "was flagged as daemonized but will not be started");
                 }
+            }
+            else {
+                getLog().debug("Pipeline '" + conanPipeline.getName() + "' is not daemonized");
             }
         }
     }
