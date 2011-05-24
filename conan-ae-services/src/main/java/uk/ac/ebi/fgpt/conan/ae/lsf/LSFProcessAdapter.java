@@ -36,6 +36,7 @@ public class LSFProcessAdapter extends File implements LSFProcess {
 
     private int lastLineReadIndex = -1;
     private boolean commencedStdout = false;
+    private boolean finishedStdout = false;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -226,11 +227,14 @@ public class LSFProcessAdapter extends File implements LSFProcess {
         else if (line.startsWith("Job was executed on host")) {
             processExecutionHost = line.substring(line.indexOf("<") + 1, line.indexOf(">"));
         }
+        else if (line.startsWith("----------------------")) {
+            finishedStdout = true;
+        }
         else if (line.startsWith("The output (if any) follows:")) {
             commencedStdout = true;
         }
         else {
-            if (commencedStdout) {
+            if (!finishedStdout || commencedStdout) {
                 processOutput.add(line);
             }
             else {
