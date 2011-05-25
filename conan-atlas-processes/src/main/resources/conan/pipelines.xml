@@ -11,8 +11,12 @@
     -->
 
     <!-- AE2 processes -->
-    <pipeline name="Atlas Experiment Loading" creator="natalja" daemonized="true">
+    <pipeline name="Experiment Loading (Combined AE2/Atlas)" creator="natalja" daemonized="true">
         <processes>
+             <process name="validation" />
+            <process name="experiment loading" />
+            <process name="scoring" />
+            <process name="afterloading" />
             <process name="atlas validation" />
             <process name="atlas experiment loading" />
         </processes>
