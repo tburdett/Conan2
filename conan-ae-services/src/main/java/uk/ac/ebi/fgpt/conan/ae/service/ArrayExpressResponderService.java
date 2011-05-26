@@ -288,7 +288,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
               cal.setTime(releaseDate);
               cal.add(Calendar.HOUR, 24);
 
-              if (cal.getTime().after(today))
+              if (!cal.getTime().after(today))
                 public_record = true;
 
 
