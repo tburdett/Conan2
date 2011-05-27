@@ -9,6 +9,7 @@ import uk.ac.ebi.arrayexpress2.magetab.utils.ProcessRunner;
 import uk.ac.ebi.fgpt.conan.ae.utils.ProcessUtils;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
+import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.io.File;
@@ -70,6 +71,9 @@ public abstract class AbstractLSFProcess implements ConanProcess {
         getLog().debug("Executing an LSF process with parameters: " + parameters);
         int memReq = getMemoryRequirement(parameters);
 
+        // get email address to use as backup in case process fails
+        String backupEmail = ConanProperties.getProperty("lsf.backup.email");
+
         String bsubCommand;
         if (memReq > 0) {
             // generate actual bsub command from template
@@ -79,6 +83,7 @@ public abstract class AbstractLSFProcess implements ConanProcess {
                             "-R \"rusage[mem=" + memReq + "]\" " +
                             "-q production " +
                             "-oo " + getLSFOutputFilePath(parameters) + " \"" +
+                            "-u " + backupEmail + " " +
                             getCommand(parameters) + " " +
                             "2>&1\"";
         }
@@ -88,6 +93,7 @@ public abstract class AbstractLSFProcess implements ConanProcess {
                     BSUB_PATH + " " +
                             "-q production " +
                             "-oo " + getLSFOutputFilePath(parameters) + " \"" +
+                            "-u " + backupEmail +
                             getCommand(parameters) + " " +
                             "2>&1\"";
 
