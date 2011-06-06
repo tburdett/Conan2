@@ -268,10 +268,6 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
         String releaseDateString = "";
         String activationDate = "";
         boolean public_record = false;
-        String AE_URL = "http://www.ebi.ac.uk/arrayexpress/";
-
-        AE_URL = AE_URL + (accession.startsWith("E") ? "experiments/" : "arrays/") +
-                accession;
 
         for (SubmitterDetails submitter : details) {
             accession = submitter.getAccession();
@@ -342,7 +338,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                     (accession.startsWith("E") ? "Experiment" : "Array design") + " " +
                     "name: " + name + "\n" +
                     "ArrayExpress accession: " + accession + "\n" +
-                    "Specified release date: " + releaseDateString + ".\n\n" +
+                    "Specified release date: " + releaseDateString + "\n\n" +
                     (public_record ? "" :
                             "You will get a reminder email one month before the release " +
                                     "date but you can change the release date at any time by emailing " +
@@ -357,7 +353,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                             "login using your account details and query for the accession " +
                             "number of your experiment or array design.\n\n"
                             : "Your " + (accession.startsWith("E") ? "experiment" : "array design")
-                                    + " is available under this link " + AE_URL) +
+                                    + " is available under this link \"http://www.ebi.ac.uk/arrayexpress/"+(accession.startsWith("E") ? "experiments/" : "arrays/") + accession + "\".\n\n") +
                     (reviewers_created ? account_reviewers : "") +
                     ((owners_created || reviewers_created) ?
                             "These user accounts will be activated on " + activationDate + " at " +
