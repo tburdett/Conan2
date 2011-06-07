@@ -93,7 +93,7 @@ public abstract class AbstractLSFProcess implements ConanProcess {
                     BSUB_PATH + " " +
                             "-q production " +
                             "-oo " + getLSFOutputFilePath(parameters) + " \"" +
-                            "-u " + backupEmail +
+                            "-u " + backupEmail + " " +
                             getCommand(parameters) + " " +
                             "2>&1\"";
 
