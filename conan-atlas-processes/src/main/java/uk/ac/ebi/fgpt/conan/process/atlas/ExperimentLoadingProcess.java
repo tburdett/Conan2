@@ -1,22 +1,10 @@
 package uk.ac.ebi.fgpt.conan.process.atlas;
 
 import net.sourceforge.fluxion.spi.ServiceProvider;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
+import uk.ac.ebi.fgpt.conan.ae.restapi.AbstractRESTAPIProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
-import uk.ac.ebi.fgpt.conan.model.ConanProcess;
-import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
-import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Javadocs go here!
@@ -25,18 +13,13 @@ import java.util.Map;
  * @date 15/02/11
  */
 @ServiceProvider
-public class ExperimentLoadingProcess implements ConanProcess {
+public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
 
     private final Collection<ConanParameter> parameters;
     private final AccessionParameter accessionParameter;
 
-    private Logger log = LoggerFactory.getLogger(getClass());
-
     private CommonAtlasProcesses atlas = new CommonAtlasProcesses();
 
-    protected Logger getLog() {
-        return log;
-    }
 
     public ExperimentLoadingProcess() {
         parameters = new ArrayList<ConanParameter>();
@@ -44,53 +27,105 @@ public class ExperimentLoadingProcess implements ConanProcess {
         parameters.add(accessionParameter);
     }
 
-    public boolean execute(Map<ConanParameter, String> parameters)
-            throws ProcessExecutionException, IllegalArgumentException, InterruptedException {
 
 
-        getLog().debug("Executing " + getName() + " with the following parameters: " + parameters.toString());
-
-        // deal with parameters
-        AccessionParameter accession = new AccessionParameter();
-        accession.setAccession(parameters.get(accessionParameter));
-
-        JsonFactory jsonFactory = new JsonFactory();
-
-        ObjectMapper mapper = new ObjectMapper(jsonFactory);
-
-        TypeReference<HashMap<String,Object>> typeRef
-              = new TypeReference<HashMap<String,Object>>() {};
-
-        try{
+  @Override protected String getComponentName() {
+    return "ATLASLOADER";
+  }
 
 
-          URL loadRequest = new URL(atlas.ExperimentLoad + accession.getFile().getAbsolutePath());
+  @Override protected boolean isComplete(HashMap<String, Object> response) {
+    return atlas.isComplete(response);
+  }
 
-          if (atlas.LogIn()){
-           HashMap<String,Object> loadResults
-             = mapper.readValue(loadRequest, typeRef);
+  @Override protected String getMessage(HashMap<String, Object> response) {
+    return atlas.getMessage(response);
+  }
 
-           //ToDo: try to load into dev. instance and read out the results
-           //to get true/false loading result
+  @Override protected int getExitCode(HashMap<String, Object> response) {
+    return atlas.getExitCode(response);
+  }
 
-          }
+  @Override
+  protected String getResultValue(HashMap<String, Object> response,
+                                  Map<ConanParameter, String> parameters) {
+    String jobID = RESTAPIEvents.WITHOUT_MONITORING.toString();
+    // deal with parameters
+    AccessionParameter accession = new AccessionParameter();
+    accession.setAccession(parameters.get(accessionParameter));
+    try {
+      jobID =
+          response.get(accession.getFile().getParentFile().getAbsolutePath())
+              .toString();
+      System.out.println(jobID);
+    }
+    catch (Exception e) {
 
-        }
-        catch (Exception e){
-
-        }
-
-
-        return false;
     }
 
-    public String getName() {
-        return "atlas experiment loading";
-    }
+    return jobID;
+  }
 
-    public Collection<ConanParameter> getParameters() {
-        return parameters;
+  @Override
+  protected String getResultValue(HashMap<String, Object> response,
+                                  String parameters) {
+    return atlas.getResultValue(response, parameters);
+  }
+
+  @Override protected String getMonitoringRequest(String id) {
+    return atlas.Monitoring + id;
+  }
+
+  /**
+   * Creates Atlas Rest API request for experiment loading
+   *
+   * @param parameters the parameters supplied to this ConanProcess
+   * @return restApiRequest string
+   * @throws IllegalArgumentException
+   */
+  @Override protected String getRestApiRequest(
+      Map<ConanParameter, String> parameters) throws IllegalArgumentException {
+
+    // deal with parameters
+    AccessionParameter accession = new AccessionParameter();
+    accession.setAccession(parameters.get(accessionParameter));
+
+    if (accession.getAccession() == null) {
+      throw new IllegalArgumentException("Accession cannot be null");
     }
+    else {
+      //execution
+      if (accession.isExperiment()) {
+        String restApiRequest = atlas.ExperimentUnload +
+            accession.getFile().getParentFile().getAbsolutePath();
+        return restApiRequest;
+      }
+      else {
+        throw new IllegalArgumentException(
+            "Experiment is needed, not array");
+      }
+    }
+  }
+
+  @Override protected String getRestApiRequest(String parameters) {
+
+    String restApiRequest = atlas.ExperimentUnload + parameters;
+    System.out.print(restApiRequest);
+    return restApiRequest;
+
+  }
+
+  @Override protected String getLoginRequest() {
+    return atlas.LogIn;
+  }
+
+  public String getName() {
+    return "atlas experiment loading";
+  }
+
+  public Collection<ConanParameter> getParameters() {
+    return parameters;
+  }
 
 
 }

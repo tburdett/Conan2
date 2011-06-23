@@ -43,6 +43,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.0.2</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- magetab utils for EBI -->
         <dependency>
             <groupId>uk.ac.ebi.arrayexpress2.services</groupId>
