@@ -32,7 +32,7 @@ public class XMLLoadingPipelineDAO implements ConanPipelineDAO {
     private ConanUserDAO userDAO;
     private ConanProcessDAO processDAO;
 
-    private List<ConanPipeline> conanPipelines;
+    private Set<ConanPipeline> conanPipelines;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -110,7 +110,7 @@ public class XMLLoadingPipelineDAO implements ConanPipelineDAO {
         AbstractPipelineXMLParser parser = createXMLParser();
 
         // instantiate collections
-        conanPipelines = new ArrayList<ConanPipeline>();
+        conanPipelines = new HashSet<ConanPipeline>();
 
         // try to read XML...
         try {

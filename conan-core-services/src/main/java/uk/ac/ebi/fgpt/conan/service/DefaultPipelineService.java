@@ -6,10 +6,10 @@ import uk.ac.ebi.fgpt.conan.dao.ConanPipelineDAO;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanUser;
+import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 /**
  * A default implementation of a pipeline service that recovers pipelines from a pipeline DAO.  Each pipeline recovered
@@ -23,6 +23,7 @@ public class DefaultPipelineService implements ConanPipelineService {
 
     private ConanDaemonService daemonService;
 
+    private List<ConanPipeline> sortedConanPipelines = new ArrayList<ConanPipeline>();
     private Logger log = LoggerFactory.getLogger(getClass());
 
     protected Logger getLog() {
@@ -53,15 +54,59 @@ public class DefaultPipelineService implements ConanPipelineService {
         for (ConanPipeline conanPipeline : conanPipelines) {
             if (conanPipeline.isDaemonized()) {
                 getLog().info("Pipeline '" + conanPipeline.getName() + "' " +
-                        "is daemonized and will be added to daemon service");
+                                      "is daemonized and will be added to daemon service");
                 if (getDaemonService() != null) {
                     getDaemonService().addPipeline(conanPipeline);
                 }
                 else {
                     getLog().warn("No DaemonService was configured - pipeline '" + conanPipeline.getName() + "' " +
-                            "was flagged as daemonized but will not be started");
+                                          "was flagged as daemonized but will not be started");
                 }
             }
+        }
+
+        // add all pipelines from the DAO to our sorted collection
+        sortedConanPipelines.clear();
+        sortedConanPipelines.addAll(conanPipelines);
+
+        // and re-sort based on previously saved sort order, if any
+        recoverPipelineSortOrder();
+    }
+
+
+    public void reorderPipelines(ConanUser conanUser, final List<String> requiredPipelineOrder) {
+        if (conanUser.getPermissions().compareTo(ConanUser.Permissions.ADMINISTRATOR) <= 0) {
+            // apply sorting based on names to our pipeline collection - any pipelines not named in the config file will be moved to the end
+            Collections.sort(sortedConanPipelines, new Comparator<ConanPipeline>() {
+                public int compare(ConanPipeline p1, ConanPipeline p2) {
+                    if (requiredPipelineOrder.contains(p1.getName())) {
+                        if (requiredPipelineOrder.contains(p2.getName())) {
+                            // both named, can compare
+                            return requiredPipelineOrder.indexOf(p1.getName()) -
+                                    requiredPipelineOrder.indexOf(p2.getName());
+                        }
+                        else {
+                            // p1 named, p2 not, so move p2 after p1
+                            return 1;
+                        }
+                    }
+                    else {
+                        // p1 not named, is p2?
+                        if (requiredPipelineOrder.contains(p2.getName())) {
+                            // p2 named, p1 not, so move p1 after p2
+                            return -1;
+                        }
+                        else {
+                            // neither named, leave where they both are
+                            // note: this makes this comparator inconsistent with equals
+                            return 0;
+                        }
+                    }
+                }
+            });
+
+            // now we've applied the sort, make sure we save the prefs to our config file
+            savePipelineSortOrder();
         }
     }
 
@@ -115,4 +160,49 @@ public class DefaultPipelineService implements ConanPipelineService {
         throw new UnsupportedOperationException("Creating new pipelines is not yet supported");
     }
 
+    private void recoverPipelineSortOrder() {
+        // open pipeline ordering config file, if it exists
+        File conanDir =
+                new File(ConanProperties.getProperty("environment.path"), "software" + File.separatorChar + "conan");
+        File configFile = new File(conanDir, "pipeline-order.txt");
+
+        if (configFile.exists()) {
+            // read config file
+            try {
+                final List<String> sortedPipelineNames = new ArrayList<String>();
+                BufferedReader reader = new BufferedReader(new FileReader(configFile));
+                String pipelineName = "";
+                while ((pipelineName = reader.readLine()) != null) {
+                    sortedPipelineNames.add(pipelineName);
+                }
+                reader.close();
+                // todo - reordering requires a user with admin permissions, how to do this at startup?
+//                reorderPipelines(conanUser, sortedPipelineNames);
+            }
+            catch (IOException e) {
+                getLog().warn("Unable to load pipeline sort order config from " + configFile.getAbsolutePath() +
+                                      ": no ordering of pipelines will be applied");
+            }
+        }
+    }
+
+    private void savePipelineSortOrder() {
+        // get pipeline ordering config file
+        File conanDir =
+                new File(ConanProperties.getProperty("environment.path"), "software" + File.separatorChar + "conan");
+        File configFile = new File(conanDir, "pipeline-order.txt");
+
+        // write config file
+        try {
+            PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(configFile)));
+            for (ConanPipeline pipeline : sortedConanPipelines) {
+                writer.println(pipeline.getName());
+            }
+            writer.close();
+        }
+        catch (IOException e) {
+            getLog().warn("Unable to save pipeline sort order config to " + configFile.getAbsolutePath() + ": " +
+                                  "pipeline order may be lost on restart");
+        }
+    }
 }

@@ -13,7 +13,7 @@
     <!-- AE2 processes -->
     <pipeline name="Experiment Loading (Combined AE2/Atlas)" creator="natalja" daemonized="true">
         <processes>
-             <process name="validation" />
+            <process name="validation" />
             <process name="experiment loading" />
             <process name="scoring" />
             <process name="afterloading" />

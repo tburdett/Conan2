@@ -41,6 +41,9 @@ function init() {
 
     // show current state
     requestDaemonModeState();
+
+    // generate pipeline sorter
+
 }
 
 function requestDaemonModeState() {
@@ -99,6 +102,25 @@ function requestDaemonModeEmailUpdate() {
             $("#conan-alert-message").dialog("open");
         }
     });
+}
+
+function generatePipelineSorter() {
+    // only send an ajax request for all available pipelines if rest api key is set
+    if (restApiKey == undefined || restApiKey == "") {
+        // display pipelines - but cos the key is undefined this just hides them and selects nothing
+        displayPipelineOptions();
+    }
+    else {
+        // fetch pipelines with ajax request
+        $.getJSON('api/pipelines?restApiKey=' + restApiKey, function(json) {
+            // first, fetch pipelines from the server
+            pipelines = json;
+
+            // add pipeline name to the sorter
+            $("#conan-pipeline-sorter").append("<li class=\"ui-state-default\"><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span>" + + "</li>")
+        });
+    }
+
 }
 
 /**

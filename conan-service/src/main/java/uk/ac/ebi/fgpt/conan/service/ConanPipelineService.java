@@ -26,6 +26,18 @@ public interface ConanPipelineService {
     void loadPipelines();
 
     /**
+     * Applies a sorting operation to the pipelines served by this service.  The list supplied as a parameter should
+     * contain the names of the pipelines being sorted, in the desired order.  If the list passed contains named for
+     * which no pipeline could be located, this sort will not be applied.  If the pipelines returned by {@link
+     * #getPipelines(uk.ac.ebi.fgpt.conan.model.ConanUser)} contained pipelines that are not included in the sort list,
+     * these pipelines will be relegated to the end of the sorted list.
+     *
+     * @param conanUser           the user making this request: only users with admin permissions can reorder pipelines
+     * @param sortedPipelineNames a list of pipeline names in the desired sort order
+     */
+    void reorderPipelines(ConanUser conanUser, List<String> sortedPipelineNames);
+
+    /**
      * Gets the collection of pipelines known to Conan and accessible to the current user.  This allows scope for
      * different users to configure their own pipelines that are not available to others.
      *

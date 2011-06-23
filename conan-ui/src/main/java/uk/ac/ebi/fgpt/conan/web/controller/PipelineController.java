@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import sun.misc.Request;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanUser;
@@ -13,6 +14,7 @@ import uk.ac.ebi.fgpt.conan.service.ConanPipelineService;
 import uk.ac.ebi.fgpt.conan.service.ConanProcessService;
 import uk.ac.ebi.fgpt.conan.service.ConanUserService;
 import uk.ac.ebi.fgpt.conan.web.view.PipelineCreationResponseBean;
+import uk.ac.ebi.fgpt.conan.web.view.PipelineReorderRequestBean;
 import uk.ac.ebi.fgpt.conan.web.view.PipelineRequestBean;
 
 import java.util.ArrayList;
@@ -88,6 +90,42 @@ public class PipelineController {
             return Collections.emptyList();
         }
     }
+
+    // todo - post request for reordering pipelines
+//    @RequestMapping(method = RequestMethod.POST)
+//    public @ResponseBody Collection<ConanPipeline> reorderPipelines(@RequestBody PipelineReorderRequestBean reorderRequest) {
+//        // recover the rest api key from the request
+//        String restApiKey = reorderRequest.getRestApiKey();
+//
+//        // get the user identified by this rest api key
+//        ConanUser conanUser = getUserService().getUserByRestApiKey(restApiKey);
+//
+//        // user has permission to do this?
+//        if (conanUser.getPermissions().compareTo(ConanUser.Permissions.SUBMITTER) > -1) {
+//            // recover the processes for the given process descriptions
+//            List<ConanProcess> conanProcesses = new ArrayList<ConanProcess>();
+//            for (String processName : reorderRequest.getProcesses()) {
+//                // lookup process
+//                ConanProcess conanProcess = getProcessService().getProcess(processName);
+//                conanProcesses.add(conanProcess);
+//            }
+//
+//            // now we've created all the processes we need, generate the pipeline
+//            ConanPipeline newPipeline = getPipelineService().createPipeline(pipelineRequest.getName(),
+//                                                                            conanProcesses,
+//                                                                            conanUser,
+//                                                                            pipelineRequest.isPrivate());
+//
+//            // and return the list of pipelines now
+//            String msg = "Your pipeline '" + newPipeline.getName() + "' was successfully created";
+//            return new PipelineCreationResponseBean(true, msg, newPipeline,
+//                                                    getPipelineService().getPipelines(conanUser));
+//        }
+//        else {
+//            String msg = "You do not have permission to create new pipelines";
+//            return new PipelineCreationResponseBean(false, msg, null, Collections.<ConanPipeline>emptySet());
+//        }
+//    }
 
     /**
      * Submits a request to create a new pipeline, by POST request.  This request requires a single parameter that is a

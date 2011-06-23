@@ -21,11 +21,11 @@ import java.util.Map;
 /**
  * Javadocs go here!
  *
- * @author Natalja Kurbatova
- * @date 05/05/11
+ * @author Tony Burdett
+ * @date 15/02/11
  */
 @ServiceProvider
-public class ExperimentPublicProcess implements ConanProcess {
+public class ExperimentValidationProcess implements ConanProcess {
 
     private final Collection<ConanParameter> parameters;
     private final AccessionParameter accessionParameter;
@@ -38,7 +38,7 @@ public class ExperimentPublicProcess implements ConanProcess {
         return log;
     }
 
-    public ExperimentPublicProcess() {
+    public ExperimentValidationProcess() {
         parameters = new ArrayList<ConanParameter>();
         accessionParameter = new AccessionParameter();
         parameters.add(accessionParameter);
@@ -54,37 +54,13 @@ public class ExperimentPublicProcess implements ConanProcess {
         AccessionParameter accession = new AccessionParameter();
         accession.setAccession(parameters.get(accessionParameter));
 
-        JsonFactory jsonFactory = new JsonFactory();
-
-        ObjectMapper mapper = new ObjectMapper(jsonFactory);
-
-        TypeReference<HashMap<String,Object>> typeRef
-              = new TypeReference<HashMap<String,Object>>() {};
-
-        try{
-
-          URL loadRequest = new URL(atlas.ExperimentUpdatePublic + accession.getAccession());
-
-          if (atlas.LogIn()){
-           HashMap<String,Object> loadResults
-             = mapper.readValue(loadRequest, typeRef);
-
-           //ToDo: try to update experiment and read out the results
-           //to get true/false
-
-          }
-
-        }
-        catch (Exception e){
-
-        }
-
+        // todo - do atlas specific validation here
 
         return false;
     }
 
     public String getName() {
-        return "atlas experiment public";
+        return "atlas validation";
     }
 
     public Collection<ConanParameter> getParameters() {
