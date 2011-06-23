@@ -1,26 +1,16 @@
 package uk.ac.ebi.fgpt.conan.process.atlas;
 
 import net.sourceforge.fluxion.spi.ServiceProvider;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.ae.restapi.AbstractRESTAPIProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
-import uk.ac.ebi.fgpt.conan.model.ConanProcess;
-import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
-import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
-
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Javadocs go here!
+ * Process to make experiment public in Atlas
  *
  * @author Natalja Kurbatova
  * @date 05/05/11
@@ -33,28 +23,58 @@ public class ExperimentPublicProcess extends AbstractRESTAPIProcess{
 
     private CommonAtlasProcesses atlas = new CommonAtlasProcesses();
 
+   /**
+   * Constructor for process. Initializes conan2 parameters for the process.
+   */
     public ExperimentPublicProcess() {
         parameters = new ArrayList<ConanParameter>();
         accessionParameter = new AccessionParameter();
         parameters.add(accessionParameter);
     }
-
-     @Override protected String getComponentName() {
-    return "ATLASPUBLICEXPERIMENT";
+      /**
+     * Returns the name of this component that this process implements, if any.
+     *
+     * @return null since it not the AE2 component
+     */
+  @Override protected String getComponentName() {
+    return null;
   }
-
+    /**
+   * Parses the response from Atlas REST API for the monitored process Returns
+   * true if process has been finished.
+   *
+   * @param response response received from Atlas REST API in HashMap format
+   * @return true when process is finished, false otherwise
+   */
   @Override protected boolean isComplete(HashMap<String, Object> response) {
     return atlas.isComplete(response);
   }
 
+    /**
+   * Parses the response from Atlas REST API, extracts message and returns it.
+   *
+   * @param response response received from Atlas REST API in HashMap format
+   * @return message text extracted from the REST API response
+   */
   @Override protected String getMessage(HashMap<String, Object> response) {
     return atlas.getMessage(response);
   }
-
+    /**
+   * Parses the response from Atlas REST API, extracts and evaluates the event.
+   *
+   * @param response response received from Atlas REST API in HashMap format
+   * @return exit code for the process
+   */
   @Override protected int getExitCode(HashMap<String, Object> response) {
     return atlas.getExitCode(response);
   }
-
+    /**
+   * Parses the response from Atlas REST API, by using parameters extracts Atlas
+   * job ID.
+   *
+   * @param response response received from Atlas REST API in HashMap format
+   * @return Atlas job ID to monitor the job status
+   */
   @Override
   protected String getResultValue(HashMap<String, Object> response,
                                   Map<ConanParameter, String> parameters) {
@@ -75,16 +95,36 @@ public class ExperimentPublicProcess extends AbstractRESTAPIProcess{
     return jobID;
   }
 
+   /**
+   * Parses the response from Atlas REST API, by using parameters extracts Atlas
+   * job ID.
+   *
+   * @param response response received from Atlas REST API in HashMap format
+   * @return Atlas job ID to monitor the job status
+   */
   @Override
   protected String getResultValue(HashMap<String, Object> response,
                                   String parameters) {
     return atlas.getResultValue(response, parameters);
   }
 
+   /**
+   * Returns Atlas REST API request to monitor the process
+   *
+   * @param id Atlas job ID
+   * @return Atlas REST API request
+   */
   @Override protected String getMonitoringRequest(String id) {
     return atlas.Monitoring + id;
   }
 
+   /**
+   * Creates Atlas Rest API request to update experiment
+   *
+   * @param parameters the parameters supplied to this ConanProcess
+   * @return restApiRequest string
+   * @throws IllegalArgumentException
+   */
   @Override
   protected String getRestApiRequest(Map<ConanParameter, String> parameters)
       throws IllegalArgumentException {
@@ -109,20 +149,41 @@ public class ExperimentPublicProcess extends AbstractRESTAPIProcess{
     }
   }
 
+/**
+   * Creates Atlas Rest API request to update experiment
+   *
+   * @param parameters path to the mage-tab file
+   * @return restApiRequest string
+   * @throws IllegalArgumentException
+   */
   @Override protected String getRestApiRequest(String parameters) {
     String restApiRequest = atlas.ExperimentUpdatePublic + parameters;
     System.out.print(restApiRequest);
     return restApiRequest;
   }
 
+    /**
+   * Returns Atlas REST API request to log in
+   *
+   * @return Atlas REST API request
+   */
   @Override protected String getLoginRequest() {
     return atlas.LogIn;
   }
-
+        /**
+     * Returns the name of this process.
+     *
+     * @return the name of this process
+     */
   public String getName() {
     return "make atlas experiment public";
   }
 
+        /**
+     * Returns a collection of strings representing the names of the parameters.
+     *
+     * @return the parameter names required to generate a task
+     */
   public Collection<ConanParameter> getParameters() {
     return parameters;
   }
