@@ -82,8 +82,8 @@ public abstract class AbstractLSFProcess implements ConanProcess {
                             "-M " + memReq + " " +
                             "-R \"rusage[mem=" + memReq + "]\" " +
                             "-q production " +
-                            "-oo " + getLSFOutputFilePath(parameters) + " \"" +
-                            "-u " + backupEmail + " " +
+                            "-oo " + getLSFOutputFilePath(parameters) + " " +
+                            "-u " + backupEmail + " \"" +
                             getCommand(parameters) + " " +
                             "2>&1\"";
         }
@@ -92,8 +92,8 @@ public abstract class AbstractLSFProcess implements ConanProcess {
             bsubCommand =
                     BSUB_PATH + " " +
                             "-q production " +
-                            "-oo " + getLSFOutputFilePath(parameters) + " \"" +
-                            "-u " + backupEmail + " " +
+                            "-oo " + getLSFOutputFilePath(parameters) + " " +
+                            "-u " + backupEmail + " \"" +
                             getCommand(parameters) + " " +
                             "2>&1\"";
 
