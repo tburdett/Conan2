@@ -1,4 +1,4 @@
-package uk.ac.ebi.fgpt.conan.ae.lsf;
+package uk.ac.ebi.fgpt.conan.lsf;
 
 /**
  * An object that models a system process running on the LSF cluster.  This is not a {@link

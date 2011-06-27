@@ -1,8 +1,8 @@
 package uk.ac.ebi.fgpt.conan.process.demo;
 
 import net.sourceforge.fluxion.spi.ServiceProvider;
-import uk.ac.ebi.fgpt.conan.ae.lsf.AbstractLSFProcess;
-import uk.ac.ebi.fgpt.conan.ae.lsf.LSFProcess;
+import uk.ac.ebi.fgpt.conan.lsf.AbstractLSFProcess;
+import uk.ac.ebi.fgpt.conan.lsf.LSFProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 
 import java.util.ArrayList;

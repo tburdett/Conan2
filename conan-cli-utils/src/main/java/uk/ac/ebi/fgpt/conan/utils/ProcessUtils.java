@@ -1,9 +1,7 @@
-package uk.ac.ebi.fgpt.conan.ae.utils;
+package uk.ac.ebi.fgpt.conan.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.arrayexpress2.magetab.utils.CommandExecutionException;
-import uk.ac.ebi.arrayexpress2.magetab.utils.ProcessRunner;
 
 import java.io.File;
 import java.io.IOException;
@@ -106,7 +104,7 @@ public class ProcessUtils {
         String[] output = runner.runCommmand(command);
         if (output.length > 0) {
             log.debug("Response from command [" + command + "]: " +
-                    output.length + " lines, first line was " + output[0]);
+                              output.length + " lines, first line was " + output[0]);
         }
         return output;
     }

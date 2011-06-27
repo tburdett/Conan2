@@ -2,7 +2,7 @@ package uk.ac.ebi.fgpt.conan.process.atlas;
 
 import net.sourceforge.fluxion.spi.ServiceProvider;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
-import uk.ac.ebi.fgpt.conan.ae.restapi.AbstractRESTAPIProcess;
+import uk.ac.ebi.fgpt.conan.rest.AbstractRESTAPIProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 
 import java.util.ArrayList;

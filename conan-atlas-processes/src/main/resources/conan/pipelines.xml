@@ -30,13 +30,13 @@
 
     <pipeline name="Atlas Experiment Private" creator="natalja">
         <processes>
-            <process name="atlas experiment private" />
+            <process name="make atlas experiment private" />
         </processes>
     </pipeline>
 
     <pipeline name="Atlas Experiment Public" creator="natalja">
         <processes>
-            <process name="atlas experiment public" />
+            <process name="make atlas experiment public" />
         </processes>
     </pipeline>
 

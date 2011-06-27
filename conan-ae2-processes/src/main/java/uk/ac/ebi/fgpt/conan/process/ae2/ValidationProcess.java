@@ -4,8 +4,8 @@ import net.sourceforge.fluxion.spi.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
-import uk.ac.ebi.fgpt.conan.ae.lsf.AbstractLSFProcess;
-import uk.ac.ebi.fgpt.conan.ae.lsf.LSFProcess;
+import uk.ac.ebi.fgpt.conan.lsf.AbstractLSFProcess;
+import uk.ac.ebi.fgpt.conan.lsf.LSFProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 
 import java.io.File;
@@ -20,7 +20,7 @@ import java.util.Map;
  * @date 18-Oct-2010
  */
 @ServiceProvider
-public class ValidationProcess extends AbstractLSFProcess {
+public class ValidationProcess extends AbstractAE2LSFProcess {
     private final Collection<ConanParameter> parameters;
     private final AccessionParameter accessionParameter;
 

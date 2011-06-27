@@ -21,6 +21,23 @@
             <version>2.0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- AE2 exceptions status -->
+        <dependency>
+            <groupId>uk.ac.ebi.arrayexpress2</groupId>
+            <artifactId>ae2-exceptions_new</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.oracle</groupId>
+                    <artifactId>ojdbc5</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
 </project>

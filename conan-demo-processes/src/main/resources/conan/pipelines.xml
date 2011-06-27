@@ -23,6 +23,7 @@
             <process name="demo process" />
         </processes>
     </pipeline>
+
     <pipeline name="daemon demo" creator="tburdett" daemonized="true">
         <processes>
             <process name="daemon demo process" />

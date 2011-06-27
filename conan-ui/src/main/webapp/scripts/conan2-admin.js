@@ -2,9 +2,9 @@ function verifyAdmin() {
     $(document).ready(function() {
         // authenticate users
         authenticate({
-            error: warnAndRedirect,
-            success: init
-        })
+                         error: warnAndRedirect,
+                         success: init
+                     })
     });
 }
 
@@ -20,30 +20,30 @@ function redirect() {
 function init() {
     // create dialogs
     $("#conan-daemon-message").dialog({
-        autoOpen: false,
-        modal: true,
-        buttons: {
-            Ok: function() {
-                $(this).dialog("close");
-            }
-        }
-    });
+                                          autoOpen: false,
+                                          modal: true,
+                                          buttons: {
+                                              Ok: function() {
+                                                  $(this).dialog("close");
+                                              }
+                                          }
+                                      });
     $("#conan-alert-message").dialog({
-        autoOpen: false,
-        modal: true,
-        dialogClass: 'alert',
-        buttons: {
-            Ok: function() {
-                $(this).dialog("close");
-            }
-        }
-    });
+                                         autoOpen: false,
+                                         modal: true,
+                                         dialogClass: 'alert',
+                                         buttons: {
+                                             Ok: function() {
+                                                 $(this).dialog("close");
+                                             }
+                                         }
+                                     });
 
     // show current state
     requestDaemonModeState();
 
     // generate pipeline sorter
-
+    generatePipelineSorter();
 }
 
 function requestDaemonModeState() {
@@ -72,36 +72,36 @@ function requestDaemonModeToggle() {
         enable = false;
     }
     $.ajax({
-        type:           'PUT',
-        url:            'api/daemon/toggle?enable=' + enable + '&restApiKey=' + restApiKey,
-        contentType:    'application/json',
-        processData:    false,
-        success:        requestDaemonModeState
-    });
+               type:           'PUT',
+               url:            'api/daemon/toggle?enable=' + enable + '&restApiKey=' + restApiKey,
+               contentType:    'application/json',
+               processData:    false,
+               success:        requestDaemonModeState
+           });
 }
 
 function requestDaemonModeEmailUpdate() {
     var email = $('#daemon-email').val();
     $.ajax({
-        type:           'PUT',
-        url:            'api/daemon/update-email?emailAddress=' + email + '&restApiKey=' + restApiKey,
-        contentType:    'application/json',
-        processData:    false,
-        success:        function(response) {
-            $("#conan-daemon-message-text").html(
-                    "The email address for daemon mode notifications was successfully changed.  " +
-                            "Notifications will now be sent to " + response.ownerEmail + ".<br/>");
-            $("#conan-daemon-message").dialog("open");
-            requestDaemonModeState()
-        },
-        error:          function(request, status, error) {
-            // inform user by showing the dialog
-            $("#conan-alert-message-text").html(
-                    "Something went wrong whilst changing the daemon mode email address.<br/>" +
-                            response.statusMessage + "<br/>")
-            $("#conan-alert-message").dialog("open");
-        }
-    });
+               type:           'PUT',
+               url:            'api/daemon/update-email?emailAddress=' + email + '&restApiKey=' + restApiKey,
+               contentType:    'application/json',
+               processData:    false,
+               success:        function(response) {
+                   $("#conan-daemon-message-text").html(
+                           "The email address for daemon mode notifications was successfully changed.  " +
+                                   "Notifications will now be sent to " + response.ownerEmail + ".<br/>");
+                   $("#conan-daemon-message").dialog("open");
+                   requestDaemonModeState()
+               },
+               error:          function(request, status, error) {
+                   // inform user by showing the dialog
+                   $("#conan-alert-message-text").html(
+                           "Something went wrong whilst changing the daemon mode email address.<br/>" +
+                                   response.statusMessage + "<br/>")
+                   $("#conan-alert-message").dialog("open");
+               }
+           });
 }
 
 function generatePipelineSorter() {
@@ -114,13 +114,25 @@ function generatePipelineSorter() {
         // fetch pipelines with ajax request
         $.getJSON('api/pipelines?restApiKey=' + restApiKey, function(json) {
             // first, fetch pipelines from the server
-            pipelines = json;
+            var pipelines = json;
 
-            // add pipeline name to the sorter
-            $("#conan-pipeline-sorter").append("<li class=\"ui-state-default\"><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span>" + + "</li>")
+            // add pipeline names to the sorter
+            for (var i = 0; i < pipelines.length; i++) {
+                $("#conan-pipeline-sorter").append(
+                        "<li class=\"ui-state-default\"><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span>" +
+                                pipelines[i].name + "</li>")
+            }
+
+            // make this element into a sorter
+            $("#conan-pipeline-sorter").sortable({update: requestPipelineReorder});
+            $("#conan-pipeline-sorter").disableSelection();
         });
     }
 
+}
+
+function requestPipelineReorder(event, ui) {
+    
 }
 
 /**

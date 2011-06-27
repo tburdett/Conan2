@@ -1,16 +1,14 @@
-package uk.ac.ebi.fgpt.conan.ae.lsf;
+package uk.ac.ebi.fgpt.conan.lsf;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.arrayexpress2.exception.exceptions.AE2Exception;
-import uk.ac.ebi.arrayexpress2.exception.manager.ExceptionManager;
-import uk.ac.ebi.arrayexpress2.magetab.utils.CommandExecutionException;
-import uk.ac.ebi.arrayexpress2.magetab.utils.ProcessRunner;
-import uk.ac.ebi.fgpt.conan.ae.utils.ProcessUtils;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
+import uk.ac.ebi.fgpt.conan.utils.CommandExecutionException;
+import uk.ac.ebi.fgpt.conan.utils.ProcessRunner;
+import uk.ac.ebi.fgpt.conan.utils.ProcessUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,13 +24,42 @@ import java.util.Map;
  * @date 02-Nov-2010
  */
 public abstract class AbstractLSFProcess implements ConanProcess {
-    public static final String BSUB_PATH = "/ebi/lsf/ebi/7.0/linux2.6-glibc2.3-x86_64/bin/bsub";
-    public static final int MONITOR_INTERVAL = 15;
+    //    private String bsubPath = "/ebi/lsf/ebi/7.0/linux2.6-glibc2.3-x86_64/bin/bsub";
+    private String bsubPath = "bsub";
+    private int monitorInterval = 15;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
     protected Logger getLog() {
         return log;
+    }
+
+    /**
+     * Gets the path being used to execute "bsub" commands sent to an LSF cluster.  This may be environment dependent.
+     * Defaults to "bsub".
+     *
+     * @return the bsub path being used to dispatch jobs to an LSF cluster
+     */
+    protected String getBsubPath() {
+        return bsubPath;
+    }
+
+    /**
+     * Sets the path to use to execute "bsub" commands to dispatch jobs to an LSF cluster.  This may be environment
+     * dependent.  Defaults simply to "bsub"
+     *
+     * @param bsubPath the bsub path to use to dispatch jobs to an LSF cluster
+     */
+    public void setBsubPath(String bsubPath) {
+        this.bsubPath = bsubPath;
+    }
+
+    protected int getMonitorInterval() {
+        return monitorInterval;
+    }
+
+    public void setMonitorInterval(int monitorInterval) {
+        this.monitorInterval = monitorInterval;
     }
 
     /**
@@ -78,7 +105,7 @@ public abstract class AbstractLSFProcess implements ConanProcess {
         if (memReq > 0) {
             // generate actual bsub command from template
             bsubCommand =
-                    BSUB_PATH + " " +
+                    bsubPath + " " +
                             "-M " + memReq + " " +
                             "-R \"rusage[mem=" + memReq + "]\" " +
                             "-q production " +
@@ -90,7 +117,7 @@ public abstract class AbstractLSFProcess implements ConanProcess {
         else {
             // generate actual bsub command from template excluding memory options
             bsubCommand =
-                    BSUB_PATH + " " +
+                    bsubPath + " " +
                             "-q production " +
                             "-oo " + getLSFOutputFilePath(parameters) + " " +
                             "-u " + backupEmail + " \"" +
@@ -119,7 +146,7 @@ public abstract class AbstractLSFProcess implements ConanProcess {
         // set up monitoring of the lsfOutputFile
         InvocationTrackingLSFProcessListener listener = new InvocationTrackingLSFProcessListener();
 
-        final LSFProcessAdapter adapter = new LSFProcessAdapter(lsfOutputFilePath, MONITOR_INTERVAL);
+        final LSFProcessAdapter adapter = new LSFProcessAdapter(lsfOutputFilePath, monitorInterval);
         adapter.addLSFProcessListener(listener);
 
         // process dispatch
@@ -173,17 +200,12 @@ public abstract class AbstractLSFProcess implements ConanProcess {
             getLog().debug("Monitoring process, waiting for completion");
             exitValue = listener.waitFor();
             getLog().debug("LSF Process completed with exit value " + exitValue);
-            if (exitValue == 0) {
+
+            ProcessExecutionException pex = interpretExitValue(exitValue);
+            if (pex == null) {
                 return true;
             }
             else {
-                AE2Exception cause = ExceptionManager.getException(getComponentName(), exitValue);
-                String message = "Failed at " + getName() + ": " + cause.getDefaultMessage();
-                getLog().debug("Generating ProcessExecutionException...\n" +
-                        "exitValue = " + exitValue + ",\n" +
-                        "message = " + message + ",\n" +
-                        "cause = " + cause.getClass().getSimpleName());
-                ProcessExecutionException pex = new ProcessExecutionException(exitValue, message, cause);
                 pex.setProcessOutput(adapter.getProcessOutput());
                 pex.setProcessExecutionHost(adapter.getProcessExecutionHost());
                 throw pex;
@@ -218,7 +240,7 @@ public abstract class AbstractLSFProcess implements ConanProcess {
         String[] output = runner.runCommmand(lsfCommand);
         if (output.length > 0) {
             getLog().debug("Response from command [" + lsfCommand + "]: " +
-                    output.length + " lines, first line was " + output[0]);
+                                   output.length + " lines, first line was " + output[0]);
         }
         return output;
     }
@@ -237,14 +259,33 @@ public abstract class AbstractLSFProcess implements ConanProcess {
     }
 
     /**
-     * Returns the name of this component that this process implements, if any.  This is designed to allow registration
-     * of error codes to process from ArrayExpress, meaning we can lookp the correct {@link AE2Exception} given the
-     * component name that the process implements.  If this method returns any value apart from {@link
+     * Translates an exit value returned by the LSF process into a meaningful java exception.  Override this method if
+     * you want to do something clever with certain exit values.  The default behaviour is to wrap the supplied exit
+     * value inside a ProcessExecutionException and provide a generic error message, if the exit code is non-zero.  If
+     * an exit code of zero is passed, this method should return null.
+     *
+     * @param exitValue the exit value returned from the LSF process upon completion
+     * @return a ProcessExecutionException that minimally wraps the exit value of the process, and possibly provides
+     *         further informative error messages if the exit value is non-zero, otherwsie null
+     */
+    protected ProcessExecutionException interpretExitValue(int exitValue) {
+        if (exitValue == 0) {
+            return null;
+        }
+        else {
+            return new ProcessExecutionException(exitValue);
+        }
+    }
+
+    /**
+     * Returns the name of this component that this process implements, if any.  This is designed to allow
+     * implementations of this class to formulate more specific error messages based on some <i>a priori</i> knowledge
+     * of what exit codes named applications are likely to return.  If this method returns any value apart from {@link
      * LSFProcess#UNSPECIFIED_COMPONENT_NAME}, the exit code of the process must be used to extract information about
      * the failure condition and a user-meaningful message displayed indicating the error.
      *
-     * @return the name of the AE2 component this process implements, or LSFProcess.UNSPECIFIED_COMPONENT_NAME if
-     *         something else.
+     * @return the name of the component this process implements, or LSFProcess.UNSPECIFIED_COMPONENT_NAME if something
+     *         else.
      */
     protected abstract String getComponentName();
 

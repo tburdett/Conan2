@@ -1,4 +1,4 @@
-package uk.ac.ebi.fgpt.conan.ae.lsf;
+package uk.ac.ebi.fgpt.conan.lsf;
 
 import java.util.EventListener;
 

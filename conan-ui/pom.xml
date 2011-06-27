@@ -23,30 +23,6 @@
             <version>2.0.1-SNAPSHOT</version>
         </dependency>
 
-        <!-- AE specific implementations -->
-        <dependency>
-            <groupId>uk.ac.ebi.fgpt</groupId>
-            <artifactId>conan-ae-services</artifactId>
-            <version>2.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <!-- precanned conan processes -->
-        <dependency>
-            <groupId>uk.ac.ebi.fgpt</groupId>
-            <artifactId>conan-ae1-processes</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ebi.fgpt</groupId>
-            <artifactId>conan-ae2-processes</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ebi.fgpt</groupId>
-            <artifactId>conan-atlas-processes</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
         <!-- spring webmvc framework -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -144,6 +120,32 @@
                     </plugin>
                 </plugins>
             </build>
+
+            <dependencies>
+                <!-- AE specific implementations -->
+                <dependency>
+                    <groupId>uk.ac.ebi.fgpt</groupId>
+                    <artifactId>conan-ae-services</artifactId>
+                    <version>2.0.1-SNAPSHOT</version>
+                </dependency>
+
+                <!-- precanned conan processes -->
+                <dependency>
+                    <groupId>uk.ac.ebi.fgpt</groupId>
+                    <artifactId>conan-ae1-processes</artifactId>
+                    <version>1.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>uk.ac.ebi.fgpt</groupId>
+                    <artifactId>conan-ae2-processes</artifactId>
+                    <version>1.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>uk.ac.ebi.fgpt</groupId>
+                    <artifactId>conan-atlas-processes</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                </dependency>
+            </dependencies>
         </profile>
 
         <!-- profile for curator, uses files from resources-curator and webresources-curator -->
@@ -173,6 +175,32 @@
                     </plugin>
                 </plugins>
             </build>
+
+            <dependencies>
+                <!-- AE specific implementations -->
+                <dependency>
+                    <groupId>uk.ac.ebi.fgpt</groupId>
+                    <artifactId>conan-ae-services</artifactId>
+                    <version>2.0.1-SNAPSHOT</version>
+                </dependency>
+
+                <!-- conan ae processes -->
+                <dependency>
+                    <groupId>uk.ac.ebi.fgpt</groupId>
+                    <artifactId>conan-ae1-processes</artifactId>
+                    <version>1.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>uk.ac.ebi.fgpt</groupId>
+                    <artifactId>conan-ae2-processes</artifactId>
+                    <version>1.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>uk.ac.ebi.fgpt</groupId>
+                    <artifactId>conan-atlas-processes</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                </dependency>
+            </dependencies>
         </profile>
 
         <!-- profile for perftest, uses files from resources-perftest and webresources-perftest -->
@@ -202,6 +230,70 @@
                     </plugin>
                 </plugins>
             </build>
+
+            <dependencies>
+                <!-- AE specific implementations -->
+                <dependency>
+                    <groupId>uk.ac.ebi.fgpt</groupId>
+                    <artifactId>conan-ae-services</artifactId>
+                    <version>2.0.1-SNAPSHOT</version>
+                </dependency>
+
+                <!-- conan ae processes -->
+                <dependency>
+                    <groupId>uk.ac.ebi.fgpt</groupId>
+                    <artifactId>conan-ae1-processes</artifactId>
+                    <version>1.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>uk.ac.ebi.fgpt</groupId>
+                    <artifactId>conan-ae2-processes</artifactId>
+                    <version>1.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>uk.ac.ebi.fgpt</groupId>
+                    <artifactId>conan-atlas-processes</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- profile for a standalone conan demo, uses no AE dependencies at all -->
+        <profile>
+            <id>demo</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <finalName>conan2-demo</finalName>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources-demo</directory>
+                    </resource>
+                </resources>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <configuration>
+                            <webResources>
+                                <resource>
+                                    <directory>src/main/webresources-demo</directory>
+                                </resource>
+                            </webResources>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+
+            <dependencies>
+                <!-- conan demo processes -->
+                <dependency>
+                    <groupId>uk.ac.ebi.fgpt</groupId>
+                    <artifactId>conan-demo-processes</artifactId>
+                    <version>1.0</version>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 </project>

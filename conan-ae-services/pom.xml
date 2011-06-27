@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
-            <artifactId>conan-service</artifactId>
+            <artifactId>conan-core-services</artifactId>
             <version>2.0.1-SNAPSHOT</version>
         </dependency>
 
@@ -43,14 +43,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.0.2</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- magetab utils for EBI -->
+        <!-- conan command line utils -->
         <dependency>
             <groupId>uk.ac.ebi.arrayexpress2.services</groupId>
             <artifactId>ebi-magetab-utils</artifactId>

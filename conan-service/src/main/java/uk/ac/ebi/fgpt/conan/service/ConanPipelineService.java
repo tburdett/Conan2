@@ -44,7 +44,7 @@ public interface ConanPipelineService {
      * @param conanUser the user making this request: only pipelines accessible to this user are returned
      * @return the collection of pipelines this user has access to
      */
-    Collection<ConanPipeline> getPipelines(ConanUser conanUser);
+    List<ConanPipeline> getPipelines(ConanUser conanUser);
 
     /**
      * Gets the pipeline with the current name known to Conan and accessible to the current user.

@@ -110,9 +110,9 @@ public class DefaultPipelineService implements ConanPipelineService {
         }
     }
 
-    public Collection<ConanPipeline> getPipelines(ConanUser conanUser) {
+    public List<ConanPipeline> getPipelines(ConanUser conanUser) {
         getLog().debug("Request to get pipelines for " + conanUser.getUserName());
-        Collection<ConanPipeline> result = new ArrayList<ConanPipeline>();
+        List<ConanPipeline> result = new ArrayList<ConanPipeline>();
         for (ConanPipeline conanPipeline : getPipelineDAO().getPipelines()) {
             if (conanPipeline.isPrivate()) {
                 // if the pipeline is private, check the user

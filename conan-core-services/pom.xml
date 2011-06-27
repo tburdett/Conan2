@@ -21,6 +21,21 @@
             <version>2.0.1-SNAPSHOT</version>
         </dependency>
 
+        <!-- cli utils, so Conan can execute shell or LSF process -->
+        <dependency>
+            <groupId>uk.ac.ebi.fgpt</groupId>
+            <artifactId>conan-cli-utils</artifactId>
+            <version>2.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <!-- http client, so Conan can execute processes over http (e.g. RESTful services) -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.0.2</version>
+        </dependency>
+
+        <!-- spring ldap dependency, for core ldap server authentication -->
         <dependency>
             <groupId>org.springframework.ldap</groupId>
             <artifactId>spring-ldap-core</artifactId>
@@ -41,16 +56,17 @@
             </exclusions>
         </dependency>
 
-        <!-- spring jdbc support -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>3.0.3.RELEASE</version>
-        </dependency>
         <!-- spring tx support, for LDAP querying services -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
+            <version>3.0.3.RELEASE</version>
+        </dependency>
+
+        <!-- spring jdbc support, for conan-db operations -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
             <version>3.0.3.RELEASE</version>
         </dependency>
 

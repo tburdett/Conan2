@@ -3,7 +3,6 @@ package uk.ac.ebi.fgpt.conan.process.demo;
 import net.sourceforge.fluxion.spi.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
@@ -27,7 +26,7 @@ public class DaemonDemoProcess implements ConanProcess {
 
     public DaemonDemoProcess() {
         params = new ArrayList<ConanParameter>();
-        params.add(new AccessionParameter());
+        params.add(new DemoProcessParameter("demo parameter 1"));
     }
 
     protected Logger getLog() {

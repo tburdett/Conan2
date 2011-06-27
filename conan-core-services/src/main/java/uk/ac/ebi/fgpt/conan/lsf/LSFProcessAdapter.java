@@ -1,4 +1,4 @@
-package uk.ac.ebi.fgpt.conan.ae.lsf;
+package uk.ac.ebi.fgpt.conan.lsf;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

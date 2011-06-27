@@ -5,8 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.ae.MAGEMLAccessionParameter;
-import uk.ac.ebi.fgpt.conan.ae.lsf.AbstractLSFProcess;
-import uk.ac.ebi.fgpt.conan.ae.lsf.LSFProcess;
+import uk.ac.ebi.fgpt.conan.lsf.AbstractLSFProcess;
+import uk.ac.ebi.fgpt.conan.lsf.LSFProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 
