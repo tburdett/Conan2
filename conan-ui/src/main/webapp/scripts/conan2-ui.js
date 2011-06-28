@@ -490,7 +490,7 @@ function requestNewSubmission() {
                },
                error:          function(request, status, error) {
                    // inform user by showing the dialog
-                   $("#conan-alert-message-text").html(response.statusMessage + "<br/>")
+                   $("#conan-alert-message-text").html(error + "<br/>")
                    $("#conan-alert-message").dialog("open");
                }
            });
@@ -524,7 +524,7 @@ function requestNewMultiSubmission() {
                },
                error:          function(request, status, error) {
                    // inform user by showing the dialog
-                   $("#conan-alert-message-text").html(response.statusMessage + "<br/>")
+                   $("#conan-alert-message-text").html(error + "<br/>")
                    $("#conan-alert-message").dialog("open");
                }
            });
@@ -550,7 +550,7 @@ function requestNewBatchSubmission() {
                },
                error:          function(request, status, error) {
                    // inform user by showing the dialog
-                   $("#conan-alert-message-text").html(response.statusMessage + "<br/>")
+                   $("#conan-alert-message-text").html(error + "<br/>")
                    $("#conan-alert-message").dialog("open");
                }
            });

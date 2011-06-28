@@ -90,7 +90,7 @@ public class PipelineController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.PUT)
     public @ResponseBody PipelineReorderResponseBean reorderPipelines(
             @RequestBody PipelineReorderRequestBean reorderRequest) {
         // recover the rest api key from the request

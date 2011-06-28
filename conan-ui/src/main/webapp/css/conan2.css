@@ -65,6 +65,24 @@ table p {
     list-style: none;
 }
 
+.conan-sortable {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 60%;
+}
+
+.conan-sortable li {
+    margin: 0 5px 5px 5px;
+    padding: 0.4em 0.4em 0.4em 1.5em;
+    height: 14px;
+}
+
+.conan-sortable li span {
+    position: absolute;
+    margin-left: -1.3em;
+}
+
 .conan-parameters {
     width: 380px;
     display: inline;

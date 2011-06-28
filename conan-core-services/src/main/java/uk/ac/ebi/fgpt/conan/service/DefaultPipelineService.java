@@ -47,73 +47,61 @@ public class DefaultPipelineService implements ConanPipelineService {
     }
 
     public void loadPipelines() {
-        // get pipelines from our DAO
-        Collection<ConanPipeline> conanPipelines = getPipelineDAO().getPipelines();
+        if (sortedConanPipelines.isEmpty()) {
+            // get pipelines from our DAO
+            Collection<ConanPipeline> conanPipelines = getPipelineDAO().getPipelines();
 
-        // add any daemonized pipelines to the daemon service
-        for (ConanPipeline conanPipeline : conanPipelines) {
-            if (conanPipeline.isDaemonized()) {
-                getLog().info("Pipeline '" + conanPipeline.getName() + "' " +
-                                      "is daemonized and will be added to daemon service");
-                if (getDaemonService() != null) {
-                    getDaemonService().addPipeline(conanPipeline);
-                }
-                else {
-                    getLog().warn("No DaemonService was configured - pipeline '" + conanPipeline.getName() + "' " +
-                                          "was flagged as daemonized but will not be started");
+            // add any daemonized pipelines to the daemon service
+            for (ConanPipeline conanPipeline : conanPipelines) {
+                if (conanPipeline.isDaemonized()) {
+                    getLog().info("Pipeline '" + conanPipeline.getName() + "' " +
+                                          "is daemonized and will be added to daemon service");
+                    if (getDaemonService() != null) {
+                        getDaemonService().addPipeline(conanPipeline);
+                    }
+                    else {
+                        getLog().warn("No DaemonService was configured - pipeline '" + conanPipeline.getName() + "' " +
+                                              "was flagged as daemonized but will not be started");
+                    }
                 }
             }
+
+            // add all pipelines from the DAO to our sorted collection
+            sortedConanPipelines.clear();
+            sortedConanPipelines.addAll(conanPipelines);
+
+            // and re-sort based on previously saved sort order, if any
+            recoverPipelineSortOrder();
         }
-
-        // add all pipelines from the DAO to our sorted collection
-        sortedConanPipelines.clear();
-        sortedConanPipelines.addAll(conanPipelines);
-
-        // and re-sort based on previously saved sort order, if any
-        recoverPipelineSortOrder();
     }
 
 
     public void reorderPipelines(ConanUser conanUser, final List<String> requiredPipelineOrder) {
-        if (conanUser.getPermissions().compareTo(ConanUser.Permissions.ADMINISTRATOR) <= 0) {
-            // apply sorting based on names to our pipeline collection - any pipelines not named in the config file will be moved to the end
-            Collections.sort(sortedConanPipelines, new Comparator<ConanPipeline>() {
-                public int compare(ConanPipeline p1, ConanPipeline p2) {
-                    if (requiredPipelineOrder.contains(p1.getName())) {
-                        if (requiredPipelineOrder.contains(p2.getName())) {
-                            // both named, can compare
-                            return requiredPipelineOrder.indexOf(p1.getName()) -
-                                    requiredPipelineOrder.indexOf(p2.getName());
-                        }
-                        else {
-                            // p1 named, p2 not, so move p2 after p1
-                            return 1;
-                        }
-                    }
-                    else {
-                        // p1 not named, is p2?
-                        if (requiredPipelineOrder.contains(p2.getName())) {
-                            // p2 named, p1 not, so move p1 after p2
-                            return -1;
-                        }
-                        else {
-                            // neither named, leave where they both are
-                            // note: this makes this comparator inconsistent with equals
-                            return 0;
-                        }
-                    }
-                }
-            });
+        StringBuilder sb = new StringBuilder();
+        sb.append("RequiredPipelineOrder:{");
+        for (String s : requiredPipelineOrder) {
+            sb.append(s).append(",");
+        }
+        sb.append("}");
+        getLog().debug("Sorting pipelines - " + sb.toString());
 
-            // now we've applied the sort, make sure we save the prefs to our config file
-            savePipelineSortOrder();
+        if (conanUser.getPermissions().compareTo(ConanUser.Permissions.ADMINISTRATOR) <= 0) {
+            sortPipelines(requiredPipelineOrder);
+        }
+        else {
+            getLog().warn(conanUser.getUserName() + " does not have required admin privileges to resort pipelines");
         }
     }
 
     public List<ConanPipeline> getPipelines(ConanUser conanUser) {
         getLog().debug("Request to get pipelines for " + conanUser.getUserName());
+
+        // lazy instantiate sorted pipelines cache
+        loadPipelines();
+
+        // filter based on user
         List<ConanPipeline> result = new ArrayList<ConanPipeline>();
-        for (ConanPipeline conanPipeline : getPipelineDAO().getPipelines()) {
+        for (ConanPipeline conanPipeline : sortedConanPipelines) {
             if (conanPipeline.isPrivate()) {
                 // if the pipeline is private, check the user
                 if (conanPipeline.getCreator().equals(conanUser)) {
@@ -126,6 +114,8 @@ public class DefaultPipelineService implements ConanPipelineService {
                 result.add(conanPipeline);
             }
         }
+
+        // return the result
         return result;
     }
 
@@ -176,8 +166,7 @@ public class DefaultPipelineService implements ConanPipelineService {
                     sortedPipelineNames.add(pipelineName);
                 }
                 reader.close();
-                // todo - reordering requires a user with admin permissions, how to do this at startup?
-//                reorderPipelines(conanUser, sortedPipelineNames);
+                sortPipelines(sortedPipelineNames);
             }
             catch (IOException e) {
                 getLog().warn("Unable to load pipeline sort order config from " + configFile.getAbsolutePath() +
@@ -193,6 +182,7 @@ public class DefaultPipelineService implements ConanPipelineService {
         File configFile = new File(conanDir, "pipeline-order.txt");
 
         // write config file
+        getLog().info("Exporting new pipeline sort order to " + configFile.getAbsolutePath());
         try {
             PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(configFile)));
             for (ConanPipeline pipeline : sortedConanPipelines) {
@@ -204,5 +194,42 @@ public class DefaultPipelineService implements ConanPipelineService {
             getLog().warn("Unable to save pipeline sort order config to " + configFile.getAbsolutePath() + ": " +
                                   "pipeline order may be lost on restart");
         }
+    }
+
+    private void sortPipelines(final List<String> requiredPipelineOrder) {
+        // apply sorting based on names to our pipeline collection - any pipelines not named in the config file will be moved to the end
+        Collections.sort(sortedConanPipelines, new Comparator<ConanPipeline>() {
+            public int compare(ConanPipeline p1, ConanPipeline p2) {
+                if (requiredPipelineOrder.contains(p1.getName())) {
+                    if (requiredPipelineOrder.contains(p2.getName())) {
+                        // both named, can compare
+                        return requiredPipelineOrder.indexOf(p1.getName()) -
+                                requiredPipelineOrder.indexOf(p2.getName());
+                    }
+                    else {
+                        // p1 named, p2 not, so move p2 after p1
+                        return 1;
+                    }
+                }
+                else {
+                    // p1 not named, is p2?
+                    if (requiredPipelineOrder.contains(p2.getName())) {
+                        // p2 named, p1 not, so move p1 after p2
+                        return -1;
+                    }
+                    else {
+                        // neither named, leave where they both are
+                        // note: this makes this comparator inconsistent with equals
+                        getLog().debug(
+                                "Required pipeline order does not contain either '" + p1.getName() + "' or '" +
+                                        p2.getName() + "', unable to sort these pipelines");
+                        return 0;
+                    }
+                }
+            }
+        });
+
+        // now we've applied the sort, make sure we save the prefs to our config file
+        savePipelineSortOrder();
     }
 }

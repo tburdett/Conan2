@@ -91,7 +91,7 @@ public class DaemonController {
      * @param restApiKey the rest api key of the user accessing this service
      * @return true if daemon mode is activated, false otherwise
      */
-    @RequestMapping(value = "/toggle", method = RequestMethod.PUT)
+    @RequestMapping(method = RequestMethod.PUT)
     public @ResponseBody DaemonResponseBean toggle(@RequestParam boolean enable, @RequestParam String restApiKey) {
         getLog().debug("Request to toggle daemon mode: currently " +
                 (getDaemonService().isRunning() ? "enabled" : "disabled") + ", request to " +
@@ -143,7 +143,7 @@ public class DaemonController {
      * @param restApiKey   the rest api key of the user accessing this service
      * @return a response bean indicating whether this update was successful or not
      */
-    @RequestMapping(value = "update-email", method = RequestMethod.PUT)
+    @RequestMapping(value = "email", method = RequestMethod.PUT)
     public @ResponseBody DaemonResponseBean updateNotificationEmailAddress(@RequestParam String emailAddress,
                                                                            @RequestParam String restApiKey) {
         getLog().debug(

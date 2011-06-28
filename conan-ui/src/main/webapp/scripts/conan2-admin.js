@@ -48,15 +48,21 @@ function init() {
 
 function requestDaemonModeState() {
     $.getJSON('api/daemon', function(json) {
-        if (json.enabled == true) {
+        if (json.enabled) {
             // set radio button to "On"
             $("#daemon-on").attr('checked', true);
             $("#daemon-off").attr('checked', false);
+            // and inform daemon mode is enabled
+            $("#conan-daemon-message-text").html("Daemon mode is now enabled");
+            $("#conan-daemon-message").dialog("open");
         }
         else {
             // set radio button to "Off"
             $("#daemon-on").attr('checked', false);
             $("#daemon-off").attr('checked', true);
+            // and inform daemon mode is disabled
+            $("#conan-daemon-message-text").html("Daemon mode is now disabled");
+            $("#conan-daemon-message").dialog("open");
         }
         $("#daemon-email").val(json.ownerEmail);
     });
@@ -73,7 +79,7 @@ function requestDaemonModeToggle() {
     }
     $.ajax({
                type:           'PUT',
-               url:            'api/daemon/toggle?enable=' + enable + '&restApiKey=' + restApiKey,
+               url:            'api/daemon?enable=' + enable + '&restApiKey=' + restApiKey,
                contentType:    'application/json',
                processData:    false,
                success:        requestDaemonModeState
@@ -84,7 +90,7 @@ function requestDaemonModeEmailUpdate() {
     var email = $('#daemon-email').val();
     $.ajax({
                type:           'PUT',
-               url:            'api/daemon/update-email?emailAddress=' + email + '&restApiKey=' + restApiKey,
+               url:            'api/daemon/email?emailAddress=' + email + '&restApiKey=' + restApiKey,
                contentType:    'application/json',
                processData:    false,
                success:        function(response) {
@@ -119,7 +125,8 @@ function generatePipelineSorter() {
             // add pipeline names to the sorter
             for (var i = 0; i < pipelines.length; i++) {
                 $("#conan-pipeline-sorter").append(
-                        "<li class=\"ui-state-default\"><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span>" +
+                        "<li class=\"ui-state-default\" id=\"" + pipelines[i].name +
+                                "\"><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span>" +
                                 pipelines[i].name + "</li>")
             }
 
@@ -131,8 +138,38 @@ function generatePipelineSorter() {
 
 }
 
-function requestPipelineReorder(event, ui) {
-    
+function requestPipelineReorder() {
+    // extract new pipeline order by retrieving element ids
+    var requestedPipelineOrder = new Array();
+    $("ul.conan-sortable > li").each(function(index) {
+        requestedPipelineOrder.push($(this).attr("id"));
+    });
+
+    // for a json object, including the rest api key
+    var jsonString = "{" +
+            "\"requestedPipelineOrder\":" + JSON.stringify(requestedPipelineOrder) + "," +
+            "\"restApiKey\":\"" + restApiKey + "\"}";
+
+    // form json post request
+    $.ajax({
+               type:           'PUT',
+               url:            'api/pipelines',
+               contentType:    'application/json',
+               data:           jsonString,
+               processData:    false,
+               success:         function(response) {
+                   if (response.operationSuccessful != true) {
+                       // inform user by showing the dialog
+                       $("#conan-alert-message-text").html(response.statusMessage + "<br/>");
+                       $("#conan-alert-message").dialog("open");
+                   }
+               },
+               error:          function(request, status, error) {
+                   // inform user by showing the dialog
+                   $("#conan-alert-message-text").html(error + "<br/>");
+                   $("#conan-alert-message").dialog("open");
+               }
+           });
 }
 
 /**
