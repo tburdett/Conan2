@@ -47,6 +47,8 @@ public class DefaultDaemonService implements ConanDaemonService {
 
     public DefaultDaemonService() {
         this.daemonizedPipelines = new HashSet<ConanPipeline>();
+        // initialize inputDAOs to an empty set
+        this.inputDAOs = new HashSet<ConanDaemonInputsDAO>();
         // disabled by default
         this.enabled = false;
         this.daemonThread = new Thread(new Daemon());

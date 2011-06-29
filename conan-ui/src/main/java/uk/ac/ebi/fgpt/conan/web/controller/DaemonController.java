@@ -63,7 +63,7 @@ public class DaemonController {
         return responderServices;
     }
 
-    @Autowired
+    @Autowired(required = false)
     public void setResponderServices(Set<ConanResponderService> responderServices) {
         this.responderServices = responderServices;
     }
