@@ -97,6 +97,6 @@ public class UnloadCleanupProcess extends AbstractAE2LSFProcess {
         // execute unloadCleanup script given environment and accession
         String environmentPath = ConanProperties.getProperty("environment.path");
         String ftpPath = ConanProperties.getProperty("full.ftp.location");
-        return environmentPath + "software/unloadCleanup/unloadCleanup.sh -a " + accession + " -f " + ftpPath;
+        return environmentPath + "software/bin/unloadCleanup.sh -a " + accession + " -f " + ftpPath;
     }
 }
