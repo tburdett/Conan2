@@ -149,7 +149,7 @@
         </snapshotRepository>
         <site>
             <id>conan-docs-repo</id>
-            <url>http://dukkha.ebi.ac.uk:14054/conan2/documentation/</url>
+            <url>http://banana.ebi.ac.uk:14054/conan2/documentation/</url>
         </site>
     </distributionManagement>
 

@@ -71,6 +71,7 @@
         <property name="mailSender" ref="mailSender" />
         <property name="AE1SubmitterDetailsDAO" ref="ae1SubmitterDetailsDAO" />
         <property name="AE2SubmitterDetailsDAO" ref="ae2SubmitterDetailsDAO" />
+        <property name="conanLocation" value="http://banana.ebi.ac.uk:14052/conan2-curator/" />
     </bean>
 
     <!-- Mail sender to respond to completion/failure/daemon mode changes -->

@@ -133,13 +133,13 @@ function configureUI() {
 
     // add button hover states
     $(".ui-button").hover(
-                         function() {
-                             $(this).addClass('ui-state-hover');
-                         },
-                         function() {
-                             $(this).removeClass('ui-state-hover');
-                         }
-            );
+            function() {
+                $(this).addClass('ui-state-hover');
+            },
+            function() {
+                $(this).removeClass('ui-state-hover');
+            }
+    );
 
     // fetch queued/running/done tasks
     requestAllTaskInfoUpdates();
@@ -191,7 +191,8 @@ function configureUI() {
                                                  "Submit": function() {
                                                      $("input[id^=select_task_]").each(function() {
                                                          if ($(this).is(':checked')) {
-                                                             requestTaskAbort($(this).val());
+                                                             requestTaskAbort($(this).val(), true);
+                                                             requestTasksInProgressInfoUpdates(restApiKey);
                                                          }
                                                      });
                                                      $(this).dialog("close");
@@ -265,13 +266,13 @@ function initCarouselCallbackFunction(carousel, state) {
             .html("<span class=\"ui-icon ui-icon-triangle-1-n\" style=\"margin-left: auto; margin-right: auto\"></span>");
     // and add hover states
     $(".jcarousel-prev-vertical").hover(
-                                       function() {
-                                           $(this).addClass('ui-state-hover');
-                                       },
-                                       function() {
-                                           $(this).removeClass('ui-state-hover');
-                                       }
-            );
+            function() {
+                $(this).addClass('ui-state-hover');
+            },
+            function() {
+                $(this).removeClass('ui-state-hover');
+            }
+    );
 
     // add button class to next div
     $(".jcarousel-next-vertical")
@@ -281,13 +282,13 @@ function initCarouselCallbackFunction(carousel, state) {
             .html("<span class=\"ui-icon ui-icon-triangle-1-s\" style=\"margin-left: auto; margin-right: auto\"></span>");
     // and add hover states
     $(".jcarousel-next-vertical").hover(
-                                       function() {
-                                           $(this).addClass('ui-state-hover');
-                                       },
-                                       function() {
-                                           $(this).removeClass('ui-state-hover');
-                                       }
-            );
+            function() {
+                $(this).addClass('ui-state-hover');
+            },
+            function() {
+                $(this).removeClass('ui-state-hover');
+            }
+    );
 }
 
 /*
@@ -675,7 +676,7 @@ function requestTaskPause(taskID) {
  *
  * @param taskID the id of the task
  */
-function requestTaskAbort(taskID) {
+function requestTaskAbort(taskID, suppressRefresh) {
     // send a PUT request to api/submissions/{taskID}?abort
     $.ajax({
                type:           'PUT',
@@ -683,8 +684,10 @@ function requestTaskAbort(taskID) {
                contentType:    'application/json',
                processData:    false,
                success:        function(response) {
-                   // trigger ajax updates of task info
-                   requestTasksInProgressInfoUpdates(restApiKey);
+                   if (suppressRefresh == undefined || !suppressRefresh) {
+                       // trigger ajax updates of task info
+                       requestTasksInProgressInfoUpdates(restApiKey);
+                   }
                }
            });
 }
@@ -892,10 +895,10 @@ function displayMultiSubmitDialog() {
 
     // got required vars, now form post request
     $.post("api/generate-request/multi", {
-        pipeline: pipelineValue,
-        startingProcessIndex: selectedProcess,
-        multiParams: text,
-        restApiKey: restApiKey },
+               pipeline: pipelineValue,
+               startingProcessIndex: selectedProcess,
+               multiParams: text,
+               restApiKey: restApiKey },
            function(json) {
                // update dialog to show the number of submissions in this batch
                generatedBatch = json;
@@ -1137,13 +1140,13 @@ function displayRunningTasks() {
 
     // hover states for pause buttons
     $(".pause-button").hover(
-                            function() {
-                                $(this).addClass('ui-state-hover');
-                            },
-                            function() {
-                                $(this).removeClass('ui-state-hover');
-                            }
-            );
+            function() {
+                $(this).addClass('ui-state-hover');
+            },
+            function() {
+                $(this).removeClass('ui-state-hover');
+            }
+    );
 }
 
 /**

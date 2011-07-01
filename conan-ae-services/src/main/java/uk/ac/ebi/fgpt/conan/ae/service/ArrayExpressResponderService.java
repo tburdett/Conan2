@@ -25,6 +25,8 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
     private SubmitterDetailsFromAE1DAO ae1SubmitterDetailsDAO;
     private SubmitterDetailsFromAE2DAO ae2SubmitterDetailsDAO;
 
+    private String conanLocation;
+
     public SubmitterDetailsFromAE1DAO getAE1SubmitterDetailsDAO() {
         return ae1SubmitterDetailsDAO;
     }
@@ -39,6 +41,14 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
 
     public void setAE2SubmitterDetailsDAO(SubmitterDetailsFromAE2DAO ae2SubmitterDetailsDAO) {
         this.ae2SubmitterDetailsDAO = ae2SubmitterDetailsDAO;
+    }
+
+    public String getConanLocation() {
+        return conanLocation;
+    }
+
+    public void setConanLocation(String conanLocation) {
+        this.conanLocation = conanLocation;
     }
 
     public boolean respondsTo(ConanTask task) {
@@ -242,7 +252,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                 "Conan encountered a problem that it could not handle, and requires your attention!\n\n" +
                 "Conan was doing task '" + taskName + "', but the process '" + processName + "' failed.\n\n" +
                 "This explanation was provided:\n\t" + taskStatus + "\n" +
-                "Please go to http://dukkha.ebi.ac.uk:14054/conan2/summary/" + taskID + " for more information.\n\n" +
+                "Please go to " + getConanLocation() + "/summary/" + taskID + " for more information.\n\n" +
                 "Process '" + processName + "' terminated with exit code " + processExitCode + " " +
                 "and ran on host '" + processExecutionHost + "'.\n" +
                 "The standard out of this process follows:\n" +
@@ -252,7 +262,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
     private String getDefaultContent(String taskID, String taskOwnerFirstName, String taskName, String processName) {
         return "Hi " + taskOwnerFirstName + ",\n\n" +
                 "This is confirmation that your task '" + taskName + "' successfully completed " + processName + ".\n" +
-                "A full report summary is available at http://dukkha.ebi.ac.uk:14054/conan2/summary/" + taskID;
+                "A full report summary is available at " + getConanLocation() + "/summary/" + taskID;
     }
 
     public String getConfirmationContent(String taskName, List<SubmitterDetails> details) {
