@@ -6,7 +6,7 @@
 
     <groupId>uk.ac.ebi.fgpt</groupId>
     <artifactId>conan2</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Conan 2</name>
@@ -88,7 +88,7 @@
 
     <!-- Bug Tracker -->
     <issueManagement>
-        <system>pivotal</system>
+        <system>Trac</system>
         <url>https://www.pivotaltracker.com/projects/54920</url>
     </issueManagement>
 
