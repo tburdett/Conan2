@@ -17,6 +17,7 @@
             <process name="experiment loading" />
             <process name="scoring" />
             <process name="afterloading" />
+            <process name="validation" />
         </processes>
     </pipeline>
 
