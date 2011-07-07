@@ -25,19 +25,19 @@ public class CommonAtlasProcesses {
 
     public String ExperimentUpdatePrivate = atlasPath +
             "admin?op=schedule&runMode=RESTART&type=" +
-            "updateexperiment&autoDepends=false&useRawData=true&private=true&accession=";
+            "makeexperimentprivate&autoDepends=false&accession=";
 
     public String ExperimentUpdatePublic = atlasPath +
             "admin?op=schedule&runMode=RESTART&type=" +
-            "updateexperiment&autoDepends=false&useRawData=true&private=false&accession=";
+            "makeexperimentpublic&autoDepends=false&accession=";
 
     public String ExperimentLoad = atlasPath +
             "admin?op=schedule&runMode=RESTART&type=" +
-            "loadexperiment&autoDepends=false&useRawData=true&private=true&accession=";
+            "loadexperiment&autoDepends=false&private=true&accession=";
 
     public String ExperimentUnload = atlasPath +
             "admin?op=schedule&runMode=RESTART&type=" +
-            "unloadexperiment&autoDepends=false&useRawData=true&accession=";
+            "unloadexperiment&autoDepends=false&accession=";
 
     public String Monitoring = atlasPath +
             "admin?op=tasklog&event=";
@@ -57,7 +57,7 @@ public class CommonAtlasProcesses {
      */
     public int getExitCode(HashMap<String, Object> response) {
         HashMap<String, Object> items = items(response.get("items").toString());
-        if (!items.get("event").equals(
+        if (items.get("event").equals(
                 AtlasEvents.FAILED.toString())) {
             return -1;
         }

@@ -182,7 +182,7 @@ public class ExperimentPrivateProcess extends AbstractRESTAPIProcess {
    * @return process name
    */
   public String getName() {
-    return "make atlas experiment private";
+    return "atlas private";
   }
 
   /**

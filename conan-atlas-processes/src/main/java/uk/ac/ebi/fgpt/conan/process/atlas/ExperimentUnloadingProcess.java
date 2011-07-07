@@ -176,7 +176,7 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
    * @return the name of this process
    */
   public String getName() {
-    return "atlas experiment unloading";
+    return "atlas unloading";
   }
 
   /**

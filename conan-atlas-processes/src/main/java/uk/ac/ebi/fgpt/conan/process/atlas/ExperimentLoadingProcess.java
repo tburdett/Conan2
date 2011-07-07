@@ -182,7 +182,7 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
    * @return the name of this process
    */
   public String getName() {
-    return "atlas experiment loading";
+    return "atlas loading";
   }
 
   /**

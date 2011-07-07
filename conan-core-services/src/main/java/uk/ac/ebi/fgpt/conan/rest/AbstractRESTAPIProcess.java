@@ -135,7 +135,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                     response = statusMonitor.waitFor();
                     exitValue = getExitCode(response);
                     getLog().debug("REST API Process completed with exit value " + exitValue);
-
+                    System.out.println("REST API Process completed with exit value " + exitValue);
                     ProcessExecutionException pex = interpretExitValue(exitValue);
                     if (pex == null) {
                         return true;

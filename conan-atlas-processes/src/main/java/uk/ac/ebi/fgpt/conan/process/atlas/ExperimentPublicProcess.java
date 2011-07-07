@@ -176,7 +176,7 @@ public class ExperimentPublicProcess extends AbstractRESTAPIProcess{
      * @return the name of this process
      */
   public String getName() {
-    return "make atlas experiment public";
+    return "atlas public";
   }
 
         /**
