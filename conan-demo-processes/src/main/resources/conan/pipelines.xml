@@ -21,6 +21,10 @@
     <pipeline name="demo 2" creator="tburdett">
         <processes>
             <process name="demo process" />
+            <process name="demo process" displayName="step 2" />
+            <process name="demo process" displayName="step 3" />
+            <process name="demo process" displayName="step 4" />
+            <process name="demo process" displayName="step 5" />
         </processes>
     </pipeline>
 

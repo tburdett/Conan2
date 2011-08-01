@@ -17,8 +17,6 @@ import java.util.List;
  * @date 10-Nov-2010
  */
 public class SubmitterDetailsFromAE1DAO implements SubmitterDetailsDAO {
-
-
     public static final String SUBMITTER_DETAILS_SELECT =
             "select lbl.MAINOBJ_NAME,iden.name," +
                     "nvt.VALUE, usr.NAME, usr.PASSWORD, usr.EMAIL " +

@@ -14,7 +14,6 @@ import java.util.List;
  * @date 19-Nov-2010
  */
 public class DaemonInputsForAE1DAO implements ConanDaemonInputsDAO {
-
     public static final String GEO_EXPERIMENTS_READY_TO_LOAD =
             "select accession from experiments exp " +
                     "where status='Complete' and is_deleted = 0 and " +

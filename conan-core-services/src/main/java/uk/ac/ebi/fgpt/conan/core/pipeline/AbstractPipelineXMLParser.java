@@ -31,6 +31,7 @@ public abstract class AbstractPipelineXMLParser {
     public static final String PROCESSES_ELEMENT = "processes";
     public static final String PROCESS_ELEMENT = "process";
     public static final String PROCESS_NAME_ATTRIBUTE = "name";
+    public static final String PROCESS_DISPLAYNAME_ATTRIBUTE = "displayName";
 
     private ConanUserDAO userDAO;
     private ConanProcessDAO processDAO;

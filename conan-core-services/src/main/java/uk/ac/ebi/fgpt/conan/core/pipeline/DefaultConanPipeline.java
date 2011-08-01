@@ -22,6 +22,7 @@ public class DefaultConanPipeline implements ConanPipeline {
     private boolean isPrivate;
     private boolean isDaemonized;
     private List<ConanProcess> conanProcesses;
+    private List<String> conanProcessDisplayNames;
 
     private List<ConanParameter> allRequiredParameters;
 
@@ -37,6 +38,7 @@ public class DefaultConanPipeline implements ConanPipeline {
         this.isPrivate = isPrivate;
         this.isDaemonized = isDaemonized;
         this.conanProcesses = new ArrayList<ConanProcess>();
+        this.conanProcessDisplayNames = new ArrayList<String>();
         this.allRequiredParameters = new ArrayList<ConanParameter>();
     }
 
@@ -44,6 +46,13 @@ public class DefaultConanPipeline implements ConanPipeline {
         return log;
     }
 
+    /**
+     * Sets the required processes for this Conan pipeline.  On adding these processes, the list of unique parameters is
+     * collected by checking the parameters each process takes.  This allows pipelines to declare the required
+     * parameters to execute any pipeline up front.
+     *
+     * @param conanProcesses the list of processes to set for this pipeline
+     */
     public void setProcesses(List<ConanProcess> conanProcesses) {
         this.conanProcesses.addAll(conanProcesses);
 
@@ -53,11 +62,21 @@ public class DefaultConanPipeline implements ConanPipeline {
                 getLog().trace("Next parameter for process " + getName() + " = " + parameter.getName());
                 if (!allRequiredParameters.contains(parameter)) {
                     getLog().trace("'" + parameter.getName() + "' is a required parameter for pipelines containing " +
-                            "'" + getName() + "'");
+                                           "'" + getName() + "'");
                     allRequiredParameters.add(parameter);
                 }
             }
         }
+    }
+
+    /**
+     * Sets the display names for the processes on this pipeline.  The supplied list must exactly match the list of
+     * processes in length, and must be ordered the same.
+     *
+     * @param conanProcessDisplayNames the display names to assign to each process
+     */
+    public void setProcessDisplayNames(List<String> conanProcessDisplayNames) {
+        this.conanProcessDisplayNames.addAll(conanProcessDisplayNames);
     }
 
     public String getName() {
@@ -78,6 +97,10 @@ public class DefaultConanPipeline implements ConanPipeline {
 
     public List<ConanProcess> getProcesses() {
         return conanProcesses;
+    }
+
+    public List<String> getProcessDisplayNames() {
+        return conanProcessDisplayNames;
     }
 
     public List<ConanParameter> getAllRequiredParameters() {

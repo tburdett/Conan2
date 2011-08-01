@@ -737,10 +737,11 @@ function displayProcessOptions() {
     $("#conan-submissions-process-select").empty();
 
     var processes = selectedPipeline.processes;
+    var displayNames = selectedPipeline.processDisplayNames;
     for (var i = 0; i < processes.length; i++) {
         // add each option
         $("#conan-submissions-process-select").append(
-                "<option value=\"" + processes[i].name + "\">" + processes[i].name + "</option>");
+                "<option value=\"" + displayNames[i] + "\">" + displayNames[i] + "</option>");
     }
 }
 

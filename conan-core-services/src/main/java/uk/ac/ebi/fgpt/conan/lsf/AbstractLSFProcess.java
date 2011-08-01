@@ -24,7 +24,6 @@ import java.util.Map;
  * @date 02-Nov-2010
  */
 public abstract class AbstractLSFProcess implements ConanProcess {
-    //    private String bsubPath = "/ebi/lsf/ebi/7.0/linux2.6-glibc2.3-x86_64/bin/bsub";
     private String bsubPath = "bsub";
     private int monitorInterval = 15;
 

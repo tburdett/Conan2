@@ -239,6 +239,7 @@
             <modules>
                 <module>conan-service</module>
                 <module>conan-ui</module>
+                <module>conan-cli-utils</module>
                 <module>conan-core-services</module>
                 <module>conan-demo-processes</module>
             </modules>
