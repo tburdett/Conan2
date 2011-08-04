@@ -4,8 +4,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import uk.ac.ebi.fgpt.conan.ae.MAGEMLAccessionParameter;
 import uk.ac.ebi.fgpt.conan.dao.ConanDaemonInputsDAO;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
+import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * DAO class that can retrieve accession numbers from Submission Tracking Database for daemon mode to load into AE1
@@ -14,22 +19,11 @@ import java.util.List;
  * @date 19-Nov-2010
  */
 public class DaemonInputsForAE1DAO implements ConanDaemonInputsDAO {
-    public static final String GEO_EXPERIMENTS_READY_TO_LOAD =
-            "select accession from experiments exp " +
-                    "where status='Complete' and is_deleted = 0 and " +
-                    "is_released is null and accession is not null and " +
-                    "not(accession = '') and date_last_processed is not null " +
-                    "and experiment_type='GEO' " +
-                    "and (select count(*) from events where experiment_id=exp.id and " +
-                    "event_type in ('MAGEvalidator','MAGEloader') and " +
-                    "end_time > exp.date_last_processed)=0";
-
     private JdbcTemplate jdbcTemplate;
 
     public JdbcTemplate getJdbcTemplate() {
         return jdbcTemplate;
     }
-
 
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -41,6 +35,6 @@ public class DaemonInputsForAE1DAO implements ConanDaemonInputsDAO {
     }
 
     public List<String> getParameterValues() {
-        return getJdbcTemplate().queryForList(GEO_EXPERIMENTS_READY_TO_LOAD, String.class);
+        return getJdbcTemplate().queryForList(ConanProperties.getProperty("ae1.daemon.inputs.query"), String.class);
     }
 }

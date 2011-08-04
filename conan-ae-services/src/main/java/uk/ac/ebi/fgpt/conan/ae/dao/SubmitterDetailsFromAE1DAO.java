@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.conan.ae.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,17 +18,6 @@ import java.util.List;
  * @date 10-Nov-2010
  */
 public class SubmitterDetailsFromAE1DAO implements SubmitterDetailsDAO {
-    public static final String SUBMITTER_DETAILS_SELECT =
-            "select lbl.MAINOBJ_NAME,iden.name," +
-                    "nvt.VALUE, usr.NAME, usr.PASSWORD, usr.EMAIL " +
-                    "from PL_USER usr, PL_LABEL lbl, PL_VISIBILITY vis,TT_IDENTIFIABLE iden, TT_NAMEVALUETYPE nvt " +
-                    "where lbl.MAINOBJ_NAME = ?" +
-                    "and usr.id = vis.USER_ID " +
-                    "and vis.LABEL_ID = lbl.ID " +
-                    "and iden.identifier =  lbl.MAINOBJ_NAME " +
-                    "and nvt.T_EXTENDABLE_ID(+) = lbl.MAINOBJ_ID " +
-                    "and nvt.NAME(+) = 'ArrayExpressReleaseDate'";
-
     private JdbcTemplate jdbcTemplate;
 
     public JdbcTemplate getJdbcTemplate() {
@@ -39,7 +29,7 @@ public class SubmitterDetailsFromAE1DAO implements SubmitterDetailsDAO {
     }
 
     public List<SubmitterDetails> getSubmitterDetailsByAccession(String accession, SubmitterDetails.ObjectType type) {
-        return getJdbcTemplate().query(SUBMITTER_DETAILS_SELECT,
+        return getJdbcTemplate().query(ConanProperties.getProperty("ae1.submitter.query"),
                                        new Object[]{accession},
                                        new SubmitterDetailsMapper());
     }

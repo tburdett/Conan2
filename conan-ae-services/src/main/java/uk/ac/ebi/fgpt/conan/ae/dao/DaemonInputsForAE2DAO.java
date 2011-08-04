@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.dao.ConanDaemonInputsDAO;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
+import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 
 import java.util.List;
 
@@ -14,16 +15,6 @@ import java.util.List;
  * @date 19-Nov-2010
  */
 public class DaemonInputsForAE2DAO implements ConanDaemonInputsDAO {
-    public static final String GEO_EXPERIMENTS_READY_TO_LOAD =
-            "select accession from experiments exp " +
-                    "where status='Complete' and is_deleted = 0 and " +
-                    "is_released is null and accession is not null and " +
-                    "not(accession = '') and date_last_processed is not null " +
-                    "and experiment_type='GEO' " +
-                    "and (select count(*) from events where experiment_id=exp.id and " +
-                    "event_type in ('MAGETABLoader') and " +
-                    "end_time > exp.date_last_processed)=0";
-
     private JdbcTemplate jdbcTemplate;
 
     public JdbcTemplate getJdbcTemplate() {
@@ -40,6 +31,6 @@ public class DaemonInputsForAE2DAO implements ConanDaemonInputsDAO {
     }
 
     public List<String> getParameterValues() {
-        return getJdbcTemplate().queryForList(GEO_EXPERIMENTS_READY_TO_LOAD, String.class);
+        return getJdbcTemplate().queryForList(ConanProperties.getProperty("ae2.daemon.inputs.query"), String.class);
     }
 }

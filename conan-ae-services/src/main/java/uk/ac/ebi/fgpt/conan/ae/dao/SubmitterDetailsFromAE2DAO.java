@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,22 +22,6 @@ import java.util.List;
  * @date 10-Nov-2010
  */
 public class SubmitterDetailsFromAE2DAO implements SubmitterDetailsDAO {
-    public static final String EXP_SUBMITTER_DETAILS_SELECT =
-            "select exp.ACC, exp.TITLE, exp.RELEASEDATE, usr.USERNAME, usr.USERPASSWORD,usr.USEREMAIL, usr.NOTE " +
-                    "from SC_LABEL lbl, SC_OWNER own, SC_USER usr, STUDY exp " +
-                    "where lbl.ID = own.SC_LABEL_ID " +
-                    "and own.SC_USER_ID = usr.ID " +
-                    "and exp.ACC = lbl.NAME " +
-                    "and lbl.NAME = ?";
-
-    public static final String AD_SUBMITTER_DETAILS_SELECT =
-            "select ad.ACC, ad.NAME, ad.RELEASEDATE, usr.USERNAME, usr.USERPASSWORD,usr.USEREMAIL, usr.NOTE " +
-                    "from SC_LABEL lbl, SC_OWNER own, SC_USER usr, PLAT_DESIGN ad " +
-                    "where lbl.ID = own.SC_LABEL_ID " +
-                    "and own.SC_USER_ID = usr.ID " +
-                    "and ad.ACC = lbl.NAME " +
-                    "and lbl.NAME = ?";
-
     private JdbcTemplate jdbcTemplate;
 
     private Logger log = LoggerFactory.getLogger(getClass());
@@ -54,20 +39,22 @@ public class SubmitterDetailsFromAE2DAO implements SubmitterDetailsDAO {
     }
 
     public List<SubmitterDetails> getSubmitterDetailsByAccession(
-        String accession, SubmitterDetails.ObjectType type) {
+            String accession, SubmitterDetails.ObjectType type) {
         if (type == SubmitterDetails.ObjectType.EXPERIMENT) {
             getLog().debug("Querying for experiment submitter details for " + accession);
-            List<SubmitterDetails> result = getJdbcTemplate().query(EXP_SUBMITTER_DETAILS_SELECT,
-                                                                    new Object[]{accession},
-                                                                    new SubmitterDetailsMapper());
+            List<SubmitterDetails> result = getJdbcTemplate().query(
+                    ConanProperties.getProperty("ae2.experiment.submitter.query"),
+                    new Object[]{accession},
+                    new SubmitterDetailsMapper());
             getLog().debug("Submitter details returned " + result.size() + " results");
             return result;
         }
         else if (type == SubmitterDetails.ObjectType.ARRAY_DESIGN) {
             getLog().debug("Querying for array design submitter details for " + accession);
-            List<SubmitterDetails> result = getJdbcTemplate().query(AD_SUBMITTER_DETAILS_SELECT,
-                                                                    new Object[]{accession},
-                                                                    new SubmitterDetailsMapper());
+            List<SubmitterDetails> result = getJdbcTemplate().query(
+                    ConanProperties.getProperty("ae2.arraydesign.submitter.query"),
+                    new Object[]{accession},
+                    new SubmitterDetailsMapper());
             getLog().debug("Submitter details returned " + result.size() + " results");
             return result;
         }
