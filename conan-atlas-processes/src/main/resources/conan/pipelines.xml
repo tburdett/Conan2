@@ -18,25 +18,25 @@
             <process name="scoring" />
             <process name="afterloading" />
             <process name="atlas validation" />
-            <process name="atlas experiment loading" />
+            <process name="atlas loading" />
         </processes>
     </pipeline>
 
     <pipeline name="Atlas Experiment Unloading" creator="natalja">
         <processes>
-            <process name="atlas experiment unloading" />
+            <process name="atlas unloading" />
         </processes>
     </pipeline>
 
     <pipeline name="Atlas Experiment Private" creator="natalja">
         <processes>
-            <process name="make atlas experiment private" />
+            <process name="atlas private" />
         </processes>
     </pipeline>
 
     <pipeline name="Atlas Experiment Public" creator="natalja">
         <processes>
-            <process name="make atlas experiment public" />
+            <process name="atlas public" />
         </processes>
     </pipeline>
 

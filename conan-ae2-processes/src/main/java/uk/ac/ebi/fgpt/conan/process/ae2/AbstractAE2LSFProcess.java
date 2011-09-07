@@ -19,7 +19,8 @@ public abstract class AbstractAE2LSFProcess extends AbstractLSFProcess {
         }
         else {
             AE2Exception cause = ExceptionManager.getException(getComponentName(), exitValue);
-            String message = "Failed at " + getName() + ": " + cause.getDefaultMessage();
+//            String message = "Failed at " + getName() + ": " + cause.getDefaultMessage();
+            String message = "Failed at " + getName(); // replaces generic message from ae2 exceptions, binding is usually wrong
             getLog().debug("Generating ProcessExecutionException...\n" +
                                    "exitValue = " + exitValue + ",\n" +
                                    "message = " + message + ",\n" +
