@@ -1043,7 +1043,7 @@ function displayPendingTasks() {
                 progressCol = "Complete";
             }
             else {
-                progressCol = pendingTask.nextProcess.name;
+                progressCol = pendingTask.nextProcessDisplayName;
             }
         }
 
@@ -1098,7 +1098,7 @@ function displayRunningTasks() {
         var progressCol;
         if (restApiKey != undefined) {
             // logged in users see a pause button
-            progressCol = runningTask.currentProcess.name +
+            progressCol = runningTask.currentProcessDisplayName +
                     "<span style=\"float: right; margin-right: 0.3em;\"" +
                     "class=\"ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary pause-button clickable\"" +
                     "onclick=\"requestTaskPause(\'" + runningTask.id + "\');\" title=\"Pause this task\">" +
@@ -1107,7 +1107,7 @@ function displayRunningTasks() {
         }
         else {
             // guest users don't get any interaction options
-            progressCol = runningTask.currentProcess.name;
+            progressCol = runningTask.currentProcessDisplayName;
         }
 
         if (runningTask.pipeline == undefined) {
@@ -1174,7 +1174,7 @@ function displayCompletedTasks() {
                 dateStr = dateStr + " (Stopped before the first process)";
             }
             else {
-                dateStr = dateStr + " (Stopped at " + completedTask.lastProcess.name + ")";
+                dateStr = dateStr + " (Stopped at " + completedTask.lastProcessDisplayName + ")";
             }
         }
 

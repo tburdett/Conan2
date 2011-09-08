@@ -3,7 +3,6 @@ package uk.ac.ebi.fgpt.conan.ae.service;
 import uk.ac.ebi.fgpt.conan.ae.dao.SubmitterDetails;
 import uk.ac.ebi.fgpt.conan.ae.dao.SubmitterDetailsFromAE1DAO;
 import uk.ac.ebi.fgpt.conan.ae.dao.SubmitterDetailsFromAE2DAO;
-import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanTask;
 import uk.ac.ebi.fgpt.conan.service.AbstractEmailResponderService;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
@@ -96,7 +95,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
         return false;
     }
 
-    protected String getEmailSubject(ConanTask task, ConanProcess process) {
+    protected String getEmailSubject(ConanTask task) {
         String response = "[conan2]";
         if (task.getCurrentState() == ConanTask.State.FAILED) {
             response = response + "[failure] Conan has a problem with task '" + task.getName() + "' - " +
@@ -108,17 +107,17 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
         return response;
     }
 
-    protected String getEmailContent(ConanTask task, ConanProcess process) {
+    protected String getEmailContent(ConanTask task) {
         // if the task failed, email should be a failure notification to the submitter
         if (task.getCurrentState() == ConanTask.State.FAILED) {
             getLog().debug("Generating failure response for '" + task.getName() + "', " +
                                    "state = " + task.getCurrentState() + ", last process = " +
-                                   task.getLastProcess().getName());
+                                   task.getLastProcessDisplayName());
             return getFailureContent(task.getId(),
                                      task.getSubmitter().getFirstName(),
                                      task.getName(),
                                      task.getStatusMessage(),
-                                     process.getName(),
+                                     task.getLastProcessDisplayName(),
                                      1,
                                      "Unknown host",
                                      new String[]{"Not available: no output captured"});
@@ -133,7 +132,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                                     task.getName(), SubmitterDetails.ObjectType.EXPERIMENT);
                     getLog().debug("Generating confirmation response for '" + task.getName() + "', " +
                                            "state = " + task.getCurrentState() + ", last process = " +
-                                           task.getLastProcess().getName());
+                                           task.getLastProcessDisplayName());
                     return getConfirmationContent(task.getName(), details);
                 }
             }
@@ -147,7 +146,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                                     task.getName(), SubmitterDetails.ObjectType.ARRAY_DESIGN);
                     getLog().debug("Generating default response for '" + task.getName() + "', " +
                                            "state = " + task.getCurrentState() + ", last process = " +
-                                           task.getLastProcess().getName());
+                                           task.getLastProcessDisplayName());
                     return getConfirmationContent(task.getName(),
                                                   details); //getDefaultContent(task.getName(), process.getName());
                 }
@@ -187,34 +186,34 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
             // otherwise, generate a stock response
             getLog().debug("Generating default response for '" + task.getName() + "', " +
                                    "state = " + task.getCurrentState() + ", last process = " +
-                                   task.getLastProcess().getName());
+                                   task.getLastProcessDisplayName());
             return getDefaultContent(task.getId(),
                                      task.getSubmitter().getFirstName(),
                                      task.getName(),
-                                     process.getName());
+                                     task.getLastProcessDisplayName());
         }
     }
 
-    protected String getEmailContent(ConanTask task, ConanProcess process, ProcessExecutionException pex) {
+    protected String getEmailContent(ConanTask task, ProcessExecutionException pex) {
         // if the task failed, email should be a failure notification to the submitter
         if (task.getCurrentState() == ConanTask.State.FAILED) {
             return getFailureContent(task.getId(),
                                      task.getSubmitter().getFirstName(),
                                      task.getName(),
                                      task.getStatusMessage(),
-                                     process.getName(),
+                                     task.getLastProcessDisplayName(),
                                      pex.getExitValue(),
                                      pex.getProcessExecutionHost(),
                                      pex.getProcessOutput());
         }
         else {
-            if (process.getName().equals("experiment loading")) {
+            if (task.getLastProcess().getName().equals("experiment loading")) {
                 List<SubmitterDetails> details =
                         getAE2SubmitterDetailsDAO().getSubmitterDetailsByAccession(
                                 task.getName(), SubmitterDetails.ObjectType.EXPERIMENT);
                 return getConfirmationContent(task.getName(), details);
             }
-            else if (process.getName().equals("adf loading")) {
+            else if (task.getLastProcess().getName().equals("adf loading")) {
                 List<SubmitterDetails> details =
                         getAE2SubmitterDetailsDAO().getSubmitterDetailsByAccession(
                                 task.getName(), SubmitterDetails.ObjectType.ARRAY_DESIGN);
@@ -230,7 +229,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                 return getDefaultContent(task.getId(),
                                          task.getSubmitter().getFirstName(),
                                          task.getName(),
-                                         process.getName());
+                                         task.getLastProcessDisplayName());
             }
         }
     }
@@ -284,28 +283,29 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
             name = submitter.getName();
 
             try {
-              DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-              DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd");
-              releaseDate = df.parse(submitter.getReleaseDate());
-              releaseDateString = df2.format(releaseDate);
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd");
+                releaseDate = df.parse(submitter.getReleaseDate());
+                releaseDateString = df2.format(releaseDate);
 
-              Calendar cal = Calendar.getInstance();
-              today = cal.getTime();
-              cal.setTime(releaseDate);
-              cal.add(Calendar.HOUR, 24);
+                Calendar cal = Calendar.getInstance();
+                today = cal.getTime();
+                cal.setTime(releaseDate);
+                cal.add(Calendar.HOUR, 24);
 
-              if (!cal.getTime().after(today))
-                public_record = true;
+                if (!cal.getTime().after(today)) {
+                    public_record = true;
+                }
 
 
             }
-            catch (Exception e){
-              releaseDateString =  submitter.getReleaseDate();
+            catch (Exception e) {
+                releaseDateString = submitter.getReleaseDate();
             }
 
             activationDate = submitter.getActivationDate();
-            if (!public_record){
-              if (submitter.getUsername().startsWith("Reviewer")) {
+            if (!public_record) {
+                if (submitter.getUsername().startsWith("Reviewer")) {
                     if (account_reviewers.length() == 0) {
                         account_reviewers = "We have also created an additional user account for a reviewer(s).  " +
                                 "Please provide this login to journals for reviewer access. " +
@@ -363,7 +363,8 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                             "login using your account details and query for the accession " +
                             "number of your experiment or array design.\n\n"
                             : "Your " + (accession.startsWith("E") ? "experiment" : "array design")
-                                    + " is available under this link \"http://www.ebi.ac.uk/arrayexpress/"+(accession.startsWith("E") ? "experiments/" : "arrays/") + accession + "\".\n\n") +
+                            + " is available under this link \"http://www.ebi.ac.uk/arrayexpress/" +
+                            (accession.startsWith("E") ? "experiments/" : "arrays/") + accession + "\".\n\n") +
                     (reviewers_created ? account_reviewers : "") +
                     ((owners_created || reviewers_created) ?
                             "These user accounts will be activated on " + activationDate + " at " +

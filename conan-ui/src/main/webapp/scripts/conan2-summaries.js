@@ -62,7 +62,7 @@ function generateSummary(json) {
         var endStr = endDate.toLocaleTimeString() + ", " + endDate.toDateString();
         $("#pipeline-end-date").html(endStr);
     }
-    $("#first-process-name").html(json.firstProcess.name);
+    $("#first-process-name").html(json.firstProcessDisplayName);
 
     // set parameters supplied
     $("#parameters-list").html("");

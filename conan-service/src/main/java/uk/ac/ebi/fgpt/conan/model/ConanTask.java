@@ -153,6 +153,14 @@ public interface ConanTask<P extends ConanPipeline> extends Serializable {
     ConanProcess getFirstProcess();
 
     /**
+     * Returns the display name assigned to the first {@link ConanProcess} in the {@link ConanPipeline} that this task
+     * executes.
+     *
+     * @return the display name assigned to the first process for this task
+     */
+    String getFirstProcessDisplayName();
+
+    /**
      * Returns the {@link uk.ac.ebi.fgpt.conan.model.ConanProcess} that was executed last in this task, provided at
      * least one process has completed.  If no processes have yet completed, this returns null.  If this process is
      * paused, this will return the process that completed before the pause operation occurred.
@@ -160,6 +168,14 @@ public interface ConanTask<P extends ConanPipeline> extends Serializable {
      * @return the process that was last executed
      */
     ConanProcess getLastProcess();
+
+    /**
+     * Returns the display name for the last {@link ConanProcess} in the {@link ConanPipeline} that this task executed.
+     * If no processes have yet been executed, this will return null.
+     *
+     * @return the display name for the last process
+     */
+    String getLastProcessDisplayName();
 
     /**
      * Returns the current {@link uk.ac.ebi.fgpt.conan.model.ConanProcess} this task is currently executing.  If the
@@ -170,6 +186,14 @@ public interface ConanTask<P extends ConanPipeline> extends Serializable {
     ConanProcess getCurrentProcess();
 
     /**
+     * Returns the display name for the {@link ConanProcess} that this task is currently executing, if any.  If the task
+     * is not yet running, is paused, or has already completed, this will be null.
+     *
+     * @return the display name of the current process
+     */
+    String getCurrentProcessDisplayName();
+
+    /**
      * Returns the next {@link ConanProcess} this task will execute, or null if this task is currently executing the
      * final {@link ConanProcess} in the {@link ConanPipeline}.  If the task is paused, this will be the task that will
      * start on resumption.  If the last failed it's last task, this will be the same process that is returned from
@@ -178,6 +202,14 @@ public interface ConanTask<P extends ConanPipeline> extends Serializable {
      * @return the process that will be executed next by this task
      */
     ConanProcess getNextProcess();
+
+    /**
+     * Returns the display name assigned to the {@link ConanProcess} that this task will execute next, or null if this
+     * is the last task.
+     *
+     * @return the display name assigned to the next process
+     */
+    String getNextProcessDisplayName();
 
     /**
      * Gets the current state of this task.  Tasks may have one of several states depending on whether they have started
