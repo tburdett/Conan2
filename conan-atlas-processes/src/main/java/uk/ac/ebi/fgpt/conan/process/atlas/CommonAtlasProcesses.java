@@ -16,37 +16,45 @@ public class CommonAtlasProcesses {
         SCHEDULED, STARTED, FAILED;
     }
 
-    private String atlasPath = "http://banana.ebi.ac.uk:14072/gxa/";
+    private static final String atlasPath = "http://banana.ebi.ac.uk:14072/gxa/";
     //ConanProperties.getProperty("atlas.path")
-    private String atlasUsername = "autosubs";
+    private static final String atlasUsername = "autosubs";
     //ConanProperties.getProperty("atlas.username")
-    private String atlasPassword = "password";
+    private static final String atlasPassword = "password";
     //ConanProperties.getProperty("atlas.password")
 
-    public String ExperimentUpdatePrivate = atlasPath +
+    public static final String ExperimentUpdatePrivate = atlasPath +
             "admin?op=schedule&runMode=RESTART&type=" +
             "makeexperimentprivate&autoDepends=false&accession=";
 
-    public String ExperimentUpdatePublic = atlasPath +
+    public static final String ExperimentUpdatePublic = atlasPath +
             "admin?op=schedule&runMode=RESTART&type=" +
             "makeexperimentpublic&autoDepends=false&accession=";
 
-    public String ExperimentLoad = atlasPath +
+    public static final String ExperimentLoad = atlasPath +
             "admin?op=schedule&runMode=RESTART&type=" +
             "loadexperiment&autoDepends=false&private=true&accession=";
 
-    public String ExperimentUnload = atlasPath +
+    public static final String ExperimentUnload = atlasPath +
             "admin?op=schedule&runMode=RESTART&type=" +
             "unloadexperiment&autoDepends=false&accession=";
 
-    public String Monitoring = atlasPath +
+    public static final String ArrayDesignSearch = atlasPath +
+            "admin?op=searchad&p=0&n=1" +
+            "&search=";
+
+    public static final String Monitoring = atlasPath +
             "admin?op=tasklog&event=";
 
-    public String LogIn = atlasPath +
+    public static final String LogIn = atlasPath +
             "admin?op=login&userName=" +
             atlasUsername +
             "&password=" +
             atlasPassword;
+
+    public static final String CONTROLLED_VOCABULARY_SELECT_EXPT_TYPES = "select value from controlled_vocabulary" +
+        " where atlas_eligible=1" +
+        " and type='Experiment type'";
 
 
     /**
