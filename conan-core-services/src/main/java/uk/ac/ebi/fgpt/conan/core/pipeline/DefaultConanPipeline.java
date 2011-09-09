@@ -22,7 +22,6 @@ public class DefaultConanPipeline implements ConanPipeline {
     private boolean isPrivate;
     private boolean isDaemonized;
     private List<ConanProcess> conanProcesses;
-    private List<String> conanProcessDisplayNames;
 
     private List<ConanParameter> allRequiredParameters;
 
@@ -38,7 +37,6 @@ public class DefaultConanPipeline implements ConanPipeline {
         this.isPrivate = isPrivate;
         this.isDaemonized = isDaemonized;
         this.conanProcesses = new ArrayList<ConanProcess>();
-        this.conanProcessDisplayNames = new ArrayList<String>();
         this.allRequiredParameters = new ArrayList<ConanParameter>();
     }
 
@@ -69,16 +67,6 @@ public class DefaultConanPipeline implements ConanPipeline {
         }
     }
 
-    /**
-     * Sets the display names for the processes on this pipeline.  The supplied list must exactly match the list of
-     * processes in length, and must be ordered the same.
-     *
-     * @param conanProcessDisplayNames the display names to assign to each process
-     */
-    public void setProcessDisplayNames(List<String> conanProcessDisplayNames) {
-        this.conanProcessDisplayNames.addAll(conanProcessDisplayNames);
-    }
-
     public String getName() {
         return name;
     }
@@ -97,10 +85,6 @@ public class DefaultConanPipeline implements ConanPipeline {
 
     public List<ConanProcess> getProcesses() {
         return conanProcesses;
-    }
-
-    public List<String> getProcessDisplayNames() {
-        return conanProcessDisplayNames;
     }
 
     public List<ConanParameter> getAllRequiredParameters() {

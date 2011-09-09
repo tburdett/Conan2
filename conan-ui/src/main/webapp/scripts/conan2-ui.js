@@ -737,11 +737,10 @@ function displayProcessOptions() {
     $("#conan-submissions-process-select").empty();
 
     var processes = selectedPipeline.processes;
-    var displayNames = selectedPipeline.processDisplayNames;
     for (var i = 0; i < processes.length; i++) {
         // add each option
         $("#conan-submissions-process-select").append(
-                "<option value=\"" + displayNames[i] + "\">" + displayNames[i] + "</option>");
+                "<option value=\"" + processes[i].name + "\">" + processes[i].name + "</option>");
     }
 }
 
@@ -1043,7 +1042,7 @@ function displayPendingTasks() {
                 progressCol = "Complete";
             }
             else {
-                progressCol = pendingTask.nextProcessDisplayName;
+                progressCol = pendingTask.nextProcess.name;
             }
         }
 
@@ -1098,7 +1097,7 @@ function displayRunningTasks() {
         var progressCol;
         if (restApiKey != undefined) {
             // logged in users see a pause button
-            progressCol = runningTask.currentProcessDisplayName +
+            progressCol = runningTask.currentProcess.name +
                     "<span style=\"float: right; margin-right: 0.3em;\"" +
                     "class=\"ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary pause-button clickable\"" +
                     "onclick=\"requestTaskPause(\'" + runningTask.id + "\');\" title=\"Pause this task\">" +
@@ -1107,7 +1106,7 @@ function displayRunningTasks() {
         }
         else {
             // guest users don't get any interaction options
-            progressCol = runningTask.currentProcessDisplayName;
+            progressCol = runningTask.currentProcess.name;
         }
 
         if (runningTask.pipeline == undefined) {
@@ -1174,7 +1173,7 @@ function displayCompletedTasks() {
                 dateStr = dateStr + " (Stopped before the first process)";
             }
             else {
-                dateStr = dateStr + " (Stopped at " + completedTask.lastProcessDisplayName + ")";
+                dateStr = dateStr + " (Stopped at " + completedTask.lastProcess.name + ")";
             }
         }
 

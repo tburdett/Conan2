@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.conan.core.pipeline;
 
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
+import uk.ac.ebi.fgpt.conan.core.process.DisplayNameProcessDecorator;
 import uk.ac.ebi.fgpt.conan.dao.ConanProcessDAO;
 import uk.ac.ebi.fgpt.conan.dao.ConanUserDAO;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
@@ -103,9 +104,7 @@ public class PipelineXMLSAXParser extends AbstractPipelineXMLParser {
         private Collection<ConanPipeline> conanPipelines;
         private DefaultConanPipeline currentPipeline;
         private List<ConanProcess> currentProcesses;
-        private List<String> currentProcessesDisplayNames;
         private ConanProcess currentProcess;
-        private String currentProcessDisplayName;
 
         private PipelineXMLContentHandler(Collection<ConanPipeline> conanPipelines) {
             this.conanPipelines = conanPipelines;
@@ -119,11 +118,9 @@ public class PipelineXMLSAXParser extends AbstractPipelineXMLParser {
             }
             else if (uri.equals(PIPELINES_SCHEMA_NAMESPACE) && localName.equals(PROCESSES_ELEMENT)) {
                 currentProcesses = readProcesses();
-                currentProcessesDisplayNames = readProcessesDisplayNames();
             }
             else if (uri.equals(PIPELINES_SCHEMA_NAMESPACE) && localName.equals(PROCESS_ELEMENT)) {
                 currentProcess = readProcess(attributes);
-                currentProcessDisplayName = readProcessDisplayName(attributes);
             }
         }
 
@@ -138,7 +135,6 @@ public class PipelineXMLSAXParser extends AbstractPipelineXMLParser {
             else if (uri.equals(PIPELINES_SCHEMA_NAMESPACE) && localName.equals(PROCESSES_ELEMENT)) {
                 if (currentPipeline != null) {
                     currentPipeline.setProcesses(currentProcesses);
-                    currentPipeline.setProcessDisplayNames(currentProcessesDisplayNames);
                 }
                 else {
                     getLog().warn(
@@ -150,7 +146,6 @@ public class PipelineXMLSAXParser extends AbstractPipelineXMLParser {
                 getLog().debug("Loaded process '" + currentProcess.getName() + "'");
                 if (currentProcesses != null) {
                     currentProcesses.add(currentProcess);
-                    currentProcessesDisplayNames.add(currentProcessDisplayName);
                 }
                 else {
                     getLog().warn("Read process '" + currentProcess + "' but it could not be added to a valid " +
@@ -204,10 +199,6 @@ public class PipelineXMLSAXParser extends AbstractPipelineXMLParser {
             return new ArrayList<ConanProcess>();
         }
 
-        private List<String> readProcessesDisplayNames() {
-            return new ArrayList<String>();
-        }
-
         private ConanProcess readProcess(Attributes attributes) {
             for (int i = 0; i < attributes.getLength(); i++) {
                 getLog().trace("Next attribute: " +
@@ -216,29 +207,25 @@ public class PipelineXMLSAXParser extends AbstractPipelineXMLParser {
             }
 
             String processName = attributes.getValue(PROCESS_NAME_ATTRIBUTE);
+            String processDisplayName = attributes.getValue(PROCESS_DISPLAYNAME_ATTRIBUTE);
+
+            // retrieve process
             ConanProcess p = getProcessDAO().getProcess(processName);
             if (p != null) {
                 getLog().trace("Starting parsing process '" + p.getName() + "'");
-                return p;
+                if (processDisplayName != null) {
+                    getLog().trace("Decorating '" + p.getName() + "' with display name '" + processDisplayName + "'");
+                    return new DisplayNameProcessDecorator(p, processDisplayName);
+                }
+                else {
+                    return p;
+                }
             }
             else {
                 String msg = "pipelines.xml references a process (" + processName + ") that was not loaded";
                 getLog().error(msg);
                 throw new ServiceConfigurationError(msg);
             }
-        }
-
-        private String readProcessDisplayName(Attributes attributes) {
-            for (int i = 0; i < attributes.getLength(); i++) {
-                getLog().trace("Next attribute: " +
-                                       attributes.getQName(i) + " = " +
-                                       attributes.getValue(i));
-            }
-
-            // check display name for this process and set if present
-            String processName = attributes.getValue(PROCESS_NAME_ATTRIBUTE);
-            String processDisplayName = attributes.getValue(PROCESS_DISPLAYNAME_ATTRIBUTE);
-            return (processDisplayName != null) ? processDisplayName : processName;
         }
     }
 

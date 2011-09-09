@@ -55,14 +55,6 @@ public interface ConanPipeline extends Serializable {
     List<ConanProcess> getProcesses();
 
     /**
-     * Returns a list of display names assigned to processes in this pipeline.  The ordering of this list is the same as
-     * the ordering of the processes returned with a call to {@link #getProcesses()}
-     *
-     * @return the display names for processes in the pipeline
-     */
-    List<String> getProcessDisplayNames();
-
-    /**
      * Returns the set of input parameters that are required by this pipeline.  Pipeline parameters are the sum total of
      * all input parameters required by the {@link uk.ac.ebi.fgpt.conan.model.ConanProcess}es that make up this
      * pipeline.  The user must supply all these parameters up front in order to create a task for this pipeline.  Some

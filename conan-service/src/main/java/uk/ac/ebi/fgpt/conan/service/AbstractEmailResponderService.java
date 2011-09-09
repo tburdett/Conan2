@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanTask;
 import uk.ac.ebi.fgpt.conan.model.ConanUser;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
@@ -123,14 +124,15 @@ public abstract class AbstractEmailResponderService implements ConanResponderSer
     public void generateResponse(ConanTask task) {
         if (respondsTo(task)) {
             getLog().debug("Generating response for task '" + task.getId() + "'");
+            ConanProcess lastProcess = task.getLastProcess();
 
             // build an email error message
             SimpleMailMessage msg = new SimpleMailMessage();
 
 
             // get subject and message text from implementations
-            String subject = getEmailSubject(task);
-            String messageText = getEmailContent(task);
+            String subject = getEmailSubject(task, lastProcess);
+            String messageText = getEmailContent(task, lastProcess);
 
             // generate and send the email
             msg.setFrom("conan@ebi.ac.uk");
@@ -158,8 +160,9 @@ public abstract class AbstractEmailResponderService implements ConanResponderSer
             getLog().debug("Generating response for task '" + task.getId() + "'");
 
             // get subject and message text from implementations
-            String subject = getEmailSubject(task);
-            String messageText = getEmailContent(task, pex);
+            ConanProcess lastProcess = task.getLastProcess();
+            String subject = getEmailSubject(task, lastProcess);
+            String messageText = getEmailContent(task, lastProcess, pex);
 
             if (!task.getSubmitter().getEmail().equals("")) {
                 // build an email error message
@@ -186,15 +189,15 @@ public abstract class AbstractEmailResponderService implements ConanResponderSer
             }
             else {
                 getLog().warn("The submitter of task '" + task.getId() + "' " +
-                                      "(" + task.getSubmitter().getUserName() + ") has no email address.  " +
-                                      "The current notification, '" + subject + "' will be lost.");
+                        "(" + task.getSubmitter().getUserName() + ") has no email address.  " +
+                        "The current notification, '" + subject + "' will be lost.");
             }
         }
     }
 
-    protected abstract String getEmailSubject(ConanTask task);
+    protected abstract String getEmailSubject(ConanTask task, ConanProcess process);
 
-    protected abstract String getEmailContent(ConanTask task);
+    protected abstract String getEmailContent(ConanTask task, ConanProcess process);
 
-    protected abstract String getEmailContent(ConanTask task, ProcessExecutionException pex);
+    protected abstract String getEmailContent(ConanTask task, ConanProcess process, ProcessExecutionException pex);
 }
