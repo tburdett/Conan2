@@ -222,7 +222,7 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
             // log this exception
             getLog().error("A runtime exception occurred whilst executing task '" + getId() + "'", e);
             getLog().error("Process '" + getCurrentProcess().getName() + "' failed to execute");
-            fireProcessFailedEvent("Failed at " + getCurrentProcess().getName(), 1);
+            fireProcessFailedEvent(1);
             throw new TaskExecutionException(e);
         }
         finally {
@@ -469,7 +469,7 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
 
     protected void fireProcessFailedEvent(ProcessExecutionException pex) {
         getLog().debug("Task " + getId() + " failed its current process, exit code " + pex.getExitValue());
-        updateCurrentStatusMessage(pex.getMessage());
+        updateCurrentStatusMessage("Failed at " + getCurrentProcess().getName());
         updateCurrentState(State.FAILED);
 
         // increment the execution index
@@ -487,9 +487,9 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
         }
     }
 
-    protected void fireProcessFailedEvent(String failureMessage, int exitValue) {
+    protected void fireProcessFailedEvent(int exitValue) {
         getLog().debug("Task " + getId() + " failed its current process, exit code " + exitValue);
-        updateCurrentStatusMessage(failureMessage);
+        updateCurrentStatusMessage("Failed at " + getCurrentProcess().getName());
         updateCurrentState(State.FAILED);
 
         // increment the execution index
