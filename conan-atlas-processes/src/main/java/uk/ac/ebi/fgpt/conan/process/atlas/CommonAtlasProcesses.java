@@ -52,9 +52,6 @@ public class CommonAtlasProcesses {
             "&password=" +
             atlasPassword;
 
-    public static final String CONTROLLED_VOCABULARY_SELECT_EXPT_TYPES = "select value from controlled_vocabulary" +
-        " where atlas_eligible=1" +
-        " and type='Experiment type'";
 
 
     /**

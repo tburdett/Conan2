@@ -16,23 +16,21 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.fgpt.conan.model.ConanParameter;
-import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * An abstract {@link uk.ac.ebi.fgpt.conan.model.ConanProcess} that is designed for to process REST API requests.  You
+ * An abstract that is designed to process REST API requests. You
  * can tailor monitor interval by process.
  *
  * @author Natalja Kurbatova
  * @date 23-05-2011
  */
-public abstract class AbstractRESTAPIProcess implements ConanProcess {
+public abstract class AbstractRESTAPISubprocess {
 
-    public static final int MONITOR_INTERVAL = 15;
+    public static final int MONITOR_INTERVAL = 5;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -50,67 +48,10 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
         return log;
     }
 
-    /**
-     * REST API...
-     */
-    public boolean execute(Map<ConanParameter, String> parameters)
+    public boolean execute(String parameter)
             throws IllegalArgumentException, ProcessExecutionException,
             InterruptedException {
-        getLog()
-                .debug("Executing an REST API process with parameters: " + parameters);
-        // process exit value, initialise to -1
-        int exitValue = -1;
-        HashMap<String, Object> response;
-        //have to login to work with REST API
-        if (LogIn()) {
-            //
-            String jobQuery = getRestApiRequest(parameters);
-            String idToMonitor = getResultValue(restApiRequest(jobQuery), parameters);
-            try {
-                if (!idToMonitor.equals(RESTAPIEvents.WITHOUT_MONITORING)) {
-                    // set up monitoring
-                    final RESTAPIStatusMonitor
-                            statusMonitor =
-                            new RESTAPIStatusMonitor(getMonitoringRequest(idToMonitor),
-                                                     MONITOR_INTERVAL);
-
-                    // process monitoring
-                    getLog().debug("Monitoring process, waiting for completion");
-                    new Thread(statusMonitor).start();
-                    response = statusMonitor.waitFor();
-                    exitValue = getExitCode(response);
-                    getLog().debug("REST API Process completed with exit value " + exitValue);
-
-                    ProcessExecutionException pex = interpretExitValue(exitValue);
-                    if (pex == null) {
-                        return true;
-                    }
-                    else {
-                        pex.setProcessOutput(new String[]{getMessage(response)});
-                        throw pex;
-                    }
-                }
-                else {
-                    exitValue = 0;
-                    getLog()
-                            .debug("REST API Process completed with exit value " + exitValue);
-                    return true;
-                }
-            }
-            catch (Exception e) {
-                getLog().debug(
-                        "Can't get job id for monitoring process, assume that monitoring is not needed");
-                exitValue = 0;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public boolean executeMockup(String parameter)
-            throws IllegalArgumentException, ProcessExecutionException,
-            InterruptedException {
+        boolean result = false;
         getLog()
                 .debug("Executing an REST API process with parameters: " + parameter);
         // process exit value, initialise to -1
@@ -120,46 +61,10 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
         if (LogIn()) {
 
             String jobQuery = getRestApiRequest(parameter);
-            String idToMonitor = getResultValue(restApiRequest(jobQuery), parameter);
-            try {
-                if (!idToMonitor.equals(RESTAPIEvents.WITHOUT_MONITORING.toString())) {
-                    // set up monitoring
-                    final RESTAPIStatusMonitor
-                            statusMonitor =
-                            new RESTAPIStatusMonitor(getMonitoringRequest(idToMonitor),
-                                                     MONITOR_INTERVAL);
+            result = getResultValue(restApiRequest(jobQuery), parameter);
 
-                    // process monitoring
-                    getLog().debug("Monitoring process, waiting for completion");
-                    new Thread(statusMonitor).start();
-                    response = statusMonitor.waitFor();
-                    exitValue = getExitCode(response);
-                    getLog().debug("REST API Process completed with exit value " + exitValue);
-                    System.out.println("REST API Process completed with exit value " + exitValue);
-                    ProcessExecutionException pex = interpretExitValue(exitValue);
-                    if (pex == null) {
-                        return true;
-                    }
-                    else {
-                        pex.setProcessOutput(new String[]{getMessage(response)});
-                        throw pex;
-                    }
-                }
-                else {
-                    exitValue = 0;
-                    getLog()
-                            .debug("REST API Process completed with exit value " + exitValue);
-                    return true;
-                }
-            }
-            catch (Exception e) {
-                getLog().debug(
-                        "Can't get job id for monitoring process, assume that monitoring is not needed");
-                exitValue = 0;
-                return true;
-            }
         }
-        return false;
+        return result;
 
     }
 //*****************************************************************************//
@@ -333,28 +238,16 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
         }
     }
 
-    //*****************************************************************************//
+//*****************************************************************************//
 //*********************Abstract methods to be implemented *********************//
 //*****************************************************************************//
-    protected abstract String getComponentName();
 
     protected abstract boolean isComplete(HashMap<String, Object> response);
 
     protected abstract String getMessage(HashMap<String, Object> response);
 
-    protected abstract int getExitCode(HashMap<String, Object> response);
-
-    protected abstract String getResultValue(HashMap<String, Object> response,
-                                             Map<ConanParameter, String> parameters);
-
-    protected abstract String getResultValue(HashMap<String, Object> response,
+    protected abstract boolean getResultValue(HashMap<String, Object> response,
                                              String parameters);
-
-    protected abstract String getMonitoringRequest(String id);
-
-    protected abstract String getRestApiRequest(
-            Map<ConanParameter, String> parameters)
-            throws IllegalArgumentException;
 
     protected abstract String getRestApiRequest(String parameters);
 
