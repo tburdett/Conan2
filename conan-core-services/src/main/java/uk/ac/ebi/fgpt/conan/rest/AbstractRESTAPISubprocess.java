@@ -48,10 +48,10 @@ public abstract class AbstractRESTAPISubprocess {
         return log;
     }
 
-    public boolean execute(String parameter)
+    public String execute(String parameter)
             throws IllegalArgumentException, ProcessExecutionException,
             InterruptedException {
-        boolean result = false;
+        String result = "empty";
         getLog()
                 .debug("Executing an REST API process with parameters: " + parameter);
         // process exit value, initialise to -1
@@ -246,7 +246,7 @@ public abstract class AbstractRESTAPISubprocess {
 
     protected abstract String getMessage(HashMap<String, Object> response);
 
-    protected abstract boolean getResultValue(HashMap<String, Object> response,
+    protected abstract String getResultValue(HashMap<String, Object> response,
                                              String parameters);
 
     protected abstract String getRestApiRequest(String parameters);

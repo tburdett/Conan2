@@ -25,7 +25,7 @@ import java.util.*;
  * @author Natalja Kurbatova
  * @date 15/02/11
  */
-@ServiceProvider
+
 public class ArrayDesignExistenceChecking extends AbstractRESTAPISubprocess {
 
   private CommonAtlasProcesses atlas = new CommonAtlasProcesses();
@@ -60,18 +60,22 @@ public class ArrayDesignExistenceChecking extends AbstractRESTAPISubprocess {
    * @return Atlas job ID to monitor the job status
    */
   @Override
-  protected boolean getResultValue(HashMap<String, Object> response,
+  protected String getResultValue(HashMap<String, Object> response,
                                   String parameters) {
+    String result = "empty";
     try{
-
-      if (Integer.parseInt(response.get("numTotal").toString())>0)
-        return true;
-
+      System.out.println(response.get("arraydesigns").toString().toLowerCase());
+      if (Integer.parseInt(response.get("numTotal").toString())>0) {
+        result = "is";
+        if (response.get("arraydesigns").toString().toLowerCase().contains("affy"))
+          result="affy";
+      }
       else
-        return false;
+        result = "no";
+      return result;
     }
     catch (Exception e){
-      return false;
+      return result;
     }
   }
 
