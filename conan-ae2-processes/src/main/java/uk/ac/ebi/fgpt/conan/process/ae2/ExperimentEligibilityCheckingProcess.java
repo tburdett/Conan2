@@ -148,7 +148,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
    * @return the name of this process
    */
   public String getName() {
-    return "AE2 eligibility";
+    return "eligibility";
   }
 
   /**
