@@ -14,6 +14,8 @@ import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.*;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.*;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
@@ -69,16 +71,19 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
     accession.setAccession(parameters.get(accessionParameter));
 
     //logging
+    String reportsDir = accession.getFile().getParentFile().getAbsolutePath() + File.separator + "reports";
+    String fileName = reportsDir + File.separator + accession.getAccession() +
+        "_AtlasEligibilityCheck" +
+        "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
+        ".report";
     try{
-      String pathToLogFile = accession.getFile().getParentFile().getAbsolutePath() +
-          "/reports/atlas_eligibility.log";
-      FileHandler handler = new FileHandler(pathToLogFile);
+      FileHandler handler = new FileHandler(fileName);
       // Add to the desired logger
       log = Logger.getLogger("Atlas_eligibility");
       log.addHandler(handler);
     }
-    catch (Exception e){
-
+    catch (IOException e){
+      throw new ProcessExecutionException(1, "Can't create report file '" + fileName + "'", e);
     }
 
     // make a new parser
