@@ -1,37 +1,42 @@
 package uk.ac.ebi.fgpt.conan.process.atlas;
 
 import net.sourceforge.fluxion.spi.ServiceProvider;
-import org.mged.magetab.error.ErrorCode;
-import org.mged.magetab.error.ErrorItem;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.graph.Node;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.HybridizationNode;
-import uk.ac.ebi.arrayexpress2.magetab.listener.ErrorItemListener;
 import uk.ac.ebi.arrayexpress2.magetab.parser.MAGETABParser;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.dao.DatabaseConanControlledVocabularyDAO;
-import uk.ac.ebi.fgpt.conan.lsf.LSFProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
-import uk.ac.ebi.fgpt.conan.rest.AbstractRESTAPIProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.MAGETABInvestigation;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.*;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.*;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
-
-import javax.sql.DataSource;
 import java.io.File;
 import java.util.*;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
- * Process to load experiment into Atlas
+ * Process to check experiment eligibility for Atlas.
+ * Consists of five steps: check for experiment type, check for two-channel
+ * experiment, check for factor values, check for array design existence in Atlas,
+ * check for raw data files for Affy and derived data files for all other platforms.
  *
  * @author Natalja Kurbatova
  * @date 15/02/11
  */
+@ServiceProvider
+public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
-public class ExperimentEligibilityCheckingProcess implements ConanProcess{
+  // Add to the desired logger
+  private Logger log;
 
+  protected Logger getLog() {
+        return log;
+  }
 
   private final Collection<ConanParameter> parameters;
   private final AccessionParameter accessionParameter;
@@ -47,6 +52,10 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess{
     parameters = new ArrayList<ConanParameter>();
     accessionParameter = new AccessionParameter();
     parameters.add(accessionParameter);
+    ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("conan-dao.xml");
+    controlledVocabularyDAO = ctx.getBean("databaseConanControlledVocabularyDAO", DatabaseConanControlledVocabularyDAO.class);
+
+
   }
 
 
@@ -54,79 +63,158 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess{
       throws ProcessExecutionException, IllegalArgumentException,
       InterruptedException {
 
-      boolean result = false;
-      //deal with parameters
-      AccessionParameter accession = new AccessionParameter();
-      accession.setAccession(parameters.get(accessionParameter));
+    boolean result = true;
+    //deal with parameters
+    AccessionParameter accession = new AccessionParameter();
+    accession.setAccession(parameters.get(accessionParameter));
 
-      // make a new parser
-      MAGETABParser parser = new MAGETABParser();
-
-      // add an error item listener to the parser, this one just reports parsing errors as stdout
-      parser.addErrorItemListener(new ErrorItemListener() {
-
-      public void errorOccurred(ErrorItem item) {
-        // locate the error code from the enum, to check the generic message
-        ErrorCode code = null;
-        for (ErrorCode ec : ErrorCode.values()) {
-          if (item.getErrorCode() == ec.getIntegerValue()) {
-            code = ec;
-            break;
-          }
-        }
-
-        if (code != null) {
-          // this just dumps out some info about the type of error
-          System.out.println("Listener reported error...");
-          System.out.println("\tError Code: " + item.getErrorCode() + " [" +
-              code.getErrorMessage() + "]");
-          System.out.println("\tError message: " + item.getMesg());
-          System.out.println("\tCaller: " + item.getCaller());
-        }
-      }
-    });
-
-    // now, parse from a file
-    File idfFile = accession.getFile();
-
-    // print some stdout info
-    System.out.println("Parsing " + idfFile.getAbsolutePath() + "...");
-
+    //logging
     try{
-      MAGETABInvestigation investigation = parser.parse(idfFile);
+      String pathToLogFile = accession.getFile().getParentFile().getAbsolutePath() +
+          "/reports/atlas_eligibility.log";
+      FileHandler handler = new FileHandler(pathToLogFile);
+      // Add to the desired logger
+      log = Logger.getLogger("Atlas_eligibility");
+      log.addHandler(handler);
+    }
+    catch (Exception e){
+
+    }
+
+    // make a new parser
+    MAGETABParser parser = new MAGETABParser();
+
+
+    try {
+      MAGETABInvestigation investigation = parser.parse(accession.getFile());
       // I check: experiment types
-      boolean isAtlasType=false;
-      for (String exptType : investigation.IDF.getComments().get("AEExperimentType")){
-        for (String AtlasType : controlledVocabularyDAO.getAEExperimentTypes()) {
-           if (exptType.equals(AtlasType))
-             isAtlasType=true;
+      boolean isAtlasType = false;
+      for (String exptType : investigation.IDF.getComments()
+          .get("AEExperimentType")) {
+        for (String AtlasType : controlledVocabularyDAO
+            .getAtlasExperimentTypes()) {
+          if (exptType.equals(AtlasType)) {
+            isAtlasType = true;
+          }
         }
       }
 
       if (!isAtlasType)
-        //not in Atlas Experiment Types
+      //not in Atlas Experiment Types
+      {
+        getLog().log(Level.ALL,
+            "Atlas Eligibility Check: 'Experiment Type' is not accepted by Atlas");
         return false;
+      }
       else {
-        // II check: array design is in Atlas
-        Collection<HybridizationNode> hybridizationNodes =  investigation.SDRF.getNodes(HybridizationNode.class);
-        for (HybridizationNode hybNode : hybridizationNodes){
-                for (ArrayDesignAttribute arrayDesign : hybNode.arrayDesigns)
-                  if (!ArrayDesignAccessions.contains(arrayDesign.getAttributeValue()))
-                        ArrayDesignAccessions.add(arrayDesign.getAttributeValue());
+        //Ia two-channel experiment
+        if (investigation.SDRF.getNumberOfChannels() > 1) {
+          getLog().log(Level.ALL,"Atlas Eligibility Check: two-channel experiment is not accepted by Atlas");
+          return false;
         }
-        for (String arrayDesign : ArrayDesignAccessions){
-          ArrayDesignExistenceChecking arrayDesignExistenceChecking = new ArrayDesignExistenceChecking();
-          String arrayCheckResult = arrayDesignExistenceChecking.execute(arrayDesign);
-          if (!arrayCheckResult.equals("empty") && !arrayCheckResult.equals("no"))
-            result = false;
+
+        // II check: array design is in Atlas
+        Collection<HybridizationNode> hybridizationNodes =
+            investigation.SDRF.getNodes(HybridizationNode.class);
+        Collection<ArrayDataNode> rawDataNodes =
+            investigation.SDRF.getNodes(ArrayDataNode.class);
+        Collection<DerivedArrayDataNode> processedDataNodes =
+            investigation.SDRF.getNodes(DerivedArrayDataNode.class);
+        Collection<DerivedArrayDataMatrixNode> processedDataMatrixNodes =
+            investigation.SDRF.getNodes(DerivedArrayDataMatrixNode.class);
+        int factorValues = 0;
+        for (HybridizationNode hybNode : hybridizationNodes)
+
+        {
+          if (hybNode.factorValues.size()>0) factorValues++;
+          for (ArrayDesignAttribute arrayDesign : hybNode.arrayDesigns) {
+            if (!ArrayDesignAccessions
+                .contains(arrayDesign.getAttributeValue())) {
+              ArrayDesignAccessions.add(arrayDesign.getAttributeValue());
+            }
+          }
+        }
+
+        //Ib presence pf factor values
+        if (factorValues==0) {
+          getLog().log(Level.ALL,"Atlas Eligibility Check: experiment does not have Factor Values");
+          return false;
+        }
+        for (String arrayDesign : ArrayDesignAccessions) {
+          ArrayDesignExistenceChecking arrayDesignExistenceChecking =
+              new ArrayDesignExistenceChecking();
+          String arrayCheckResult =
+              arrayDesignExistenceChecking.execute(arrayDesign);
+          if (arrayCheckResult.equals("empty") ||
+              arrayCheckResult.equals("no")) {
+            getLog().log(Level.ALL,"Atlas Eligibility Check: array design '" + arrayDesign + "' used in experiment is not in Atlas");
+            return false;
+          }
+
           else {
+            //Array Design is in Atlas
+            Collection<HybridizationNode> hybridizationSubNodes =
+                new ArrayList<HybridizationNode>();
+            Collection<Node> rawDataSubNodes = new ArrayList<Node>();
+            Collection<Node> processedDataSubNodes = new ArrayList<Node>();
+            Collection<Node> processedDataMatrixSubNodes =
+                new ArrayList<Node>();
+            //Number of arrays in experiment
+            if (ArrayDesignAccessions.size() > 1) {
+
+              for (HybridizationNode hybNode : hybridizationNodes) {
+                ArrayDesignAttribute attribute = new ArrayDesignAttribute();
+                attribute.setAttributeValue(arrayDesign);
+
+                if (hybNode.arrayDesigns.contains(attribute)) {
+                  //get data nodes for particular array design
+                  hybridizationSubNodes.add(hybNode);
+                  getNodes(hybNode, ArrayDataNode.class, rawDataSubNodes);
+                  getNodes(hybNode, DerivedArrayDataNode.class,
+                           processedDataSubNodes);
+                  getNodes(hybNode, DerivedArrayDataMatrixNode.class,
+                           processedDataMatrixSubNodes);
+
+                }
+
+              }
+            }
+            else {
+              //one array design in experiment
+              hybridizationSubNodes = hybridizationNodes;
+              for (ArrayDataNode node : rawDataNodes) {
+                rawDataSubNodes.add((Node) node);
+              }
+              for (DerivedArrayDataNode node : processedDataNodes) {
+                processedDataSubNodes.add((Node) node);
+              }
+              for (DerivedArrayDataMatrixNode node : processedDataMatrixNodes) {
+                processedDataMatrixSubNodes.add((Node) node);
+              }
+
+            }
+
             //III check: if Affy then check for raw data files, else for derived
-            //Todo: get array name - check for "affy" in lower case afterwards do files checking
+            if (arrayCheckResult.equals("affy") &&
+                hybridizationSubNodes.size() != rawDataSubNodes.size())
+            //affy
+            {
+              getLog().log(Level.ALL,"Atlas Eligibility Check: Affymetrix experiment without raw data files");
+              return false;
+            }
+            else
+              //not affy
+              if (processedDataSubNodes.size() == 0 &&
+                  processedDataMatrixSubNodes.size() == 0) {
+                getLog().log(Level.ALL,"Atlas Eligibility Check: non-Affymetrix experiment without processed data files");
+                return false;
+              }
           }
         }
       }
     }
     catch (Exception e) {
+      getLog().log(Level.ALL,"Atlas Eligibility Check: something is wrong in the code " + e.getMessage());
       result = false;
     }
 
@@ -134,149 +222,184 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess{
   }
 
 
-   public boolean executeMockup(String file, List<String> types)
+  public boolean executeMockup(String file, List<String> types)
       throws ProcessExecutionException, IllegalArgumentException,
       InterruptedException {
 
-      boolean result = false;
+    boolean result = false;
 
-      // make a new parser
-      MAGETABParser parser = new MAGETABParser();
+    // make a new parser
+    MAGETABParser parser = new MAGETABParser();
 
-      // now, parse from a file
-      File idfFile = new File(file);
+    // now, parse from a file
+    File idfFile = new File(file);
 
 
-      // print some stdout info
-      System.out.println("Parsing " + idfFile.getAbsolutePath() + "...");
+    // print some stdout info
+    System.out.println("Parsing " + idfFile.getAbsolutePath() + "...");
 
-      try{
-        MAGETABInvestigation investigation = parser.parse(idfFile);
-        // I check: experiment types
-        boolean isAtlasType=false;
-        for (String exptType : investigation.IDF.getComments().get("AEExperimentType")){
-          for (String AtlasType : types) {
-            System.out.println("Type: " + AtlasType );
+    try {
+      MAGETABInvestigation investigation = parser.parse(idfFile);
+      // I check: experiment types
+      boolean isAtlasType = false;
+      for (String exptType : investigation.IDF.getComments()
+          .get("AEExperimentType")) {
+        for (String AtlasType : types) {
+          System.out.println("Type: " + AtlasType);
 
-             if (exptType.equals(AtlasType))
-               isAtlasType=true;
+          if (exptType.equals(AtlasType)) {
+            isAtlasType = true;
           }
         }
-        System.out.println("I Experiment Type checking result: " + isAtlasType);
-        if (!isAtlasType)
-          //not in Atlas Experiment Types
+      }
+      System.out.println("I Experiment Type checking result: " + isAtlasType);
+      if (!isAtlasType)
+      //not in Atlas Experiment Types
+      {
+        return false;
+      }
+      else {
+        // II check: array design is in Atlas
+        if (investigation.SDRF.getNumberOfChannels() > 1) {
+          System.out.println("Ia Number of channels: " +
+                                 investigation.SDRF.getNumberOfChannels());
           return false;
-        else {
-          // II check: array design is in Atlas
-          if (investigation.SDRF.getNumberOfChannels()>1){
-            System.out.println("Ia Number of channels: " + investigation.SDRF.getNumberOfChannels());
+        }
+        Collection<HybridizationNode> hybridizationNodes =
+            investigation.SDRF.getNodes(HybridizationNode.class);
+        Collection<ArrayDataNode> rawDataNodes =
+            investigation.SDRF.getNodes(ArrayDataNode.class);
+        Collection<DerivedArrayDataNode> processedDataNodes =
+            investigation.SDRF.getNodes(DerivedArrayDataNode.class);
+        Collection<DerivedArrayDataMatrixNode> processedDataMatrixNodes =
+            investigation.SDRF.getNodes(DerivedArrayDataMatrixNode.class);
+        for (HybridizationNode hybNode : hybridizationNodes) {
+
+          for (ArrayDesignAttribute arrayDesign : hybNode.arrayDesigns) {
+            if (!ArrayDesignAccessions
+                .contains(arrayDesign.getAttributeValue())) {
+              ArrayDesignAccessions.add(arrayDesign.getAttributeValue());
+
+            }
+          }
+
+        }
+        for (String arrayDesign : ArrayDesignAccessions) {
+          System.out.println("ARRAY: " + arrayDesign);
+          ArrayDesignExistenceChecking arrayDesignExistenceChecking =
+              new ArrayDesignExistenceChecking();
+          String arrayCheckResult =
+              arrayDesignExistenceChecking.execute(arrayDesign);
+          if (arrayCheckResult.equals("empty") ||
+              arrayCheckResult.equals("no")) {
+            System.out.println(
+                "II Array design checking result: " + arrayCheckResult);
             return false;
           }
-          Collection<HybridizationNode> hybridizationNodes =  investigation.SDRF.getNodes(HybridizationNode.class);
-          Collection<ArrayDataNode> rawDataNodes =  investigation.SDRF.getNodes(ArrayDataNode.class);
-          Collection<DerivedArrayDataNode> processedDataNodes =  investigation.SDRF.getNodes(DerivedArrayDataNode.class);
-          Collection<DerivedArrayDataMatrixNode> processedDataMatrixNodes =  investigation.SDRF.getNodes(DerivedArrayDataMatrixNode.class);
-          for (HybridizationNode hybNode : hybridizationNodes){
+          else {
+            System.out.println(
+                "II Array design checking result: " + arrayCheckResult);
+            Collection<HybridizationNode> hybridizationSubNodes =
+                new ArrayList<HybridizationNode>();
+            Collection<Node> rawDataSubNodes = new ArrayList<Node>();
+            Collection<Node> processedDataSubNodes = new ArrayList<Node>();
+            Collection<Node> processedDataMatrixSubNodes =
+                new ArrayList<Node>();
+            if (ArrayDesignAccessions.size() > 1) {
 
-                  for (ArrayDesignAttribute arrayDesign : hybNode.arrayDesigns)
-                    if (!ArrayDesignAccessions.contains(arrayDesign.getAttributeValue())) {
-                          ArrayDesignAccessions.add(arrayDesign.getAttributeValue());
+              for (HybridizationNode hybNode : hybridizationNodes) {
+                ArrayDesignAttribute attribute = new ArrayDesignAttribute();
+                attribute.setAttributeValue(arrayDesign);
 
-                    }
+                if (hybNode.arrayDesigns.contains(attribute)) {
+                  //get data nodes for particular array design
+                  hybridizationSubNodes.add(hybNode);
+                  getNodes(hybNode, ArrayDataNode.class, rawDataSubNodes);
+                  getNodes(hybNode, DerivedArrayDataNode.class,
+                           processedDataSubNodes);
+                  getNodes(hybNode, DerivedArrayDataMatrixNode.class,
+                           processedDataMatrixSubNodes);
 
-          }
-          for (String arrayDesign : ArrayDesignAccessions){
-            System.out.println("ARRAY: " + arrayDesign);
-            ArrayDesignExistenceChecking arrayDesignExistenceChecking = new ArrayDesignExistenceChecking();
-            String arrayCheckResult = arrayDesignExistenceChecking.execute(arrayDesign);
-            if (arrayCheckResult.equals("empty") || arrayCheckResult.equals("no")) {
-              System.out.println("II Array design checking result: " + arrayCheckResult);
-              return false;
+                }
+
+              }
             }
             else {
-               System.out.println("II Array design checking result: " + arrayCheckResult);
-               Collection<HybridizationNode> hybridizationSubNodes = new ArrayList<HybridizationNode>();
-               Collection<Node> rawDataSubNodes = new ArrayList<Node>();
-               Collection<Node> processedDataSubNodes =  new ArrayList<Node>();
-               Collection<Node> processedDataMatrixSubNodes = new ArrayList<Node>();
-               if (ArrayDesignAccessions.size()>1){
+              hybridizationSubNodes = hybridizationNodes;
+              for (ArrayDataNode node : rawDataNodes) {
+                rawDataSubNodes.add((Node) node);
+              }
+              for (DerivedArrayDataNode node : processedDataNodes) {
+                processedDataSubNodes.add((Node) node);
+              }
+              for (DerivedArrayDataMatrixNode node : processedDataMatrixNodes) {
+                processedDataMatrixSubNodes.add((Node) node);
+              }
 
-                 for (HybridizationNode hybNode : hybridizationNodes){
-                      ArrayDesignAttribute attribute = new ArrayDesignAttribute();
-                      attribute.setAttributeValue(arrayDesign);
+            }
 
-                    if (hybNode.arrayDesigns.contains(attribute)) {
-                      //get data nodes for particular array design
-                      hybridizationSubNodes.add(hybNode);
-                      getNodes(hybNode,ArrayDataNode.class,rawDataSubNodes);
-                      getNodes(hybNode,DerivedArrayDataNode.class,processedDataSubNodes);
-                      getNodes(hybNode,DerivedArrayDataMatrixNode.class,processedDataMatrixSubNodes);
-
-                    }
-
-                  }
-               }
-               else {
-                hybridizationSubNodes = hybridizationNodes;
-                for (ArrayDataNode node : rawDataNodes)
-                  rawDataSubNodes.add((Node)node);
-                for (DerivedArrayDataNode node : processedDataNodes)
-                  processedDataSubNodes.add((Node)node);
-                for (DerivedArrayDataMatrixNode node : processedDataMatrixNodes)
-                  processedDataMatrixSubNodes.add((Node)node);
-
-               }
-
-               //III check: if Affy then check for raw data files, else for derived
-               if (arrayCheckResult.equals("affy") )
-                //affy
+            //III check: if Affy then check for raw data files, else for derived
+            if (arrayCheckResult.equals("affy"))
+            //affy
 
 
-                if (hybridizationSubNodes.size()==rawDataSubNodes.size()){
-                  System.out.println("III Affy raw data files checking result: " + "true");
-                }
-               else{
-                System.out.println("III Affy raw data files checking result: " + "false");
+            {
+              if (hybridizationSubNodes.size() == rawDataSubNodes.size()) {
+                System.out.println(
+                    "III Affy raw data files checking result: " + "true");
+              }
+              else {
+                System.out.println(
+                    "III Affy raw data files checking result: " + "false");
                 return false;
-               }
-               else {
-                 //not affy
-                 if (processedDataSubNodes.size()==0 && processedDataMatrixSubNodes.size()==0)  {
-                     System.out.println("III Derived data files checking result: " + "false");
-                     return false;
-                 }
-                 else {
-                    System.out.println("III Derived data files checking result: " + "true");
-                 }
-               }
+              }
+            }
+            else {
+              //not affy
+              if (processedDataSubNodes.size() == 0 &&
+                  processedDataMatrixSubNodes.size() == 0) {
+                System.out.println(
+                    "III Derived data files checking result: " + "false");
+                return false;
+              }
+              else {
+                System.out.println(
+                    "III Derived data files checking result: " + "true");
+              }
             }
           }
         }
       }
-      catch (Exception e) {
-        e.printStackTrace();
-        result = false;
-      }
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      result = false;
+    }
 
     return result;
   }
 
-  private Collection<Node> getNodes(Node parentNode, Class typeOfNode,Collection<Node> nodes){
-    for (Node childNode : parentNode.getChildNodes()){
-        if (childNode.getClass().equals(typeOfNode) && !nodes.contains(childNode))
-           nodes.add(childNode);
-        else
-          getNodes(childNode, typeOfNode, nodes);
+  private Collection<Node> getNodes(Node parentNode, Class typeOfNode,
+                                    Collection<Node> nodes) {
+    for (Node childNode : parentNode.getChildNodes()) {
+      if (childNode.getClass().equals(typeOfNode) &&
+          !nodes.contains(childNode)) {
+        nodes.add(childNode);
+      }
+      else {
+        getNodes(childNode, typeOfNode, nodes);
+      }
     }
     return nodes;
   }
+
   /**
    * Returns the name of this process.
    *
    * @return the name of this process
    */
   public String getName() {
-    return "atlas eligibility check";
+    return "atlas eligibility";
   }
 
   /**

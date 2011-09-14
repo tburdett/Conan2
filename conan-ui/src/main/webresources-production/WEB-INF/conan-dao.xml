@@ -27,6 +27,10 @@
         <property name="jdbcTemplate" ref="conanJdbcTemplate" />
     </bean>
 
+    <bean name="databaseConanControlledVocabularyDAO" class="uk.ac.ebi.fgpt.conan.dao.DatabaseConanControlledVocabularyDAO">
+        <property name="jdbcTemplate" ref="conanJdbcTemplate" />
+    </bean>
+
     <bean name="ldapUserDAO" class="uk.ac.ebi.fgpt.conan.dao.LdapConanUserDAO">
         <property name="ldapTemplate" ref="ldapTemplate" />
     </bean>
