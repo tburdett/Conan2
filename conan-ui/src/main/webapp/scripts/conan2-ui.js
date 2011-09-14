@@ -393,7 +393,7 @@ function requestPipelines() {
  * Requests a list of tasks that are currently pending, via an ajax request to the server.
  */
 function requestPendingTasks() {
-    $.getJSON('api/tasks?pending', function(json) {
+    $.getJSON('api/tasks?pending&summaryView=true', function(json) {
         pendingTasks = json;
         displayPendingTasks();
     })
@@ -403,7 +403,7 @@ function requestPendingTasks() {
  * Requests a list of tasks that are currently running, via an ajax request to the server.
  */
 function requestRunningTasks() {
-    $.getJSON('api/tasks?running', function(json) {
+    $.getJSON('api/tasks?running&summaryView=true', function(json) {
         runningTasks = json;
         displayRunningTasks();
     })
@@ -413,7 +413,7 @@ function requestRunningTasks() {
  * Requests a list of tasks that are currently completed, via an ajax request to the server.
  */
 function requestCompletedTasks() {
-    $.getJSON('api/tasks?complete', function(json) {
+    $.getJSON('api/tasks?complete&summaryView=true', function(json) {
         completedTasks = json;
         displayCompletedTasks();
     })

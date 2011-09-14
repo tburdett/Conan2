@@ -35,11 +35,12 @@
         <property name="ldapTemplate" ref="ldapTemplate" />
     </bean>
 
-    <bean name="conanTaskDAO" class="uk.ac.ebi.fgpt.conan.dao.InMemoryConanTaskDAO" init-method="init">
-        <property name="conanTaskPersistenceDAO" ref="conanTaskPersistenceDAO" />
-    </bean>
+    <!--<bean name="conanTaskDAO" class="uk.ac.ebi.fgpt.conan.dao.InMemoryConanTaskDAO" init-method="init">-->
+        <!--<property name="conanTaskPersistenceDAO" ref="conanTaskPersistenceDAO" />-->
+    <!--</bean>-->
 
-    <bean name="conanTaskPersistenceDAO" class="uk.ac.ebi.fgpt.conan.dao.DatabaseConanTaskDAO">
+    <!--<bean name="conanTaskPersistenceDAO" class="uk.ac.ebi.fgpt.conan.dao.DatabaseConanTaskDAO">-->
+    <bean name="conanTaskDAO" class="uk.ac.ebi.fgpt.conan.dao.DatabaseConanTaskDAO">
         <property name="pipelineDAO" ref="conanPipelineDAO" />
         <property name="userDAO" ref="databaseUserDAO" />
         <property name="jdbcTemplate" ref="conanJdbcTemplate" />

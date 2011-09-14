@@ -1,10 +1,10 @@
 package uk.ac.ebi.fgpt.conan.dao;
 
-import uk.ac.ebi.fgpt.conan.factory.ConanTaskFactory;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanProcessRun;
 import uk.ac.ebi.fgpt.conan.model.ConanTask;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -47,6 +47,15 @@ public interface ConanTaskDAO {
     List<ConanTask<? extends ConanPipeline>> getAllTasks();
 
     /**
+     * Returns a list of all known tasks, excluding process information. This includes all pending, running and
+     * completed tasks - basically a history of everything that has ever been submitted.  Tasks should be returned
+     * ordered by creation date.
+     *
+     * @return the list of all  tasks
+     */
+    List<ConanTask<? extends ConanPipeline>> getAllTasksSummary();
+
+    /**
      * Gets a list of the specified number of tasks. This includes all pending, running and completed tasks - basically
      * a history of everything that has ever been submitted.  Tasks should be returned ordered by creation date.
      *
@@ -77,11 +86,27 @@ public interface ConanTaskDAO {
     List<ConanTask<? extends ConanPipeline>> getPendingTasks();
 
     /**
+     * Gets a list of all tasks that have a "pending" status, excluding process info.  Tasks in this list may have been
+     * executed but failed: tasks that fail should highlight their failure to the submitter, and flag the task as
+     * pending.
+     *
+     * @return a list of all tasks pending execution
+     */
+    List<ConanTask<? extends ConanPipeline>> getPendingTasksSummary();
+
+    /**
      * Gets a list of all tasks that have a "running" status.
      *
      * @return the currently executing tasks
      */
     List<ConanTask<? extends ConanPipeline>> getRunningTasks();
+
+    /**
+     * Gets a list of all tasks that have a "running" status, excluding process info.
+     *
+     * @return the currently executing tasks
+     */
+    List<ConanTask<? extends ConanPipeline>> getRunningTasksSummary();
 
     /**
      * Gets a list of all tasks have a "completed" status.  This includes tasks that completed successfully, and those
@@ -90,6 +115,15 @@ public interface ConanTaskDAO {
      * @return the tasks that have completed
      */
     List<ConanTask<? extends ConanPipeline>> getCompletedTasks();
+
+    /**
+     * Gets a list of all tasks have a "completed" status, excluding process info.  This includes tasks that completed
+     * successfully, and those that completed because a process failed and was subsequently marked as complete by the
+     * submitter.
+     *
+     * @return the tasks that have completed
+     */
+    List<ConanTask<? extends ConanPipeline>> getCompletedTasksSummary();
 
     /**
      * Gets a list of the specified number of tasks have a "completed" status.  This includes tasks that completed
@@ -102,6 +136,18 @@ public interface ConanTaskDAO {
      * @return a list of all tasks pending execution
      */
     List<ConanTask<? extends ConanPipeline>> getCompletedTasks(int maxRecords, int startingFrom);
+
+    /**
+     * Gets a list of the specified number of tasks have a "completed" status, returning a summary view that excludes
+     * process info.  This includes tasks that completed successfully, and those that completed because a process failed
+     * and was subsequently marked as complete by the submitter.  The records are ordered by completion date by default:
+     * this is equivalent to calling {@link #getCompletedTasks(int, int, String)} with a value of "completionDate".
+     *
+     * @param maxRecords   the maximum number of records to return
+     * @param startingFrom the position in the list of tasks to start from
+     * @return a list of all tasks pending execution
+     */
+    List<ConanTask<? extends ConanPipeline>> getCompletedTasksSummary(int maxRecords, int startingFrom);
 
     /**
      * Gets a list of the specified number of tasks have a "completed" status.  This includes tasks that completed
@@ -161,4 +207,84 @@ public interface ConanTaskDAO {
      */
     <P extends ConanPipeline> ConanTask<P> saveProcessRun(String conanTaskID, ConanProcessRun conanProcessRun)
             throws IllegalArgumentException;
+
+    /**
+     * Retrieves completed tasks from the underlying database which have a task name matching the supplied string.  Task
+     * name searches should be case insensitive and should be considered as a fragment for matching - in other words,
+     * the actual search should be <code>LIKE '%{name}%'</code> or the equivalent.
+     *
+     * @param name the task name to search by
+     * @return the list of conan tasks matching the search parameter
+     */
+    List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name);
+
+    /**
+     * Retrieves completed tasks from the underlying database which have a task name matching the supplied string and
+     * were submitted by the user with the given ID.  Task name searches should be case insensitive and should be
+     * considered as a fragment for matching - in other words, the actual search should be <code>LIKE '%{name}%'</code>
+     * or the equivalent.
+     *
+     * @param name   the task name to search by
+     * @param userID the user ID of the user submitting the tasks to search for
+     * @return the list of conan tasks matching the search parameter
+     */
+    List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, String userID);
+
+    /**
+     * Retrieves completed tasks from the underlying database which have a task name matching the supplied string and
+     * completed after the given date.  Task name searches should be case insensitive and should be considered as a
+     * fragment for matching - in other words, the actual search should be <code>LIKE '%{name}%'</code> or the
+     * equivalent.
+     *
+     * @param name     the task name to search by
+     * @param fromDate the earliest date of completion to search for tasks from
+     * @return the list of conan tasks matching the search parameter
+     */
+    List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, Date fromDate);
+
+    /**
+     * Retrieves completed tasks from the underlying database which have a task name matching the supplied string and
+     * completed between the supplied dates.  The from date parameter may be null: in this case, all tasks before the
+     * toDate should be returned. Task name searches should be case insensitive and should be considered as a fragment
+     * for matching - in other words, the actual search should be <code>LIKE '%{name}%'</code> or the equivalent.
+     *
+     * @param name     the task name to search by
+     * @param fromDate the earliest date to search for tasks from
+     * @param toDate   the latest date to search for tasks from
+     * @return the list of conan tasks matching the search parameter
+     */
+    List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, Date fromDate, Date toDate);
+
+    /**
+     * Retrieves completed tasks from the underlying database which have a task name matching the supplied string, were
+     * submitted by the user with the given ID, and were completed after the given date.  Task name searches should be
+     * case insensitive and should be considered as a fragment for matching - in other words, the actual search should
+     * be <code>LIKE '%{name}%'</code> or the equivalent.
+     *
+     * @param name     the task name to search by
+     * @param userID   the user ID of the user submitting the tasks to search for
+     * @param fromDate the earliest date to search for tasks from
+     * @return the list of conan tasks matching the search parameter
+     */
+    List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name,
+                                                                  String userID,
+                                                                  Date fromDate);
+
+    /**
+     * Retrieves completed tasks from the underlying database which have a task name matching the supplied string, were
+     * submitted by the user with the given ID, and completed between the supplied dates.  If the from date parameter is
+     * null, tasks should only be filtered if they completed after the to date parameter.  Task name searches should be
+     * case insensitive and should be considered as a fragment for matching - in other words, the actual search should
+     * be <code>LIKE '%{name}%'</code> or the equivalent.
+     *
+     * @param name     the task name to search by
+     * @param userID   the user ID of the user submitting the tasks to search for
+     * @param fromDate the earliest date to search for tasks from
+     * @param toDate   the latest date to search for tasks from
+     * @return the list of conan tasks matching the search parameter
+     */
+    List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name,
+                                                                  String userID,
+                                                                  Date fromDate,
+                                                                  Date toDate);
 }

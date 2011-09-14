@@ -4,6 +4,7 @@ import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanTask;
 import uk.ac.ebi.fgpt.conan.model.ConanUser;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -58,6 +59,14 @@ public interface ConanTaskService {
     List<ConanTask<? extends ConanPipeline>> getTasks();
 
     /**
+     * Gets a list of all tasks, summarised so as not to include all process information. This includes all pending,
+     * running and completed tasks - basically a history of everything task that has ever been created.
+     *
+     * @return the list of all submitted tasks
+     */
+    List<ConanTask<? extends ConanPipeline>> getTasksSummary();
+
+    /**
      * Gets a list of all tasks. This includes all pending, running and completed tasks - basically a history of
      * everything task that has ever been created.  The records are ordered by creation date by default: this is
      * equivalent to calling {@link #getTasks(int, int, String)} with a value of "completionDate".
@@ -88,6 +97,15 @@ public interface ConanTaskService {
      * @return a list of all tasks pending execution
      */
     List<ConanTask<? extends ConanPipeline>> getPendingTasks();
+
+    /**
+     * Returns a list of all tasks that have been submitted but are pending execution, summarised so as to exclude the
+     * query for process information.  Tasks in this list may have been executed but failed: tasks that fail should
+     * highlight their failure to the submitter, and flag the task as pending.
+     *
+     * @return a list of all tasks pending execution
+     */
+    List<ConanTask<? extends ConanPipeline>> getPendingTasksSummary();
 
     /**
      * Gets a list of the specified number of tasks that have a "pending" status.  Tasks in this list may have been
@@ -121,6 +139,14 @@ public interface ConanTaskService {
     List<ConanTask<? extends ConanPipeline>> getRunningTasks();
 
     /**
+     * Returns a list of all tasks that are currently being executed, summarised so as to exclude the query for process
+     * information
+     *
+     * @return the currently executing tasks
+     */
+    List<ConanTask<? extends ConanPipeline>> getRunningTasksSummary();
+
+    /**
      * Gets a list of the specified number of tasks that have a "running" status. The records are ordered by start date
      * by default: this is equivalent to calling {@link #getRunningTasks(int, int, String)} with a value of
      * "startDate".
@@ -151,6 +177,15 @@ public interface ConanTaskService {
     List<ConanTask<? extends ConanPipeline>> getCompletedTasks();
 
     /**
+     * Returns a list of all tasks that have been executed and completed, summarised so as to exclude the query for
+     * process information.  This includes tasks that completed successfully, and those that completed because a process
+     * failed and was subsequently marked as complete by the submitter.
+     *
+     * @return the tasks that have completed
+     */
+    List<ConanTask<? extends ConanPipeline>> getCompletedTasksSummary();
+
+    /**
      * Gets a list of the specified number of tasks have a "completed" status.  This includes tasks that completed
      * successfully, and those that completed because a process failed and was subsequently marked as complete by the
      * submitter.  The records are ordered by completion date by default: this is equivalent to calling {@link
@@ -174,4 +209,20 @@ public interface ConanTaskService {
      * @return a list of all tasks pending execution
      */
     List<ConanTask<? extends ConanPipeline>> getCompletedTasks(int maxRecords, int startingFrom, String orderBy);
+
+    /**
+     * Search through the completed tasks for any tasks that match the given name, submitting user, and fall between the
+     * range of dates.  For unspecified fields, you can supply nulls. Underlying implementations are free to specify
+     * wildcard search patterns or default behaviours.
+     *
+     * @param name      the task name to search for
+     * @param conanUser the user that submitted the task to search for
+     * @param fromDate  searches by tasks finished after this date
+     * @param toDate    searches by tasks finished before this date
+     * @return the list of tasks that fulfil the given search criteria
+     */
+    List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name,
+                                                                  ConanUser conanUser,
+                                                                  Date fromDate,
+                                                                  Date toDate);
 }

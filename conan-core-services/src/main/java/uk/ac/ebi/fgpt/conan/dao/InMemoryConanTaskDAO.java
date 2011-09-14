@@ -95,6 +95,33 @@ public class InMemoryConanTaskDAO implements ConanTaskDAO {
         return task;
     }
 
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name) {
+        return getCompletedTasks();
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, String userID) {
+        return getCompletedTasks();
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, Date fromDate) {
+        return getCompletedTasks();
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, Date fromDate, Date toDate) {
+        return getCompletedTasks();
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, String userID, Date fromDate) {
+        return getCompletedTasks();
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name,
+                                                                         String userID,
+                                                                         Date fromDate,
+                                                                         Date toDate) {
+        return getCompletedTasks();
+    }
+
     public List<ConanTask<? extends ConanPipeline>> getAllTasks() {
         List<ConanTask<? extends ConanPipeline>> result = new ArrayList<ConanTask<? extends ConanPipeline>>();
         synchronized (allTasks) {
@@ -103,6 +130,10 @@ public class InMemoryConanTaskDAO implements ConanTaskDAO {
             }
         }
         return result;
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> getAllTasksSummary() {
+        return getConanTaskPersistenceDAO().getAllTasksSummary();
     }
 
     public List<ConanTask<? extends ConanPipeline>> getAllTasks(int maxRecords, int startingFrom) {
@@ -142,6 +173,10 @@ public class InMemoryConanTaskDAO implements ConanTaskDAO {
         return results;
     }
 
+    public List<ConanTask<? extends ConanPipeline>> getPendingTasksSummary() {
+        return getConanTaskPersistenceDAO().getPendingTasksSummary();
+    }
+
     public List<ConanTask<? extends ConanPipeline>> getRunningTasks() {
         List<ConanTask<? extends ConanPipeline>> results = new ArrayList<ConanTask<? extends ConanPipeline>>();
         for (ConanTask<? extends ConanPipeline> task : getAllTasks()) {
@@ -150,6 +185,10 @@ public class InMemoryConanTaskDAO implements ConanTaskDAO {
             }
         }
         return results;
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> getRunningTasksSummary() {
+        return getConanTaskPersistenceDAO().getRunningTasksSummary();
     }
 
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasks() {
@@ -168,6 +207,10 @@ public class InMemoryConanTaskDAO implements ConanTaskDAO {
         return results;
     }
 
+    public List<ConanTask<? extends ConanPipeline>> getCompletedTasksSummary() {
+        return getConanTaskPersistenceDAO().getCompletedTasksSummary();
+    }
+
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasks(int maxRecords, int startingFrom) {
         List<ConanTask<? extends ConanPipeline>> results = new ArrayList<ConanTask<? extends ConanPipeline>>();
         for (ConanTask<? extends ConanPipeline> task : getAllTasks()) {
@@ -177,6 +220,10 @@ public class InMemoryConanTaskDAO implements ConanTaskDAO {
             }
         }
         return results.subList(startingFrom, startingFrom + maxRecords);
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> getCompletedTasksSummary(int maxRecords, int startingFrom) {
+        return getCompletedTasks(maxRecords, startingFrom);
     }
 
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasks(int maxRecords,

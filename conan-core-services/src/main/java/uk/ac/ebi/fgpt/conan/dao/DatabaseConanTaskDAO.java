@@ -48,9 +48,27 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
     public static final String TASK_SELECT_RUNNING = TASK_SELECT + " " +
             "where STATE = 'RUNNING'";
     public static final String TASK_SELECT_COMPLETED = TASK_SELECT + " " +
-            "where STATE = 'COMPLETED' or STATE = 'ABORTED'";
-    public static final String TASK_SELECT_COMPLETED_PAGED = TASK_SELECT_COMPLETED + " " +
-            "and ROWNUM <= ? and ROWNUM >= ? order by ?";
+            "where (STATE = 'COMPLETED' or STATE = 'ABORTED')";
+    public static final String TASK_SELECT_COMPLETED_PAGED =
+            "select ID, NAME, START_DATE, END_DATE, USER_ID, PIPELINE_NAME, PRIORITY, FIRST_PROCESS_INDEX, STATE, STATUS_MESSAGE, CURRENT_EXECUTED_INDEX, CREATION_DATE " +
+                    "from (" + TASK_SELECT + " order by ?) " +
+                    "where (STATE = 'COMPLETED' or STATE = 'ABORTED') and ROWNUM <= ? and ROWNUM >= ?";
+    public static final String TASK_SEARCH_NAME = TASK_SELECT_COMPLETED + " " +
+            "and NAME like ?";
+    public static final String TASK_SEARCH_NAME_USER = TASK_SEARCH_NAME + " " +
+            "and  USER_ID = ?";
+    public static final String TASK_SEARCH_NAME_FROM_DATE = TASK_SEARCH_NAME + " " +
+            "and END_DATE > ?";
+    public static final String TASK_SEARCH_NAME_TO_DATE = TASK_SEARCH_NAME + " " +
+            "and END_DATE < ?";
+    public static final String TASK_SEARCH_NAME_FROM_TO_DATE = TASK_SEARCH_NAME_FROM_DATE + " " +
+            "and END_DATE < ?";
+    public static final String TASK_SEARCH_NAME_USER_FROM_DATE = TASK_SEARCH_NAME_USER + " " +
+            "and END_DATE > ?";
+    public static final String TASK_SEARCH_NAME_USER_TO_DATE = TASK_SEARCH_NAME_USER + " " +
+            "and END_DATE < ?";
+    public static final String TASK_SEARCH_NAME_USER_FROM_TO_DATE = TASK_SEARCH_NAME_USER_FROM_DATE + " " +
+            "and END_DATE < ?";
     public static final String TASK_INSERT =
             "insert into CONAN_TASKS (" +
                     "ID, NAME, START_DATE, END_DATE, USER_ID, PIPELINE_NAME, PRIORITY, FIRST_PROCESS_INDEX, STATE, STATUS_MESSAGE, CURRENT_EXECUTED_INDEX, CREATION_DATE) " +
@@ -172,13 +190,13 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
 
     public ConanTask<? extends ConanPipeline> getTask(String taskID) {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
-        DatabaseRecoveredConanTask taskDB = getJdbcTemplate().queryForObject(TASK_SELECT_BY_ID,
-                                                                             new Object[]{taskID},
-                                                                             new ConanTaskMapper());
+        ConanTask<? extends ConanPipeline> taskDB = getJdbcTemplate().queryForObject(TASK_SELECT_BY_ID,
+                                                                                     new Object[]{taskID},
+                                                                                     new ConanTaskMapper());
 
         //additional sets
-        List<DatabaseRecoveredConanTask<? extends ConanPipeline>> singleList =
-                new ArrayList<DatabaseRecoveredConanTask<? extends ConanPipeline>>();
+        List<ConanTask<? extends ConanPipeline>> singleList =
+                new ArrayList<ConanTask<? extends ConanPipeline>>();
         singleList.add(taskDB);
         addConanTaskChildren(singleList);
 
@@ -333,22 +351,23 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
 
     public List<ConanTask<? extends ConanPipeline>> getAllTasks() {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
-        List<DatabaseRecoveredConanTask<? extends ConanPipeline>> conanTasks =
+        List<ConanTask<? extends ConanPipeline>> conanTasks =
                 getJdbcTemplate().query(TASK_SELECT, new ConanTaskMapper());
 
         //additional sets
         addConanTaskChildren(conanTasks);
+        return conanTasks;
+    }
 
-        // copy elements from database task list to return type
-        List<ConanTask<? extends ConanPipeline>> result = new ArrayList<ConanTask<? extends ConanPipeline>>();
-        result.addAll(conanTasks);
-        return result;
+    public List<ConanTask<? extends ConanPipeline>> getAllTasksSummary() {
+        Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
+        return getJdbcTemplate().query(TASK_SELECT, new ConanTaskMapper());
     }
 
     public List<ConanTask<? extends ConanPipeline>> getAllTasks(int maxRecords, int startingFrom) {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
 
-        List<DatabaseRecoveredConanTask<? extends ConanPipeline>> conanTasks =
+        List<ConanTask<? extends ConanPipeline>> conanTasks =
                 getJdbcTemplate().query(TASK_SELECT_BY_DATE,
                                         new ConanTaskMapper(),
                                         startingFrom + maxRecords,
@@ -356,17 +375,13 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
 
         //additional sets
         addConanTaskChildren(conanTasks);
-
-        // copy elements from database task list to return type
-        List<ConanTask<? extends ConanPipeline>> result = new ArrayList<ConanTask<? extends ConanPipeline>>();
-        result.addAll(conanTasks);
-        return result;
+        return conanTasks;
     }
 
     public List<ConanTask<? extends ConanPipeline>> getAllTasks(int maxRecords, int startingFrom, String orderBy) {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
 
-        List<DatabaseRecoveredConanTask<? extends ConanPipeline>> conanTasks =
+        List<ConanTask<? extends ConanPipeline>> conanTasks =
                 getJdbcTemplate().query(TASK_SELECT_BY_PARAM,
                                         new ConanTaskMapper(),
                                         startingFrom + maxRecords,
@@ -375,90 +390,179 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
 
         //additional sets
         addConanTaskChildren(conanTasks);
-
-        // copy elements from database task list to return type
-        List<ConanTask<? extends ConanPipeline>> result = new ArrayList<ConanTask<? extends ConanPipeline>>();
-        result.addAll(conanTasks);
-        return result;
+        return conanTasks;
     }
 
     public List<ConanTask<? extends ConanPipeline>> getPendingTasks() {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
-        List<DatabaseRecoveredConanTask<? extends ConanPipeline>> conanTasks =
+        List<ConanTask<? extends ConanPipeline>> conanTasks =
                 getJdbcTemplate().query(TASK_SELECT_PENDING, new ConanTaskMapper());
 
         //additional sets
         addConanTaskChildren(conanTasks, TaskType.PENDING);
+        return conanTasks;
+    }
 
-        // copy elements from database task list to return type
-        List<ConanTask<? extends ConanPipeline>> result = new ArrayList<ConanTask<? extends ConanPipeline>>();
-        result.addAll(conanTasks);
-        return result;
+    public List<ConanTask<? extends ConanPipeline>> getPendingTasksSummary() {
+        Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
+        return getJdbcTemplate().query(TASK_SELECT_PENDING, new ConanTaskMapper());
     }
 
     public List<ConanTask<? extends ConanPipeline>> getRunningTasks() {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
-        List<DatabaseRecoveredConanTask<? extends ConanPipeline>> conanTasks =
+        List<ConanTask<? extends ConanPipeline>> conanTasks =
                 getJdbcTemplate().query(TASK_SELECT_RUNNING, new ConanTaskMapper());
 
         //additional sets
         addConanTaskChildren(conanTasks, TaskType.RUNNING);
+        return conanTasks;
+    }
 
-        // copy elements from database task list to return type
-        List<ConanTask<? extends ConanPipeline>> result = new ArrayList<ConanTask<? extends ConanPipeline>>();
-        result.addAll(conanTasks);
-        return result;
+    public List<ConanTask<? extends ConanPipeline>> getRunningTasksSummary() {
+        Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
+        return getJdbcTemplate().query(TASK_SELECT_RUNNING, new ConanTaskMapper());
     }
 
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasks() {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
-        List<DatabaseRecoveredConanTask<? extends ConanPipeline>> conanTasks =
+        List<ConanTask<? extends ConanPipeline>> conanTasks =
                 getJdbcTemplate().query(TASK_SELECT_COMPLETED, new ConanTaskMapper());
 
         //additional sets
         addConanTaskChildren(conanTasks, TaskType.COMPLETED);
+        return conanTasks;
+    }
 
-        // copy elements from database task list to return type
-        List<ConanTask<? extends ConanPipeline>> result = new ArrayList<ConanTask<? extends ConanPipeline>>();
-        result.addAll(conanTasks);
-        return result;
+    public List<ConanTask<? extends ConanPipeline>> getCompletedTasksSummary() {
+        Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
+        return getJdbcTemplate().query(TASK_SELECT_COMPLETED, new ConanTaskMapper());
     }
 
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasks(int maxRecords, int startingFrom) {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
-        List<DatabaseRecoveredConanTask<? extends ConanPipeline>> conanTasks =
-                getJdbcTemplate().query(TASK_SELECT_COMPLETED,
+        List<ConanTask<? extends ConanPipeline>> conanTasks =
+                getJdbcTemplate().query(TASK_SELECT_COMPLETED_PAGED,
                                         new ConanTaskMapper(),
+                                        "END_DATE desc",
                                         startingFrom + maxRecords,
-                                        "END_DATE");
+                                        startingFrom);
 
         //additional sets
         addConanTaskChildren(conanTasks, TaskType.COMPLETED);
+        return conanTasks;
+    }
 
-        // copy elements from database task list to return type
-        List<ConanTask<? extends ConanPipeline>> result = new ArrayList<ConanTask<? extends ConanPipeline>>();
-        result.addAll(conanTasks);
-        return result;
+    public List<ConanTask<? extends ConanPipeline>> getCompletedTasksSummary(int maxRecords, int startingFrom) {
+        Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
+        getLog().debug("Querying for completed tasks, summary view only, first 500 records ");
+        return getJdbcTemplate().query(TASK_SELECT_COMPLETED_PAGED,
+                                       new ConanTaskMapper(),
+                                       "END_DATE desc",
+                                       startingFrom + maxRecords,
+                                       startingFrom);
     }
 
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasks(int maxRecords,
                                                                       int startingFrom,
                                                                       String orderBy) {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
-        List<DatabaseRecoveredConanTask<? extends ConanPipeline>> conanTasks =
+        List<ConanTask<? extends ConanPipeline>> conanTasks =
                 getJdbcTemplate().query(TASK_SELECT_COMPLETED_PAGED,
                                         new ConanTaskMapper(),
+                                        orderBy,
                                         startingFrom + maxRecords,
-                                        startingFrom,
-                                        orderBy);
+                                        startingFrom);
 
         //additional sets
         addConanTaskChildren(conanTasks, TaskType.COMPLETED);
+        return conanTasks;
+    }
 
-        // copy elements from database task list to return type
-        List<ConanTask<? extends ConanPipeline>> result = new ArrayList<ConanTask<? extends ConanPipeline>>();
-        result.addAll(conanTasks);
-        return result;
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name) {
+        Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
+        getLog().debug("Searching completed tasks by task name {" + name + "}");
+        return getJdbcTemplate().query(TASK_SEARCH_NAME,
+                                       new ConanTaskMapper(),
+                                       "%" + name + "%");
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, String userID) {
+        Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
+        getLog().debug("Searching completed tasks by task name and user id {" + name + ", " + userID + "}");
+        return getJdbcTemplate().query(TASK_SEARCH_NAME_USER,
+                                       new ConanTaskMapper(),
+                                       "%" + name + "%",
+                                       userID);
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, Date fromDate) {
+        Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
+        getLog().debug(
+                "Searching completed tasks by task name and from date {" + name + ", " + fromDate.toString() + "}");
+        return getJdbcTemplate().query(TASK_SEARCH_NAME_FROM_DATE,
+                                       new ConanTaskMapper(),
+                                       "%" + name + "%",
+                                       new java.sql.Date(fromDate.getTime()));
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, Date fromDate, Date toDate) {
+        Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
+        if (fromDate == null) {
+            getLog().debug(
+                    "Searching completed tasks by task name and to date {" + name + ", " + toDate.toString() + "}");
+            return getJdbcTemplate().query(TASK_SEARCH_NAME_TO_DATE,
+                                           new ConanTaskMapper(),
+                                           "%" + name + "%",
+                                           new java.sql.Date(toDate.getTime()));
+        }
+        else {
+            getLog().debug("Searching completed tasks by task name, from date and to date {" + name + ", " +
+                                   fromDate.toString() + "," + toDate.toString() + "}");
+            return getJdbcTemplate().query(TASK_SEARCH_NAME_FROM_TO_DATE,
+                                           new ConanTaskMapper(),
+                                           "%" + name + "%",
+                                           new java.sql.Date(fromDate.getTime()),
+                                           new java.sql.Date(toDate.getTime()));
+        }
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name,
+                                                                         String userID,
+                                                                         Date fromDate) {
+        Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
+        getLog().debug("Searching completed tasks by task name, user ID and from date {" + name + ", " +
+                               userID + "," + fromDate.toString() + "}");
+        return getJdbcTemplate().query(TASK_SEARCH_NAME_USER_FROM_DATE,
+                                       new ConanTaskMapper(),
+                                       userID,
+                                       "%" + name + "%",
+                                       new java.sql.Date(fromDate.getTime()));
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name,
+                                                                         String userID,
+                                                                         Date fromDate,
+                                                                         Date toDate) {
+        Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
+        if (fromDate == null) {
+            getLog().debug("Searching completed tasks by task name, user ID and to date {" + name + ", " +
+                                   userID + "," + toDate.toString() + "}");
+            return getJdbcTemplate().query(TASK_SEARCH_NAME_USER_TO_DATE,
+                                           new ConanTaskMapper(),
+                                           "%" + name + "%",
+                                           userID,
+                                           new java.sql.Date(toDate.getTime()));
+        }
+        else {
+            getLog().debug("Searching completed tasks by task name, user ID, from date and to date {" + name + ", " +
+                                   userID + ", " + fromDate.toString() + "," + toDate.toString() + "}");
+            return getJdbcTemplate().query(TASK_SEARCH_NAME_USER_FROM_TO_DATE,
+                                           new ConanTaskMapper(),
+                                           "%" + name + "%",
+                                           userID,
+                                           new java.sql.Date(fromDate.getTime()),
+                                           new java.sql.Date(toDate.getTime()));
+        }
     }
 
     protected enum TaskType {
@@ -468,19 +572,19 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         OTHER
     }
 
-    protected void addConanTaskChildren(List<DatabaseRecoveredConanTask<? extends ConanPipeline>> tasks) {
+    protected void addConanTaskChildren(List<ConanTask<? extends ConanPipeline>> tasks) {
         addConanTaskChildren(tasks, TaskType.OTHER);
     }
 
-    protected void addConanTaskChildren(List<DatabaseRecoveredConanTask<? extends ConanPipeline>> tasks,
+    protected void addConanTaskChildren(List<ConanTask<? extends ConanPipeline>> tasks,
                                         TaskType type) {
         getLog().debug("Fetching associated data for " + tasks.size() + " tasks - this will be batched if possible");
 
         // map tasks to task ids
         Map<String, DatabaseRecoveredConanTask> tasksByID = new HashMap<String, DatabaseRecoveredConanTask>();
-        for (DatabaseRecoveredConanTask task : tasks) {
+        for (ConanTask task : tasks) {
             // index this task
-            tasksByID.put(task.getId(), task);
+            tasksByID.put(task.getId(), (DatabaseRecoveredConanTask) task);
         }
 
         // add parameters in batches
@@ -570,9 +674,9 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
     /**
      * Maps database rows to ConanTask objects
      */
-    private class ConanTaskMapper implements RowMapper<DatabaseRecoveredConanTask<? extends ConanPipeline>> {
+    private class ConanTaskMapper implements RowMapper<ConanTask<? extends ConanPipeline>> {
 
-        public DatabaseRecoveredConanTask<? extends ConanPipeline> mapRow(ResultSet resultSet, int i)
+        public ConanTask<? extends ConanPipeline> mapRow(ResultSet resultSet, int i)
                 throws SQLException {
             ConanUser submitter = getUserDAO().getUser(resultSet.getString(5));
             ConanPipeline conanPipeline = getPipelineDAO().getPipeline(resultSet.getString(6));

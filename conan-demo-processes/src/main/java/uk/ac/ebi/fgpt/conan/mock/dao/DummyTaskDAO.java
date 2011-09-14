@@ -87,6 +87,10 @@ public class DummyTaskDAO implements ConanTaskDAO {
         return result;
     }
 
+    public List<ConanTask<? extends ConanPipeline>> getAllTasksSummary() {
+        return getAllTasks();
+    }
+
     public List<ConanTask<? extends ConanPipeline>> getAllTasks(int maxRecords, int startingFrom) {
         return getAllTasks().subList(startingFrom, startingFrom + maxRecords);
     }
@@ -124,6 +128,10 @@ public class DummyTaskDAO implements ConanTaskDAO {
         return results;
     }
 
+    public List<ConanTask<? extends ConanPipeline>> getPendingTasksSummary() {
+        return getPendingTasks();
+    }
+
     public List<ConanTask<? extends ConanPipeline>> getRunningTasks() {
         List<ConanTask<? extends ConanPipeline>> results = new ArrayList<ConanTask<? extends ConanPipeline>>();
         for (ConanTask<? extends ConanPipeline> task : getAllTasks()) {
@@ -132,6 +140,10 @@ public class DummyTaskDAO implements ConanTaskDAO {
             }
         }
         return results;
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> getRunningTasksSummary() {
+        return getRunningTasks();
     }
 
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasks() {
@@ -150,6 +162,10 @@ public class DummyTaskDAO implements ConanTaskDAO {
         return results;
     }
 
+    public List<ConanTask<? extends ConanPipeline>> getCompletedTasksSummary() {
+        return getCompletedTasks();
+    }
+
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasks(int maxRecords, int startingFrom) {
         List<ConanTask<? extends ConanPipeline>> results = new ArrayList<ConanTask<? extends ConanPipeline>>();
         for (ConanTask<? extends ConanPipeline> task : getAllTasks()) {
@@ -159,6 +175,10 @@ public class DummyTaskDAO implements ConanTaskDAO {
             }
         }
         return results.subList(startingFrom, startingFrom + maxRecords);
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> getCompletedTasksSummary(int maxRecords, int startingFrom) {
+        return getCompletedTasks(maxRecords, startingFrom);
     }
 
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasks(int maxRecords,
