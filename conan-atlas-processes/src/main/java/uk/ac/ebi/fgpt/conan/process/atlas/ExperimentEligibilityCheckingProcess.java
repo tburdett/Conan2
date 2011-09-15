@@ -56,7 +56,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
     accessionParameter = new AccessionParameter();
     parameters.add(accessionParameter);
     ClassPathXmlApplicationContext ctx =
-        new ClassPathXmlApplicationContext("conan-dao.xml");
+        new ClassPathXmlApplicationContext("controlled-vocabulary-context.xml");
     controlledVocabularyDAO =
         ctx.getBean("databaseConanControlledVocabularyDAO",
                     DatabaseConanControlledVocabularyDAO.class);
