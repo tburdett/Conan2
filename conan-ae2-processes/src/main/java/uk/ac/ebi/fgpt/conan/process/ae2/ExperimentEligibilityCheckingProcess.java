@@ -9,7 +9,10 @@ import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.MAGETABInvestigation;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
+
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -29,11 +32,7 @@ import java.util.logging.Level;
 public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
   // Add to the desired logger
-  private Logger log;
-
-  protected Logger getLog() {
-    return log;
-  }
+  private BufferedWriter log;
 
   private final Collection<ConanParameter> parameters;
   private final AccessionParameter accessionParameter;
@@ -73,10 +72,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
         ".report";
     try {
-      FileHandler handler = new FileHandler(fileName);
-      // Add to the desired logger
-      log = Logger.getLogger("AE_eligibility");
-      log.addHandler(handler);
+      log = new BufferedWriter(new FileWriter(fileName));
+      log.write("AE eligibility\n");
     }
     catch (IOException e) {
       throw new ProcessExecutionException(1, "Can't create report file '" +
@@ -107,8 +104,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
       if (!submitterWithEmail)
       {
-        getLog().log(Level.ALL,
-                     "AE Eligibility Check: there are no submitters with e-mail address");
+        log.write("AE Eligibility Check: there are no submitters with e-mail address\n");
         throw new ProcessExecutionException(1,
                                             "There are no submitters with e-mail address");
       }
@@ -124,16 +120,12 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         }
       }
       if (restrictedProtocolNames) {
-        getLog().log(Level.ALL,
-                     "AE Eligibility Check: restricted protocol names are used");
+        log.write("AE Eligibility Check: restricted protocol names are used\n");
         throw new ProcessExecutionException(1,
                                             "Restricted protocol names are used");
       }
     }
     catch (Exception e) {
-      getLog().log(Level.ALL,
-                   "AE Eligibility Check: something is wrong in the code " +
-                       e.getMessage());
       throw new ProcessExecutionException(1,
                                           "AE Eligibility Check: something is wrong in the code",
                                           e);

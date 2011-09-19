@@ -20,9 +20,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 /**
  * Process to check experiment eligibility for Atlas. Consists of five steps:
@@ -84,7 +81,6 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
         ".report";
     try {
-      FileHandler handler = new FileHandler(fileName);
       // Add to the desired logger
       log = new BufferedWriter(new FileWriter(fileName));
       log.write("Atlas_eligibility\n");
