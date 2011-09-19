@@ -226,19 +226,6 @@ public class InMemoryConanTaskDAO implements ConanTaskDAO {
         return getCompletedTasks(maxRecords, startingFrom);
     }
 
-    public List<ConanTask<? extends ConanPipeline>> getCompletedTasks(int maxRecords,
-                                                                      int startingFrom,
-                                                                      String orderBy) {
-        List<ConanTask<? extends ConanPipeline>> results = new ArrayList<ConanTask<? extends ConanPipeline>>();
-        for (ConanTask<? extends ConanPipeline> task : getAllTasks()) {
-            if (task.getCurrentState() == ConanTask.State.COMPLETED ||
-                    task.getCurrentState() == ConanTask.State.ABORTED) {
-                results.add(task);
-            }
-        }
-        return results.subList(startingFrom, startingFrom + maxRecords);
-    }
-
     protected void synchronizeInMemoryTasksWithPersistenceDAO() {
         synchronized (allTasks) {
             // synch up the contents of our cache (i.e. the map "allTasks") with all tasks from the database

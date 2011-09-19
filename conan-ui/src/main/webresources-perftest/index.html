@@ -19,7 +19,7 @@
     <meta name="no-email-collection" content="http://www.unspam.com/noemailcollection/"/>
 
     <script type="text/javascript" src="scripts/jquery-1.4.2.min.js"></script>
-    <script type="text/javascript" src="scripts/jquery-ui-1.8.5.custom.min.js"></script>
+    <script type="text/javascript" src="scripts/jquery-ui-1.8.16.custom.min.js"></script>
     <script type="text/javascript" src="scripts/jquery-jcarousel-0.2.7.min.js"></script>
     <script type="text/javascript" src="scripts/jquery-dataTables-1.7.3.min.js"></script>
     <script type="text/javascript" src="scripts/jquery-form-2.4.5.js"></script>
@@ -465,43 +465,96 @@
 
     <div>
         <div id="conan-history-introduction">
-            Provenance information for every job submitted to Conan. This shows a brief overview of each submission,
-            including the ID assigned to this submission, the pipeline run, who submitted it, and when. For more
-            details,
-            click the submission ID to see the task summary page.
+            Search the Conan history for every task previously submitted. The last ten completed tasks are shown by
+            default, but you can use the search fields to find tasks by name, submitter or date. This shows a brief
+            overview of each submission, including the ID assigned to this submission, the pipeline run, who submitted
+            it, and when. For more details, click the submission ID to see the task summary page.
         </div>
+    </div>
 
-        <div id="conan-history-content">
-            <div class="conan-details">
-                <table id="conan-history-table" class="conan-details-table">
-                    <thead>
-                    <tr>
-                        <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
-                            Task
-                            <span class="ui-icon conan-sort-icon" style="float: right;">
-                            </span>
-                        </th>
-                        <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
-                            Pipeline
-                            <span class="ui-icon conan-sort-icon" style="float: right;">
-                            </span>
-                        </th>
-                        <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
-                            Submitted By
-                            <span class="ui-icon conan-sort-icon" style="float: right;">
-                            </span>
-                        </th>
-                        <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
-                            Finish Time
-                            <span class="ui-icon conan-sort-icon" style="float: right;">
-                            </span>
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody id="conan-history-content-tasks">
-                    </tbody>
-                </table>
+    <div id="conan-history-content">
+        <div class="conan-details">
+            <div id="conan-search-options">
+                <div class="dataTables_filter">
+                    <label for="conan-name-search">
+                        Task Name:
+                    </label>
+                    <input id="conan-name-search"
+                           name="Search by task name"
+                           title="Search by task name"
+                           type="text"
+                           onkeypress="searchOnEnter(event);"/>
+                </div>
+                <div class="dataTables_filter">
+                    <label for="conan-user-search">
+                        Submitter:
+                    </label>
+                    <input id="conan-user-search"
+                           name="Search by submitter"
+                           title="Search by submitter"
+                           type="text"/>
+                </div>
+                <div class="dataTables_calendar">
+                    <label for="conan-date-from-search">
+                        Finish Time from:
+                    </label>
+                    <input id="conan-date-from-search"
+                           name="Search for tasks completed after..."
+                           title="Search for tasks completed after..."
+                           type="text"/>
+                    <label for="conan-date-to-search">
+                        to:
+                    </label>
+                    <input id="conan-date-to-search"
+                           name="Search for tasks completed before..."
+                           title="Search for tasks completed before..."
+                           type="text"/>
+                </div>
+
+                <div class="conan-search-buttons">
+                    <button id="conan-search-button"
+                            class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                            onclick="requestSearchedTasks();"
+                            title="Search">
+                        <span class="ui-button-text">Search</span>
+                    </button>
+                    <button id="conan-clear-search-button"
+                            class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                            onclick="clearSearchedTasks();"
+                            title="Clear search paramaters and display most recent completed tasks">
+                        <span class="ui-button-text">Clear</span>
+                    </button>
+                </div>
             </div>
+
+            <table id="conan-history-table" class="conan-details-table">
+                <thead>
+                <tr>
+                    <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                        Task
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                    </th>
+                    <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                        Pipeline
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                    </th>
+                    <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                        Submitted By
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                    </th>
+                    <th class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary">
+                        Finish Time
+                            <span class="ui-icon conan-sort-icon" style="float: right;">
+                            </span>
+                    </th>
+                </tr>
+                </thead>
+                <tbody id="conan-history-content-tasks">
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

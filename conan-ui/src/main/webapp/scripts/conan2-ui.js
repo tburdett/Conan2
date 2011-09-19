@@ -9,8 +9,6 @@
  */
 
 // cached global variables to minimise ajax requests
-//var restApiKey;
-
 var pipelines;
 var selectedPipeline;
 var selectedProcess;
@@ -27,6 +25,9 @@ var completedTasks;
 var pendingTimeoutID;
 var runningTimeoutID;
 var completedTimeoutID;
+
+var submitterMap;
+var completedTableShowsSearchResults = false;
 
 /*
  *
@@ -105,6 +106,7 @@ function configureUI() {
                                             "aaSorting": [
                                                 [ 3, "desc" ]
                                             ],
+                                            "bFilter": false,
                                             "bPaginate": true,
                                             "bLengthChange": false,
                                             "bStateSave": true,
@@ -118,7 +120,19 @@ function configureUI() {
     $(".dataTables_filter > input").addClass("ui-widget ui-widget-content");
 
     // add search icon after this
-    $(".dataTables_filter > input").after("<span class=\"ui-icon ui-icon-search\"></span>")
+    $(".dataTables_filter > input").after("<span class=\"ui-icon ui-icon-search\"></span>");
+
+    // add extra classes to calendar boxes
+    $(".dataTables_calendar > input").addClass("ui-widget ui-widget-content");
+
+    // add calendar icon to calendar boxes
+    $(".dataTables_calendar > input").after("<span class=\"ui-icon ui-icon-calendar\"></span>");
+
+    // add datepickers
+    $("#conan-date-from-search").datepicker();
+    $("#conan-date-from-search").datepicker("option", "dateFormat", "dd/mm/yy");
+    $("#conan-date-to-search").datepicker();
+    $("#conan-date-to-search").datepicker("option", "dateFormat", "dd/mm/yy");
 
     // add icons to relevant buttons
     $(".first").prepend("<div style=\"float: left; margin-right: 0.3em;\" class=\"ui-icon ui-icon-seek-start\"></div>");
@@ -140,6 +154,9 @@ function configureUI() {
                 $(this).removeClass('ui-state-hover');
             }
     );
+
+    // fetch users
+    requestUsers();
 
     // fetch queued/running/done tasks
     requestAllTaskInfoUpdates();
@@ -413,10 +430,97 @@ function requestRunningTasks() {
  * Requests a list of tasks that are currently completed, via an ajax request to the server.
  */
 function requestCompletedTasks() {
+    // toggle flag, history table showing most recent updates instead of search results
+    completedTableShowsSearchResults = false;
+
     $.getJSON('api/tasks?complete&summaryView=true', function(json) {
         completedTasks = json;
         displayCompletedTasks();
-    })
+    });
+}
+
+/**
+ * Requests a list of tasks that are currently completed, via an ajax request to the server, using the filters supplied
+ * in the current search boxes
+ */
+function requestSearchedTasks() {
+    completedTableShowsSearchResults = true;
+
+    var name = $("#conan-name-search").val();
+    var userName = $("#conan-user-search").val();
+    var from = $("#conan-date-from-search").val();
+    var to = $("#conan-date-to-search").val();
+
+    var args = new Array();
+    if (name != undefined && name != "") {
+        args.push("name=" + name);
+    }
+    if (userName != undefined && userName != "") {
+        args.push("userID=" + submitterMap[userName]);
+    }
+    if (from != undefined && from != "") {
+        //parse date
+        var fromDate = $.datepicker.parseDate('dd/mm/yy', from).valueOf();
+        args.push("from=" + fromDate);
+    }
+    if (to != undefined && to != "") {
+        //parse date
+        var toDate = $.datepicker.parseDate('dd/mm/yy', to).valueOf();
+        args.push("to=" + toDate);
+    }
+
+    var queryString = "";
+    if (args.length > 0) {
+        queryString = queryString + "?";
+        for (var i = 0; i < (args.length - 1); i++) {
+            queryString = queryString + args[i] + "&";
+        }
+        queryString = queryString + args[args.length - 1];
+    }
+    $.getJSON('api/tasks/search' + queryString,
+              function(json) {
+                  completedTasks = json;
+                  displayCompletedTasks();
+              });
+}
+
+function clearSearchedTasks() {
+    completedTableShowsSearchResults = false;
+
+    $("#conan-name-search").val("");
+    $("#conan-user-search").val("");
+    $("#conan-date-from-search").val("");
+    $("#conan-date-to-search").val("");
+
+    requestCompletedTasks();
+}
+
+function requestUsers() {
+    submitterMap = new Object();
+    $.ajax({
+               url: 'api/users',
+               dataType: 'json',
+               success: function(json) {
+                   // create a list of userNames to provide to autocomplete
+                   var userNames = new Array();
+
+                   // populate the submitter map, linking each user name to user ID
+                   for (var i = 0; i < json.length; i++) {
+                       var user = json[i];
+                       var userName = user.firstName + " " + user.surname;
+                       userNames.push(userName);
+                       submitterMap[userName] = user.id;
+                   }
+
+                   // now also populate the autocomplete
+                   $("#conan-user-search").autocomplete({
+                                                            source: userNames
+                                                        });
+               },
+               error: function() {
+                   alert("Failed to retrieve users from the server - autocomplete on Submitter search will not work");
+               }
+           });
 }
 
 /**
@@ -471,7 +575,7 @@ function requestNewSubmission() {
                data:           jsonString,
                processData:    false,
                success:        function(response) {
-                   if (response.operationSuccessful == true) {
+                   if (response.operationSuccessful) {
                        // trigger ajax updates of task info
                        requestTasksInProgressInfoUpdates();
 
@@ -1202,7 +1306,6 @@ function displayCompletedTasks() {
     }
 
     // redraw table
-    //    table.fnDraw(false);
     table.fnStandingRedraw();
 }
 
@@ -1369,8 +1472,10 @@ function redrawCompletedTableLater() {
     // completed tasks are updating, so clear any scheduled update
     clearTimeout(completedTimeoutID);
 
-    // once all displayed, callback to itself to update in 120 seconds
-    completedTimeoutID = setTimeout("requestCompletedTasks()", 120000);
+    // once all displayed, callback to itself to update in 15 seconds
+    if (!completedTableShowsSearchResults) {
+        completedTimeoutID = setTimeout("requestCompletedTasks()", 15000);
+    }
 }
 
 /**
@@ -1394,6 +1499,13 @@ function logInOnEnter(e) {
     var key = e.keyCode || e.which;
     if (key == 13) {
         requestUser();
+    }
+}
+
+function searchOnEnter(e) {
+    var key = e.keyCode || e.which;
+    if (key == 13) {
+        requestSearchedTasks();
     }
 }
 

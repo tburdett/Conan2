@@ -77,6 +77,33 @@ public class DummyTaskDAO implements ConanTaskDAO {
         return (ConanTask<P>) task;
     }
 
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name) {
+        return getCompletedTasks();
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, String userID) {
+        return getCompletedTasks();
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, Date fromDate) {
+        return getCompletedTasks();
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, Date fromDate, Date toDate) {
+        return getCompletedTasks();
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, String userID, Date fromDate) {
+        return getCompletedTasks();
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name,
+                                                                         String userID,
+                                                                         Date fromDate,
+                                                                         Date toDate) {
+        return getCompletedTasks();
+    }
+
     public List<ConanTask<? extends ConanPipeline>> getAllTasks() {
         List<ConanTask<? extends ConanPipeline>> result = new ArrayList<ConanTask<? extends ConanPipeline>>();
         synchronized (allTasks) {
@@ -179,18 +206,5 @@ public class DummyTaskDAO implements ConanTaskDAO {
 
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasksSummary(int maxRecords, int startingFrom) {
         return getCompletedTasks(maxRecords, startingFrom);
-    }
-
-    public List<ConanTask<? extends ConanPipeline>> getCompletedTasks(int maxRecords,
-                                                                      int startingFrom,
-                                                                      String orderBy) {
-        List<ConanTask<? extends ConanPipeline>> results = new ArrayList<ConanTask<? extends ConanPipeline>>();
-        for (ConanTask<? extends ConanPipeline> task : getAllTasks()) {
-            if (task.getCurrentState() == ConanTask.State.COMPLETED ||
-                    task.getCurrentState() == ConanTask.State.ABORTED) {
-                results.add(task);
-            }
-        }
-        return results.subList(startingFrom, startingFrom + maxRecords);
     }
 }

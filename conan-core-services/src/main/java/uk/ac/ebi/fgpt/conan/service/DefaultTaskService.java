@@ -227,45 +227,39 @@ public class DefaultTaskService implements ConanTaskService {
         return getConanTaskDAO().getCompletedTasks(maxRecords, startingFrom);
     }
 
-    public List<ConanTask<? extends ConanPipeline>> getCompletedTasks(int maxRecords,
-                                                                      int startingFrom,
-                                                                      String orderBy) {
-        return getConanTaskDAO().getCompletedTasks(maxRecords, startingFrom, orderBy);
-    }
-
     public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name,
                                                                          ConanUser conanUser,
                                                                          Date fromDate,
                                                                          Date toDate) {
         if (name == null) {
-            return getCompletedTasksSummary();
+            // replace taks name with an empty string instead of null
+            name = "";
         }
-        else {
-            if (conanUser == null) {
-                if (toDate == null) {
-                    if (fromDate == null) {
-                        return getConanTaskDAO().searchCompletedTasks(name);
-                    }
-                    else {
-                        return getConanTaskDAO().searchCompletedTasks(name, fromDate);
-                    }
+
+        if (conanUser == null) {
+            if (toDate == null) {
+                if (fromDate == null) {
+                    return getConanTaskDAO().searchCompletedTasks(name);
                 }
                 else {
-                    return getConanTaskDAO().searchCompletedTasks(name, fromDate, toDate);
+                    return getConanTaskDAO().searchCompletedTasks(name, fromDate);
                 }
             }
             else {
-                if (toDate == null) {
-                    if (fromDate == null) {
-                        return getConanTaskDAO().searchCompletedTasks(name, conanUser.getId());
-                    }
-                    else {
-                        return getConanTaskDAO().searchCompletedTasks(name, conanUser.getId(), fromDate);
-                    }
+                return getConanTaskDAO().searchCompletedTasks(name, fromDate, toDate);
+            }
+        }
+        else {
+            if (toDate == null) {
+                if (fromDate == null) {
+                    return getConanTaskDAO().searchCompletedTasks(name, conanUser.getId());
                 }
                 else {
-                    return getConanTaskDAO().searchCompletedTasks(name, conanUser.getId(), fromDate, toDate);
+                    return getConanTaskDAO().searchCompletedTasks(name, conanUser.getId(), fromDate);
                 }
+            }
+            else {
+                return getConanTaskDAO().searchCompletedTasks(name, conanUser.getId(), fromDate, toDate);
             }
         }
     }

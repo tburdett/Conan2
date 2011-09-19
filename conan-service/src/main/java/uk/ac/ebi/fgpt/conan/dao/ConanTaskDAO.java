@@ -128,8 +128,7 @@ public interface ConanTaskDAO {
     /**
      * Gets a list of the specified number of tasks have a "completed" status.  This includes tasks that completed
      * successfully, and those that completed because a process failed and was subsequently marked as complete by the
-     * submitter.  The records are ordered by completion date by default: this is equivalent to calling {@link
-     * #getCompletedTasks(int, int, String)} with a value of "completionDate".
+     * submitter.  The records are ordered by completion date.
      *
      * @param maxRecords   the maximum number of records to return
      * @param startingFrom the position in the list of tasks to start from
@@ -140,27 +139,13 @@ public interface ConanTaskDAO {
     /**
      * Gets a list of the specified number of tasks have a "completed" status, returning a summary view that excludes
      * process info.  This includes tasks that completed successfully, and those that completed because a process failed
-     * and was subsequently marked as complete by the submitter.  The records are ordered by completion date by default:
-     * this is equivalent to calling {@link #getCompletedTasks(int, int, String)} with a value of "completionDate".
+     * and was subsequently marked as complete by the submitter.  The records are ordered by completion date.
      *
      * @param maxRecords   the maximum number of records to return
      * @param startingFrom the position in the list of tasks to start from
      * @return a list of all tasks pending execution
      */
     List<ConanTask<? extends ConanPipeline>> getCompletedTasksSummary(int maxRecords, int startingFrom);
-
-    /**
-     * Gets a list of the specified number of tasks have a "completed" status.  This includes tasks that completed
-     * successfully, and those that completed because a process failed and was subsequently marked as complete by the
-     * submitter.  The "order by" field should be the value of the property name of ConanTask by which to sort the
-     * results.
-     *
-     * @param maxRecords   the maximum number of records to return
-     * @param startingFrom the position in the list of tasks to start from
-     * @param orderBy      the ConanTask property to order the results by
-     * @return a list of all tasks pending execution
-     */
-    List<ConanTask<? extends ConanPipeline>> getCompletedTasks(int maxRecords, int startingFrom, String orderBy);
 
     /**
      * Persists new tasks to the backing datasource.  Generally, after creating new {@link

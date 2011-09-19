@@ -51,8 +51,8 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
             "where (STATE = 'COMPLETED' or STATE = 'ABORTED')";
     public static final String TASK_SELECT_COMPLETED_PAGED =
             "select ID, NAME, START_DATE, END_DATE, USER_ID, PIPELINE_NAME, PRIORITY, FIRST_PROCESS_INDEX, STATE, STATUS_MESSAGE, CURRENT_EXECUTED_INDEX, CREATION_DATE " +
-                    "from (" + TASK_SELECT + " order by ?) " +
-                    "where (STATE = 'COMPLETED' or STATE = 'ABORTED') and ROWNUM <= ? and ROWNUM >= ?";
+                    "from (" + TASK_SELECT + " where (STATE = 'COMPLETED' or STATE = 'ABORTED') order by END_DATE desc) " +
+                    "where ROWNUM <= ? and ROWNUM >= ?";
     public static final String TASK_SEARCH_NAME = TASK_SELECT_COMPLETED + " " +
             "and NAME like ?";
     public static final String TASK_SEARCH_NAME_USER = TASK_SEARCH_NAME + " " +
@@ -443,7 +443,6 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         List<ConanTask<? extends ConanPipeline>> conanTasks =
                 getJdbcTemplate().query(TASK_SELECT_COMPLETED_PAGED,
                                         new ConanTaskMapper(),
-                                        "END_DATE desc",
                                         startingFrom + maxRecords,
                                         startingFrom);
 
@@ -454,28 +453,10 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
 
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasksSummary(int maxRecords, int startingFrom) {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
-        getLog().debug("Querying for completed tasks, summary view only, first 500 records ");
         return getJdbcTemplate().query(TASK_SELECT_COMPLETED_PAGED,
                                        new ConanTaskMapper(),
-                                       "END_DATE desc",
                                        startingFrom + maxRecords,
                                        startingFrom);
-    }
-
-    public List<ConanTask<? extends ConanPipeline>> getCompletedTasks(int maxRecords,
-                                                                      int startingFrom,
-                                                                      String orderBy) {
-        Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
-        List<ConanTask<? extends ConanPipeline>> conanTasks =
-                getJdbcTemplate().query(TASK_SELECT_COMPLETED_PAGED,
-                                        new ConanTaskMapper(),
-                                        orderBy,
-                                        startingFrom + maxRecords,
-                                        startingFrom);
-
-        //additional sets
-        addConanTaskChildren(conanTasks, TaskType.COMPLETED);
-        return conanTasks;
     }
 
     public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name) {
@@ -675,10 +656,20 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
      * Maps database rows to ConanTask objects
      */
     private class ConanTaskMapper implements RowMapper<ConanTask<? extends ConanPipeline>> {
+        private Map<String, ConanUser> userCache = new HashMap<String, ConanUser>();
 
         public ConanTask<? extends ConanPipeline> mapRow(ResultSet resultSet, int i)
                 throws SQLException {
-            ConanUser submitter = getUserDAO().getUser(resultSet.getString(5));
+            ConanUser submitter;
+            String userID = resultSet.getString(5);
+            if (userCache.containsKey(userID)) {
+                submitter = userCache.get(userID);
+            }
+            else {
+                submitter = getUserDAO().getUser(userID);
+                userCache.put(userID, submitter);
+            }
+
             ConanPipeline conanPipeline = getPipelineDAO().getPipeline(resultSet.getString(6));
             if (conanPipeline == null) {
                 // never set a null, update to private "unrecognised pipeline"
@@ -717,19 +708,30 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
      */
     private class ConanProcessMapper implements RowMapper<ConanProcessRun> {
         private Map<String, DatabaseRecoveredConanTask> tasksByID;
+        private Map<String, ConanUser> userCache = new HashMap<String, ConanUser>();
 
         private ConanProcessMapper(Map<String, DatabaseRecoveredConanTask> tasksByID) {
             this.tasksByID = tasksByID;
         }
 
         public DefaultProcessRun mapRow(ResultSet resultSet, int i) throws SQLException {
+            ConanUser submitter;
+            String userID = resultSet.getString(5);
+            if (userCache.containsKey(userID)) {
+                submitter = userCache.get(userID);
+            }
+            else {
+                submitter = getUserDAO().getUser(userID);
+                userCache.put(userID, submitter);
+            }
+
             String taskID = Long.toString(resultSet.getLong(7));
 
             // build the process
             DefaultProcessRun process = new DefaultProcessRun(resultSet.getString(2),
                                                               sqlDateToJavaDate(resultSet.getString(3)),
                                                               sqlDateToJavaDate(resultSet.getString(4)),
-                                                              getUserDAO().getUser(resultSet.getString(5)));
+                                                              submitter);
             process.setId(resultSet.getString(1));
             process.setExitValue(resultSet.getInt(6));
 
