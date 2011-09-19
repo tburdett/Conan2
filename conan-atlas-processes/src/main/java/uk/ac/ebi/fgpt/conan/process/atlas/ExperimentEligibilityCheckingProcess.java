@@ -14,7 +14,9 @@ import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.*;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.*;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -35,11 +37,7 @@ import java.util.logging.Level;
 public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
   // Add to the desired logger
-  private Logger log;
-
-  protected Logger getLog() {
-    return log;
-  }
+  private BufferedWriter log;
 
   private final Collection<ConanParameter> parameters;
   private final AccessionParameter accessionParameter;
@@ -60,6 +58,11 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
     controlledVocabularyDAO =
         ctx.getBean("databaseConanControlledVocabularyDAO",
                     DatabaseConanControlledVocabularyDAO.class);
+  }
+
+  protected void finalize() throws Throwable
+  {
+    log.close();
   }
 
 
@@ -83,8 +86,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
     try {
       FileHandler handler = new FileHandler(fileName);
       // Add to the desired logger
-      log = Logger.getLogger("Atlas_eligibility");
-      log.addHandler(handler);
+      log = new BufferedWriter(new FileWriter(fileName));
+      log.write("Atlas_eligibility\n");
     }
     catch (IOException e) {
       throw new ProcessExecutionException(1, "Can't create report file '" +
@@ -112,16 +115,14 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       if (!isAtlasType)
       //not in Atlas Experiment Types
       {
-        getLog().log(Level.ALL,
-                     "Atlas Eligibility Check: 'Experiment Type' is not accepted by Atlas");
-        return false;
+        log.write("Atlas Eligibility Check: 'Experiment Type' is not accepted by Atlas\n");
+        throw new ProcessExecutionException(1,"Atlas Eligibility Check: 'Experiment Type' is not accepted by Atlas");
       }
       else {
         //Ia two-channel experiment
         if (investigation.SDRF.getNumberOfChannels() > 1) {
-          getLog().log(Level.ALL,
-                       "Atlas Eligibility Check: two-channel experiment is not accepted by Atlas");
-          return false;
+          log.write("Atlas Eligibility Check: two-channel experiment is not accepted by Atlas\n");
+          throw new ProcessExecutionException(1,"Atlas Eligibility Check: two-channel experiment is not accepted by Atlas");
         }
 
         // II check: array design is in Atlas
@@ -150,9 +151,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
         //Ib presence pf factor values
         if (factorValues == 0) {
-          getLog().log(Level.ALL,
-                       "Atlas Eligibility Check: experiment does not have Factor Values");
-          return false;
+          log.write("Atlas Eligibility Check: experiment does not have Factor Values\n");
+          throw new ProcessExecutionException(1,"Atlas Eligibility Check: experiment does not have Factor Values");
         }
         for (String arrayDesign : ArrayDesignAccessions) {
           ArrayDesignExistenceChecking arrayDesignExistenceChecking =
@@ -161,9 +161,10 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
               arrayDesignExistenceChecking.execute(arrayDesign);
           if (arrayCheckResult.equals("empty") ||
               arrayCheckResult.equals("no")) {
-            getLog().log(Level.ALL, "Atlas Eligibility Check: array design '" +
+            log.write("Atlas Eligibility Check: array design '" +
+                arrayDesign + "' used in experiment is not in Atlas\n");
+            throw new ProcessExecutionException(1,"Atlas Eligibility Check: array design '" +
                 arrayDesign + "' used in experiment is not in Atlas");
-            return false;
           }
 
           else {
@@ -214,28 +215,25 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 hybridizationSubNodes.size() != rawDataSubNodes.size())
             //affy
             {
-              getLog().log(Level.ALL,
-                           "Atlas Eligibility Check: Affymetrix experiment without raw data files");
-              return false;
+              log.write("Atlas Eligibility Check: Affymetrix experiment without raw data files\n");
+              throw new ProcessExecutionException(1,"Atlas Eligibility Check: Affymetrix experiment without raw data files");
             }
             else
               //not affy
               if (processedDataSubNodes.size() == 0 &&
                   processedDataMatrixSubNodes.size() == 0) {
-                getLog().log(Level.ALL,
-                             "Atlas Eligibility Check: non-Affymetrix experiment without processed data files");
-                return false;
+                log.write("Atlas Eligibility Check: non-Affymetrix experiment without processed data files\n");
+                throw new ProcessExecutionException(1,"Atlas Eligibility Check: non-Affymetrix experiment without processed data files");
               }
           }
         }
       }
     }
+
     catch (Exception e) {
-      getLog().log(Level.ALL,
-                   "Atlas Eligibility Check: something is wrong in the code " +
-                       e.getMessage());
       throw new ProcessExecutionException(1, "Atlas Eligibility Check: something is wrong in the code", e);
     }
+
 
     return result;
   }
