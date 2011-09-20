@@ -16,9 +16,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.Level;
+
 
 /**
  * Process to check experiment eligibility for ArrayExpress. Consists of tow
@@ -32,8 +30,8 @@ import java.util.logging.Level;
 public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
   // Add to the desired logger
-  private BufferedWriter log;
 
+  private BufferedWriter log;
   private final Collection<ConanParameter> parameters;
   private final AccessionParameter accessionParameter;
 
@@ -58,78 +56,114 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       throws ProcessExecutionException, IllegalArgumentException,
       InterruptedException {
 
-    boolean result = true;
-    //deal with parameters
-    AccessionParameter accession = new AccessionParameter();
-    accession.setAccession(parameters.get(accessionParameter));
+      boolean result = true;
+      //deal with parameters
+      AccessionParameter accession = new AccessionParameter();
+      accession.setAccession(parameters.get(accessionParameter));
 
-    //logging
-    String reportsDir =
-        accession.getFile().getParentFile().getAbsolutePath() + File.separator +
-            "reports";
-    String fileName = reportsDir + File.separator + accession.getAccession() +
-        "_AEEligibilityCheck" +
-        "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
-        ".report";
-    try {
-      log = new BufferedWriter(new FileWriter(fileName));
-      log.write("AE eligibility\n");
-    }
-    catch (IOException e) {
-      throw new ProcessExecutionException(1, "Can't create report file '" +
-          fileName + "'", e);
-    }
+      //logging
+      String reportsDir =
+          accession.getFile().getParentFile().getAbsolutePath() + File.separator +
+              "reports";
+      File reportsDirFile = new File(reportsDir);
+      if (!reportsDirFile.exists())
+        reportsDirFile.mkdirs();
 
-    // make a new parser
-    MAGETABParser parser = new MAGETABParser();
+      String fileName = reportsDir + File.separator + accession.getAccession() +
+          "_AEEligibilityCheck" +
+          "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
+          ".report";
+      try {
+        log = new BufferedWriter(new FileWriter(fileName));
+        log.write("AE Eligibility Check: START\n");
+      }
+      catch (IOException e) {
+        result = false;
+        e.printStackTrace();
+        throw new ProcessExecutionException(1, "Can't create report file '" +
+            fileName + "'", e);
+      }
 
+      // make a new parser
+      MAGETABParser parser = new MAGETABParser();
 
-    try {
-      MAGETABInvestigation investigation = parser.parse(accession.getFile());
-      // I check: e-mail address of submitter
-      boolean submitterWithEmail = false;
-      boolean restrictedProtocolNames = false;
-      int j = 0;
-      for (Iterator i = investigation.IDF.personRoles.iterator();
-           i.hasNext(); ) {
-        String role = (String) i.next();
-        if (role.equals("submitter")) {
-          if (!investigation.IDF.personEmail.get(j).isEmpty()) {
-            submitterWithEmail = true;
+      try {
+        MAGETABInvestigation investigation = parser.parse(accession.getFile());
+        // I check: e-mail address of submitter
+        boolean submitterWithEmail = false;
+        boolean restrictedProtocolNames = false;
+        int j = 0;
+        for (Iterator i = investigation.IDF.personRoles.iterator();
+             i.hasNext(); ) {
+          String role = (String) i.next();
+          if (role.equals("submitter")) {
+            try{
+              if (!investigation.IDF.personEmail.get(j).isEmpty())
+                submitterWithEmail = true;
+            }
+            catch(Exception e){
+              result = false;
+              System.out.println("There are no submitters with e-mail address");
+              throw new ProcessExecutionException(1,
+                                              "There are no submitters with e-mail address");
+            }
           }
+          j++;
         }
-        j++;
-      }
 
 
-      if (!submitterWithEmail)
-      {
-        log.write("AE Eligibility Check: there are no submitters with e-mail address\n");
-        throw new ProcessExecutionException(1,
-                                            "There are no submitters with e-mail address");
-      }
-      else {
-        //II check: protocol names
-        for (String protocol : investigation.IDF.protocolName) {
-          for (String restrictedName : controlledVocabularyDAO
-              .getRestrictedProtocolNames()) {
-            if (protocol.equals(restrictedName)) {
-              restrictedProtocolNames = true;
+        if (!submitterWithEmail)
+        {
+          result = false;
+          log.write("AE Eligibility Check: there are no submitters with e-mail address\n");
+          System.out.println("AE Eligibility Check: there are no submitters with e-mail address");
+          throw new ProcessExecutionException(1,
+                                              "There are no submitters with e-mail address");
+        }
+        else {
+          //II check: protocol names
+          for (String protocol : investigation.IDF.protocolName) {
+            for (String restrictedName : controlledVocabularyDAO
+                .getRestrictedProtocolNames()) {
+              if (protocol.equals(restrictedName)) {
+                restrictedProtocolNames = true;
+              }
             }
           }
         }
+        if (restrictedProtocolNames) {
+          result = false;
+          log.write("AE Eligibility Check: restricted protocol names are used\n");
+          System.out.println("AE Eligibility Check: restricted protocol names are used");
+          throw new ProcessExecutionException(1,
+                                              "Restricted protocol names are used");
+        }
       }
-      if (restrictedProtocolNames) {
-        log.write("AE Eligibility Check: restricted protocol names are used\n");
+      catch (Exception e) {
+        result = false;
+        e.printStackTrace();
         throw new ProcessExecutionException(1,
-                                            "Restricted protocol names are used");
+                                            "AE Eligibility Check: something is wrong in the code",
+                                            e);
       }
-    }
-    catch (Exception e) {
-      throw new ProcessExecutionException(1,
-                                          "AE Eligibility Check: something is wrong in the code",
-                                          e);
-    }
+      finally {
+        try{
+          if (result)
+            log.write("AE Eligibility Check: experiment \"" + accession.getAccession() +
+                          "\" is eligible for ArrayExpress\n");
+          else
+             log.write("AE Eligibility Check: experiment \"" + accession.getAccession() +
+                          "\" is NOT eligible for ArrayExpress\n");
+          log.write("AE Eligibility Check: FINISHED");
+          log.close();
+        }
+        catch(IOException e){
+          e.printStackTrace();
+          throw new ProcessExecutionException(1,
+                                            "AE Eligibility Check: can't close report file",
+                                            e);
+        }
+      }
 
     return result;
   }
@@ -152,5 +186,120 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
     return parameters;
   }
 
+   public boolean executeMockup(File file)
+      throws ProcessExecutionException, IllegalArgumentException,
+      InterruptedException {
+
+    boolean result = true;
+
+  //logging
+      String reportsDir =
+          file.getParentFile().getAbsolutePath() + File.separator +
+              "reports";
+      File reportsDirFile = new File(reportsDir);
+      if (!reportsDirFile.exists())
+        reportsDirFile.mkdirs();
+
+      String fileName = reportsDir + File.separator + file.getName() +
+          "_AEEligibilityCheck" +
+          "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
+          ".report";
+      try {
+        log = new BufferedWriter(new FileWriter(fileName));
+        log.write("AE Eligibility Check: START\n");
+      }
+      catch (IOException e) {
+        result = false;
+        System.out.println("Can't create report file '" +
+            fileName + "'");
+        throw new ProcessExecutionException(1, "Can't create report file '" +
+            fileName + "'", e);
+      }
+
+      // make a new parser
+      MAGETABParser parser = new MAGETABParser();
+
+
+      try {
+        MAGETABInvestigation investigation = parser.parse(file);
+        // I check: e-mail address of submitter
+        boolean submitterWithEmail = false;
+        boolean restrictedProtocolNames = false;
+        int j = 0;
+        for (Iterator i = investigation.IDF.personRoles.iterator();
+             i.hasNext(); ) {
+          String role = (String) i.next();
+          if (role.equals("submitter")) {
+            try{
+              if (!investigation.IDF.personEmail.get(j).isEmpty())
+                submitterWithEmail = true;
+            }
+            catch(Exception e){
+              result = false;
+              System.out.println("There are no submitters with e-mail address");
+              throw new ProcessExecutionException(1,
+                                              "There are no submitters with e-mail address");
+            }
+          }
+          j++;
+        }
+
+
+        if (!submitterWithEmail)
+        {
+          result = false;
+          log.write("AE Eligibility Check: there are no submitters with e-mail address\n");
+          System.out.println("AE Eligibility Check: there are no submitters with e-mail address");
+          throw new ProcessExecutionException(1,
+                                              "There are no submitters with e-mail address");
+        }
+        else {
+          //II check: protocol names
+          for (String protocol : investigation.IDF.protocolName) {
+            for (String restrictedName : controlledVocabularyDAO
+                .getRestrictedProtocolNames()) {
+              if (protocol.equals(restrictedName)) {
+                restrictedProtocolNames = true;
+              }
+            }
+          }
+        }
+        if (restrictedProtocolNames) {
+          result = false;
+          log.write("AE Eligibility Check: restricted protocol names are used\n");
+          System.out.println("AE Eligibility Check: restricted protocol names are used");
+          throw new ProcessExecutionException(1,
+                                              "Restricted protocol names are used");
+        }
+      }
+      catch (Exception e) {
+        result = false;
+        e.printStackTrace();
+        throw new ProcessExecutionException(1,
+                                            "AE Eligibility Check: something is wrong in the code",
+                                            e);
+      }
+      finally {
+        try{
+          if (result)
+            log.write("AE Eligibility Check: experiment " + file.getName() +
+                          " is eligible for ArrayExpress\n");
+          else
+             log.write("AE Eligibility Check: experiment " + file.getName() +
+                          " is NOT eligible for ArrayExpress\n");
+          log.write("AE Eligibility Check: FINISHED");
+          log.close();
+        }
+        catch(IOException e){
+          result = false;
+          e.printStackTrace();
+          throw new ProcessExecutionException(1,
+                                            "AE Eligibility Check: can't close report file",
+                                            e);
+        }
+      }
+
+    return result;
+   }
 
 }
