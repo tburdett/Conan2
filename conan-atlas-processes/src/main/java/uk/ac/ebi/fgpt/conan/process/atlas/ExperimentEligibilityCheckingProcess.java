@@ -93,7 +93,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
 
     try {
-      MAGETABInvestigation investigation = parser.parse(accession.getFile());
+      MAGETABInvestigation investigation = parser.parse(accession.getFile().getAbsoluteFile());
       // I check: experiment types
       boolean isAtlasType = false;
       for (String exptType : investigation.IDF.getComments()

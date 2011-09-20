@@ -87,7 +87,7 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
     accession.setAccession(parameters.get(accessionParameter));
     try {
       jobID =
-          response.get(accession.getFile().getParentFile().getAbsolutePath())
+          response.get(accession.getFile().getAbsolutePath())
               .toString();
       System.out.println(jobID);
     }
@@ -142,7 +142,7 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
       //execution
       if (accession.isExperiment()) {
         String restApiRequest = atlas.ExperimentLoad +
-            accession.getFile().getParentFile().getAbsolutePath();
+            accession.getFile().getAbsolutePath();
         return restApiRequest;
       }
       else {

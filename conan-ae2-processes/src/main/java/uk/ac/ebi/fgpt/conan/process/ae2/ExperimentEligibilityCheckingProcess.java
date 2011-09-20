@@ -88,7 +88,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       MAGETABParser parser = new MAGETABParser();
 
       try {
-        MAGETABInvestigation investigation = parser.parse(accession.getFile());
+        MAGETABInvestigation investigation = parser.parse(accession.getFile().getAbsoluteFile());
         // I check: e-mail address of submitter
         boolean submitterWithEmail = false;
         boolean restrictedProtocolNames = false;
