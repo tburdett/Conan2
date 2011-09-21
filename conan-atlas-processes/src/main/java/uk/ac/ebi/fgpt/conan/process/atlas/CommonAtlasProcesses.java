@@ -1,7 +1,7 @@
 package uk.ac.ebi.fgpt.conan.process.atlas;
 
+import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 import uk.ac.ebi.fgpt.conan.rest.AbstractRESTAPIProcess;
-
 import java.util.HashMap;
 
 /**
@@ -16,12 +16,9 @@ public class CommonAtlasProcesses {
     SCHEDULED, STARTED, FAILED;
   }
 
-  private static final String atlasPath = "http://banana.ebi.ac.uk:14072/gxa/";
-  //ConanProperties.getProperty("atlas.path")
-  private static final String atlasUsername = "autosubs";
-  //ConanProperties.getProperty("atlas.username")
-  private static final String atlasPassword = "password";
-  //ConanProperties.getProperty("atlas.password")
+  private static final String atlasPath = ConanProperties.getProperty("atlas.path");
+  private static final String atlasUsername = ConanProperties.getProperty("atlas.username");
+  private static final String atlasPassword = ConanProperties.getProperty("atlas.password");
 
   public static final String ExperimentUpdatePrivate = atlasPath +
       "admin?op=schedule&runMode=RESTART&type=" +
@@ -33,7 +30,7 @@ public class CommonAtlasProcesses {
 
   public static final String ExperimentLoad = atlasPath +
       "admin?op=schedule&runMode=RESTART&type=" +
-      "loadexperiment&autoDepends=false&private=true&accession=";
+      "loadexperiment&autoDepends=false&private=true&useRawData=true&curated=true&accession=";
 
   public static final String ExperimentUnload = atlasPath +
       "admin?op=schedule&runMode=RESTART&type=" +
@@ -120,12 +117,10 @@ public class CommonAtlasProcesses {
     String jobID = "WITHOUT_MONITORING";
     try {
       jobID = response.get(parameters).toString();
-      System.out.println("ID:" + jobID);
     }
     catch (Exception e) {
       jobID =
           AbstractRESTAPIProcess.RESTAPIEvents.WITHOUT_MONITORING.toString();
-      System.out.println("Can't get ID");
       e.printStackTrace();
     }
 

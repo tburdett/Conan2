@@ -209,7 +209,7 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
     }
 
     String fileName = reportsDir + File.separator + accession.getAccession() +
-        "_AtlasRestApiLoad" +
+        "_AtlasRestApiUnload" +
         "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
         ".report";
     try {

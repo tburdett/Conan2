@@ -17,7 +17,6 @@ import org.codehaus.jackson.type.TypeReference;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
-
 import java.io.BufferedWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +53,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
     }
 
     /**
-     * REST API...
+     * REST API process
      */
     public boolean execute(Map<ConanParameter, String> parameters)
             throws IllegalArgumentException, ProcessExecutionException,
@@ -84,15 +83,11 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                     response = statusMonitor.waitFor();
                     exitValue = getExitCode(response);
                     log.write("Atlas REST API Process completed with exit value " + exitValue + "\n");
+                    if (exitValue==0)
+                      return true;
+                    else
+                      throw new ProcessExecutionException(1, getMessage(response));
 
-                    ProcessExecutionException pex = interpretExitValue(exitValue);
-                    if (pex == null) {
-                        return true;
-                    }
-                    else {
-                        pex.setProcessOutput(new String[]{getMessage(response)});
-                        throw pex;
-                    }
                 }
                 else {
                     exitValue = 0;
@@ -101,10 +96,9 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                 }
             }
             catch (Exception e) {
-                log.write(
-                        "Can't get job id for monitoring process, assume that monitoring is not needed\n");
-                exitValue = 0;
-                return true;
+                e.printStackTrace();
+                exitValue = 1;
+                throw new ProcessExecutionException(1, "Something wrong in code",e);
             }
         }
        }
@@ -119,6 +113,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
          }
          catch(Exception e){
            e.printStackTrace();
+           throw new ProcessExecutionException(1, "Something wrong in code",e);
          }
        }
        return false;
@@ -153,27 +148,21 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                     exitValue = getExitCode(response);
                     log.write("Atlas REST API Process completed with exit value " + exitValue + "\n");
                     System.out.println("Atlas REST API Process completed with exit value " + exitValue );
-                    ProcessExecutionException pex = interpretExitValue(exitValue);
-                    if (pex == null) {
-                        return true;
-                    }
-                    else {
-                        pex.setProcessOutput(new String[]{getMessage(response)});
-                        throw pex;
-                    }
+                    if (exitValue==0)
+                      return true;
+                    else
+                      throw new ProcessExecutionException(1, getMessage(response));
                 }
                 else {
                     exitValue = 0;
-                    log
-                            .write("Atlas REST API Process completed with exit value " + exitValue + "\n");
+                    log.write("Atlas REST API Process completed with exit value " + exitValue + "\n");
                     return true;
                 }
             }
             catch (Exception e) {
-                log.write(
-                        "Can't get job id for monitoring process, assume that monitoring is not needed\n");
-                exitValue = 0;
-                return true;
+                log.write("Some problems in code\n");
+                e.printStackTrace();
+                throw new ProcessExecutionException(1,"Some problems in code",e);
             }
         }
        }
@@ -188,6 +177,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
          }
          catch(Exception e){
            e.printStackTrace();
+           throw new ProcessExecutionException(1,"Some problems in code",e);
          }
        }
        return false;
@@ -361,24 +351,6 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
 
     }
 
-    /**
-     * Translates an exit value returned by the LSF process into a meaningful java exception.  Override this method if
-     * you want to do something clever with certain exit values.  The default behaviour is to wrap the supplied exit
-     * value inside a ProcessExecutionException and provide a generic error message, if the exit code is non-zero.  If
-     * an exit code of zero is passed, this method should return null.
-     *
-     * @param exitValue the exit value returned from the LSF process upon completion
-     * @return a ProcessExecutionException that minimally wraps the exit value of the process, and possibly provides
-     *         further informative error messages if the exit value is non-zero, otherwsie null
-     */
-    protected ProcessExecutionException interpretExitValue(int exitValue) {
-        if (exitValue == 0) {
-            return null;
-        }
-        else {
-            return new ProcessExecutionException(exitValue);
-        }
-    }
 
     //*****************************************************************************//
 //*********************Abstract methods to be implemented *********************//

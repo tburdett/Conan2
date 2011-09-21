@@ -115,8 +115,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         if (!submitterWithEmail)
         {
           result = false;
-          log.write("AE Eligibility Check: there are no submitters with e-mail address\n");
-          System.out.println("AE Eligibility Check: there are no submitters with e-mail address");
+          log.write("There are no submitters with e-mail address\n");
+          System.out.println("There are no submitters with e-mail address");
           throw new ProcessExecutionException(1,
                                               "There are no submitters with e-mail address");
         }
@@ -133,8 +133,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         }
         if (restrictedProtocolNames) {
           result = false;
-          log.write("AE Eligibility Check: restricted protocol names are used\n");
-          System.out.println("AE Eligibility Check: restricted protocol names are used");
+          log.write("Restricted protocol names are used\n");
+          System.out.println("Restricted protocol names are used");
           throw new ProcessExecutionException(1,
                                               "Restricted protocol names are used");
         }
@@ -143,16 +143,16 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         result = false;
         e.printStackTrace();
         throw new ProcessExecutionException(1,
-                                            "AE Eligibility Check: something is wrong in the code",
+                                            "Something is wrong in the code",
                                             e);
       }
       finally {
         try{
           if (result)
-            log.write("AE Eligibility Check: experiment \"" + accession.getAccession() +
+            log.write("Experiment \"" + accession.getAccession() +
                           "\" is eligible for ArrayExpress\n");
           else
-             log.write("AE Eligibility Check: experiment \"" + accession.getAccession() +
+             log.write("Experiment \"" + accession.getAccession() +
                           "\" is NOT eligible for ArrayExpress\n");
           log.write("AE Eligibility Check: FINISHED");
           log.close();
@@ -160,7 +160,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         catch(IOException e){
           e.printStackTrace();
           throw new ProcessExecutionException(1,
-                                            "AE Eligibility Check: can't close report file",
+                                            "Can't close report file",
                                             e);
         }
       }

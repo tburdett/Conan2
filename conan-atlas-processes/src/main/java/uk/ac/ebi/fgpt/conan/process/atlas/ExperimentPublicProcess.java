@@ -4,7 +4,6 @@ import net.sourceforge.fluxion.spi.ServiceProvider;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.rest.AbstractRESTAPIProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -214,13 +213,13 @@ public class ExperimentPublicProcess extends AbstractRESTAPIProcess {
     }
 
     String fileName = reportsDir + File.separator + accession.getAccession() +
-        "_AtlasRestApiLoad" +
+        "_AtlasRestApiPublic" +
         "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
         ".report";
     try {
       log = new BufferedWriter(new FileWriter(fileName));
       log.write("Atlas REST API: START\n");
-      log.write("Make status public process\n");
+      log.write("Public status\n");
     }
     catch (IOException e) {
       e.printStackTrace();

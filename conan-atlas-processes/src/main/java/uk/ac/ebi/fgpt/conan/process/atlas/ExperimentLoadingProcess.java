@@ -4,7 +4,6 @@ import net.sourceforge.fluxion.spi.ServiceProvider;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.rest.AbstractRESTAPIProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;

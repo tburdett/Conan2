@@ -14,12 +14,9 @@ import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
-
 import java.util.HashMap;
-import java.util.Map;
+
 
 /**
  * An abstract that is designed to process REST API requests. You
@@ -29,10 +26,6 @@ import java.util.Map;
  * @date 23-05-2011
  */
 public abstract class AbstractRESTAPISubprocess {
-
-    public static final int MONITOR_INTERVAL = 5;
-
-    private Logger log = LoggerFactory.getLogger(getClass());
 
     private HttpClient httpclient = new DefaultHttpClient();
 
@@ -44,18 +37,11 @@ public abstract class AbstractRESTAPISubprocess {
         WITHOUT_MONITORING, NO_LOGIN;
     }
 
-    protected Logger getLog() {
-        return log;
-    }
-
     public String execute(String parameter)
             throws IllegalArgumentException, ProcessExecutionException,
             InterruptedException {
         String result = "empty";
-        getLog()
-                .debug("Executing an REST API process with parameters: " + parameter);
-        // process exit value, initialise to -1
-        int exitValue = -1;
+        System.out.println("Executing REST API process with parameters: " + parameter);
         HashMap<String, Object> response;
         //have to login to work with REST API
         if (LogIn()) {
@@ -133,11 +119,12 @@ public abstract class AbstractRESTAPISubprocess {
         try {
 
             HttpGet httpget = new HttpGet(requestString);
+            System.out.println("Atlas REST API request: " + requestString);
             // Pass local context as a parameter
             HttpResponse response = httpclient.execute(httpget, localContext);
             HttpEntity entity = response.getEntity();
             String responseString = EntityUtils.toString(entity);
-            System.out.println(responseString);
+            System.out.println("Atlas REST API response: " + responseString);
             requestResults = parseRestApiResponse(responseString);
         }
         catch (Exception e) {
@@ -163,7 +150,6 @@ public abstract class AbstractRESTAPISubprocess {
         }
 
         public void run() {
-            getLog().debug("Polling " + restApiStatusURL + " for status");
             System.out.println("Polling " + restApiStatusURL + " for status");
             while (running) {
                 // make request to restApiStatusURL
@@ -185,13 +171,13 @@ public abstract class AbstractRESTAPISubprocess {
                         }
                         catch (InterruptedException e) {
                             // if interrupted, die
-                            getLog().debug("Interrupted exception causing thread to die");
+                            System.out.println("Interrupted exception causing thread to die");
                             stop();
                         }
                     }
                 }
             }
-            getLog().debug("Stopping polling of " + restApiStatusURL);
+            System.out.println("Stopping polling of " + restApiStatusURL);
         }
 
         public void stop() {
@@ -211,31 +197,11 @@ public abstract class AbstractRESTAPISubprocess {
                     wait();
                 }
             }
-            getLog()
-                    .debug("Process completed: status message = " + getMessage(response));
+            System.out.println("Process completed: status message = " + getMessage(response));
             return response;
         }
 
 
-    }
-
-    /**
-     * Translates an exit value returned by the LSF process into a meaningful java exception.  Override this method if
-     * you want to do something clever with certain exit values.  The default behaviour is to wrap the supplied exit
-     * value inside a ProcessExecutionException and provide a generic error message, if the exit code is non-zero.  If
-     * an exit code of zero is passed, this method should return null.
-     *
-     * @param exitValue the exit value returned from the LSF process upon completion
-     * @return a ProcessExecutionException that minimally wraps the exit value of the process, and possibly provides
-     *         further informative error messages if the exit value is non-zero, otherwsie null
-     */
-    protected ProcessExecutionException interpretExitValue(int exitValue) {
-        if (exitValue == 0) {
-            return null;
-        }
-        else {
-            return new ProcessExecutionException(exitValue);
-        }
     }
 
 //*****************************************************************************//

@@ -1,22 +1,6 @@
 package uk.ac.ebi.fgpt.conan.process.atlas;
 
-import net.sourceforge.fluxion.spi.ServiceProvider;
-import org.mged.magetab.error.ErrorCode;
-import org.mged.magetab.error.ErrorItem;
-import org.springframework.jdbc.core.JdbcTemplate;
-import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.HybridizationNode;
-import uk.ac.ebi.arrayexpress2.magetab.listener.ErrorItemListener;
-import uk.ac.ebi.arrayexpress2.magetab.parser.MAGETABParser;
-import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
-import uk.ac.ebi.fgpt.conan.rest.AbstractRESTAPIProcess;
-import uk.ac.ebi.fgpt.conan.model.ConanParameter;
-import uk.ac.ebi.arrayexpress2.magetab.datamodel.MAGETABInvestigation;
-import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.*;
-import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.*;
 import uk.ac.ebi.fgpt.conan.rest.AbstractRESTAPISubprocess;
-
-import javax.sql.DataSource;
-import java.io.File;
 import java.util.*;
 
 /**
@@ -93,7 +77,6 @@ public class ArrayDesignExistenceChecking extends AbstractRESTAPISubprocess {
   @Override protected String getRestApiRequest(String parameters) {
 
     String restApiRequest = atlas.ArrayDesignSearch + parameters;
-    System.out.println("REST API Request: " + restApiRequest);
     return restApiRequest;
 
   }
