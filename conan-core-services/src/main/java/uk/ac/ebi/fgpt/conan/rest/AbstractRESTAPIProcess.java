@@ -14,12 +14,11 @@ import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
+import java.io.BufferedWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +33,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
 
     public static final int MONITOR_INTERVAL = 15;
 
-    private Logger log = LoggerFactory.getLogger(getClass());
+    private BufferedWriter log;
 
     private HttpClient httpclient = new DefaultHttpClient();
 
@@ -46,7 +45,11 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
         WITHOUT_MONITORING, NO_LOGIN;
     }
 
-    protected Logger getLog() {
+    protected BufferedWriter initLog(Map<ConanParameter, String> parameters) {
+        return log;
+    }
+
+    protected BufferedWriter initLogMockup(String parameter) {
         return log;
     }
 
@@ -56,8 +59,9 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
     public boolean execute(Map<ConanParameter, String> parameters)
             throws IllegalArgumentException, ProcessExecutionException,
             InterruptedException {
-        getLog()
-                .debug("Executing an REST API process with parameters: " + parameters);
+       try{
+        log = initLog(parameters);
+        log.write("Executing Atlas REST API process with parameters: " + parameters + "\n");
         // process exit value, initialise to -1
         int exitValue = -1;
         HashMap<String, Object> response;
@@ -75,11 +79,11 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                                                      MONITOR_INTERVAL);
 
                     // process monitoring
-                    getLog().debug("Monitoring process, waiting for completion");
+                    log.write("Monitoring process, waiting for completion\n");
                     new Thread(statusMonitor).start();
                     response = statusMonitor.waitFor();
                     exitValue = getExitCode(response);
-                    getLog().debug("REST API Process completed with exit value " + exitValue);
+                    log.write("Atlas REST API Process completed with exit value " + exitValue + "\n");
 
                     ProcessExecutionException pex = interpretExitValue(exitValue);
                     if (pex == null) {
@@ -92,27 +96,40 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                 }
                 else {
                     exitValue = 0;
-                    getLog()
-                            .debug("REST API Process completed with exit value " + exitValue);
+                    log.write("Atlas REST API Process completed with exit value " + exitValue + "\n");
                     return true;
                 }
             }
             catch (Exception e) {
-                getLog().debug(
-                        "Can't get job id for monitoring process, assume that monitoring is not needed");
+                log.write(
+                        "Can't get job id for monitoring process, assume that monitoring is not needed\n");
                 exitValue = 0;
                 return true;
             }
         }
-
-        return false;
+       }
+       catch(Exception e){
+         e.printStackTrace();
+         return false;
+       }
+       finally {
+         try{
+          log.write("Atlas REST API: FINISHED\n");
+          log.close();
+         }
+         catch(Exception e){
+           e.printStackTrace();
+         }
+       }
+       return false;
     }
 
     public boolean executeMockup(String parameter)
             throws IllegalArgumentException, ProcessExecutionException,
             InterruptedException {
-        getLog()
-                .debug("Executing an REST API process with parameters: " + parameter);
+       try{
+        log = initLogMockup(parameter);
+        log.write("Executing Atlas REST API process with parameters: " + parameter + "\n");
         // process exit value, initialise to -1
         int exitValue = -1;
         HashMap<String, Object> response;
@@ -130,12 +147,12 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                                                      MONITOR_INTERVAL);
 
                     // process monitoring
-                    getLog().debug("Monitoring process, waiting for completion");
+                    log.write("Monitoring process, waiting for completion\n");
                     new Thread(statusMonitor).start();
                     response = statusMonitor.waitFor();
                     exitValue = getExitCode(response);
-                    getLog().debug("REST API Process completed with exit value " + exitValue);
-                    System.out.println("REST API Process completed with exit value " + exitValue);
+                    log.write("Atlas REST API Process completed with exit value " + exitValue + "\n");
+                    System.out.println("Atlas REST API Process completed with exit value " + exitValue );
                     ProcessExecutionException pex = interpretExitValue(exitValue);
                     if (pex == null) {
                         return true;
@@ -147,19 +164,33 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                 }
                 else {
                     exitValue = 0;
-                    getLog()
-                            .debug("REST API Process completed with exit value " + exitValue);
+                    log
+                            .write("Atlas REST API Process completed with exit value " + exitValue + "\n");
                     return true;
                 }
             }
             catch (Exception e) {
-                getLog().debug(
-                        "Can't get job id for monitoring process, assume that monitoring is not needed");
+                log.write(
+                        "Can't get job id for monitoring process, assume that monitoring is not needed\n");
                 exitValue = 0;
                 return true;
             }
         }
-        return false;
+       }
+       catch(Exception e){
+         e.printStackTrace();
+         return false;
+       }
+       finally {
+         try{
+          log.write("Atlas REST API: FINISHED\n");
+          log.close();
+         }
+         catch(Exception e){
+           e.printStackTrace();
+         }
+       }
+       return false;
 
     }
 //*****************************************************************************//
@@ -189,7 +220,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
             return requestResults;
         }
         catch (Exception e) {
-
+          e.printStackTrace();
         }
 
         return requestResults;
@@ -211,6 +242,8 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                 HttpResponse response = httpclient.execute(httpget, localContext);
                 HttpEntity entity = response.getEntity();
                 String responseString = EntityUtils.toString(entity);
+                log.write("Atlas REST API log in request: " + getLoginRequest() + "\n");
+                log.write("Atlas REST API log in response: " + responseString + "\n");
                 HashMap<String, Object> logonResults =
                         parseRestApiResponse(responseString);
                 return (Boolean) logonResults.get("success");
@@ -232,7 +265,10 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
             HttpResponse response = httpclient.execute(httpget, localContext);
             HttpEntity entity = response.getEntity();
             String responseString = EntityUtils.toString(entity);
-            System.out.println(responseString);
+            System.out.println("Atlas REST API request: " + requestString);
+            System.out.println("Atlas REST API response: " + responseString);
+            log.write("Atlas REST API request: " + requestString + "\n");
+            log.write("Atlas REST API response: " + responseString + "\n");
             requestResults = parseRestApiResponse(responseString);
         }
         catch (Exception e) {
@@ -258,8 +294,9 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
         }
 
         public void run() {
-            getLog().debug("Polling " + restApiStatusURL + " for status");
-            System.out.println("Polling " + restApiStatusURL + " for status");
+           try{
+            log.write("Polling " + restApiStatusURL + " for status\n");
+            System.out.println("Polling " + restApiStatusURL + " for status\n");
             while (running) {
                 // make request to restApiStatusURL
                 // parse response to determine if complete yet
@@ -280,13 +317,18 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                         }
                         catch (InterruptedException e) {
                             // if interrupted, die
-                            getLog().debug("Interrupted exception causing thread to die");
+                            log.write("Interrupted exception causing thread to die\n");
                             stop();
                         }
                     }
                 }
             }
-            getLog().debug("Stopping polling of " + restApiStatusURL);
+            log.write("Stopping polling of " + restApiStatusURL + "\n");
+           }
+           catch(Exception e){
+             e.printStackTrace();
+             stop();
+           }
         }
 
         public void stop() {
@@ -306,8 +348,13 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                     wait();
                 }
             }
-            getLog()
-                    .debug("Process completed: status message = " + getMessage(response));
+            try{
+              System.out.println("Process completed: status message = " + getMessage(response));
+              log.write("Process completed: status message = " + getMessage(response) + "\n");
+            }
+            catch(Exception e){
+              e.printStackTrace();
+            }
             return response;
         }
 

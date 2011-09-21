@@ -26,6 +26,10 @@ public class DatabaseConanControlledVocabularyDAO {
         "where AE_ELIGIBLE=0 " +
         "and TYPE='Protocol Accession'";
 
+    public static final String CONTROLLED_VOCABULARY_SELECT_ATLAS_FACTOR_TYPES = "select VALUE from CONTROLLED_VOCABULARY " +
+        "where ATLAS_ELIGIBLE=1 " +
+        "and TYPE='Factor type'";
+
     private JdbcTemplate jdbcTemplate;
 
     private Logger log = LoggerFactory.getLogger(getClass());
@@ -49,6 +53,11 @@ public class DatabaseConanControlledVocabularyDAO {
     public List<String> getAtlasExperimentTypes() {
         return getJdbcTemplate().queryForList(
             CONTROLLED_VOCABULARY_SELECT_ATLAS_EXPT_TYPES, String.class);
+    }
+
+    public List<String> getAtlasFactorTypes() {
+        return getJdbcTemplate().queryForList(
+            CONTROLLED_VOCABULARY_SELECT_ATLAS_FACTOR_TYPES, String.class);
     }
 
     public List<String> getRestrictedProtocolNames() {

@@ -5,6 +5,11 @@ import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.rest.AbstractRESTAPIProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -18,8 +23,9 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
 
   private final Collection<ConanParameter> parameters;
   private final AccessionParameter accessionParameter;
-
   private CommonAtlasProcesses atlas = new CommonAtlasProcesses();
+
+  private BufferedWriter log;
 
   /**
    * Constructor for process. Initializes conan2 parameters for the process.
@@ -89,10 +95,11 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
       jobID =
           response.get(accession.getFile().getAbsolutePath())
               .toString();
-      System.out.println(jobID);
+      log.write("Atlas job ID: " + jobID + "\n");
+      System.out.println("Atlas job ID: " + jobID);
     }
     catch (Exception e) {
-
+      e.printStackTrace();
     }
 
     return jobID;
@@ -136,6 +143,7 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
     accession.setAccession(parameters.get(accessionParameter));
 
     if (accession.getAccession() == null) {
+      System.out.print("Accession cannot be null");
       throw new IllegalArgumentException("Accession cannot be null");
     }
     else {
@@ -146,6 +154,7 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
         return restApiRequest;
       }
       else {
+        System.out.println("Experiment is needed, not array");
         throw new IllegalArgumentException(
             "Experiment is needed, not array");
       }
@@ -162,7 +171,6 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
   @Override protected String getRestApiRequest(String parameters) {
 
     String restApiRequest = atlas.ExperimentLoad + parameters;
-    System.out.print(restApiRequest);
     return restApiRequest;
 
   }
@@ -194,5 +202,60 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
     return parameters;
   }
 
+  @Override
+  protected BufferedWriter initLog(Map<ConanParameter, String> parameters) {
+    // deal with parameters
+    AccessionParameter accession = new AccessionParameter();
+    accession.setAccession(parameters.get(accessionParameter));
+    //logging
+    String reportsDir =
+        accession.getFile().getParentFile().getAbsolutePath() + File.separator +
+            "reports";
+    File reportsDirFile = new File(reportsDir);
+    if (!reportsDirFile.exists()) {
+      reportsDirFile.mkdirs();
+    }
 
+    String fileName = reportsDir + File.separator + accession.getAccession() +
+        "_AtlasRestApiLoad" +
+        "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
+        ".report";
+    try {
+      log = new BufferedWriter(new FileWriter(fileName));
+      log.write("Atlas REST API: START\n");
+      log.write("Loading process\n");
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
+    return log;
+  }
+
+
+  @Override
+  protected BufferedWriter initLogMockup(String parameter) {
+    File file = new File(parameter);
+    //logging
+    String reportsDir =
+        file.getParentFile().getAbsolutePath() + File.separator +
+            "reports";
+    File reportsDirFile = new File(reportsDir);
+    if (!reportsDirFile.exists()) {
+      reportsDirFile.mkdirs();
+    }
+
+    String fileName = reportsDir + File.separator + "mockup" +
+        "_AtlasRestApiLoad" +
+        "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
+        ".report";
+    try {
+      log = new BufferedWriter(new FileWriter(fileName));
+      log.write("Atlas REST API: START\n");
+      log.write("Loading process\n");
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
+    return log;
+  }
 }

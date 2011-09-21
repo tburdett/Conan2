@@ -63,18 +63,22 @@ public class ArrayDesignExistenceChecking extends AbstractRESTAPISubprocess {
   protected String getResultValue(HashMap<String, Object> response,
                                   String parameters) {
     String result = "empty";
-    try{
-      System.out.println(response.get("arraydesigns").toString().toLowerCase());
-      if (Integer.parseInt(response.get("numTotal").toString())>0) {
+    try {
+
+      if (Integer.parseInt(response.get("numTotal").toString()) > 0) {
         result = "is";
-        if (response.get("arraydesigns").toString().toLowerCase().contains("affy"))
-          result="affy";
+        if (response.get("arraydesigns").toString().toLowerCase()
+            .contains("affy")) {
+          result = "affy";
+        }
       }
-      else
+      else {
         result = "no";
+      }
       return result;
     }
-    catch (Exception e){
+    catch (Exception e) {
+      e.printStackTrace();
       return result;
     }
   }
@@ -89,7 +93,7 @@ public class ArrayDesignExistenceChecking extends AbstractRESTAPISubprocess {
   @Override protected String getRestApiRequest(String parameters) {
 
     String restApiRequest = atlas.ArrayDesignSearch + parameters;
-    System.out.print(restApiRequest);
+    System.out.println("REST API Request: " + restApiRequest);
     return restApiRequest;
 
   }
