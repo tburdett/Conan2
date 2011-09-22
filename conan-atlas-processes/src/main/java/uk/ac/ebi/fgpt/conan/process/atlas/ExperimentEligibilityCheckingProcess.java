@@ -102,12 +102,28 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
           parser.parse(accession.getFile().getAbsoluteFile());
       // 1 check: experiment types
       boolean isAtlasType = false;
-      for (String exptType : investigation.IDF.getComments()
-          .get("AEExperimentType")) {
-        for (String AtlasType : controlledVocabularyDAO
-            .getAtlasExperimentTypes()) {
-          if (exptType.equals(AtlasType)) {
-            isAtlasType = true;
+      String restrictedExptType = "";
+      if (investigation.IDF.getComments().containsKey("AEExperimentType")) {
+        for (String exptType : investigation.IDF.getComments()
+            .get("AEExperimentType")) {
+          for (String AtlasType : controlledVocabularyDAO
+              .getAtlasExperimentTypes()) {
+            if (exptType.equals(AtlasType)) {
+              isAtlasType = true;
+            }
+            else {
+              restrictedExptType = exptType;
+            }
+          }
+        }
+      }
+      else {
+       for (String exptType : investigation.IDF.experimentalDesign) {
+          for (String AtlasType : controlledVocabularyDAO
+              .getAtlasExperimentTypes()) {
+            if (exptType.equals(AtlasType)) {
+              isAtlasType = true;
+            }
           }
         }
       }
@@ -117,11 +133,11 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       {
         result = false;
         log.write(
-            "'Experiment Type' is not accepted by Atlas\n");
+            "'Experiment Type' " + restrictedExptType + " is not accepted by Atlas\n");
         System.out.println(
-            "'Experiment Type' is not accepted by Atlas");
+            "'Experiment Type' " + restrictedExptType + " is not accepted by Atlas");
         throw new ProcessExecutionException(1,
-                                            "Atlas Eligibility Check: 'Experiment Type' is not accepted by Atlas");
+                                            "Atlas Eligibility Check: 'Experiment Type' " + restrictedExptType + " is not accepted by Atlas");
       }
       else {
         //2 two-channel experiment
@@ -359,16 +375,27 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       MAGETABInvestigation investigation = parser.parse(idfFile);
       // I check: experiment types
       boolean isAtlasType = false;
-      for (String exptType : investigation.IDF.getComments()
-          .get("AEExperimentType")) {
-        for (String AtlasType : controlledVocabularyDAO
-            .getAtlasExperimentTypes()) {
-          if (exptType.equals(AtlasType)) {
-            isAtlasType = true;
+      if (investigation.IDF.getComments().containsKey("AEExperimentType")) {
+        for (String exptType : investigation.IDF.getComments()
+            .get("AEExperimentType")) {
+          for (String AtlasType : controlledVocabularyDAO
+              .getAtlasExperimentTypes()) {
+            if (exptType.equals(AtlasType)) {
+              isAtlasType = true;
+            }
           }
         }
       }
-
+      else {
+       for (String exptType : investigation.IDF.experimentalDesign) {
+          for (String AtlasType : controlledVocabularyDAO
+              .getAtlasExperimentTypes()) {
+            if (exptType.equals(AtlasType)) {
+              isAtlasType = true;
+            }
+          }
+        }
+      }
       if (!isAtlasType)
       //not in Atlas Experiment Types
       {
