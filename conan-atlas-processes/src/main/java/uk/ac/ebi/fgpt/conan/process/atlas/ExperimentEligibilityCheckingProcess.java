@@ -2,8 +2,6 @@ package uk.ac.ebi.fgpt.conan.process.atlas;
 
 import net.sourceforge.fluxion.spi.ServiceProvider;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import uk.ac.ebi.arrayexpress2.exception.exceptions.AE2Exception;
-import uk.ac.ebi.arrayexpress2.exception.manager.ExceptionManager;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.graph.Node;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.HybridizationNode;
 import uk.ac.ebi.arrayexpress2.magetab.parser.MAGETABParser;
@@ -19,7 +17,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -69,7 +66,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       throws ProcessExecutionException, IllegalArgumentException,
       InterruptedException {
 
-    boolean result = true;
+    int exitValue = 0;
     //deal with parameters
     AccessionParameter accession = new AccessionParameter();
     accession.setAccession(parameters.get(accessionParameter));
@@ -91,10 +88,16 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       log.write("Atlas Eligibility Check: START\n");
     }
     catch (IOException e) {
-      result = false;
+      exitValue = 1;
       e.printStackTrace();
-      throw new ProcessExecutionException(1, "Can't create report file '" +
-          fileName + "'", e);
+
+      ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+      "Can't create report file '" + fileName + "'");
+
+      String[] errors = new String[1];
+      errors[0] =  "Can't create report file '" + fileName + "'";
+      pex.setProcessOutput(errors);
+      throw pex;
     }
 
     // make a new parser
@@ -135,24 +138,36 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       if (!isAtlasType)
       //not in Atlas Experiment Types
       {
-        result = false;
+        exitValue = 1;
         log.write(
             "'Experiment Type' " + restrictedExptType + " is not accepted by Atlas\n");
         System.out.println(
             "'Experiment Type' " + restrictedExptType + " is not accepted by Atlas");
 
-        atlas.processResult("Atlas Eligibility Check: 'Experiment Type' " + restrictedExptType + " is not accepted by Atlas",1);
+        ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+        "Atlas Eligibility Check: 'Experiment Type' " + restrictedExptType + " is not accepted by Atlas");
+
+        String[] errors = new String[1];
+        errors[0] = "Atlas Eligibility Check: 'Experiment Type' " + restrictedExptType + " is not accepted by Atlas";
+        pex.setProcessOutput(errors);
+        throw pex;
 
       }
       else {
         //2 two-channel experiment
         if (investigation.SDRF.getNumberOfChannels() > 1) {
-          result = false;
+          exitValue = 1;
           log.write(
               "Two-channel experiment is not accepted by Atlas\n");
           System.out.println(
               "Two-channel experiment is not accepted by Atlas");
-          atlas.processResult("Two-channel experiment is not accepted by Atlas",1);
+          ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+          "Two-channel experiment is not accepted by Atlas");
+
+          String[] errors = new String[1];
+          errors[0] = "Two-channel experiment is not accepted by Atlas";
+          pex.setProcessOutput(errors);
+          throw pex;
         }
 
 
@@ -182,12 +197,19 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
         //3 presence of factor values
         if (factorValues == 0) {
-          result = false;
+          exitValue = 1;
           log.write(
               "Experiment does not have Factor Values\n");
           System.out.println(
               "Experiment does not have Factor Values");
-          atlas.processResult("Experiment does not have Factor Values",1);
+
+          ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+          "Experiment does not have Factor Values");
+
+          String[] errors = new String[1];
+          errors[0] = "Experiment does not have Factor Values";
+          pex.setProcessOutput(errors);
+          throw pex;
         }
 
         //4 factor types are from controlled vocabulary
@@ -201,15 +223,22 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
           }
         }
         if (!factorTypesFromCV) {
-          result = false;
+          exitValue = 1;
           log.write(
               "Experiment have Factor Types that are not in controlled vocabulary:" +
                   missedFactorType + "\n");
           System.out.println(
               "Experiment have Factor Types that are not in controlled vocabulary:" +
                   missedFactorType);
-          atlas.processResult("Experiment have Factor Types that are not in controlled vocabulary:" +
-                  missedFactorType,1);
+          ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+          "Experiment have Factor Types that are not in controlled vocabulary:" +
+                  missedFactorType);
+
+          String[] errors = new String[1];
+          errors[0] = "Experiment have Factor Types that are not in controlled vocabulary:" +
+                  missedFactorType;
+          pex.setProcessOutput(errors);
+          throw pex;
         }
 
         // 5 check: array design is in Atlas
@@ -220,15 +249,24 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
               arrayDesignExistenceChecking.execute(arrayDesign);
           if (arrayCheckResult.equals("empty") ||
               arrayCheckResult.equals("no")) {
-            result = false;
+            exitValue = 1;
             log.write("Array design '" +
                           arrayDesign +
                           "' used in experiment is not in Atlas\n");
             System.out.println("Array design '" +
                                    arrayDesign +
                                    "' used in experiment is not in Atlas");
-            atlas.processResult("Array design '" + arrayDesign +
-                                                    "' used in experiment is not in Atlas",1);
+            ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+            "Array design '" +
+                                   arrayDesign +
+                                   "' used in experiment is not in Atlas");
+
+            String[] errors = new String[1];
+            errors[0] = "Array design '" +
+                                   arrayDesign +
+                                   "' used in experiment is not in Atlas";
+            pex.setProcessOutput(errors);
+            throw pex;
           }
 
           else {
@@ -279,23 +317,35 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 hybridizationSubNodes.size() != rawDataSubNodes.size())
             //6a affy
             {
-              result = false;
+              exitValue = 1;
               log.write(
                   "Affymetrix experiment without raw data files\n");
               System.out.println(
                   "Affymetrix experiment without raw data files");
-              atlas.processResult("Affymetrix experiment without raw data files",1);
+              ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+              "Affymetrix experiment without raw data files");
+
+              String[] errors = new String[1];
+              errors[0] = "Affymetrix experiment without raw data files";
+              pex.setProcessOutput(errors);
+              throw pex;
             }
             else
               //6b not affy
               if (processedDataSubNodes.size() == 0 &&
                   processedDataMatrixSubNodes.size() == 0) {
-                result = false;
+                exitValue = 1;
                 log.write(
                     "Non-Affymetrix experiment without processed data files\n");
                 System.out.println(
                     "Non-Affymetrix experiment without processed data files");
-                atlas.processResult("Non-Affymetrix experiment without processed data files",1);
+                ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+                "Non-Affymetrix experiment without processed data files");
+
+                String[] errors = new String[1];
+                errors[0] = "Non-Affymetrix experiment without processed data files";
+                pex.setProcessOutput(errors);
+                throw pex;
 
               }
           }
@@ -303,13 +353,19 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       }
     }
     catch (Exception e) {
-      result = false;
+      exitValue = 1;
       e.printStackTrace();
-      atlas.processResult(e.getMessage(),1);
+      ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+                e.getMessage());
+
+      String[] errors = new String[1];
+      errors[0] = e.getMessage();
+      pex.setProcessOutput(errors);
+      throw pex;
     }
     finally {
       try {
-        if (result) {
+        if (exitValue == 0) {
           log.write("Experiment \"" +
                         accession.getAccession() +
                         "\" is eligible for Atlas\n");
@@ -324,11 +380,26 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       }
       catch (IOException e) {
         e.printStackTrace();
-        atlas.processResult(e.getMessage(),1);
+        ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+                e.getMessage());
+
+        String[] errors = new String[1];
+        errors[0] = e.getMessage();
+        pex.setProcessOutput(errors);
+        throw pex;
       }
     }
 
-    return result;
+    ProcessExecutionException pex =  new ProcessExecutionException(exitValue,"Something wrong in the code ");
+    if (exitValue == 0) {
+      return true;
+    }
+    else {
+      String[] errors = new String[1];
+      errors[0] = "Something wrong in the code ";
+      pex.setProcessOutput(errors);
+      throw pex;
+    }
   }
 
 

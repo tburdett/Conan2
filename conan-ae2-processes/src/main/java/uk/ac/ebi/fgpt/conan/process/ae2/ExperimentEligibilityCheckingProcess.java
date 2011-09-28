@@ -56,7 +56,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       throws ProcessExecutionException, IllegalArgumentException,
       InterruptedException {
 
-      boolean result = true;
+      int exitValue = 0;
       //deal with parameters
       AccessionParameter accession = new AccessionParameter();
       accession.setAccession(parameters.get(accessionParameter));
@@ -78,10 +78,16 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         log.write("AE Eligibility Check: START\n");
       }
       catch (IOException e) {
-        result = false;
+        exitValue = 1;
         e.printStackTrace();
-        throw new ProcessExecutionException(1, "Can't create report file '" +
-            fileName + "'", e);
+
+        ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+        "Can't create report file '" + fileName + "'");
+
+        String[] errors = new String[1];
+        errors[0] =  "Can't create report file '" + fileName + "'";
+        pex.setProcessOutput(errors);
+        throw pex;
       }
 
       // make a new parser
@@ -92,6 +98,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         // I check: e-mail address of submitter
         boolean submitterWithEmail = false;
         boolean restrictedProtocolNames = false;
+        List<String> protocolNames = new ArrayList<String>();
         int j = 0;
         for (Iterator i = investigation.IDF.personRoles.iterator();
              i.hasNext(); ) {
@@ -102,10 +109,15 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 submitterWithEmail = true;
             }
             catch(Exception e){
-              result = false;
+              exitValue = 1;
               System.out.println("There are no submitters with e-mail address");
-              throw new ProcessExecutionException(1,
-                                              "There are no submitters with e-mail address");
+              ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+              "There are no submitters with e-mail address");
+
+              String[] errors = new String[1];
+              errors[0] = "There are no submitters with e-mail address";
+              pex.setProcessOutput(errors);
+              throw pex;
             }
           }
           j++;
@@ -114,11 +126,16 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
         if (!submitterWithEmail)
         {
-          result = false;
+          exitValue = 1;
           log.write("There are no submitters with e-mail address\n");
           System.out.println("There are no submitters with e-mail address");
-          throw new ProcessExecutionException(1,
-                                              "There are no submitters with e-mail address");
+          ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+          "There are no submitters with e-mail address");
+
+          String[] errors = new String[1];
+          errors[0] = "There are no submitters with e-mail address";
+          pex.setProcessOutput(errors);
+          throw pex;
         }
         else {
           //II check: protocol names
@@ -127,28 +144,38 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 .getRestrictedProtocolNames()) {
               if (protocol.equals(restrictedName)) {
                 restrictedProtocolNames = true;
+                protocolNames.add(protocol);
               }
             }
           }
         }
         if (restrictedProtocolNames) {
-          result = false;
-          log.write("Restricted protocol names are used\n");
-          System.out.println("Restricted protocol names are used");
-          throw new ProcessExecutionException(1,
-                                              "Restricted protocol names are used");
+          exitValue = 1;
+          log.write("Restricted protocol names are used: " + protocolNames + "\n");
+          System.out.println("Restricted protocol names are used: " + protocolNames);
+          ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+          "Restricted protocol names are used: " + protocolNames);
+
+          String[] errors = new String[1];
+          errors[0] = "Restricted protocol names are used: " + protocolNames;
+          pex.setProcessOutput(errors);
+          throw pex;
         }
       }
       catch (Exception e) {
-        result = false;
+        exitValue = 1;
         e.printStackTrace();
-        throw new ProcessExecutionException(1,
-                                            "Something is wrong in the code",
-                                            e);
+        ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+        e.getMessage());
+
+        String[] errors = new String[1];
+        errors[0] = e.getMessage();
+        pex.setProcessOutput(errors);
+        throw pex;
       }
       finally {
         try{
-          if (result)
+          if (exitValue ==0)
             log.write("Experiment \"" + accession.getAccession() +
                           "\" is eligible for ArrayExpress\n");
           else
@@ -159,13 +186,26 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         }
         catch(IOException e){
           e.printStackTrace();
-          throw new ProcessExecutionException(1,
-                                            "Can't close report file",
-                                            e);
+          ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+                e.getMessage());
+
+          String[] errors = new String[1];
+          errors[0] = e.getMessage();
+          pex.setProcessOutput(errors);
+          throw pex;
         }
       }
 
-    return result;
+    ProcessExecutionException pex =  new ProcessExecutionException(exitValue,"Something wrong in the code ");
+    if (exitValue == 0) {
+      return true;
+    }
+    else {
+      String[] errors = new String[1];
+      errors[0] = "Something wrong in the code ";
+      pex.setProcessOutput(errors);
+      throw pex;
+    }
   }
 
   /**
