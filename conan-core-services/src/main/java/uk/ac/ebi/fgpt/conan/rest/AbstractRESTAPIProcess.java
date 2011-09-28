@@ -56,13 +56,14 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
      * REST API process
      */
     public boolean execute(Map<ConanParameter, String> parameters)
-            throws IllegalArgumentException, ProcessExecutionException,
+            throws ProcessExecutionException, IllegalArgumentException,
             InterruptedException {
+       // process exit value, initialise to -1
+       int exitValue = -1;
        try{
         log = initLog(parameters);
         log.write("Executing Atlas REST API process with parameters: " + parameters + "\n");
-        // process exit value, initialise to -1
-        int exitValue = -1;
+
         HashMap<String, Object> response;
         //have to login to work with REST API
         if (LogIn()) {
@@ -83,10 +84,17 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                     response = statusMonitor.waitFor();
                     exitValue = getExitCode(response);
                     log.write("Atlas REST API Process completed with exit value " + exitValue + "\n");
-                    if (exitValue==0)
-                      return true;
-                    else
-                      throw new ProcessExecutionException(1, getMessage(response));
+
+                    ProcessExecutionException pex =  new ProcessExecutionException(exitValue,getMessage(response));
+                    if (exitValue == 0) {
+                        return true;
+                    }
+                    else {
+                        String[] errors = new String[1];
+                        errors[0] = getMessage(response);
+                        pex.setProcessOutput(errors);
+                        throw pex;
+                    }
 
                 }
                 else {
@@ -98,13 +106,24 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
             catch (Exception e) {
                 e.printStackTrace();
                 exitValue = 1;
-                throw new ProcessExecutionException(1, "Something wrong in code",e);
+
+                ProcessExecutionException pex =  new ProcessExecutionException(exitValue,e.getMessage());
+                String[] errors = new String[1];
+                errors[0] = e.getMessage();
+                pex.setProcessOutput(errors);
+                throw pex;
             }
         }
        }
        catch(Exception e){
          e.printStackTrace();
-         return false;
+         exitValue = 1;
+
+         ProcessExecutionException pex =  new ProcessExecutionException(exitValue,e.getMessage());
+         String[] errors = new String[1];
+         errors[0] = e.getMessage();
+         pex.setProcessOutput(errors);
+         throw pex;
        }
        finally {
          try{
@@ -113,10 +132,26 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
          }
          catch(Exception e){
            e.printStackTrace();
-           throw new ProcessExecutionException(1, "Something wrong in code",e);
+           exitValue = 1;
+
+           ProcessExecutionException pex =  new ProcessExecutionException(exitValue,e.getMessage());
+           String[] errors = new String[1];
+           errors[0] = e.getMessage();
+           pex.setProcessOutput(errors);
+           throw pex;
          }
        }
-       return false;
+       String error = "Something is wrong in the Experiment loading code";
+       ProcessExecutionException pex =  new ProcessExecutionException(exitValue,error);
+       if (exitValue == 0) {
+        return true;
+       }
+       else {
+        String[] errors = new String[1];
+        errors[0] = error;
+        pex.setProcessOutput(errors);
+        throw pex;
+       }
     }
 
     public boolean executeMockup(String parameter)
@@ -352,7 +387,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
     }
 
 
-    //*****************************************************************************//
+//*****************************************************************************//
 //*********************Abstract methods to be implemented *********************//
 //*****************************************************************************//
     protected abstract String getComponentName();

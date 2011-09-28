@@ -21,6 +21,7 @@
             <process name="validation" displayName="afterload validation"/>
             <process name="atlas eligibility" />
             <process name="atlas loading" />
+            <process name="atlas update" />
         </processes>
     </pipeline>
 

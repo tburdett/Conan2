@@ -55,8 +55,18 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
         getLog().debug("Checking if a response is required to task ID '" + task.getId() + "' for current state");
         // has the current task failed?
         if (task.getCurrentState() == ConanTask.State.FAILED) {
-            // we always notify of fails
-            return true;
+
+            // not respond to atlas eligibility that have failed
+            if (task.getLastProcess().getName().equals("atlas eligibility")){
+              task.abort();
+              getLog().debug("No response required for failed atlas eligibility process. Task is aborted.");
+              return false;
+            }
+            else
+              // we always notify of fails
+              return true;
+
+
         }
         else {
             // first, check pipelines that issue notifications

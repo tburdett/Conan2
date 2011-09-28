@@ -2,6 +2,8 @@ package uk.ac.ebi.fgpt.conan.process.atlas;
 
 import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 import uk.ac.ebi.fgpt.conan.rest.AbstractRESTAPIProcess;
+import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
+
 import java.util.HashMap;
 
 /**
@@ -35,6 +37,10 @@ public class CommonAtlasProcesses {
   public static final String ExperimentUnload = atlasPath +
       "admin?op=schedule&runMode=RESTART&type=" +
       "unloadexperiment&autoDepends=false&accession=";
+
+  public static final String ExperimentUpdateNETCDF = atlasPath +
+      "admin?op=schedule&runMode=RESTART&type=" +
+      "updateexperiment&autoDepends=false&accession=";
 
   public static final String ArrayDesignSearch = atlasPath +
       "admin?op=searchad&p=0&n=1" +

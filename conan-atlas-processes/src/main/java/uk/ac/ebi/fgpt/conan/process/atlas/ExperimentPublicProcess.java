@@ -148,7 +148,7 @@ public class ExperimentPublicProcess extends AbstractRESTAPIProcess {
       //execution
       if (accession.isExperiment()) {
         String restApiRequest = atlas.ExperimentUpdatePublic +
-            accession.getFile().getAbsolutePath();
+            accession.getAccession();
         return restApiRequest;
       }
       else {

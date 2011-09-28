@@ -148,7 +148,7 @@ public class ExperimentPrivateProcess extends AbstractRESTAPIProcess {
       //execution
       if (accession.isExperiment()) {
         String restApiRequest = atlas.ExperimentUpdatePrivate +
-            accession.getFile().getAbsolutePath();
+            accession.getAccession();
         return restApiRequest;
       }
       else {
@@ -179,6 +179,7 @@ public class ExperimentPrivateProcess extends AbstractRESTAPIProcess {
   @Override protected String getLoginRequest() {
     return atlas.LogIn;
   }
+
 
   /**
    * Returns process name

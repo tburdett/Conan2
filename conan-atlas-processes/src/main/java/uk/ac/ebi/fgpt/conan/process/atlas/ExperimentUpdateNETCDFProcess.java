@@ -4,7 +4,6 @@ import net.sourceforge.fluxion.spi.ServiceProvider;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.rest.AbstractRESTAPIProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -13,13 +12,13 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * Process to unload experiment from Atlas
+ * Process to load experiment into Atlas
  *
  * @author Natalja Kurbatova
  * @date 15/02/11
  */
 @ServiceProvider
-public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
+public class ExperimentUpdateNETCDFProcess extends AbstractRESTAPIProcess {
 
   private final Collection<ConanParameter> parameters;
   private final AccessionParameter accessionParameter;
@@ -30,7 +29,7 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
   /**
    * Constructor for process. Initializes conan2 parameters for the process.
    */
-  public ExperimentUnloadingProcess() {
+  public ExperimentUpdateNETCDFProcess() {
     parameters = new ArrayList<ConanParameter>();
     accessionParameter = new AccessionParameter();
     parameters.add(accessionParameter);
@@ -41,10 +40,18 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
    *
    * @return null since it not the AE2 component
    */
+
   @Override protected String getComponentName() {
     return null;
   }
 
+  /**
+   * Parses the response from Atlas REST API for the monitored process Returns
+   * true if process has been finished.
+   *
+   * @param response response received from Atlas REST API in HashMap format
+   * @return true when process is finished, false otherwise
+   */
   @Override protected boolean isComplete(HashMap<String, Object> response) {
     return atlas.isComplete(response);
   }
@@ -135,13 +142,13 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
     accession.setAccession(parameters.get(accessionParameter));
 
     if (accession.getAccession() == null) {
-      System.out.println("Accession cannot be null");
+      System.out.print("Accession cannot be null");
       throw new IllegalArgumentException("Accession cannot be null");
     }
     else {
       //execution
       if (accession.isExperiment()) {
-        String restApiRequest = atlas.ExperimentUnload +
+        String restApiRequest = atlas.ExperimentUpdateNETCDF +
             accession.getAccession();
         return restApiRequest;
       }
@@ -162,7 +169,7 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
    */
   @Override protected String getRestApiRequest(String parameters) {
 
-    String restApiRequest = atlas.ExperimentUnload + parameters;
+    String restApiRequest = atlas.ExperimentUpdateNETCDF + parameters;
     return restApiRequest;
 
   }
@@ -176,13 +183,13 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
     return atlas.LogIn;
   }
 
-   /**
+  /**
    * Returns the name of this process.
    *
    * @return the name of this process
    */
   public String getName() {
-    return "atlas unloading";
+    return "atlas update";
   }
 
   /**
@@ -209,13 +216,13 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
     }
 
     String fileName = reportsDir + File.separator + accession.getAccession() +
-        "_AtlasRestApiUnload" +
+        "_AtlasRestApiUpdate" +
         "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
         ".report";
     try {
       log = new BufferedWriter(new FileWriter(fileName));
       log.write("Atlas REST API: START\n");
-      log.write("Unloading process\n");
+      log.write("NetCDF Update process\n");
     }
     catch (IOException e) {
       e.printStackTrace();
@@ -223,4 +230,31 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
     return log;
   }
 
+
+  @Override
+  protected BufferedWriter initLogMockup(String parameter) {
+    File file = new File(parameter);
+    //logging
+    String reportsDir =
+        file.getParentFile().getAbsolutePath() + File.separator +
+            "reports";
+    File reportsDirFile = new File(reportsDir);
+    if (!reportsDirFile.exists()) {
+      reportsDirFile.mkdirs();
+    }
+
+    String fileName = reportsDir + File.separator + "mockup" +
+        "_AtlasRestApiUpdate" +
+        "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
+        ".report";
+    try {
+      log = new BufferedWriter(new FileWriter(fileName));
+      log.write("Atlas REST API: START\n");
+      log.write("NetCDF Update process\n");
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
+    return log;
+  }
 }
