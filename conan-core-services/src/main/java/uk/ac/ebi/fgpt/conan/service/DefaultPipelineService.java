@@ -153,7 +153,7 @@ public class DefaultPipelineService implements ConanPipelineService {
     private void recoverPipelineSortOrder() {
         // open pipeline ordering config file, if it exists
         File conanDir =
-                new File(ConanProperties.getProperty("environment.path"), "software" + File.separatorChar + "conan");
+                new File(ConanProperties.getProperty("environment.path"), "config" + File.separatorChar + "conan");
         File configFile = new File(conanDir, "pipeline-order.txt");
 
         if (configFile.exists()) {
@@ -178,7 +178,7 @@ public class DefaultPipelineService implements ConanPipelineService {
     private void savePipelineSortOrder() {
         // get pipeline ordering config file
         File conanDir =
-                new File(ConanProperties.getProperty("environment.path"), "software" + File.separatorChar + "conan");
+                new File(ConanProperties.getProperty("environment.path"), "config" + File.separatorChar + "conan");
         File configFile = new File(conanDir, "pipeline-order.txt");
 
         // write config file
