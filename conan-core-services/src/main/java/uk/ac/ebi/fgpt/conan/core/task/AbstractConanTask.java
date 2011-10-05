@@ -217,8 +217,7 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
             getLog().debug("Execution exception follows", e);
             if (e.causesAbort()) {
               // critical fail, should cause instant abort
-              fireProcessFailedEvent(e);
-              abort();
+              fireTaskAbortedEvent();
             }
             else {
               fireProcessFailedEvent(e);
