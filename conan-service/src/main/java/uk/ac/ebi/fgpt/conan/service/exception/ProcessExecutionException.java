@@ -12,7 +12,6 @@ public class ProcessExecutionException extends Exception {
     private int exitValue = -1;
     private String[] processOutput = new String[]{"No output captured"};
     private String processExecutionHost = "unknown";
-    private boolean exceptionCausesAbort = false;
 
     public ProcessExecutionException(int exitValue) {
         super();
@@ -52,13 +51,5 @@ public class ProcessExecutionException extends Exception {
 
     public void setProcessExecutionHost(String processExecutionHost) {
         this.processExecutionHost = processExecutionHost;
-    }
-
-    public boolean causesAbort() {
-        return exceptionCausesAbort;
-    }
-
-    public void setExceptionCausesAbort() {
-        this.exceptionCausesAbort = true;
     }
 }
