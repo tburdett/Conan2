@@ -55,14 +55,14 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
         getLog().debug("Checking if a response is required to task ID '" + task.getId() + "' for current state");
         // has the current task failed?
         if (task.getCurrentState() == ConanTask.State.FAILED) {
-
-            // not respond to atlas eligibility that have failed
-            if (task.getLastProcess().getName().equals("atlas eligibility")){
-              task.resume();
-              getLog().debug("Failed atlas eligibility process. Task is completed.");
-              return true;
-            }
-            else
+//
+//            // not respond to atlas eligibility that have failed
+//            if (task.getLastProcess().getName().equals("atlas eligibility")){
+//              task.abort();
+//              getLog().debug("Failed atlas eligibility process. Task is completed.");
+//              return true;
+//            }
+//            else
               // we always notify of fails
               return true;
 
@@ -79,15 +79,20 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                 return true;
             }
 
+            if (task.getCurrentState() == ConanTask.State.ABORTED && task.getLastProcess().getName().equals("atlas eligibility")) {
+              getLog().debug("Failed atlas eligibility process.");
+              return true;
+            }
+
             // respond to ae1 loads that have finished afterload
-            if (task.getPipeline().getName().equalsIgnoreCase("AE1 Loading") ||
+/*            if (task.getPipeline().getName().equalsIgnoreCase("AE1 Loading") ||
                     task.getPipeline().getName().equalsIgnoreCase("AE1 Loading with insert")) {
                 getLog().debug(
                         "Task ID '" + task.getId() + "' requires response if last process was 'AE1 Afterload'...");
                 if (task.getLastProcess().getName().equals("AE1 Afterload")) {
                     return true;
                 }
-            }
+            }*/
 
             // respond to AE2/AE1 combined experiment loads at various states
             if (task.getPipeline().getName().equalsIgnoreCase("Experiment Loading (Combined AE2/Atlas)")) {
@@ -164,7 +169,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
             }
 
             // respond to ae1 loads that have finished afterload
-            if (task.getPipeline().getName().equalsIgnoreCase("AE1 Loading") ||
+            /*if (task.getPipeline().getName().equalsIgnoreCase("AE1 Loading") ||
                     task.getPipeline().getName().equalsIgnoreCase("AE1 Loading with insert")) {
                 // notify if we've done afterload, and it didn't fail
                 if (task.getCurrentState() != ConanTask.State.FAILED &&
@@ -177,7 +182,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                                            task.getLastProcess().getName());
                     return getConfirmationContent(task.getName(), details);
                 }
-            }
+            }*/
 
             // respond to ae1 loads that have finished afterload
             if (task.getPipeline().getName().equalsIgnoreCase("Experiment Loading (Combined AE2/Atlas)")) {
@@ -230,12 +235,12 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                                 task.getName(), SubmitterDetails.ObjectType.ARRAY_DESIGN);
                 return getConfirmationContent(task.getName(), details);
             }
-            else if (task.getLastProcess().getName().equals("AE1 Afterload")) {
+/*            else if (task.getLastProcess().getName().equals("AE1 Afterload")) {
                 List<SubmitterDetails> details =
                         getAE1SubmitterDetailsDAO().getSubmitterDetailsByAccession(
                                 task.getName(), SubmitterDetails.ObjectType.UNKNOWN);
                 return getConfirmationContent(task.getName(), details);
-            }
+            }*/
             else {
                 return getDefaultContent(task.getId(),
                                          task.getSubmitter().getFirstName(),
