@@ -59,8 +59,8 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
             // not respond to atlas eligibility that have failed
             if (task.getLastProcess().getName().equals("atlas eligibility")){
               task.abort();
-              getLog().debug("No response required for failed atlas eligibility process. Task is aborted.");
-              return false;
+              getLog().debug("Failed atlas eligibility process. Task is aborted.");
+              return true;
             }
             else
               // we always notify of fails

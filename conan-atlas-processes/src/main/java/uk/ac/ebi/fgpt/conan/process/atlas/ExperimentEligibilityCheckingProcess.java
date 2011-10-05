@@ -654,6 +654,20 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                   "\" is NOT eligible for ArrayExpress.\n");
         }
         log.write("Atlas Eligibility Check: FINISHED");
+        log.write(
+              "Eligibility checks for Gene Expression Atlas version 2.0.9.3: \n" +
+              "1. Experiment has raw data for Affymetrix platforms or normalized data for all other platforms;\n" +
+              "2. Array design(s) used in experiment are loaded into Atlas;\n" +
+              "3. Type of experiment: transcription profiling by array,\n" +
+                  "methylation profiling by array,\n" +
+                  "tiling path by array,\n" +
+                  "comparative genomic hybridization by array,\n" +
+                  "microRNA profiling by array,\n" +
+                  "RNAi profiling by array,\n" +
+                  "ChIP-chip by array;\n" +
+              "4. Two-channel experiments - can't be loaded into Atlas;\n" +
+              "5. Experiment has factor values;\n" +
+              "6. Factor types are from controlled vocabulary.");
         log.close();
       }
       catch (IOException e) {
