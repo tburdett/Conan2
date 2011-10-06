@@ -4,6 +4,7 @@ import net.sourceforge.fluxion.spi.ServiceProvider;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.graph.Node;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.HybridizationNode;
+import uk.ac.ebi.arrayexpress2.magetab.exception.ParseException;
 import uk.ac.ebi.arrayexpress2.magetab.parser.MAGETABParser;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.dao.DatabaseConanControlledVocabularyDAO;
@@ -359,7 +360,29 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         }
       }
     }
-    catch (Exception e) {
+    catch (ParseException e) {
+      exitValue = 1;
+      e.printStackTrace();
+      ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+                e.getMessage());
+
+      String[] errors = new String[1];
+      errors[0] = e.getMessage();
+      pex.setProcessOutput(errors);
+      throw pex;
+    }
+    catch (IOException e) {
+      exitValue = 1;
+      e.printStackTrace();
+      ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+                e.getMessage());
+
+      String[] errors = new String[1];
+      errors[0] = e.getMessage();
+      pex.setProcessOutput(errors);
+      throw pex;
+    }
+    catch (RuntimeException e) {
       exitValue = 1;
       e.printStackTrace();
       ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
