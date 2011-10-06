@@ -55,14 +55,14 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
         getLog().debug("Checking if a response is required to task ID '" + task.getId() + "' for current state");
         // has the current task failed?
         if (task.getCurrentState() == ConanTask.State.FAILED) {
-
-            // not respond to atlas eligibility that have failed
-            if (task.getLastProcess().getName().equals("atlas eligibility")){
-              task.abort();
-              getLog().debug("Failed atlas eligibility process. Task is aborted.");
-              return true;
-            }
-            else
+//
+//            // not respond to atlas eligibility that have failed
+//            if (task.getLastProcess().getName().equals("atlas eligibility")){
+//              task.abort();
+//              getLog().debug("Failed atlas eligibility process. Task is completed.");
+//              return true;
+//            }
+//            else
               // we always notify of fails
               return true;
 
@@ -113,7 +113,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
 
     protected String getEmailSubject(ConanTask task, ConanProcess process) {
         String response = "[conan2]";
-        if (task.getCurrentState() == ConanTask.State.FAILED) {
+        if (task.getCurrentState() == ConanTask.State.FAILED || task.getCurrentState() == ConanTask.State.ABORTED) {
             response = response + "[failure] Conan has a problem with task '" + task.getName() + "' - " +
                     task.getStatusMessage();
         }
@@ -125,7 +125,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
 
     protected String getEmailContent(ConanTask task, ConanProcess process) {
         // if the task failed, email should be a failure notification to the submitter
-        if (task.getCurrentState() == ConanTask.State.FAILED) {
+        if (task.getCurrentState() == ConanTask.State.FAILED || task.getCurrentState() == ConanTask.State.ABORTED) {
             getLog().debug("Generating failure response for '" + task.getName() + "', " +
                                    "state = " + task.getCurrentState() + ", last process = " +
                                    task.getLastProcess().getName());

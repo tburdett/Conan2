@@ -215,7 +215,14 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
             getLog().error("Process '" + getCurrentProcess().getName() + "' failed to execute, " +
                                    "exit code " + e.getExitValue());
             getLog().debug("Execution exception follows", e);
-            fireProcessFailedEvent(e);
+            getLog().debug("Is this event to abort: " + e.causesAbort());
+            if (e.causesAbort()) {
+              // critical fail, should cause instant abort
+              fireTaskAbortedEvent();
+            }
+            else {
+              fireProcessFailedEvent(e);
+            }
             throw new TaskExecutionException(e);
         }
         catch (RuntimeException e) {
