@@ -149,6 +149,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
         String[] errors = new String[1];
         errors[0] = "'Experiment Type' " + restrictedExptType + " is not accepted by Atlas";
+        pex.setExceptionCausesAbort();
         pex.setProcessOutput(errors);
         throw pex;
 
@@ -166,6 +167,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
           String[] errors = new String[1];
           errors[0] = "Two-channel experiment is not accepted by Atlas";
+          pex.setExceptionCausesAbort();
           pex.setProcessOutput(errors);
           throw pex;
         }
@@ -208,6 +210,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
           String[] errors = new String[1];
           errors[0] = "Experiment does not have Factor Values";
+          pex.setExceptionCausesAbort();
           pex.setProcessOutput(errors);
           throw pex;
         }
@@ -237,6 +240,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
           String[] errors = new String[1];
           errors[0] = "Experiment have Factor Types that are not in controlled vocabulary:" +
                   missedFactorType;
+          pex.setExceptionCausesAbort();
           pex.setProcessOutput(errors);
           throw pex;
         }
@@ -265,6 +269,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             errors[0] = "Array design '" +
                                    arrayDesign +
                                    "' used in experiment is not in Atlas";
+            pex.setExceptionCausesAbort();
             pex.setProcessOutput(errors);
             throw pex;
           }
@@ -327,6 +332,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
               String[] errors = new String[1];
               errors[0] = "Affymetrix experiment without raw data files";
+              pex.setExceptionCausesAbort();
               pex.setProcessOutput(errors);
               throw pex;
             }
@@ -344,6 +350,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
                 String[] errors = new String[1];
                 errors[0] = "Non-Affymetrix experiment without processed data files";
+                pex.setExceptionCausesAbort();
                 pex.setProcessOutput(errors);
                 throw pex;
 
@@ -391,7 +398,6 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
               "4. Experiments is not two-channel;\n" +
               "5. Experiment has factor values;\n" +
               "6. Factor types are from controlled vocabulary.");
-        log.close();
         log.close();
       }
       catch (IOException e) {
