@@ -56,7 +56,7 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
     public static final String TASK_SEARCH_NAME = TASK_SELECT_COMPLETED + " " +
             "and NAME like ?";
     public static final String TASK_SEARCH_NAME_USER = TASK_SEARCH_NAME + " " +
-            "and  USER_ID = ?";
+            "and USER_ID = ?";
     public static final String TASK_SEARCH_NAME_FROM_DATE = TASK_SEARCH_NAME + " " +
             "and END_DATE > ?";
     public static final String TASK_SEARCH_NAME_TO_DATE = TASK_SEARCH_NAME + " " +
