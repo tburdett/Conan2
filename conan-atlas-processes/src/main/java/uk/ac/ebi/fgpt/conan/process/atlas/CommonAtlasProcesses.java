@@ -22,10 +22,6 @@ public class CommonAtlasProcesses {
   private static final String atlasUsername = ConanProperties.getProperty("atlas.username");
   private static final String atlasPassword = ConanProperties.getProperty("atlas.password");
 
-  //private static final String atlasPath = "http://banana.ebi.ac.uk:14072/gxa/";
-  //private static final String atlasUsername = "autosubs";
-  //private static final String atlasPassword = "password";
-
   public static final String ExperimentUpdatePrivate = atlasPath +
       "admin?op=schedule&runMode=RESTART&type=" +
       "makeexperimentprivate&autoDepends=false&accession=";

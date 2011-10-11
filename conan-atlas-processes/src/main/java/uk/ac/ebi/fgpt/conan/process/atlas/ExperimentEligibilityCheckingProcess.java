@@ -665,7 +665,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                                                 "Atlas Eligibility Check: Affymetrix experiment without raw data files");
           }
           else
-            //not affy
+            //not affy without processed data
             if (!arrayCheckResult.equals("affy") && processedDataSubNodes.size() == 0 &&
                 processedDataMatrixSubNodes.size() == 0) {
               result = false;
