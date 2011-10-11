@@ -338,8 +338,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
               throw pex;
             }
             else
-              //6b not affy
-              if (processedDataSubNodes.size() == 0 &&
+              //6b not affy without processed data
+              if (!arrayCheckResult.equals("affy") && processedDataSubNodes.size() == 0 &&
                   processedDataMatrixSubNodes.size() == 0) {
                 exitValue = 1;
                 log.write(
@@ -405,7 +405,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                         accession.getAccession() +
                         "\" is NOT eligible for Atlas\n");
         }
-        log.write("Atlas Eligibility Check: FINISHED");
+        log.write("Atlas Eligibility Check: FINISHED\n");
         log.write(
               "Eligibility checks for Gene Expression Atlas version 2.0.9.3: \n" +
               "1. Experiment has raw data for Affymetrix platforms or normalized data for all other platforms;\n" +
