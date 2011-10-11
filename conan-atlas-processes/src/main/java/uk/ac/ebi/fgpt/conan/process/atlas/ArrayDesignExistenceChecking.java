@@ -51,6 +51,7 @@ public class ArrayDesignExistenceChecking extends AbstractRESTAPISubprocess {
 
       if (Integer.parseInt(response.get("numTotal").toString()) > 0) {
         result = "is";
+        System.out.println(response.get("arraydesigns").toString().toLowerCase());
         if (response.get("arraydesigns").toString().toLowerCase()
             .contains("affy")) {
           result = "affy";

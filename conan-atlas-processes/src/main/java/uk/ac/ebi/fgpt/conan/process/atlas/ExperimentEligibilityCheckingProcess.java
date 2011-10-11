@@ -698,7 +698,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
               "Atlas Eligibility Check: experiment \"" + idfFile.getName() +
                   "\" is NOT eligible for ArrayExpress.\n");
         }
-        log.write("Atlas Eligibility Check: FINISHED");
+        log.write("Atlas Eligibility Check: FINISHED\n");
         log.write(
               "Eligibility checks for Gene Expression Atlas version 2.0.9.3: \n" +
               "1. Experiment has raw data for Affymetrix platforms or normalized data for all other platforms;\n" +
