@@ -216,7 +216,7 @@ public class DefaultTaskService implements ConanTaskService {
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasksSummary() {
         long start = System.currentTimeMillis();
         getLog().trace("Retrieving completed tasks...");
-        List<ConanTask<? extends ConanPipeline>> result = getConanTaskDAO().getCompletedTasksSummary(500, 0);
+        List<ConanTask<? extends ConanPipeline>> result = getConanTaskDAO().getCompletedTasksSummary(100, 0);
         long end = System.currentTimeMillis();
         double time = ((double) (end - start)) / 1000;
         getLog().trace("Fetched and mapped all completed tasks in " + time + "s.");
