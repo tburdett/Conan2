@@ -666,7 +666,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
           }
           else
             //not affy
-            if (processedDataSubNodes.size() == 0 &&
+            if (!arrayCheckResult.equals("affy") && processedDataSubNodes.size() == 0 &&
                 processedDataMatrixSubNodes.size() == 0) {
               result = false;
               log.write(
