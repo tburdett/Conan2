@@ -1,7 +1,10 @@
 package uk.ac.ebi.fgpt.conan.process.ae2;
 
 import net.sourceforge.fluxion.spi.ServiceProvider;
+import org.mged.magetab.error.ErrorItem;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import uk.ac.ebi.arrayexpress2.magetab.exception.ParseException;
+import uk.ac.ebi.arrayexpress2.magetab.listener.ErrorItemListener;
 import uk.ac.ebi.arrayexpress2.magetab.parser.MAGETABParser;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.dao.DatabaseConanControlledVocabularyDAO;
@@ -31,7 +34,6 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
   // Add to the desired logger
 
-  private BufferedWriter log;
   private final Collection<ConanParameter> parameters;
   private final AccessionParameter accessionParameter;
 
@@ -56,9 +58,11 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       throws ProcessExecutionException, IllegalArgumentException,
       InterruptedException {
 
+      BufferedWriter log;
+
       int exitValue = 0;
       //deal with parameters
-      AccessionParameter accession = new AccessionParameter();
+      final AccessionParameter accession = new AccessionParameter();
       accession.setAccession(parameters.get(accessionParameter));
 
       //logging
@@ -92,6 +96,18 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
       // make a new parser
       MAGETABParser parser = new MAGETABParser();
+      // add error item listener that collects parsing errors
+      final Set<String> encounteredWarnings = new HashSet<String>();
+      parser.addErrorItemListener(new ErrorItemListener() {
+         public void errorOccurred(ErrorItem item) {
+             if (item.getErrorType().contains("error")) {
+               String errorExplanation = item.getErrorCode() + ": " + item.getMesg() + " [line " +
+                                      item.getLine() + ", column " + item.getCol() + "] (" +
+                                      item.getComment() + ")";
+               encounteredWarnings.add(errorExplanation);
+             }
+         }
+      });
 
       try {
         MAGETABInvestigation investigation = parser.parse(accession.getFile().getAbsoluteFile());
@@ -162,17 +178,54 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
           throw pex;
         }
       }
-      catch (Exception e) {
-        exitValue = 1;
-        e.printStackTrace();
-        ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-        e.getMessage());
-
-        String[] errors = new String[1];
-        errors[0] = e.getMessage();
-        pex.setProcessOutput(errors);
-        throw pex;
+      catch (ParseException e) {
+      exitValue = 1;
+      String errorMessage = "Parsing " + accession.getFile().getAbsoluteFile() + " completed with errors...";
+      // print out any warnings from the parser
+      // check if any errors were encountered
+      try {
+        log.write(errorMessage);
+        for (String encounteredWarning : encounteredWarnings) {
+          log.write(encounteredWarning);
+          errorMessage = errorMessage + encounteredWarning;
+        }
       }
+      catch (IOException e1) {
+        // couldn't write to log
+        e1.printStackTrace();
+      }
+
+      e.printStackTrace();
+      ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+                e.getMessage());
+
+      String[] errors = new String[1];
+      errors[0] = e.getMessage() + errorMessage;
+      pex.setProcessOutput(errors);
+      throw pex;
+    }
+    catch (IOException e) {
+      exitValue = 1;
+      e.printStackTrace();
+      ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+                e.getMessage());
+
+      String[] errors = new String[1];
+      errors[0] = e.getMessage();
+      pex.setProcessOutput(errors);
+      throw pex;
+    }
+    catch (RuntimeException e) {
+      exitValue = 1;
+      e.printStackTrace();
+      ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+                e.getMessage());
+
+      String[] errors = new String[1];
+      errors[0] = e.getMessage();
+      pex.setProcessOutput(errors);
+      throw pex;
+    }
       finally {
         try{
           if (exitValue ==0)
@@ -181,7 +234,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
           else
              log.write("Experiment \"" + accession.getAccession() +
                           "\" is NOT eligible for ArrayExpress\n");
-          log.write("AE Eligibility Check: FINISHED");
+          log.write("AE Eligibility Check: FINISHED\n");
           log.close();
         }
         catch(IOException e){
@@ -230,9 +283,11 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       throws ProcessExecutionException, IllegalArgumentException,
       InterruptedException {
 
-    boolean result = true;
 
-  //logging
+      BufferedWriter log;
+      boolean result = true;
+
+      //logging
       String reportsDir =
           file.getParentFile().getAbsolutePath() + File.separator +
               "reports";

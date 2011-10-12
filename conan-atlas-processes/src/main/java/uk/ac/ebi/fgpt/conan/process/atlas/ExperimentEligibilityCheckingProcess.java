@@ -122,12 +122,6 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       MAGETABInvestigation investigation =
           parser.parse(accession.getFile().getAbsoluteFile());
 
-      // check if any errors were encountered
-      log.write("Parsing " + accession.getFile().getAbsoluteFile() + " completed with warnings...");
-      for (String encounteredWarning : encounteredWarnings) {
-          log.write(encounteredWarning);
-      }
-
       // 1 check: experiment types
       boolean isAtlasType = false;
       String restrictedExptType = "";
@@ -241,7 +235,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         List<String> missedFactorType = new ArrayList<String>();
         for (String factorType : investigation.IDF.experimentalFactorType) {
           if (!controlledVocabularyDAO
-              .getAtlasFactorTypes().contains(factorType)) {
+              .getAtlasFactorTypes().contains(factorType.toLowerCase())) {
             factorTypesFromCV = false;
             missedFactorType.add(factorType);
           }
@@ -382,13 +376,14 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
     }
     catch (ParseException e) {
       exitValue = 1;
-
+      String errorMessage = "Parsing " + accession.getFile().getAbsoluteFile() + " completed with errors...";
       // print out any warnings from the parser
       // check if any errors were encountered
       try {
-        log.write("Parsing " + accession.getFile().getAbsoluteFile() + " completed with warnings...");
+        log.write(errorMessage);
         for (String encounteredWarning : encounteredWarnings) {
           log.write(encounteredWarning);
+          errorMessage = errorMessage + encounteredWarning;
         }
       }
       catch (IOException e1) {
@@ -401,7 +396,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 e.getMessage());
 
       String[] errors = new String[1];
-      errors[0] = e.getMessage();
+      errors[0] = e.getMessage() + errorMessage;
       pex.setProcessOutput(errors);
       throw pex;
     }
@@ -445,13 +440,13 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
               "1. Experiment has raw data for Affymetrix platforms or normalized data for all other platforms;\n" +
               "2. Array design(s) used in experiment are loaded into Atlas;\n" +
               "3. Type of experiment is from the list: \n" +
-                  "transcription profiling by array,\n" +
-                  "methylation profiling by array,\n" +
-                  "tiling path by array,\n" +
-                  "comparative genomic hybridization by array,\n" +
-                  "microRNA profiling by array,\n" +
-                  "RNAi profiling by array,\n" +
-                  "ChIP-chip by array;\n" +
+                  " - transcription profiling by array,\n" +
+                  " - methylation profiling by array,\n" +
+                  " - tiling path by array,\n" +
+                  " - comparative genomic hybridization by array,\n" +
+                  " - microRNA profiling by array,\n" +
+                  " - RNAi profiling by array,\n" +
+                  " - ChIP-chip by array;\n" +
               "4. Experiments is not two-channel;\n" +
               "5. Experiment has factor values;\n" +
               "6. Factor types are from controlled vocabulary.");
