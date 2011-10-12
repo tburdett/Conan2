@@ -106,17 +106,17 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
     // make a new parser
     MAGETABParser parser = new MAGETABParser();
     // add error item listener that collects parsing errors
-    final Set<String> encounteredWarnings = new HashSet<String>();
+/*    final Set<String> encounteredWarnings = new HashSet<String>();
     parser.addErrorItemListener(new ErrorItemListener() {
        public void errorOccurred(ErrorItem item) {
-           if (item.getErrorType().contains("error")) {
+           if (item.getErrorType().toLowerCase().contains("error")) {
              String errorExplanation = item.getErrorCode() + ": " + item.getMesg() + " [line " +
                                     item.getLine() + ", column " + item.getCol() + "] (" +
                                     item.getComment() + ")";
              encounteredWarnings.add(errorExplanation);
            }
        }
-    });
+    });*/
 
     try {
       MAGETABInvestigation investigation =
@@ -376,35 +376,20 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
     }
     catch (ParseException e) {
       exitValue = 1;
-      String errorMessage = "Parsing " + accession.getFile().getAbsoluteFile() + " completed with errors...";
+/*      String errorMessage = "Parsing " + accession.getFile().getAbsoluteFile() + " completed with errors...";
       System.out.println("Parse Exception: " + e.getMessage());
       // print out any warnings from the parser
       // check if any errors were encountered
-      try {
-        log.write(errorMessage);
-        for (String encounteredWarning : encounteredWarnings) {
-          log.write(encounteredWarning);
-          errorMessage = errorMessage + encounteredWarning;
-        }
-      }
-      catch (IOException e1) {
-        // couldn't write to log
-        exitValue = 1;
-        e1.printStackTrace();
-        ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-                e.getMessage());
-
-        String[] errors = new String[1];
-        errors[0] = e.getMessage() + errorMessage;
-        pex.setProcessOutput(errors);
-      }
+        for (String encounteredWarning : encounteredWarnings)
+          errorMessage = errorMessage + encounteredWarning;*/
 
       e.printStackTrace();
       ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
                 e.getMessage());
 
       String[] errors = new String[1];
-      errors[0] = e.getMessage() + errorMessage;
+      errors[0] = e.getMessage();
+      errors[1] = "Please check MAGE-TAB files and/or run validation process.\n";
       pex.setProcessOutput(errors);
       throw pex;
     }
