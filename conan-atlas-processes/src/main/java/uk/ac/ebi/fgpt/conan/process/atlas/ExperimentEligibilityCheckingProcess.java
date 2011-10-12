@@ -1,10 +1,12 @@
 package uk.ac.ebi.fgpt.conan.process.atlas;
 
 import net.sourceforge.fluxion.spi.ServiceProvider;
+import org.mged.magetab.error.ErrorItem;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.graph.Node;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.HybridizationNode;
 import uk.ac.ebi.arrayexpress2.magetab.exception.ParseException;
+import uk.ac.ebi.arrayexpress2.magetab.listener.ErrorItemListener;
 import uk.ac.ebi.arrayexpress2.magetab.parser.MAGETABParser;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.dao.DatabaseConanControlledVocabularyDAO;
@@ -69,7 +71,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
     BufferedWriter log;
 
     //deal with parameters
-    AccessionParameter accession = new AccessionParameter();
+    final AccessionParameter accession = new AccessionParameter();
     accession.setAccession(parameters.get(accessionParameter));
 
     String reportsDir =
@@ -103,11 +105,29 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
     // make a new parser
     MAGETABParser parser = new MAGETABParser();
-
+    // add error item listener that collects parsing errors
+    final Set<String> encounteredWarnings = new HashSet<String>();
+    parser.addErrorItemListener(new ErrorItemListener() {
+       public void errorOccurred(ErrorItem item) {
+           if (item.getErrorType().contains("error")) {
+             String errorExplanation = item.getErrorCode() + ": " + item.getMesg() + " [line " +
+                                    item.getLine() + ", column " + item.getCol() + "] (" +
+                                    item.getComment() + ")";
+             encounteredWarnings.add(errorExplanation);
+           }
+       }
+    });
 
     try {
       MAGETABInvestigation investigation =
           parser.parse(accession.getFile().getAbsoluteFile());
+
+      // check if any errors were encountered
+      log.write("Parsing " + accession.getFile().getAbsoluteFile() + " completed with warnings...");
+      for (String encounteredWarning : encounteredWarnings) {
+          log.write(encounteredWarning);
+      }
+
       // 1 check: experiment types
       boolean isAtlasType = false;
       String restrictedExptType = "";
@@ -362,6 +382,20 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
     }
     catch (ParseException e) {
       exitValue = 1;
+
+      // print out any warnings from the parser
+      // check if any errors were encountered
+      try {
+        log.write("Parsing " + accession.getFile().getAbsoluteFile() + " completed with warnings...");
+        for (String encounteredWarning : encounteredWarnings) {
+          log.write(encounteredWarning);
+        }
+      }
+      catch (IOException e1) {
+        // couldn't write to log
+        e1.printStackTrace();
+      }
+
       e.printStackTrace();
       ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
                 e.getMessage());
