@@ -37,14 +37,10 @@ import java.util.*;
  */
 @ServiceProvider
 public class ExperimentEligibilityCheckingProcess implements ConanProcess {
-
-  // Add to the desired logger
-  private BufferedWriter log;
-
   private final Collection<ConanParameter> parameters;
   private final AccessionParameter accessionParameter;
 
-  private List<String> ArrayDesignAccessions = new ArrayList<String>();
+  private final List<String> ArrayDesignAccessions = new ArrayList<String>();
 
   private final DatabaseConanControlledVocabularyDAO controlledVocabularyDAO;
   private final CommonAtlasProcesses atlas = new CommonAtlasProcesses();
@@ -68,6 +64,10 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       InterruptedException {
 
     int exitValue = 0;
+
+    // Add to the desired logger
+    BufferedWriter log;
+
     //deal with parameters
     AccessionParameter accession = new AccessionParameter();
     accession.setAccession(parameters.get(accessionParameter));
@@ -451,6 +451,9 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
   public boolean executeMockup(String file)
       throws ProcessExecutionException, IllegalArgumentException,
       InterruptedException {
+
+    // Add to the desired logger
+    BufferedWriter log;
 
     boolean result = false;
 
