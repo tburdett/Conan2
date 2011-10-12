@@ -181,6 +181,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       catch (ParseException e) {
       exitValue = 1;
       String errorMessage = "Parsing " + accession.getFile().getAbsoluteFile() + " completed with errors...";
+      System.out.println("Parse Exception: " + e.getMessage());
       // print out any warnings from the parser
       // check if any errors were encountered
       try {
@@ -191,8 +192,16 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         }
       }
       catch (IOException e1) {
+        exitValue = 1;
         // couldn't write to log
         e1.printStackTrace();
+        ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+                  e.getMessage());
+
+        String[] errors = new String[1];
+        errors[0] = e.getMessage() + errorMessage;
+        pex.setProcessOutput(errors);
+        throw pex;
       }
 
       e.printStackTrace();
