@@ -134,35 +134,6 @@
         </url>
     </scm>
 
-    <!-- Maven repository deploy -->
-    <distributionManagement>
-        <downloadUrl>http://ebi.ac.uk/~tburdett/maven</downloadUrl>
-        <repository>
-            <id>bar.ebi.ac.uk-releases</id>
-            <name>bar.ebi.ac.uk-releases</name>
-            <url>http://bar.ebi.ac.uk:8081/artifactory/local-repo</url>
-        </repository>
-        <snapshotRepository>
-            <id>bar.ebi.ac.uk-snapshots</id>
-            <name>bar.ebi.ac.uk-snapshots</name>
-            <url>http://bar.ebi.ac.uk:8081/artifactory/local-repo</url>
-        </snapshotRepository>
-        <site>
-            <id>conan-docs-repo</id>
-            <url>http://banana.ebi.ac.uk:14054/conan2/documentation/</url>
-        </site>
-    </distributionManagement>
-
-    <repositories>
-        <repository>
-            <id>bar.ebi.ac.uk-releases</id>
-            <url>http://bar.ebi.ac.uk:8081/artifactory/local-repo/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -184,6 +155,35 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+
+            <!-- Maven repository deploy -->
+            <distributionManagement>
+                <downloadUrl>http://ebi.ac.uk/~tburdett/maven</downloadUrl>
+                <repository>
+                    <id>bar.ebi.ac.uk-releases</id>
+                    <name>bar.ebi.ac.uk-releases</name>
+                    <url>http://bar.ebi.ac.uk:8081/artifactory/local-repo</url>
+                </repository>
+                <snapshotRepository>
+                    <id>bar.ebi.ac.uk-snapshots</id>
+                    <name>bar.ebi.ac.uk-snapshots</name>
+                    <url>http://bar.ebi.ac.uk:8081/artifactory/local-repo</url>
+                </snapshotRepository>
+                <site>
+                    <id>conan-docs-repo</id>
+                    <url>http://banana.ebi.ac.uk:14054/conan2/documentation/</url>
+                </site>
+            </distributionManagement>
+
+            <repositories>
+                <repository>
+                    <id>bar.ebi.ac.uk-releases</id>
+                    <url>http://bar.ebi.ac.uk:8081/artifactory/local-repo/</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
 
             <dependencies>
                 <!-- logging for tests -->
@@ -220,6 +220,24 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
 
+            <!-- Maven repository deploy -->
+            <distributionManagement>
+                <repository>
+                  <id>hasbanana-repo</id>
+                  <name>hasBanana repository</name>
+                  <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/maven/repo</url>
+                </repository>
+                <snapshotRepository>
+                  <id>hasbanana-repo</id>
+                  <name>hasBanana repository</name>
+                  <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/maven/repo</url>
+                </snapshotRepository>
+                <site>
+                    <id>conan-docs-repo</id>
+                    <url>http://banana.ebi.ac.uk:14054/conan2/documentation/</url>
+                </site>
+            </distributionManagement>
+
             <dependencies>
                 <!-- logging for tests -->
                 <dependency>
@@ -243,6 +261,7 @@
                 <module>conan-core-services</module>
                 <module>conan-demo-processes</module>
             </modules>
+
         </profile>
 
         <profile>
