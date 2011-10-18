@@ -79,7 +79,7 @@ public class PipelineXMLSAXParser extends AbstractPipelineXMLParser {
                 factory.setValidating(false);
                 factory.setNamespaceAware(true);
 
-                // manually configure schema to use contacts.xsd resource
+                // manually configure schema to use pipelines.xsd resource
                 URL pipelinesXSDResource = getClass().getClassLoader().getResource(PIPELINES_SCHEMA_LOCATION);
                 SchemaFactory schemaFactory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
                 factory.setSchema(schemaFactory.newSchema(new StreamSource(pipelinesXSDResource.openStream())));

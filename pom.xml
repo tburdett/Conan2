@@ -28,6 +28,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.8</version>
                 <executions>
                     <execution>
                         <id>aggregate</id>
@@ -63,6 +64,18 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <id>aggregate</id>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
             </plugin>
         </plugins>
     </reporting>
@@ -223,18 +236,18 @@
             <!-- Maven repository deploy -->
             <distributionManagement>
                 <repository>
-                  <id>hasbanana-repo</id>
-                  <name>hasBanana repository</name>
-                  <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/maven/repo</url>
+                    <id>hasbanana-repo</id>
+                    <name>hasBanana repository</name>
+                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/maven/repo</url>
                 </repository>
                 <snapshotRepository>
-                  <id>hasbanana-repo</id>
-                  <name>hasBanana repository</name>
-                  <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/maven/repo</url>
+                    <id>hasbanana-repo</id>
+                    <name>hasBanana repository</name>
+                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/maven/repo</url>
                 </snapshotRepository>
                 <site>
-                    <id>conan-docs-repo</id>
-                    <url>http://banana.ebi.ac.uk:14054/conan2/documentation/</url>
+                    <id>hasbanana-repo</id>
+                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/conan2/documentation/</url>
                 </site>
             </distributionManagement>
 
