@@ -16,6 +16,7 @@ import uk.ac.ebi.arrayexpress2.magetab.datamodel.MAGETABInvestigation;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.*;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.*;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -24,15 +25,11 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * Process to check experiment eligibility for Atlas.
- * Consists of six steps:
- * 1 check for experiment type,
- * 2 check for two-channel experiment,
- * 3 check for factor values,
- * 4 check for factor types from controlled vocabulary only,
- * 5 check for array design existence in Atlas,
- * 6 check for raw data files for Affy and
- * derived data files for all other platforms.
+ * Process to check experiment eligibility for Atlas. Consists of six steps: 1
+ * check for experiment type, 2 check for two-channel experiment, 3 check for
+ * factor values, 4 check for factor types from controlled vocabulary only, 5
+ * check for array design existence in Atlas, 6 check for raw data files for
+ * Affy and derived data files for all other platforms.
  *
  * @author Natalja Kurbatova
  * @date 15/02/11
@@ -41,11 +38,8 @@ import java.util.*;
 public class ExperimentEligibilityCheckingProcess implements ConanProcess {
   private final Collection<ConanParameter> parameters;
   private final AccessionParameter accessionParameter;
-
   private final List<String> ArrayDesignAccessions = new ArrayList<String>();
-
   private final DatabaseConanControlledVocabularyDAO controlledVocabularyDAO;
-  private final CommonAtlasProcesses atlas = new CommonAtlasProcesses();
 
   /**
    * Constructor for process. Initializes conan2 parameters for the process.
@@ -94,11 +88,13 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       exitValue = 1;
       e.printStackTrace();
 
-      ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-      "Can't create report file '" + fileName + "'");
+      ProcessExecutionException pex = new ProcessExecutionException(exitValue,
+                                                                    "Can't create report file '" +
+                                                                        fileName +
+                                                                        "'");
 
       String[] errors = new String[1];
-      errors[0] =  "Can't create report file '" + fileName + "'";
+      errors[0] = "Can't create report file '" + fileName + "'";
       pex.setProcessOutput(errors);
       throw pex;
     }
@@ -140,7 +136,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         }
       }
       else {
-       for (String exptType : investigation.IDF.experimentalDesign) {
+        for (String exptType : investigation.IDF.experimentalDesign) {
           for (String AtlasType : controlledVocabularyDAO
               .getAtlasExperimentTypes()) {
             if (exptType.equals(AtlasType)) {
@@ -148,22 +144,27 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             }
           }
         }
-       }
+      }
 
       if (!isAtlasType)
       //not in Atlas Experiment Types
       {
         exitValue = 1;
         log.write(
-            "'Experiment Type' " + restrictedExptType + " is not accepted by Atlas\n");
+            "'Experiment Type' " + restrictedExptType +
+                " is not accepted by Atlas\n");
         System.out.println(
-            "'Experiment Type' " + restrictedExptType + " is not accepted by Atlas");
+            "'Experiment Type' " + restrictedExptType +
+                " is not accepted by Atlas");
 
-        ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-        "'Experiment Type' " + restrictedExptType + " is not accepted by Atlas");
+        ProcessExecutionException pex = new ProcessExecutionException(exitValue,
+                                                                      "'Experiment Type' " +
+                                                                          restrictedExptType +
+                                                                          " is not accepted by Atlas");
 
         String[] errors = new String[1];
-        errors[0] = "'Experiment Type' " + restrictedExptType + " is not accepted by Atlas";
+        errors[0] = "'Experiment Type' " + restrictedExptType +
+            " is not accepted by Atlas";
         pex.setExceptionCausesAbort();
         pex.setProcessOutput(errors);
         throw pex;
@@ -177,8 +178,9 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
               "Two-channel experiment is not accepted by Atlas\n");
           System.out.println(
               "Two-channel experiment is not accepted by Atlas");
-          ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-          "Two-channel experiment is not accepted by Atlas");
+          ProcessExecutionException pex =
+              new ProcessExecutionException(exitValue,
+                                            "Two-channel experiment is not accepted by Atlas");
 
           String[] errors = new String[1];
           errors[0] = "Two-channel experiment is not accepted by Atlas";
@@ -220,8 +222,9 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
           System.out.println(
               "Experiment does not have Factor Values");
 
-          ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-          "Experiment does not have Factor Values");
+          ProcessExecutionException pex =
+              new ProcessExecutionException(exitValue,
+                                            "Experiment does not have Factor Values");
 
           String[] errors = new String[1];
           errors[0] = "Experiment does not have Factor Values";
@@ -248,12 +251,14 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
           System.out.println(
               "Experiment have Factor Types that are not in controlled vocabulary:" +
                   missedFactorType);
-          ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-          "Experiment have Factor Types that are not in controlled vocabulary:" +
-                  missedFactorType);
+          ProcessExecutionException pex =
+              new ProcessExecutionException(exitValue,
+                                            "Experiment have Factor Types that are not in controlled vocabulary:" +
+                                                missedFactorType);
 
           String[] errors = new String[1];
-          errors[0] = "Experiment have Factor Types that are not in controlled vocabulary:" +
+          errors[0] =
+              "Experiment have Factor Types that are not in controlled vocabulary:" +
                   missedFactorType;
           pex.setExceptionCausesAbort();
           pex.setProcessOutput(errors);
@@ -275,15 +280,16 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             System.out.println("Array design '" +
                                    arrayDesign +
                                    "' used in experiment is not in Atlas");
-            ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-            "Array design '" +
-                                   arrayDesign +
-                                   "' used in experiment is not in Atlas");
+            ProcessExecutionException pex =
+                new ProcessExecutionException(exitValue,
+                                              "Array design '" +
+                                                  arrayDesign +
+                                                  "' used in experiment is not in Atlas");
 
             String[] errors = new String[1];
             errors[0] = "Array design '" +
-                                   arrayDesign +
-                                   "' used in experiment is not in Atlas";
+                arrayDesign +
+                "' used in experiment is not in Atlas";
             pex.setExceptionCausesAbort();
             pex.setProcessOutput(errors);
             throw pex;
@@ -342,8 +348,9 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                   "Affymetrix experiment without raw data files\n");
               System.out.println(
                   "Affymetrix experiment without raw data files");
-              ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-              "Affymetrix experiment without raw data files");
+              ProcessExecutionException pex =
+                  new ProcessExecutionException(exitValue,
+                                                "Affymetrix experiment without raw data files");
 
               String[] errors = new String[1];
               errors[0] = "Affymetrix experiment without raw data files";
@@ -353,18 +360,21 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             }
             else
               //6b not affy without processed data
-              if (!arrayCheckResult.equals("affy") && processedDataSubNodes.size() == 0 &&
+              if (!arrayCheckResult.equals("affy") &&
+                  processedDataSubNodes.size() == 0 &&
                   processedDataMatrixSubNodes.size() == 0) {
                 exitValue = 1;
                 log.write(
                     "Non-Affymetrix experiment without processed data files\n");
                 System.out.println(
                     "Non-Affymetrix experiment without processed data files");
-                ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-                "Non-Affymetrix experiment without processed data files");
+                ProcessExecutionException pex =
+                    new ProcessExecutionException(exitValue,
+                                                  "Non-Affymetrix experiment without processed data files");
 
                 String[] errors = new String[1];
-                errors[0] = "Non-Affymetrix experiment without processed data files";
+                errors[0] =
+                    "Non-Affymetrix experiment without processed data files";
                 pex.setExceptionCausesAbort();
                 pex.setProcessOutput(errors);
                 throw pex;
@@ -384,20 +394,21 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
           errorMessage = errorMessage + encounteredWarning;*/
 
       e.printStackTrace();
-      ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-                e.getMessage());
+      ProcessExecutionException pex = new ProcessExecutionException(exitValue,
+                                                                    e.getMessage());
 
       String[] errors = new String[1];
       errors[0] = e.getMessage();
-      errors[1] = "Please check MAGE-TAB files and/or run validation process.\n";
+      errors[1] =
+          "Please check MAGE-TAB files and/or run validation process.\n";
       pex.setProcessOutput(errors);
       throw pex;
     }
     catch (IOException e) {
       exitValue = 1;
       e.printStackTrace();
-      ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-                e.getMessage());
+      ProcessExecutionException pex = new ProcessExecutionException(exitValue,
+                                                                    e.getMessage());
 
       String[] errors = new String[1];
       errors[0] = e.getMessage();
@@ -407,8 +418,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
     catch (RuntimeException e) {
       exitValue = 1;
       e.printStackTrace();
-      ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-                e.getMessage());
+      ProcessExecutionException pex = new ProcessExecutionException(exitValue,
+                                                                    e.getMessage());
 
       String[] errors = new String[1];
       errors[0] = e.getMessage();
@@ -429,26 +440,26 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         }
         log.write("Atlas Eligibility Check: FINISHED\n");
         log.write(
-              "Eligibility checks for Gene Expression Atlas version 2.0.9.3: \n" +
-              "1. Experiment has raw data for Affymetrix platforms or normalized data for all other platforms;\n" +
-              "2. Array design(s) used in experiment are loaded into Atlas;\n" +
-              "3. Type of experiment is from the list: \n" +
-                  " - transcription profiling by array,\n" +
-                  " - methylation profiling by array,\n" +
-                  " - tiling path by array,\n" +
-                  " - comparative genomic hybridization by array,\n" +
-                  " - microRNA profiling by array,\n" +
-                  " - RNAi profiling by array,\n" +
-                  " - ChIP-chip by array;\n" +
-              "4. Experiments is not two-channel;\n" +
-              "5. Experiment has factor values;\n" +
-              "6. Factor types are from controlled vocabulary.");
+            "Eligibility checks for Gene Expression Atlas version 2.0.9.3: \n" +
+                "1. Experiment has raw data for Affymetrix platforms or normalized data for all other platforms;\n" +
+                "2. Array design(s) used in experiment are loaded into Atlas;\n" +
+                "3. Type of experiment is from the list: \n" +
+                " - transcription profiling by array,\n" +
+                " - methylation profiling by array,\n" +
+                " - tiling path by array,\n" +
+                " - comparative genomic hybridization by array,\n" +
+                " - microRNA profiling by array,\n" +
+                " - RNAi profiling by array,\n" +
+                " - ChIP-chip by array;\n" +
+                "4. Experiments is not two-channel;\n" +
+                "5. Experiment has factor values;\n" +
+                "6. Factor types are from controlled vocabulary.");
         log.close();
       }
       catch (IOException e) {
         e.printStackTrace();
-        ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-                e.getMessage());
+        ProcessExecutionException pex = new ProcessExecutionException(exitValue,
+                                                                      e.getMessage());
 
         String[] errors = new String[1];
         errors[0] = e.getMessage();
@@ -457,7 +468,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       }
     }
 
-    ProcessExecutionException pex =  new ProcessExecutionException(exitValue,"Something wrong in the code ");
+    ProcessExecutionException pex = new ProcessExecutionException(exitValue,
+                                                                  "Something wrong in the code ");
     if (exitValue == 0) {
       return true;
     }
@@ -471,8 +483,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
 
   public boolean executeMockup(String file)
-      throws ProcessExecutionException, IllegalArgumentException,
-      InterruptedException {
+      throws ProcessExecutionException, IllegalArgumentException {
 
     // Add to the desired logger
     BufferedWriter log;
@@ -499,7 +510,6 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       log.write("Atlas Eligibility Check: START\n");
     }
     catch (IOException e) {
-      result = false;
       e.printStackTrace();
       throw new ProcessExecutionException(1, "Can't create report file '" +
           fileName + "'", e);
@@ -525,7 +535,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         }
       }
       else {
-       for (String exptType : investigation.IDF.experimentalDesign) {
+        for (String exptType : investigation.IDF.experimentalDesign) {
           for (String AtlasType : controlledVocabularyDAO
               .getAtlasExperimentTypes()) {
             if (exptType.equals(AtlasType)) {
@@ -691,7 +701,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
           }
           else
             //not affy without processed data
-            if (!arrayCheckResult.equals("affy") && processedDataSubNodes.size() == 0 &&
+            if (!arrayCheckResult.equals("affy") &&
+                processedDataSubNodes.size() == 0 &&
                 processedDataMatrixSubNodes.size() == 0) {
               result = false;
               log.write(
@@ -725,19 +736,19 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         }
         log.write("Atlas Eligibility Check: FINISHED\n");
         log.write(
-              "Eligibility checks for Gene Expression Atlas version 2.0.9.3: \n" +
-              "1. Experiment has raw data for Affymetrix platforms or normalized data for all other platforms;\n" +
-              "2. Array design(s) used in experiment are loaded into Atlas;\n" +
-              "3. Type of experiment: transcription profiling by array,\n" +
-                  "methylation profiling by array,\n" +
-                  "tiling path by array,\n" +
-                  "comparative genomic hybridization by array,\n" +
-                  "microRNA profiling by array,\n" +
-                  "RNAi profiling by array,\n" +
-                  "ChIP-chip by array;\n" +
-              "4. Two-channel experiments - can't be loaded into Atlas;\n" +
-              "5. Experiment has factor values;\n" +
-              "6. Factor types are from controlled vocabulary.");
+            "Eligibility checks for Gene Expression Atlas version 2.0.9.3: \n" +
+                "1. Experiment has raw data for Affymetrix platforms or normalized data for all other platforms;\n" +
+                "2. Array design(s) used in experiment are loaded into Atlas;\n" +
+                "3. Type of experiment: transcription profiling by array,\n" +
+                "methylation profiling by array,\n" +
+                "tiling path by array,\n" +
+                "comparative genomic hybridization by array,\n" +
+                "microRNA profiling by array,\n" +
+                "RNAi profiling by array,\n" +
+                "ChIP-chip by array;\n" +
+                "4. Two-channel experiments - can't be loaded into Atlas;\n" +
+                "5. Experiment has factor values;\n" +
+                "6. Factor types are from controlled vocabulary.");
         log.close();
       }
       catch (IOException e) {

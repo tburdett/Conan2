@@ -18,6 +18,7 @@ import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 import java.io.BufferedWriter;
+import java.nio.Buffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +33,6 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
 
     public static final int MONITOR_INTERVAL = 15;
 
-    private BufferedWriter log;
 
     private HttpClient httpclient = new DefaultHttpClient();
 
@@ -44,11 +44,11 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
         WITHOUT_MONITORING, NO_LOGIN;
     }
 
-    protected BufferedWriter initLog(Map<ConanParameter, String> parameters) {
+    protected BufferedWriter initLog(BufferedWriter log, Map<ConanParameter, String> parameters) {
         return log;
     }
 
-    protected BufferedWriter initLogMockup(String parameter) {
+    protected BufferedWriter initLogMockup(BufferedWriter log, String parameter) {
         return log;
     }
 
@@ -60,23 +60,26 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
             InterruptedException {
        // process exit value, initialise to -1
        int exitValue = -1;
+       BufferedWriter log = null;
        try{
-        log = initLog(parameters);
+        log = initLog(log, parameters);
         log.write("Executing Atlas REST API process with parameters: " + parameters + "\n");
 
         HashMap<String, Object> response;
         //have to login to work with REST API
-        if (LogIn()) {
+        if (LogIn(log)) {
             //
             String jobQuery = getRestApiRequest(parameters);
-            String idToMonitor = getResultValue(restApiRequest(jobQuery), parameters);
+            log.write("Atlas REST API request: " + jobQuery + "\n");
+            String idToMonitor = getResultValue(restApiRequest(jobQuery,log), parameters);
+            log.write("Atlas job ID: " + idToMonitor + "\n");
             try {
                 if (!idToMonitor.equals(RESTAPIEvents.WITHOUT_MONITORING)) {
                     // set up monitoring
                     final RESTAPIStatusMonitor
                             statusMonitor =
                             new RESTAPIStatusMonitor(getMonitoringRequest(idToMonitor),
-                                                     MONITOR_INTERVAL);
+                                                     MONITOR_INTERVAL,log);
 
                     // process monitoring
                     log.write("Monitoring process, waiting for completion\n");
@@ -157,24 +160,25 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
     public boolean executeMockup(String parameter)
             throws IllegalArgumentException, ProcessExecutionException,
             InterruptedException {
+       BufferedWriter log = null;
        try{
-        log = initLogMockup(parameter);
+        log = initLogMockup(log, parameter);
         log.write("Executing Atlas REST API process with parameters: " + parameter + "\n");
         // process exit value, initialise to -1
         int exitValue = -1;
         HashMap<String, Object> response;
         //have to login to work with REST API
-        if (LogIn()) {
+        if (LogIn(log)) {
 
             String jobQuery = getRestApiRequest(parameter);
-            String idToMonitor = getResultValue(restApiRequest(jobQuery), parameter);
+            String idToMonitor = getResultValue(restApiRequest(jobQuery,log), parameter);
             try {
                 if (!idToMonitor.equals(RESTAPIEvents.WITHOUT_MONITORING.toString())) {
                     // set up monitoring
                     final RESTAPIStatusMonitor
                             statusMonitor =
                             new RESTAPIStatusMonitor(getMonitoringRequest(idToMonitor),
-                                                     MONITOR_INTERVAL);
+                                                     MONITOR_INTERVAL,log);
 
                     // process monitoring
                     log.write("Monitoring process, waiting for completion\n");
@@ -252,7 +256,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
     }
 
 
-    private boolean LogIn() {
+    private boolean LogIn(BufferedWriter log) {
         //localContext is used as a session identifier
         CookieStore cookieStore = new BasicCookieStore();
         // remove the local context to start new session
@@ -281,7 +285,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
         return true;
     }
 
-    private HashMap<String, Object> restApiRequest(String requestString) {
+    private HashMap<String, Object> restApiRequest(String requestString,BufferedWriter log) {
         HashMap<String, Object> requestResults = new HashMap<String, Object>();
         try {
 
@@ -309,10 +313,12 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
         private HashMap<String, Object> response;
         private boolean running;
         private boolean complete;
+        private BufferedWriter log;
 
-        private RESTAPIStatusMonitor(String restApiStatusURL, int interval) {
+        private RESTAPIStatusMonitor(String restApiStatusURL, int interval, BufferedWriter log) {
             this.restApiStatusURL = restApiStatusURL;
             this.interval = interval;
+            this.log = log;
 
             this.running = true;
             this.complete = false;
@@ -320,12 +326,12 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
 
         public void run() {
            try{
-            log.write("Polling " + restApiStatusURL + " for status\n");
+            //log.write("Polling " + restApiStatusURL + " for status\n");
             System.out.println("Polling " + restApiStatusURL + " for status\n");
             while (running) {
                 // make request to restApiStatusURL
                 // parse response to determine if complete yet
-                response = restApiRequest(restApiStatusURL);
+                response = restApiRequest(restApiStatusURL,log);
                 if (isComplete(response)) {
                     complete = true;
                     stop();
@@ -342,13 +348,13 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                         }
                         catch (InterruptedException e) {
                             // if interrupted, die
-                            log.write("Interrupted exception causing thread to die\n");
+                            //log.write("Interrupted exception causing thread to die\n");
                             stop();
                         }
                     }
                 }
             }
-            log.write("Stopping polling of " + restApiStatusURL + "\n");
+            //log.write("Stopping polling of " + restApiStatusURL + "\n");
            }
            catch(Exception e){
              e.printStackTrace();
@@ -375,7 +381,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
             }
             try{
               System.out.println("Process completed: status message = " + getMessage(response));
-              log.write("Process completed: status message = " + getMessage(response) + "\n");
+              //log.write("Process completed: status message = " + getMessage(response) + "\n");
             }
             catch(Exception e){
               e.printStackTrace();

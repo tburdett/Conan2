@@ -4,6 +4,7 @@ import net.sourceforge.fluxion.spi.ServiceProvider;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.rest.AbstractRESTAPIProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -23,8 +24,6 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
   private final Collection<ConanParameter> parameters;
   private final AccessionParameter accessionParameter;
   private CommonAtlasProcesses atlas = new CommonAtlasProcesses();
-
-  private BufferedWriter log;
 
   /**
    * Constructor for process. Initializes conan2 parameters for the process.
@@ -94,7 +93,6 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
       jobID =
           response.get(accession.getFile().getAbsolutePath())
               .toString();
-      log.write("Atlas job ID: " + jobID + "\n");
       System.out.println("Atlas job ID: " + jobID);
     }
     catch (Exception e) {
@@ -202,7 +200,8 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
   }
 
   @Override
-  protected BufferedWriter initLog(Map<ConanParameter, String> parameters) {
+  protected BufferedWriter initLog(BufferedWriter log,
+                                   Map<ConanParameter, String> parameters) {
     // deal with parameters
     AccessionParameter accession = new AccessionParameter();
     accession.setAccession(parameters.get(accessionParameter));
@@ -232,7 +231,7 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
 
 
   @Override
-  protected BufferedWriter initLogMockup(String parameter) {
+  protected BufferedWriter initLogMockup(BufferedWriter log, String parameter) {
     File file = new File(parameter);
     //logging
     String reportsDir =

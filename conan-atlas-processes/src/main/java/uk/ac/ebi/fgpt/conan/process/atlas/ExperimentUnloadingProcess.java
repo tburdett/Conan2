@@ -25,7 +25,6 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
   private final AccessionParameter accessionParameter;
   private CommonAtlasProcesses atlas = new CommonAtlasProcesses();
 
-  private BufferedWriter log;
 
   /**
    * Constructor for process. Initializes conan2 parameters for the process.
@@ -87,7 +86,6 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
       jobID =
           response.get(accession.getFile().getAbsolutePath())
               .toString();
-      log.write("Atlas job ID: " + jobID + "\n");
       System.out.println("Atlas job ID: " + jobID);
     }
     catch (Exception e) {
@@ -176,7 +174,7 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
     return atlas.LogIn;
   }
 
-   /**
+  /**
    * Returns the name of this process.
    *
    * @return the name of this process
@@ -195,7 +193,8 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
   }
 
   @Override
-  protected BufferedWriter initLog(Map<ConanParameter, String> parameters) {
+  protected BufferedWriter initLog(BufferedWriter log,
+                                   Map<ConanParameter, String> parameters) {
     // deal with parameters
     AccessionParameter accession = new AccessionParameter();
     accession.setAccession(parameters.get(accessionParameter));
