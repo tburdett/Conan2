@@ -92,6 +92,16 @@
 
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>hasbanana-repo</id>
+            <url>http://www.hasbanana.com/maven/repo</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <profiles>
         <!-- profile for production, uses files from resources-production and webresources-production -->
         <profile>

@@ -283,6 +283,25 @@
             <modules>
                 <module>jndi-file-factory</module>
             </modules>
+
+            <!-- Maven repository deploy -->
+            <distributionManagement>
+                <repository>
+                    <id>hasbanana-repo</id>
+                    <name>hasBanana repository</name>
+                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/maven/repo</url>
+                </repository>
+                <snapshotRepository>
+                    <id>hasbanana-repo</id>
+                    <name>hasBanana repository</name>
+                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/maven/repo</url>
+                </snapshotRepository>
+                <site>
+                    <id>hasbanana-repo</id>
+                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/conan2/documentation/</url>
+                </site>
+            </distributionManagement>
+
         </profile>
     </profiles>
 

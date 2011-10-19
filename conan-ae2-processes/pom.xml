@@ -36,10 +36,18 @@
             </exclusions>
         </dependency>
         <dependency>
-          <groupId>uk.ac.ebi.arrayexpress2</groupId>
-          <artifactId>limpopo</artifactId>
-          <version>1.1</version>
+            <groupId>uk.ac.ebi.arrayexpress2</groupId>
+            <artifactId>limpopo</artifactId>
+            <version>1.1</version>
         </dependency>
     </dependencies>
 
+    <!-- Limpopo repository -->
+    <repositories>
+        <repository>
+            <id>limpopo-repo</id>
+            <name>Limpopo Mini-SF Repository</name>
+            <url>http://limpopo.sourceforge.net/maven/repo</url>
+        </repository>
+    </repositories>
 </project>
