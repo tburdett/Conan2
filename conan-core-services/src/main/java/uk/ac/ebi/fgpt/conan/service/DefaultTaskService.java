@@ -232,7 +232,7 @@ public class DefaultTaskService implements ConanTaskService {
                                                                          Date fromDate,
                                                                          Date toDate) {
         if (name == null) {
-            // replace taks name with an empty string instead of null
+            // replace task name with an empty string instead of null
             name = "";
         }
 
