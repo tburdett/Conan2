@@ -31,12 +31,8 @@ import java.util.*;
  */
 @ServiceProvider
 public class ExperimentEligibilityCheckingProcess implements ConanProcess {
-
-  // Add to the desired logger
-
   private final Collection<ConanParameter> parameters;
   private final AccessionParameter accessionParameter;
-
   private final DatabaseConanControlledVocabularyDAO controlledVocabularyDAO;
 
   /**
@@ -119,7 +115,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         for (Iterator i = investigation.IDF.personRoles.iterator();
              i.hasNext(); ) {
           String role = (String) i.next();
-          if (role.equals("submitter")) {
+          //changed to "role.contains" since person could have multiple roles
+          if (role.contains("submitter")) {
             try{
               if (!investigation.IDF.personEmail.get(j).isEmpty())
                 submitterWithEmail = true;
