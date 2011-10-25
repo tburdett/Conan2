@@ -68,8 +68,8 @@ public class QMCalculationProcess extends AbstractAE2LSFProcess {
               QMDirFile.mkdirs();
             }
             // main command to execute perl script
-            String mainCommand = "cd " + QMDir + "; " +
-                    "perl /ebi/microarray/home/AEQM/bin/compute_QC.pl " +
+            String mainCommand = "cd /ebi/microarray/home/AEQM/bin/; " +
+                    "perl compute_QC.pl " +
                     "-n " + accession +
                     "-t " + QMDir;
 
