@@ -19,6 +19,7 @@
             <process name="scoring" />
             <process name="afterloading" />
             <process name="validation" displayName="afterloader validation" />
+            <process name="QM calculation" />
         </processes>
     </pipeline>
 
