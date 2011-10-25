@@ -18,7 +18,11 @@ import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.nio.Buffer;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,14 +48,6 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
         WITHOUT_MONITORING, NO_LOGIN;
     }
 
-    protected BufferedWriter initLog(BufferedWriter log, Map<ConanParameter, String> parameters) {
-        return log;
-    }
-
-    protected BufferedWriter initLogMockup(BufferedWriter log, String parameter) {
-        return log;
-    }
-
     /**
      * REST API process
      */
@@ -62,7 +58,17 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
        int exitValue = -1;
        BufferedWriter log = null;
        try{
-        log = initLog(log, parameters);
+        String reportsDir = logName(parameters)[0];
+        String fileName = logName(parameters)[1] +
+        "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
+        ".report";
+        File reportsDirFile = new File(reportsDir);
+        if (!reportsDirFile.exists()) {
+          reportsDirFile.mkdirs();
+        }
+        log = new BufferedWriter(new FileWriter(fileName));
+        log.write("Atlas REST API: START\n");
+        log.write(logName(parameters)[2]+"\n");
         log.write("Executing Atlas REST API process with parameters: " + parameters + "\n");
 
         HashMap<String, Object> response;
@@ -162,7 +168,19 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
             InterruptedException {
        BufferedWriter log = null;
        try{
-        log = initLogMockup(log, parameter);
+        String reportsDir = logNameMockup(parameter)[0];
+        String fileName = logNameMockup(parameter)[1] +
+         "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
+         ".report";
+        File reportsDirFile = new File(reportsDir);
+        if (!reportsDirFile.exists()) {
+          reportsDirFile.mkdirs();
+        }
+        log = new BufferedWriter(new FileWriter(fileName));
+        log.write("Atlas REST API: START\n");
+        log.write(logNameMockup(parameter)[2]+"\n");
+        log.write("Executing Atlas REST API process with parameters: " + parameter + "\n");
+
         log.write("Executing Atlas REST API process with parameters: " + parameter + "\n");
         // process exit value, initialise to -1
         int exitValue = -1;
@@ -419,5 +437,9 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
     protected abstract String getRestApiRequest(String parameters);
 
     protected abstract String getLoginRequest();
+
+    protected abstract String[] logName(Map<ConanParameter, String> parameters);
+
+    protected abstract String[] logNameMockup(String parameter);
 
 }

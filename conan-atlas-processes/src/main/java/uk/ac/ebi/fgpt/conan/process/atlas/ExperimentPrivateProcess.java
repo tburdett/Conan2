@@ -198,34 +198,43 @@ public class ExperimentPrivateProcess extends AbstractRESTAPIProcess {
     return parameters;
   }
 
-  @Override
-  protected BufferedWriter initLog(BufferedWriter log,
-                                   Map<ConanParameter, String> parameters) {
+   @Override
+  protected String[] logName(Map<ConanParameter, String> parameters) {
+    String[] log_parameters = new String[3];
     // deal with parameters
     AccessionParameter accession = new AccessionParameter();
     accession.setAccession(parameters.get(accessionParameter));
-    //logging
-    String reportsDir =
-        accession.getFile().getParentFile().getAbsolutePath() + File.separator +
-            "reports";
-    File reportsDirFile = new File(reportsDir);
-    if (!reportsDirFile.exists()) {
-      reportsDirFile.mkdirs();
-    }
 
-    String fileName = reportsDir + File.separator + accession.getAccession() +
-        "_AtlasRestApiPrivate" +
-        "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
-        ".report";
-    try {
-      log = new BufferedWriter(new FileWriter(fileName));
-      log.write("Atlas REST API: START\n");
-      log.write("Private status\n");
-    }
-    catch (IOException e) {
-      e.printStackTrace();
-    }
-    return log;
+    //create parameters for logging
+    //1. reports directory
+    String reportsDir = accession.getFile().getParentFile().getAbsolutePath() + File.separator +
+            "reports";
+    log_parameters[0] = reportsDir;
+    //2. log file name
+    log_parameters[1] = reportsDir + File.separator + accession.getAccession() +
+        "_AtlasRestApiMakePrivate";
+    //3, Process name
+    log_parameters[2] = "Make private process";
+    return log_parameters;
+  }
+
+  @Override
+  protected String[] logNameMockup(String parameter) {
+    String[] log_parameters = new String[3];
+
+    File file = new File(parameter);
+
+    //create parameters for logging
+    //1. reports directory
+    String reportsDir = file.getParentFile().getAbsolutePath() + File.separator +
+            "reports";
+    log_parameters[0] = reportsDir;
+    //2. log file name
+    log_parameters[1] = reportsDir + File.separator + "mockup" +
+        "_AtlasRestApiMakePublic";
+    //3, Process name
+    log_parameters[2] = "Make public process";
+    return log_parameters;
   }
 
 }
