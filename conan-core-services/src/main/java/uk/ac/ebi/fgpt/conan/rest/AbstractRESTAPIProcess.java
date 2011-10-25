@@ -123,6 +123,15 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                 throw pex;
             }
         }
+        else {
+         exitValue = 1;
+
+         ProcessExecutionException pex =  new ProcessExecutionException(exitValue,"Can't log in into Atlas");
+         String[] errors = new String[1];
+         errors[0] = "Can't log in into Atlas";
+         pex.setProcessOutput(errors);
+         throw pex;
+        }
        }
        catch(Exception e){
          e.printStackTrace();
@@ -150,17 +159,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
            throw pex;
          }
        }
-       String error = "Something is wrong in the Experiment loading code";
-       ProcessExecutionException pex =  new ProcessExecutionException(exitValue,error);
-       if (exitValue == 0) {
-        return true;
-       }
-       else {
-        String[] errors = new String[1];
-        errors[0] = error;
-        pex.setProcessOutput(errors);
-        throw pex;
-       }
+
     }
 
     public boolean executeMockup(String parameter)
@@ -274,7 +273,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
     }
 
 
-    private boolean LogIn() {
+    private synchronized boolean LogIn() {
         //localContext is used as a session identifier
         CookieStore cookieStore = new BasicCookieStore();
         // remove the local context to start new session
