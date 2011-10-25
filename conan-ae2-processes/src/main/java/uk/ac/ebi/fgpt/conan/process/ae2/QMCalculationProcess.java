@@ -9,13 +9,13 @@ import uk.ac.ebi.fgpt.conan.lsf.LSFProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
 /**
- * MAGE-TAB validation conan process
+ * Calculation of the QC using arrayQualityMetric Bioconductor package.
+ * Documentation, perl and R scripts are in /ebi/microarray/home/AEQM/
  *
  * @author Natalja Kurbatova
  * @date 25-Oct-2011
@@ -69,9 +69,9 @@ public class QMCalculationProcess extends AbstractAE2LSFProcess {
             }
             // main command to execute perl script
             String mainCommand = "cd /ebi/microarray/home/AEQM/bin/; " +
-                    "perl compute_QC.pl " +
-                    "-n " + accession +
-                    "-t " + QMDir;
+                    "perl compute_QC.pl" +
+                    " -n " + accession.getAccession() +
+                    " -t " + QMDir;
 
             return mainCommand;
         }
