@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<conan-pipelines xmlns="http://www.ebi.ac.uk/arrayexpress/conan/pipelines"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://www.ebi.ac.uk/arrayexpress/conan/pipelines
+                                     http://www.ebi.ac.uk/arrayexpress/conan/pipelines.xsd">
+
+    <!--
+    Add xml elements to name your pipeline and chain processes together here
+    Note that the interface will display these pipelines in declaration order, with the first pipeline as the default
+    -->
+
+    <pipeline name="biosd" creator="faulcon">
+        <processes>
+            <process name="updatesource" displayName="update source" />
+            <process name="topresampletab" displayName="to sampletab.pre.txt" />
+            <process name="tosampletab" displayName="to sampletab.txt" />
+            <process name="toftp" displayName="copy to FTP site" />
+            <process name="totoloadsampletab" displayName="to sampletab.toload.txt" />
+            <!--
+            <process name="toagetab" displayName="to AGE-TAB" />
+            <process name="load" displayName="load" />
+            -->
+        </processes>
+    </pipeline>
+
+</conan-pipelines>
