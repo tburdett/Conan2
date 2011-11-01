@@ -88,6 +88,25 @@ public class XMLLoadingPipelineDAO implements ConanPipelineDAO {
         return null;
     }
 
+    public ConanPipeline getPipelineForUser(ConanUser conanUser, String pipelineName) {
+        // get the pipeline by name
+        ConanPipeline conanPipeline = getPipeline(pipelineName);
+        if (conanPipeline.isPrivate()) {
+            // if the pipeline is private, check the user
+            if (conanPipeline.getCreator().equals(conanUser)) {
+                // matching user, ok to return
+                return conanPipeline;
+            }
+            else {
+                return null;
+            }
+        }
+        else {
+            // ok to return
+            return conanPipeline;
+        }
+    }
+
     public ConanPipeline createPipeline(String name, List<ConanProcess> conanProcesses, ConanUser creator) {
         throw new UnsupportedOperationException("Creating new pipelines is not yet supported");
     }

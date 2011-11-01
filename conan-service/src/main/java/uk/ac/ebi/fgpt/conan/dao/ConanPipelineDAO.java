@@ -24,6 +24,16 @@ public interface ConanPipelineDAO {
     ConanPipeline getPipeline(String pipelineName);
 
     /**
+     * Gets a single pipeline, given the unique pipeline name and the user hoping to access it.  Private pipelines that
+     * cannot be viewd by the supplied user should not be returned by this method.
+     *
+     * @param conanUser    the user trying to access this pipeline
+     * @param pipelineName the unique name of the pipeline
+     * @return the named pipeline, as long as the given user has permission to access it
+     */
+    ConanPipeline getPipelineForUser(ConanUser conanUser, String pipelineName);
+
+    /**
      * Gets all pipelines known by this DAO.  If there are no pipelines available, an empty list is returned
      *
      * @return the collection of pipelines available

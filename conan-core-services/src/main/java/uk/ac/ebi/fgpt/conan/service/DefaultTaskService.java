@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import uk.ac.ebi.fgpt.conan.dao.ConanPipelineDAO;
 import uk.ac.ebi.fgpt.conan.dao.ConanTaskDAO;
 import uk.ac.ebi.fgpt.conan.factory.ConanTaskFactory;
 import uk.ac.ebi.fgpt.conan.model.*;
@@ -28,7 +29,7 @@ import java.util.*;
  * @date 13-Oct-2010
  */
 public class DefaultTaskService implements ConanTaskService {
-    private ConanPipelineService pipelineService;
+    private ConanPipelineDAO conanPipelineDAO;
 
     private ConanTaskFactory conanTaskFactory;
     private ConanTaskDAO conanTaskDAO;
@@ -39,13 +40,12 @@ public class DefaultTaskService implements ConanTaskService {
         return log;
     }
 
-    public ConanPipelineService getPipelineService() {
-        return pipelineService;
+    public ConanPipelineDAO getConanPipelineDAO() {
+        return conanPipelineDAO;
     }
 
-    public void setPipelineService(ConanPipelineService pipelineService) {
-        Assert.notNull(pipelineService, "A PipelineService must be supplied");
-        this.pipelineService = pipelineService;
+    public void setConanPipelineDAO(ConanPipelineDAO conanPipelineDAO) {
+        this.conanPipelineDAO = conanPipelineDAO;
     }
 
     public ConanTaskFactory getConanTaskFactory() {
@@ -71,7 +71,7 @@ public class DefaultTaskService implements ConanTaskService {
                                                             ConanTask.Priority priority,
                                                             ConanUser conanUser) throws IllegalArgumentException {
         // lookup pipeline
-        ConanPipeline pipeline = getPipelineService().getPipeline(conanUser, pipelineName);
+        ConanPipeline pipeline = getConanPipelineDAO().getPipelineForUser(conanUser, pipelineName);
 
         // validate part of the request by checking we found this pipeline
         if (pipeline == null) {

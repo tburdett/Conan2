@@ -122,21 +122,7 @@ public class DefaultPipelineService implements ConanPipelineService {
     public ConanPipeline getPipeline(ConanUser conanUser, String pipelineName) {
         // get the pipeline by name
         getLog().debug("Request to get pipeline '" + pipelineName + "' for " + conanUser.getUserName());
-        ConanPipeline conanPipeline = getPipelineDAO().getPipeline(pipelineName);
-        if (conanPipeline.isPrivate()) {
-            // if the pipeline is private, check the user
-            if (conanPipeline.getCreator().equals(conanUser)) {
-                // matching user, ok to return
-                return conanPipeline;
-            }
-            else {
-                return null;
-            }
-        }
-        else {
-            // ok to return
-            return conanPipeline;
-        }
+        return getPipelineDAO().getPipelineForUser(conanUser, pipelineName);
     }
 
     public ConanPipeline createPipeline(String name, List<ConanProcess> conanProcesses, ConanUser creator) {
