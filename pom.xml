@@ -135,7 +135,7 @@
         <profile>
             <id>demo</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <activeByDefault>true</activeByDefault>
             </activation>
 
             <!-- Maven repository deploy -->
