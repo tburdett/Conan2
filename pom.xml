@@ -87,22 +87,6 @@
         </license>
     </licenses>
 
-    <!-- Mailing Lists -->
-    <mailingLists>
-        <mailingList>
-            <name>AE2 Developers List</name>
-            <subscribe>ae2-dev@ebi.ac.uk</subscribe>
-            <unsubscribe>ae2-dev@ebi.ac.uk</unsubscribe>
-            <post>ae2-dev@ebi.ac.uk</post>
-        </mailingList>
-    </mailingLists>
-
-    <!-- Bug Tracker -->
-    <issueManagement>
-        <system>Trac</system>
-        <url>https://www.pivotaltracker.com/projects/54920</url>
-    </issueManagement>
-
     <!-- Developer Listing -->
     <developers>
         <developer>
@@ -132,19 +116,6 @@
         </developer>
     </developers>
 
-    <!-- SVN connection -->
-    <scm>
-        <connection>
-            scm:svn:svn://bar.ebi.ac.uk
-        </connection>
-        <developerConnection>
-            scm:svn:svn://bar.ebi.ac.uk
-        </developerConnection>
-        <url>
-            http://bar.ebi.ac.uk:8080/trac/browser
-        </url>
-    </scm>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -161,70 +132,6 @@
     </dependencies>
 
     <profiles>
-        <profile>
-            <id>conan</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-
-            <!-- Maven repository deploy -->
-            <distributionManagement>
-                <downloadUrl>http://ebi.ac.uk/~tburdett/maven</downloadUrl>
-                <repository>
-                    <id>bar.ebi.ac.uk-releases</id>
-                    <name>bar.ebi.ac.uk-releases</name>
-                    <url>http://bar.ebi.ac.uk:8081/artifactory/local-repo</url>
-                </repository>
-                <snapshotRepository>
-                    <id>bar.ebi.ac.uk-snapshots</id>
-                    <name>bar.ebi.ac.uk-snapshots</name>
-                    <url>http://bar.ebi.ac.uk:8081/artifactory/local-repo</url>
-                </snapshotRepository>
-                <site>
-                    <id>conan-docs-repo</id>
-                    <url>http://banana.ebi.ac.uk:14054/conan2/documentation/</url>
-                </site>
-            </distributionManagement>
-
-            <repositories>
-                <repository>
-                    <id>bar.ebi.ac.uk-releases</id>
-                    <url>http://bar.ebi.ac.uk:8081/artifactory/local-repo/</url>
-                    <snapshots>
-                        <enabled>true</enabled>
-                    </snapshots>
-                </repository>
-            </repositories>
-
-            <dependencies>
-                <!-- logging for tests -->
-                <dependency>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                    <version>1.6.0</version>
-                    <scope>test</scope>
-                </dependency>
-                <dependency>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                    <version>1.2.14</version>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
-
-            <modules>
-                <module>conan-service</module>
-                <module>conan-ui</module>
-                <module>conan-cli-utils</module>
-                <module>conan-core-services</module>
-                <module>conan-ae-services</module>
-                <module>conan-ae1-processes</module>
-                <module>conan-ae2-processes</module>
-                <module>conan-atlas-processes</module>
-            </modules>
-
-        </profile>
-
         <profile>
             <id>demo</id>
             <activation>
