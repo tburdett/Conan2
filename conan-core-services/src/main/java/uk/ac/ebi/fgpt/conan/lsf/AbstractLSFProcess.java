@@ -25,6 +25,7 @@ import java.util.Map;
  */
 public abstract class AbstractLSFProcess implements ConanProcess {
     private String bsubPath = "bsub";
+    private String queueName = "production";
     private int monitorInterval = 15;
 
     private Logger log = LoggerFactory.getLogger(getClass());
@@ -49,15 +50,36 @@ public abstract class AbstractLSFProcess implements ConanProcess {
      *
      * @param bsubPath the bsub path to use to dispatch jobs to an LSF cluster
      */
-    public void setBsubPath(String bsubPath) {
+    protected void setBsubPath(String bsubPath) {
         this.bsubPath = bsubPath;
+    }
+
+    /**
+     * Gets the name of the LSF queue processes should be submitted to when executed.  This may depend on how your LSF
+     * cluster is configured.  Defaults to "production".
+     *
+     * @return the name of the queue to which LSF jobs should be submitted
+     */
+    protected String getQueueName() {
+        return queueName;
+    }
+
+    /**
+     * Sets the queue to which LSF process should be submitted when executed.  The default is "production", but this may
+     * need to be changed based on how your LSF cluster is configured.  If you set this to null, or an empty string,
+     * most LSF clusters will submit tasks to the default submission queue.
+     *
+     * @param queueName the name of the queue to submit to
+     */
+    protected void setQueueName(String queueName) {
+        this.queueName = queueName;
     }
 
     protected int getMonitorInterval() {
         return monitorInterval;
     }
 
-    public void setMonitorInterval(int monitorInterval) {
+    protected void setMonitorInterval(int monitorInterval) {
         this.monitorInterval = monitorInterval;
     }
 
@@ -107,7 +129,7 @@ public abstract class AbstractLSFProcess implements ConanProcess {
                     bsubPath + " " +
                             "-M " + memReq + " " +
                             "-R \"rusage[mem=" + memReq + "]\" " +
-                            "-q production " +
+                            (getQueueName() == null || getQueueName().equals("") ? "" : "-q " + getQueueName() + " ") +
                             "-oo " + getLSFOutputFilePath(parameters) + " " +
                             "-u " + backupEmail + " \"" +
                             getCommand(parameters) + " " +
@@ -117,7 +139,7 @@ public abstract class AbstractLSFProcess implements ConanProcess {
             // generate actual bsub command from template excluding memory options
             bsubCommand =
                     bsubPath + " " +
-                            "-q production " +
+                            (getQueueName() == null || getQueueName().equals("") ? "" : "-q " + getQueueName() + " ") +
                             "-oo " + getLSFOutputFilePath(parameters) + " " +
                             "-u " + backupEmail + " \"" +
                             getCommand(parameters) + " " +
