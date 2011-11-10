@@ -221,6 +221,7 @@
                 <module>conan-ae1-processes</module>
                 <module>conan-ae2-processes</module>
                 <module>conan-atlas-processes</module>
+                <module>conan-biosd-processes</module>
             </modules>
 
         </profile>
