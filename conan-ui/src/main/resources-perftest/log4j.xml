@@ -28,7 +28,7 @@
 
     <root>
         <priority value="INFO" />
-        <appender-ref ref="console" />
+        <appender-ref ref="conan-log" />
     </root>
 
 </log4j:configuration>

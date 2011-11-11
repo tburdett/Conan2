@@ -41,7 +41,7 @@
 
     <!-- Task service -->
     <bean name="taskService" class="uk.ac.ebi.fgpt.conan.service.DefaultTaskService">
-        <property name="pipelineService" ref="pipelineService" />
+        <property name="conanPipelineDAO" ref="conanPipelineDAO" />
         <property name="conanTaskFactory" ref="taskFactory" />
         <property name="conanTaskDAO" ref="conanTaskDAO" />
     </bean>
