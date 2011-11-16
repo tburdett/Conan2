@@ -209,17 +209,22 @@ public class LSFProcessAdapter extends File implements LSFProcess {
         }
         else if (line.startsWith("Exited")) {
             getLog().debug("Read completion content: " + line);
-            if (line.split(" ").length > 4) {
-                String exitValStr = line.split(" ")[4].trim();
-                getLog().debug("Read exit value from LSF output file, value was " + exitValStr);
-                if (exitValStr.endsWith(".")) {
-                    exitValStr = exitValStr.replace(".", "");
-                    getLog().debug("Munged string to remove full stop is now " + exitValStr);
+            try{
+                if (line.split(" ").length > 4) {
+                    String exitValStr = line.split(" ")[4].trim();
+                    getLog().debug("Read exit value from LSF output file, value was " + exitValStr);
+                    if (exitValStr.endsWith(".")) {
+                        exitValStr = exitValStr.replace(".", "");
+                        getLog().debug("Munged string to remove full stop is now " + exitValStr);
+                    }
+                    exitValue = Integer.valueOf(exitValStr);
+                    getLog().debug("Exit value: " + exitValue);
                 }
-                exitValue = Integer.valueOf(exitValStr);
-                getLog().debug("Exit value: " + exitValue);
+                else {
+                    exitValue = 1;
+                }
             }
-            else {
+            catch(Exception e){
                 exitValue = 1;
             }
             complete = true;

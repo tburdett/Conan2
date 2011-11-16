@@ -13,7 +13,7 @@ import java.util.*;
 
 public class ArrayDesignExistenceChecking extends AbstractRESTAPISubprocess {
 
-  private CommonAtlasProcesses atlas = new CommonAtlasProcesses();
+  private final CommonAtlasProcesses atlas = new CommonAtlasProcesses();
 
   /**
    * Parses the response from Atlas REST API for the monitored process Returns
@@ -76,9 +76,7 @@ public class ArrayDesignExistenceChecking extends AbstractRESTAPISubprocess {
    * @throws IllegalArgumentException
    */
   @Override protected String getRestApiRequest(String parameters) {
-
-    String restApiRequest = atlas.ArrayDesignSearch + parameters;
-    return restApiRequest;
+    return atlas.ArrayDesignSearch + parameters;
 
   }
 

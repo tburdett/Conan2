@@ -5,11 +5,7 @@ import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.rest.AbstractRESTAPIProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -18,12 +14,13 @@ import java.util.*;
  * @author Natalja Kurbatova
  * @date 15/02/11
  */
+
 @ServiceProvider
 public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
 
   private final Collection<ConanParameter> parameters;
   private final AccessionParameter accessionParameter;
-  private CommonAtlasProcesses atlas = new CommonAtlasProcesses();
+  private final CommonAtlasProcesses atlas = new CommonAtlasProcesses();
 
   /**
    * Constructor for process. Initializes conan2 parameters for the process.
@@ -90,9 +87,9 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
     AccessionParameter accession = new AccessionParameter();
     accession.setAccession(parameters.get(accessionParameter));
     try {
-      jobID =
-          response.get(accession.getFile().getAbsolutePath())
-              .toString();
+      jobID = "&accession="+accession.getAccession()+"&type=loadexperiment";
+          //response.get(accession.getFile().getAbsolutePath())
+            //  .toString();
       System.out.println("Atlas job ID: " + jobID);
     }
     catch (Exception e) {
@@ -111,8 +108,20 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
    */
   @Override
   protected String getResultValue(HashMap<String, Object> response,
-                                  String parameters) {
-    return atlas.getResultValue(response, parameters);
+                                  String[] parameters) {
+    String jobID = RESTAPIEvents.WITHOUT_MONITORING.toString();
+
+    try {
+      jobID = "&accession="+parameters[1]+"&type=loadexperiment";
+          //response.get(accession.getFile().getAbsolutePath())
+            //  .toString();
+      System.out.println("Atlas job ID: " + jobID);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return jobID;
   }
 
   /**
@@ -146,9 +155,7 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
     else {
       //execution
       if (accession.isExperiment()) {
-        String restApiRequest = atlas.ExperimentLoad +
-            accession.getFile().getAbsolutePath();
-        return restApiRequest;
+        return atlas.ExperimentLoad + accession.getFile().getAbsolutePath();
       }
       else {
         System.out.println("Experiment is needed, not array");
@@ -165,10 +172,9 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
    * @return restApiRequest string
    * @throws IllegalArgumentException
    */
-  @Override protected String getRestApiRequest(String parameters) {
+  @Override protected String getRestApiRequest(String[] parameters) {
 
-    String restApiRequest = atlas.ExperimentLoad + parameters;
-    return restApiRequest;
+    return atlas.ExperimentLoad + parameters[0];
 
   }
 
@@ -221,10 +227,10 @@ public class ExperimentLoadingProcess extends AbstractRESTAPIProcess {
 
 
   @Override
-  protected String[] logNameMockup(String parameter) {
+  protected String[] logNameMockup(String[] parameter) {
     String[] log_parameters = new String[3];
 
-    File file = new File(parameter);
+    File file = new File(parameter[0]);
 
     //create parameters for logging
     //1. reports directory

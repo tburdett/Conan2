@@ -15,7 +15,7 @@ import java.util.HashMap;
 public class CommonAtlasProcesses {
 
   public enum AtlasEvents {
-    SCHEDULED, STARTED, FAILED;
+    SCHEDULED, STARTED, FAILED
   }
 
   private static final String atlasPath =
@@ -25,9 +25,9 @@ public class CommonAtlasProcesses {
   private static final String atlasPassword =
       ConanProperties.getProperty("atlas.password");
 
-  //private static final String atlasPath = "http://banana.ebi.ac.uk:14072/gxa/";
-  //private static final String atlasUsername = "autosubs";
-  //private static final String atlasPassword = "password";
+/*  private static final String atlasPath = "http://banana.ebi.ac.uk:14072/gxa/";
+  private static final String atlasUsername = "autosubs";
+  private static final String atlasPassword = "password";*/
 
   public static final String ExperimentUpdatePrivate = atlasPath +
       "admin?op=schedule&runMode=RESTART&type=" +
@@ -54,7 +54,7 @@ public class CommonAtlasProcesses {
       "&search=";
 
   public static final String Monitoring = atlasPath +
-      "admin?op=tasklog&event=";
+      "admin?op=tasklog";
 
   public static final String LogIn = atlasPath +
       "admin?op=login&userName=" +
@@ -89,9 +89,7 @@ public class CommonAtlasProcesses {
   public String getMessage(HashMap<String, Object> response) {
 
     HashMap<String, Object> items = items(response.get("items").toString());
-    String result = items.get("message").toString();
-
-    return result;
+    return items.get("message").toString();
   }
 
   /**
@@ -120,10 +118,10 @@ public class CommonAtlasProcesses {
    * Parses the response from Atlas REST API, by using parameters extracts Atlas
    * job ID.
    *
-   * @param response response received from Atlas REST API in HashMap format
+   * @param response received from Atlas REST API in HashMap format
    * @return Atlas job ID to monitor the job status
    */
-  public String getResultValue(HashMap<String, Object> response,
+/*  public String getResultValue(HashMap<String, Object> response,
                                String parameters) {
     String jobID;
     try {
@@ -136,7 +134,7 @@ public class CommonAtlasProcesses {
     }
 
     return jobID;
-  }
+  }*/
 
   /**
    * Parses the nested response from Atlas REST API. Items are stored as
@@ -145,7 +143,7 @@ public class CommonAtlasProcesses {
    * @param response entry from the main HashMap with items pairs inside
    * @return HashMap with parsed items
    */
-  public HashMap<String, Object> items(String response) {
+  HashMap<String, Object> items(String response) {
     //output parsing and HashMap object creation
     String delimiter = ",";
     String[] temp = response.split(delimiter);

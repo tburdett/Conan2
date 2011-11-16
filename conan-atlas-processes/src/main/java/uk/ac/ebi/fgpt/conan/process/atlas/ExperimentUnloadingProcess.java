@@ -23,7 +23,7 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
 
   private final Collection<ConanParameter> parameters;
   private final AccessionParameter accessionParameter;
-  private CommonAtlasProcesses atlas = new CommonAtlasProcesses();
+  private final CommonAtlasProcesses atlas = new CommonAtlasProcesses();
 
 
   /**
@@ -83,9 +83,9 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
     AccessionParameter accession = new AccessionParameter();
     accession.setAccession(parameters.get(accessionParameter));
     try {
-      jobID =
-          response.get(accession.getFile().getAbsolutePath())
-              .toString();
+      jobID = "&accession="+accession.getAccession()+"&type=unloadexperiment";
+         // response.get(accession.getFile().getAbsolutePath())
+          //    .toString();
       System.out.println("Atlas job ID: " + jobID);
     }
     catch (Exception e) {
@@ -104,8 +104,20 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
    */
   @Override
   protected String getResultValue(HashMap<String, Object> response,
-                                  String parameters) {
-    return atlas.getResultValue(response, parameters);
+                                  String[] parameters) {
+    String jobID = RESTAPIEvents.WITHOUT_MONITORING.toString();
+
+    try {
+      jobID = "&accession="+parameters[1]+"&type=unloadexperiment";
+          //response.get(accession.getFile().getAbsolutePath())
+            //  .toString();
+      System.out.println("Atlas job ID: " + jobID);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return jobID;
   }
 
   /**
@@ -139,9 +151,7 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
     else {
       //execution
       if (accession.isExperiment()) {
-        String restApiRequest = atlas.ExperimentUnload +
-            accession.getAccession();
-        return restApiRequest;
+        return atlas.ExperimentUnload + accession.getAccession();
       }
       else {
         System.out.println("Experiment is needed, not array");
@@ -158,10 +168,9 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
    * @return restApiRequest string
    * @throws IllegalArgumentException
    */
-  @Override protected String getRestApiRequest(String parameters) {
+  @Override protected String getRestApiRequest(String[] parameters) {
 
-    String restApiRequest = atlas.ExperimentUnload + parameters;
-    return restApiRequest;
+    return atlas.ExperimentUnload + parameters[1];
 
   }
 
@@ -213,15 +222,16 @@ public class ExperimentUnloadingProcess extends AbstractRESTAPIProcess {
   }
 
   @Override
-  protected String[] logNameMockup(String parameter) {
+  protected String[] logNameMockup(String[] parameter) {
     String[] log_parameters = new String[3];
 
-    File file = new File(parameter);
+    File file = new File(parameter[0]);
 
     //create parameters for logging
     //1. reports directory
     String reportsDir = file.getParentFile().getAbsolutePath() + File.separator +
-            "reports";
+           "reports";
+
     log_parameters[0] = reportsDir;
     //2. log file name
     log_parameters[1] = reportsDir + File.separator + "mockup" +

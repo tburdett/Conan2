@@ -20,15 +20,15 @@ import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.nio.Buffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * An abstract {@link uk.ac.ebi.fgpt.conan.model.ConanProcess} that is designed for to process REST API requests.  You
- * can tailor monitor interval by process.
+ * REST API - Representational state transfer application programming interface.
+ * An abstract {@link uk.ac.ebi.fgpt.conan.model.ConanProcess} that is designed for to process REST API requests.
+ * You can tailor monitor interval by process.
  *
  * @author Natalja Kurbatova
  * @date 23-05-2011
@@ -42,7 +42,16 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
     }
 
     /**
-     * REST API process
+     * Executes this process with the supplied parameters.
+     * This method returns true if the task succeeds, false otherwise
+     *
+     * @param parameters maps parameters to the supplied values required in order to execute a process
+     * @return true if the execution completed successfully, false if not
+     * @throws ProcessExecutionException if the execution of the process caused an exception
+     * @throws IllegalArgumentException  if an incorrect set of parameter values has been supplied, or if required
+     *                                   values are null
+     * @throws InterruptedException      if the execution of a process is interrupted, which causes it to terminate
+     *                                   early
      */
     public boolean execute(Map<ConanParameter, String> parameters)
             throws ProcessExecutionException, IllegalArgumentException,
@@ -60,23 +69,23 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
           reportsDirFile.mkdirs();
         }
         log = new BufferedWriter(new FileWriter(fileName));
-        log.write("Atlas REST API: START\n");
+        log.write("REST API: START\n");
         log.write(logName(parameters)[2]+"\n");
-        log.write("Executing Atlas REST API process with parameters: " + parameters + "\n");
+        log.write("Executing REST API process with parameters: " + parameters + "\n");
 
         HashMap<String, Object> response;
-        //have to login to work with REST API
 
-        //http objects needed to login
+        //in most of the cases have to login to start work with REST API
+        //initialize http objects needed to login
         HttpClient httpclient = new DefaultHttpClient();
-        // Create local HTTP context
+        // create local HTTP context
         HttpContext localContext = new BasicHttpContext();
 
          //localContext is used as a session identifier
         CookieStore cookieStore = new BasicCookieStore();
         // remove the local context to start new session
         localContext.removeAttribute(ClientContext.COOKIE_STORE);
-        // Bind custom cookie store to the local context
+        // bind custom cookie store to the local context
         localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
 
         boolean logIn = false;
@@ -84,12 +93,12 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
             try {
 
                 HttpGet httpget = new HttpGet(getLoginRequest());
-                // Pass local context as a parameter
+                // pass local context as a parameter
                 HttpResponse logInResponse = httpclient.execute(httpget, localContext);
                 HttpEntity entity = logInResponse.getEntity();
                 String responseString = EntityUtils.toString(entity);
-                log.write("Atlas REST API log in request: " + getLoginRequest() + "\n");
-                log.write("Atlas REST API log in response: " + responseString + "\n");
+                log.write("REST API log in request: " + getLoginRequest() + "\n");
+                log.write("REST API log in response: " + responseString + "\n");
                 HashMap<String, Object> logonResults =
                         parseRestApiResponse(responseString);
                 logIn = (Boolean) logonResults.get("success");
@@ -97,9 +106,9 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
             }
             catch (Exception e) {
                exitValue = 1;
-               ProcessExecutionException pex =  new ProcessExecutionException(exitValue,"Can't log in into Atlas");
+               ProcessExecutionException pex =  new ProcessExecutionException(exitValue,"Can't login");
                String[] errors = new String[1];
-               errors[0] = "Can't log in into Atlas";
+               errors[0] = "Can't login";
                pex.setProcessOutput(errors);
                throw pex;
 
@@ -107,13 +116,14 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
         }
 
 
-
+        // login process was successful
         if (logIn) {
-            //
+            //get rest api request
             String jobQuery = getRestApiRequest(parameters);
-            log.write("Atlas REST API request: " + jobQuery + "\n");
+            log.write("REST API request: " + jobQuery + "\n");
+            //get job id to monitor
             String idToMonitor = getResultValue(restApiRequest(jobQuery,httpclient,localContext,log), parameters);
-            log.write("Atlas job ID: " + idToMonitor + "\n");
+            log.write("REST API task to monitor: " + idToMonitor + "\n");
             try {
                 if (!idToMonitor.equals(RESTAPIEvents.WITHOUT_MONITORING)) {
                     // set up monitoring
@@ -127,7 +137,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                     new Thread(statusMonitor).start();
                     response = statusMonitor.waitFor();
                     exitValue = getExitCode(response);
-                    log.write("Atlas REST API Process completed with exit value " + exitValue + "\n");
+                    log.write("REST API Process completed with exit value " + exitValue + "\n");
 
                     ProcessExecutionException pex =  new ProcessExecutionException(exitValue,getMessage(response));
                     if (exitValue == 0) {
@@ -143,7 +153,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                 }
                 else {
                     exitValue = 0;
-                    log.write("Atlas REST API Process completed with exit value " + exitValue + "\n");
+                    log.write("REST API Process completed with exit value " + exitValue + "\n");
                     return true;
                 }
             }
@@ -172,7 +182,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
        }
        finally {
          try{
-          log.write("Atlas REST API: FINISHED\n");
+          log.write("REST API: FINISHED\n");
           log.close();
          }
          catch(Exception e){
@@ -189,9 +199,11 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
 
     }
 
-    /*public boolean executeMockup(String parameter)
+    /*public boolean executeMockup(String[] parameter)
             throws IllegalArgumentException, ProcessExecutionException,
             InterruptedException {
+
+       int exitValue = -1;
        BufferedWriter log = null;
        try{
         String reportsDir = logNameMockup(parameter)[0];
@@ -208,22 +220,61 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
         log.write("Executing Atlas REST API process with parameters: " + parameter + "\n");
 
         log.write("Executing Atlas REST API process with parameters: " + parameter + "\n");
-        // process exit value, initialise to -1
-        int exitValue = -1;
-        HashMap<String, Object> response;
-        //have to login to work with REST API
-        if (LogIn()) {
 
+        HashMap<String, Object> response;
+
+        //in most of the cases have to login to start work with REST API
+        //initialize http objects needed to login
+        HttpClient httpclient = new DefaultHttpClient();
+        // create local HTTP context
+        HttpContext localContext = new BasicHttpContext();
+
+         //localContext is used as a session identifier
+        CookieStore cookieStore = new BasicCookieStore();
+        // remove the local context to start new session
+        localContext.removeAttribute(ClientContext.COOKIE_STORE);
+        // bind custom cookie store to the local context
+        localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+
+        boolean logIn = false;
+        if (!getLoginRequest().equals(RESTAPIEvents.NO_LOGIN.toString())) {
+            try {
+
+                HttpGet httpget = new HttpGet(getLoginRequest());
+                // pass local context as a parameter
+                HttpResponse logInResponse = httpclient.execute(httpget, localContext);
+                HttpEntity entity = logInResponse.getEntity();
+                String responseString = EntityUtils.toString(entity);
+                log.write("REST API log in request: " + getLoginRequest() + "\n");
+                log.write("REST API log in response: " + responseString + "\n");
+                HashMap<String, Object> logonResults =
+                        parseRestApiResponse(responseString);
+                logIn = (Boolean) logonResults.get("success");
+
+            }
+            catch (Exception e) {
+               exitValue = 1;
+               ProcessExecutionException pex =  new ProcessExecutionException(exitValue,"Can't login");
+               String[] errors = new String[1];
+               errors[0] = "Can't login";
+               pex.setProcessOutput(errors);
+               throw pex;
+
+            }
+        }
+
+
+        // login process was successful
+      if (logIn) {
             String jobQuery = getRestApiRequest(parameter);
-            String idToMonitor = getResultValue(restApiRequest(jobQuery), parameter);
+            String idToMonitor = getResultValue(restApiRequest(jobQuery,httpclient,localContext,log), parameter);
             try {
                 if (!idToMonitor.equals(RESTAPIEvents.WITHOUT_MONITORING.toString())) {
                     // set up monitoring
-                    final RESTAPIStatusMonitor
+                   final RESTAPIStatusMonitor
                             statusMonitor =
                             new RESTAPIStatusMonitor(getMonitoringRequest(idToMonitor),
-                                                     MONITOR_INTERVAL);
-
+                                                     MONITOR_INTERVAL,httpclient,localContext,log);
                     // process monitoring
                     log.write("Monitoring process, waiting for completion\n");
                     new Thread(statusMonitor).start();
@@ -265,7 +316,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
        }
        return false;
 
-    }           */
+    }*/
 //*****************************************************************************//
 //*********************Private help methods************************************//
 //*****************************************************************************//
@@ -339,10 +390,10 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
             HttpResponse response = httpclient.execute(httpget, localContext);
             HttpEntity entity = response.getEntity();
             String responseString = EntityUtils.toString(entity);
-            System.out.println("Atlas REST API request: " + requestString);
-            System.out.println("Atlas REST API response: " + responseString);
-            log.write("Atlas REST API request: " + requestString + "\n");
-            log.write("Atlas REST API response: " + responseString + "\n");
+            System.out.println("REST API request: " + requestString);
+            System.out.println("REST API response: " + responseString);
+            log.write("REST API request: " + requestString + "\n");
+            log.write("REST API response: " + responseString + "\n");
             requestResults = parseRestApiResponse(responseString);
         }
         catch (Exception e) {
@@ -461,7 +512,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                                              Map<ConanParameter, String> parameters);
 
     protected abstract String getResultValue(HashMap<String, Object> response,
-                                             String parameters);
+                                             String[] parameters);
 
     protected abstract String getMonitoringRequest(String id);
 
@@ -469,12 +520,12 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
             Map<ConanParameter, String> parameters)
             throws IllegalArgumentException;
 
-    protected abstract String getRestApiRequest(String parameters);
+    protected abstract String getRestApiRequest(String[] parameters);
 
     protected abstract String getLoginRequest();
 
     protected abstract String[] logName(Map<ConanParameter, String> parameters);
 
-    protected abstract String[] logNameMockup(String parameter);
+    protected abstract String[] logNameMockup(String[] parameter);
 
 }
