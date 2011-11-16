@@ -47,7 +47,7 @@ public class AE2ExperimentLoadingProcessCombinedWithAE1 extends AbstractLSFProce
     }
 
     protected int getMemoryRequirement(Map<ConanParameter, String> parameterStringMap) {
-        return 128;
+        return 512;
     }
 
     protected String getComponentName() {
