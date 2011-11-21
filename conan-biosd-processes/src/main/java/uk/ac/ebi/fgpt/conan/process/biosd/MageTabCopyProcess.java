@@ -31,6 +31,15 @@ public class MageTabCopyProcess implements ConanProcess {
         return log;
     }
 
+	public boolean testIfMageTabAccession(SampleTabAccessionParameter accession) {
+		String regex = "GAE-[A-Z]+-[0-9]+";
+		if (accession.getAccession().matches(regex)){
+			return true;
+		} else {
+			return false;
+		}
+	}
+
     public boolean execute(Map<ConanParameter, String> parameters)
             throws IllegalArgumentException, ProcessExecutionException, InterruptedException {
         getLog().debug("Executing " + getName() + " with the following parameters: " + parameters.toString());
@@ -43,16 +52,16 @@ public class MageTabCopyProcess implements ConanProcess {
         if (accession.getAccession() == null) {
             throw new IllegalArgumentException("Accession cannot be null");
         }
-        if (!accession.testIfMageTabAccession()) {
+        if (!testIfMageTabAccession(accession)) {
             throw new IllegalArgumentException("Accession must be MAGE-TAB compatible");
         }
         
         //TODO this is equivalent to accession.workFile but points to the biosd copy not the ae exp dir copy
         File outdir  = new File(path, "ae");
-        outdir = new File(outdir, "GA"+accession.getMageTabAccession());
+        outdir = new File(outdir, "GA"+accession.getAccession().substring(2));
         
         MageTabFTPDownload mtftp = MageTabFTPDownload.getInstance();
-        mtftp.download(accession.getMageTabAccession(), outdir);
+        mtftp.download(accession.getAccession().substring(2), outdir);
         
         return true;
     }
