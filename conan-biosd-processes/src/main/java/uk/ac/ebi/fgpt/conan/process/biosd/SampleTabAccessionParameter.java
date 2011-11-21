@@ -20,7 +20,7 @@ public class SampleTabAccessionParameter extends AbstractConanParameter {
 		return this.accession;
 	}
 
-	public boolean isMageTabAccession() {
+	public boolean testIfMageTabAccession() {
 		String regex = "GAE-[A-Z]+-[0-9]+";
 		if (getAccession().matches(regex)){
 			return true;
@@ -30,7 +30,7 @@ public class SampleTabAccessionParameter extends AbstractConanParameter {
 	}
 
 	public String getMageTabAccession() {
-		if (!isMageTabAccession()){
+		if (!testIfMageTabAccession()){
 			return null;
 		} else {
 			return getAccession().substring(2);
