@@ -188,7 +188,11 @@
 
             <repositories>
                 <repository>
-                    <id>bar.ebi.ac.uk-releases</id>
+                    <id>coconut.ebi.ac.uk-releases</id>
+                    <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo/</url>
+                </repository>
+                <repository>
+                    <id>coconut.ebi.ac.uk-snapshots</id>
                     <url>http://bar.ebi.ac.uk:8081/artifactory/local-repo/</url>
                     <snapshots>
                         <enabled>true</enabled>
