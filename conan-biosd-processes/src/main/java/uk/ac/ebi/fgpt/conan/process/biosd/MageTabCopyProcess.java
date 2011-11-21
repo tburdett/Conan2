@@ -4,17 +4,12 @@ import net.sourceforge.fluxion.spi.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.ebi.arrayexpress2.magetab.exception.ParseException;
-import uk.ac.ebi.arrayexpress2.sampletab.datamodel.SampleData;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 import uk.ac.ebi.fgpt.sampletab.MageTabFTPDownload;
-import uk.ac.ebi.fgpt.sampletab.MageTabToSampleTab;
-
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -48,7 +43,7 @@ public class MageTabCopyProcess implements ConanProcess {
         if (accession.getAccession() == null) {
             throw new IllegalArgumentException("Accession cannot be null");
         }
-        if (!accession.isMageTabAccession()) {
+        if (!accession.testIfMageTabAccession()) {
             throw new IllegalArgumentException("Accession must be MAGE-TAB compatible");
         }
         
