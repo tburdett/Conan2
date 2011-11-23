@@ -12,8 +12,8 @@
 
     <pipeline name="BioSamples from ArrayExpress" creator="faulcon">
         <processes>
-            <process name="updatesourcearrayexpress" displayName="update source (Array Express)" />
-            <process name="topresampletabarrayexpress" displayName="to sampletab.pre.txt (Array Express)" />
+            <process name="updatesourcearrayexpress" displayName="update source idf/srdf" />
+            <process name="topresampletabarrayexpress" displayName="idf/srdf to sampletab.pre.txt" />
             <!--
             <process name="tosampletab" displayName="to sampletab.txt" />
             <process name="toftp" displayName="copy to FTP site" />
