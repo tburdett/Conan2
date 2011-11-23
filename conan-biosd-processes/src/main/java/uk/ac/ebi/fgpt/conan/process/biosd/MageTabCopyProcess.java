@@ -43,12 +43,13 @@ public class MageTabCopyProcess implements ConanProcess {
     public boolean execute(Map<ConanParameter, String> parameters)
             throws IllegalArgumentException, ProcessExecutionException, InterruptedException {
         getLog().debug("Executing " + getName() + " with the following parameters: " + parameters.toString());
-        
-        String path = ConanProperties.getProperty("biosamples.sampletab.path");        
+             
 
         // deal with parameters
+        getLog().debug("Checking SampleTabAccessionParameter...");
         SampleTabAccessionParameter accession = new SampleTabAccessionParameter();
         accession.setAccession(parameters.get(accessionParameter));
+        getLog().debug("SampleTabAccessionParameter is "+parameters.get(accessionParameter));
         if (accession.getAccession() == null) {
             throw new IllegalArgumentException("Accession cannot be null");
         }
@@ -57,11 +58,19 @@ public class MageTabCopyProcess implements ConanProcess {
         }
         
         //TODO this is equivalent to accession.workFile but points to the biosd copy not the ae exp dir copy
+        getLog().debug("Checking biosamples.sampletab.path property...");
+        String path = ConanProperties.getProperty("biosamples.sampletab.path");  
+        getLog().debug("Using path "+path);
         File outdir  = new File(path, "ae");
-        outdir = new File(outdir, "GA"+accession.getAccession().substring(2));
+        outdir = new File(outdir, accession.getAccession());  
+        getLog().debug("Using outdir "+outdir.toString());
         
         MageTabFTPDownload mtftp = MageTabFTPDownload.getInstance();
-        mtftp.download(accession.getAccession().substring(2), outdir);
+        getLog().debug("Got MageTabFTPDownload instance");
+        String aeaccession = accession.getAccession().substring(2);
+        getLog().debug("Starting to download ArrayExpress submission "+aeaccession);
+        mtftp.download(aeaccession, outdir);
+        getLog().debug("Finished downloading ArrayExpress submission "+aeaccession);
         
         return true;
     }
