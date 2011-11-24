@@ -66,6 +66,7 @@ public class MageTabCopyProcess implements ConanProcess {
         getLog().debug("Using outdir "+outdir.toString());
         
         //MageTabFTPDownload mtftp = MageTabFTPDownload.getInstance();
+        getLog().debug("Before getting MageTabFTPDownload instance");
         MageTabFTPDownload mtftp = new MageTabFTPDownload();
         getLog().debug("Got MageTabFTPDownload instance");
         String aeaccession = accession.getAccession().substring(2);
