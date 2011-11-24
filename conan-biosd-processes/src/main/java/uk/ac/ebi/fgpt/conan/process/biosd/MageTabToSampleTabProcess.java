@@ -59,15 +59,21 @@ public class MageTabToSampleTabProcess implements ConanProcess {
         if (!testIfMageTabAccession(accession)) {
             throw new IllegalArgumentException("Accession must be MAGE-TAB compatible");
         }
+        getLog().debug("parameter accepted");
 
         String path = ConanProperties.getProperty("biosamples.sampletab.path");
+        getLog().debug("property biosamples.sampletab.path accepted");
         File outdir  = new File(path, "ae");
         outdir = new File(outdir, "GA"+accession.getAccession().substring(2));
         File mtfile = new File(outdir, accession.getAccession().substring(2) + ".idf.txt");
         File stfile = new File(outdir, "sampletab.pre.txt");
+
+        getLog().debug("files created");
         
         try {
+            getLog().debug("starting conversion");
 			mt2st.convert(mtfile, stfile);
+            getLog().debug("completed conversion");
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new ProcessExecutionException(999, "Error accessing files");
