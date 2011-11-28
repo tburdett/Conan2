@@ -64,11 +64,15 @@ public class MageTabToSampleTabProcess implements ConanProcess {
         String path = ConanProperties.getProperty("biosamples.sampletab.path");
         getLog().debug("property biosamples.sampletab.path accepted");
         File outdir  = new File(path, "ae");
-        outdir = new File(outdir, "GA"+accession.getAccession().substring(2));
+        outdir = new File(outdir, accession.getAccession());
         File mtfile = new File(outdir, accession.getAccession().substring(2) + ".idf.txt");
+        if (!mtfile.exists()){
+        	throw new ProcessExecutionException(997, "Non-existent input files");
+        }
         File stfile = new File(outdir, "sampletab.pre.txt");
 
-        getLog().debug("files created");
+        getLog().debug("file "+mtfile.getAbsolutePath()+" created");
+        getLog().debug("file "+stfile.getAbsolutePath()+" created");
         
         try {
             getLog().debug("starting conversion");
