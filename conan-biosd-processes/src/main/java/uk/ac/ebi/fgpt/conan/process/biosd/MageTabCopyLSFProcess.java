@@ -84,7 +84,7 @@ public class MageTabCopyLSFProcess extends AbstractLSFProcess {
 		}
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() + " "
-				+ accession.getAccession() + " " + outdir.getAbsolutePath();
+				+ accession.getAccession().substring(2) + " " + outdir.getAbsolutePath();
 		getLog().debug("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}
