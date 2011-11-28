@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Map;
 
 @ServiceProvider
+@Deprecated
 public class MageTabCopyProcess implements ConanProcess {
     private final Collection<ConanParameter> params;
     private final SampleTabAccessionParameter accessionParameter;
