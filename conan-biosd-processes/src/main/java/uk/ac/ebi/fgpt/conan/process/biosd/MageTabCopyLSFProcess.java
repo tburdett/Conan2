@@ -15,78 +15,90 @@ import java.util.Map;
 
 @ServiceProvider
 public class MageTabCopyLSFProcess extends AbstractLSFProcess {
-    private final Collection<ConanParameter> parameters;
-    private final SampleTabAccessionParameter accessionParameter;
+	private final Collection<ConanParameter> parameters;
+	private final SampleTabAccessionParameter accessionParameter;
 
-    private Logger log = LoggerFactory.getLogger(getClass());
+	private Logger log = LoggerFactory.getLogger(getClass());
 
-    public MageTabCopyLSFProcess() {
-        parameters = new ArrayList<ConanParameter>();
-        accessionParameter = new SampleTabAccessionParameter();
-        parameters.add(accessionParameter);
-    }
-    
-    private File getOutputDirectory(SampleTabAccessionParameter accession){
-    	String sampletabpath = ConanProperties.getProperty("biosamples.sampletab.path"); 
-    	File sampletabAE = new File(sampletabpath, "ae");
-    	File outdir = new File(sampletabAE, accession.getAccession());
-    	if (!outdir.mkdirs()){
-    		throw new RuntimeException("Unable to create directories: "+outdir.getPath());
-    	}
-    	return outdir;
-    }
+	public MageTabCopyLSFProcess() {
+		parameters = new ArrayList<ConanParameter>();
+		accessionParameter = new SampleTabAccessionParameter();
+		parameters.add(accessionParameter);
+	}
 
-    protected Logger getLog() {
-        return log;
-    }
+	private File getOutputDirectory(SampleTabAccessionParameter accession) {
+		String sampletabpath = ConanProperties
+				.getProperty("biosamples.sampletab.path");
+		File sampletabAE = new File(sampletabpath, "ae");
+		File outdir = new File(sampletabAE, accession.getAccession());
+		if (!outdir.exists()) {
+			if (!outdir.mkdirs()) {
+				throw new RuntimeException("Unable to create directories: "
+						+ outdir.getPath());
+			}
+		}
+		return outdir;
+	}
 
-    public String getName() {
-        return "updatesourcearrayexpress";
-    }
+	protected Logger getLog() {
+		return log;
+	}
 
-    public Collection<ConanParameter> getParameters() {
-        return parameters;
-    }
+	public String getName() {
+		return "updatesourcearrayexpress";
+	}
 
-    protected String getComponentName() {
-        return LSFProcess.UNSPECIFIED_COMPONENT_NAME;
-    }
+	public Collection<ConanParameter> getParameters() {
+		return parameters;
+	}
 
-    protected String getCommand(Map<ConanParameter, String> parameters) throws IllegalArgumentException {
-        getLog().debug("Executing " + getName() + " with the following parameters: " + parameters.toString());
+	protected String getComponentName() {
+		return LSFProcess.UNSPECIFIED_COMPONENT_NAME;
+	}
 
-        // deal with parameters
-        SampleTabAccessionParameter accession = new SampleTabAccessionParameter();
-        accession.setAccession(parameters.get(accessionParameter));
-        if (accession.getAccession() == null) {
-            throw new IllegalArgumentException("Accession cannot be null");
-        }
-        
-    	String sampletabpath = ConanProperties.getProperty("biosamples.sampletab.path"); 
-    	String scriptpath = ConanProperties.getProperty("biosamples.script.path");
-    	File script = new File(scriptpath, "MageTabFTPDownload.sh");
-    	File outdir = getOutputDirectory(accession);
-        // main command to execute script
-        String mainCommand = script.getAbsolutePath()+" "+accession.getAccession()+" "+outdir.getAbsolutePath();
-        getLog().debug("Command is: <"+mainCommand+">");
-        return mainCommand;
-    }
+	protected String getCommand(Map<ConanParameter, String> parameters)
+			throws IllegalArgumentException {
+		getLog().debug(
+				"Executing " + getName() + " with the following parameters: "
+						+ parameters.toString());
 
-    protected String getLSFOutputFilePath(Map<ConanParameter, String> parameters)
-            throws IllegalArgumentException {
-        getLog().debug("Executing " + getName() + " with the following parameters: " + parameters.toString());
+		// deal with parameters
+		SampleTabAccessionParameter accession = new SampleTabAccessionParameter();
+		accession.setAccession(parameters.get(accessionParameter));
+		if (accession.getAccession() == null) {
+			throw new IllegalArgumentException("Accession cannot be null");
+		}
 
-        // deal with parameters
-        SampleTabAccessionParameter accession = new SampleTabAccessionParameter();
-        accession.setAccession(parameters.get(accessionParameter));
-        if (accession.getAccession() == null) {
-            throw new IllegalArgumentException("Accession cannot be null");
-        }      	
-        	
-    	File outDir = getOutputDirectory(accession);
-    	File conanDir = new File(outDir, ".conan");
-    	File conanFile = new File(conanDir, getClass().getName());
-    	return conanFile.getAbsolutePath();
-    	
-    }
+		String sampletabpath = ConanProperties
+				.getProperty("biosamples.sampletab.path");
+		String scriptpath = ConanProperties
+				.getProperty("biosamples.script.path");
+		File script = new File(scriptpath, "MageTabFTPDownload.sh");
+		File outdir = getOutputDirectory(accession);
+		// main command to execute script
+		String mainCommand = script.getAbsolutePath() + " "
+				+ accession.getAccession() + " " + outdir.getAbsolutePath();
+		getLog().debug("Command is: <" + mainCommand + ">");
+		return mainCommand;
+	}
+
+	protected String getLSFOutputFilePath(Map<ConanParameter, String> parameters)
+			throws IllegalArgumentException {
+		getLog().debug(
+				"Executing " + getName() + " with the following parameters: "
+						+ parameters.toString());
+
+		// deal with parameters
+		SampleTabAccessionParameter accession = new SampleTabAccessionParameter();
+		accession.setAccession(parameters.get(accessionParameter));
+		if (accession.getAccession() == null) {
+			throw new IllegalArgumentException("Accession cannot be null");
+		}
+
+		File outDir = getOutputDirectory(accession);
+		File conanDir = new File(outDir, ".conan");
+		File conanFile = new File(conanDir, getClass().getName());
+		return conanFile.getAbsolutePath();
+
+	}
 }
