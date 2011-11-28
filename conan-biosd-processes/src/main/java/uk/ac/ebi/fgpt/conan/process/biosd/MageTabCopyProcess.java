@@ -78,7 +78,7 @@ public class MageTabCopyProcess implements ConanProcess {
     }
 
     public String getName() {
-        return "updatesourcearrayexpress";
+        return "updatesourcearrayexpress_deprecated";
     }
 
     public Collection<ConanParameter> getParameters() {
