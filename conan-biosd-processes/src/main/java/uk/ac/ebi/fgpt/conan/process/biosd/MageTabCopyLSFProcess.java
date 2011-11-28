@@ -9,6 +9,7 @@ import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -26,14 +27,14 @@ public class MageTabCopyLSFProcess extends AbstractLSFProcess {
 		parameters.add(accessionParameter);
 	}
 
-	private File getOutputDirectory(SampleTabAccessionParameter accession) {
+	private File getOutputDirectory(SampleTabAccessionParameter accession) throws IOException {
 		String sampletabpath = ConanProperties
 				.getProperty("biosamples.sampletab.path");
 		File sampletabAE = new File(sampletabpath, "ae");
 		File outdir = new File(sampletabAE, accession.getAccession());
 		if (!outdir.exists()) {
 			if (!outdir.mkdirs()) {
-				throw new RuntimeException("Unable to create directories: "
+				throw new IOException("Unable to create directories: "
 						+ outdir.getPath());
 			}
 		}
@@ -74,7 +75,13 @@ public class MageTabCopyLSFProcess extends AbstractLSFProcess {
 		String scriptpath = ConanProperties
 				.getProperty("biosamples.script.path");
 		File script = new File(scriptpath, "MageTabFTPDownload.sh");
-		File outdir = getOutputDirectory(accession);
+		File outdir;
+		try {
+			outdir = getOutputDirectory(accession);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException("Unable to create directories for "+accession);
+		}
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() + " "
 				+ accession.getAccession() + " " + outdir.getAbsolutePath();
@@ -95,7 +102,13 @@ public class MageTabCopyLSFProcess extends AbstractLSFProcess {
 			throw new IllegalArgumentException("Accession cannot be null");
 		}
 
-		File outDir = getOutputDirectory(accession);
+		File outDir;
+		try {
+			outDir = getOutputDirectory(accession);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException("Unable to create directories for "+accession);
+		}
 		File conanDir = new File(outDir, ".conan");
 		File conanFile = new File(conanDir, getClass().getName());
 		return conanFile.getAbsolutePath();
