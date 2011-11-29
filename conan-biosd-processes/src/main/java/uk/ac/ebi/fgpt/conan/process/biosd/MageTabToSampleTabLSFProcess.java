@@ -15,38 +15,17 @@ import java.util.Collection;
 import java.util.Map;
 
 @ServiceProvider
-public class MageTabToSampleTabLSFProcess extends AbstractLSFProcess {
-	private final Collection<ConanParameter> parameters;
-	private final SampleTabAccessionParameter accessionParameter;
+public class MageTabToSampleTabLSFProcess extends AbstractBioSDLSFProcess {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	public MageTabToSampleTabLSFProcess() {
-		parameters = new ArrayList<ConanParameter>();
-		accessionParameter = new SampleTabAccessionParameter();
-		parameters.add(accessionParameter);
-	}
 
-	private File getOutputDirectory(SampleTabAccessionParameter accession) throws IOException {
-		String sampletabpath = ConanProperties
-				.getProperty("biosamples.sampletab.path");
-		File sampletabAE = new File(sampletabpath, "ae");
-		File outdir = new File(sampletabAE, accession.getAccession());
-		if (!outdir.exists()) {
-			if (!outdir.mkdirs()) {
-				throw new IOException("Unable to create directories: "
-						+ outdir.getPath());
-			}
-		}
-		return outdir;
+	public String getName() {
+		return "topresampletabarrayexpress";
 	}
 
 	protected Logger getLog() {
 		return log;
-	}
-
-	public String getName() {
-		return "topresampletabarrayexpress";
 	}
 
 	public Collection<ConanParameter> getParameters() {
@@ -95,31 +74,5 @@ public class MageTabToSampleTabLSFProcess extends AbstractLSFProcess {
 				+ idfFile.getAbsolutePath() + " " + sampletabFile.getAbsolutePath();
 		getLog().debug("Command is: <" + mainCommand + ">");
 		return mainCommand;
-	}
-
-	protected String getLSFOutputFilePath(Map<ConanParameter, String> parameters)
-			throws IllegalArgumentException {
-		getLog().debug(
-				"Executing " + getName() + " with the following parameters: "
-						+ parameters.toString());
-
-		// deal with parameters
-		SampleTabAccessionParameter accession = new SampleTabAccessionParameter();
-		accession.setAccession(parameters.get(accessionParameter));
-		if (accession.getAccession() == null) {
-			throw new IllegalArgumentException("Accession cannot be null");
-		}
-
-		File outDir;
-		try {
-			outDir = getOutputDirectory(accession);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IllegalArgumentException("Unable to create directories for "+accession);
-		}
-		File conanDir = new File(outDir, ".conan");
-		File conanFile = new File(conanDir, getClass().getName());
-		return conanFile.getAbsolutePath();
-
 	}
 }
