@@ -21,11 +21,6 @@
             <version>2.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-        	<groupId>uk.ac.ebi.fgpt</groupId>
-        	<artifactId>sampletab-converters</artifactId>
-        	<version>0.1-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 
 </project>
