@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Map;
 
 @ServiceProvider
+@Deprecated
 public class MageTabToSampleTabProcess implements ConanProcess {
     private final Collection<ConanParameter> params;
     private final SampleTabAccessionParameter accessionParameter;
@@ -90,7 +91,7 @@ public class MageTabToSampleTabProcess implements ConanProcess {
     }
 
     public String getName() {
-        return "topresampletabarrayexpress";
+        return "topresampletabarrayexpress_deprecated";
     }
 
     public Collection<ConanParameter> getParameters() {
