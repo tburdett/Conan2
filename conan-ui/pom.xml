@@ -155,7 +155,11 @@
 					<artifactId>conan-atlas-processes</artifactId>
 					<version>1.0-SNAPSHOT</version>
 				</dependency>
-				<!-- NB no biosd processes here yet -->
+				<dependency>
+					<groupId>uk.ac.ebi.fgpt</groupId>
+					<artifactId>conan-biosd-processes</artifactId>
+					<version>1.0-SNAPSHOT</version>
+				</dependency>
 			</dependencies>
 		</profile>
 
@@ -211,7 +215,11 @@
 					<artifactId>conan-atlas-processes</artifactId>
 					<version>1.0-SNAPSHOT</version>
 				</dependency>
-				<!-- NB no biosd processes here yet -->
+				<dependency>
+					<groupId>uk.ac.ebi.fgpt</groupId>
+					<artifactId>conan-biosd-processes</artifactId>
+					<version>1.0-SNAPSHOT</version>
+				</dependency>
 			</dependencies>
 		</profile>
 
@@ -261,30 +269,11 @@
 					<groupId>uk.ac.ebi.fgpt</groupId>
 					<artifactId>conan-ae2-processes</artifactId>
 					<version>1.0</version>
-					<exclusions>
-						<!-- biosd requires 4.1-SNAPSHOT -->
-						<exclusion>
-							<groupId>org.isatools</groupId>
-							<artifactId>graph2tab</artifactId>
-						</exclusion>
-						<!-- biosd requires 1.1.1-SNAPSHOT -->
-						<exclusion>
-							<groupId>uk.ac.ebi.arrayexpress2</groupId>
-							<artifactId>limpopo</artifactId>
-						</exclusion>
-					</exclusions>
 				</dependency>
 				<dependency>
 					<groupId>uk.ac.ebi.fgpt</groupId>
 					<artifactId>conan-atlas-processes</artifactId>
 					<version>1.0-SNAPSHOT</version>
-					<exclusions>
-						<!-- biosd requires 1.1.1-SNAPSHOT -->
-						<exclusion>
-							<groupId>uk.ac.ebi.arrayexpress2</groupId>
-							<artifactId>limpopo</artifactId>
-						</exclusion>
-					</exclusions>
 				</dependency>
 				<dependency>
 					<groupId>uk.ac.ebi.fgpt</groupId>
