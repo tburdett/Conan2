@@ -358,7 +358,8 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                     "submitted to ArrayExpress has " +
                     "been loaded successfully " +
                     (public_record ? "with the following details:\n\n" :
-                            "and will be kept private till the release date given below:\n\n") +
+                            "and will be kept private until the release date given below or until it is reported " +
+                                    "that the accession number has been published in a paper:\n\n") +
 
                     (accession.startsWith("E") ? "Experiment" : "Array design") + " " +
                     "name: " + name + "\n" +
