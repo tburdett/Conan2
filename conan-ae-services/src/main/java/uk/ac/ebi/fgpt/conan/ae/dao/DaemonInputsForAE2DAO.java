@@ -25,7 +25,6 @@ public class DaemonInputsForAE2DAO implements ConanDaemonInputsDAO {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-
     public Class<? extends ConanParameter> getParameterType() {
         return AccessionParameter.class;
     }
