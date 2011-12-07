@@ -11,7 +11,7 @@
     -->
 
     <!-- AE2 processes -->
-    <pipeline name="AE2 Experiment Loading" creator="natalja" daemonized="true">
+    <pipeline name="AE2 Experiment Loading" creator="natalja">
         <processes>
             <process name="validation" />
             <process name="eligibility" />
