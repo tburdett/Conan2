@@ -30,6 +30,7 @@ public class GEOCuratedValidationProcess extends AbstractAE2LSFProcess {
         parameters = new ArrayList<ConanParameter>();
         accessionParameter = new GEOCuratedAccessionParameter();
         parameters.add(accessionParameter);
+        setQueueName("production");
     }
 
     protected Logger getLog() {

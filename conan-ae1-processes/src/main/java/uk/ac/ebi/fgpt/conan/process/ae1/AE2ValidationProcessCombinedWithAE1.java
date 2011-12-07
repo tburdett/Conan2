@@ -31,6 +31,7 @@ public class AE2ValidationProcessCombinedWithAE1 extends AbstractLSFProcess {
         parameters = new ArrayList<ConanParameter>();
         accessionParameter = new MAGEMLAccessionParameter();
         parameters.add(accessionParameter);
+        setQueueName("production");
     }
 
     protected Logger getLog() {

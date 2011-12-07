@@ -25,7 +25,7 @@ import java.util.Map;
  */
 public abstract class AbstractLSFProcess implements ConanProcess {
     private String bsubPath = "bsub";
-    private String queueName = "production";
+    private String queueName = "production-rh6";
     private int monitorInterval = 15;
 
     private Logger log = LoggerFactory.getLogger(getClass());

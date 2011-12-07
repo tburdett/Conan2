@@ -30,6 +30,7 @@ public class ValidationProcess extends AbstractAE2LSFProcess {
         parameters = new ArrayList<ConanParameter>();
         accessionParameter = new AccessionParameter();
         parameters.add(accessionParameter);
+        setQueueName("production");
     }
 
     protected Logger getLog() {
