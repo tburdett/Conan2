@@ -37,6 +37,9 @@ public class QMCalculationProcess extends AbstractAE2LSFProcess {
         return log;
     }
 
+    protected int getMemoryRequirement(Map<ConanParameter, String> parameterStringMap) {
+        return 128;
+    }
 
     public String getName() {
         return "QM calculation";
