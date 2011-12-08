@@ -292,7 +292,7 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
 
         if (getCurrentState() == ConanTask.State.ABORTED) {
             // stopped tasks must never re-execute
-            throw new TaskExecutionException("Task has previously stopped, and cannot be re-executed");
+            throw new TaskExecutionException("This task has been aborted, so will not execute.");
         }
         else if (getCurrentState().compareTo(State.SUBMITTED) < 0) {
             // this is task hasn't ever been submitted
