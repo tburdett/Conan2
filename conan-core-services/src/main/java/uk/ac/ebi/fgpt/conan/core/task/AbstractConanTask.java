@@ -226,9 +226,9 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
             }
             throw new TaskExecutionException(e);
         }
-        catch (RuntimeException e) {
+        catch (Exception e) {
             // log this exception
-            getLog().error("A runtime exception occurred whilst executing task '" + getId() + "'", e);
+            getLog().error("An exception occurred whilst executing task '" + getId() + "'", e);
             getLog().error("Process '" + getCurrentProcess().getName() + "' failed to execute");
             fireProcessFailedEvent(1);
             throw new TaskExecutionException(e);

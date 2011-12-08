@@ -3,6 +3,7 @@ package uk.ac.ebi.fgpt.conan.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
+import uk.ac.ebi.fgpt.conan.dao.ConanTaskDAO;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanTask;
@@ -30,39 +31,46 @@ public class DefaultSubmissionService implements ConanSubmissionService {
     private final ExecutorService taskExecutor;
     private final int coolingOffPeriod;
 
-    private ConanTaskService conanTaskService;
+    private final Set<ConanTask<? extends ConanPipeline>> executingTasks;
+
+    private ConanTaskDAO conanTaskDAO;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
     public DefaultSubmissionService(int numberOfParallelJobs, int coolingOffPeriod) {
         this.taskExecutor = Executors.newFixedThreadPool(numberOfParallelJobs);
         this.coolingOffPeriod = coolingOffPeriod;
+        this.executingTasks = new HashSet<ConanTask<? extends ConanPipeline>>();
     }
 
     protected Logger getLog() {
         return log;
     }
 
-    public ConanTaskService getTaskService() {
-        return conanTaskService;
+    public ConanTaskDAO getConanTaskDAO() {
+        return conanTaskDAO;
     }
 
-    public void setTaskService(ConanTaskService conanTaskService) {
-        Assert.notNull(conanTaskService, "A ConanTaskService must be supplied");
-        this.conanTaskService = conanTaskService;
+    public void setConanTaskDAO(ConanTaskDAO conanTaskDAO) {
+        Assert.notNull(conanTaskDAO, "A ConanTaskDAO must be supplied");
+        this.conanTaskDAO = conanTaskDAO;
     }
 
-    public void submitTask(final ConanTask<? extends ConanPipeline> conanTask) throws SubmissionException {
-        log.debug("Task submission received! Task ID = " + conanTask.getId());
+    public void submitTask(ConanTask<? extends ConanPipeline> conanTask) throws SubmissionException {
+        // grab task id, executor service always grabs latest version of conanTask from task service
+        // rather than retaining a (possibly out of date) reference
+        final String taskID = conanTask.getId();
+        log.debug("Task submission received! Task ID = " + taskID);
 
         ConanTask duplicate = checkForDuplication(conanTask);
         if (duplicate == null) {
             // wrap task in a callable and submit
             taskExecutor.submit(new Callable<Boolean>() {
                 public Boolean call() throws Exception {
+                    ConanTask<? extends ConanPipeline> executingTask = null;
                     try {
                         // all tasks go into a holding pattern for a while before executing
-                        Date creationDate = conanTask.getCreationDate();
+                        Date creationDate = getConanTaskDAO().getTask(taskID).getCreationDate();
                         Date allowedStartDate = new Date(System.currentTimeMillis() - (coolingOffPeriod * 1000));
                         while (creationDate.after(allowedStartDate)) {
                             synchronized (this) {
@@ -72,11 +80,19 @@ public class DefaultSubmissionService implements ConanSubmissionService {
                         }
 
                         // now we've waited for the prescribed cooling off period, execute
-                        return conanTask.execute();
+                        executingTask = getConanTaskDAO().getTask(taskID);
+                        executingTasks.add(executingTask);
+                        return executingTask.execute();
                     }
                     catch (Exception e) {
-                        getLog().error("There was a problem executing task '" + conanTask.getId() + "'", e);
+                        getLog().error("There was a problem executing task '" + taskID + "'", e);
                         throw e;
+                    }
+                    finally {
+                        if (executingTask != null) {
+                            // this executingTask has finished
+                            executingTasks.remove(executingTask);
+                        }
                     }
                 }
             });
@@ -110,24 +126,28 @@ public class DefaultSubmissionService implements ConanSubmissionService {
         submitTask(conanTask);
     }
 
+    public Set<ConanTask<? extends ConanPipeline>> getExecutingTasks() {
+        return Collections.unmodifiableSet(executingTasks);
+    }
+
     /**
      * On startup, this submission service recovers any pre-existing and running tasks and immediately resubmits them
      * with {@link #resubmitTask(uk.ac.ebi.fgpt.conan.model.ConanTask)}.  This allows any tasks that were running at the
      * previous shutdown (or failure) to be recovered wherever possible.
      */
     public void init() {
-        Assert.notNull(getTaskService(), "A ConanTaskDAO must be provided");
+        Assert.notNull(getConanTaskDAO(), "A ConanTaskDAO must be provided");
 
         long start = System.currentTimeMillis();
         getLog().debug("Startup of " + getClass().getSimpleName() + " triggered, recovering running tasks");
         List<ConanTask<? extends ConanPipeline>> recoveredTasks = new ArrayList<ConanTask<? extends ConanPipeline>>();
         // add any pending tasks that were submitted and never started (i.e. not those that are paused or failed)
-        for (ConanTask pendingTask : getTaskService().getPendingTasks()) {
+        for (ConanTask pendingTask : getConanTaskDAO().getPendingTasks()) {
             if (pendingTask.getCurrentState() == ConanTask.State.SUBMITTED) {
                 recoveredTasks.add(pendingTask);
             }
         }
-        recoveredTasks.addAll(getTaskService().getRunningTasks());
+        recoveredTasks.addAll(getConanTaskDAO().getRunningTasks());
         for (ConanTask<? extends ConanPipeline> recoveredTask : recoveredTasks) {
             // todo - AE1 hack to prevent resubmission, remove this before full release!
             if (recoveredTask.getCurrentProcess() != null &&
@@ -195,7 +215,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
         // comparator that checks for tasks that are equal or have all the same params
         TaskParametersComparator comparator = new TaskParametersComparator();
 
-        for (ConanTask executingTask : getTaskService().getRunningTasks()) {
+        for (ConanTask executingTask : getConanTaskDAO().getRunningTasks()) {
             // don't compare tasks if they have the same ID
             if (!task.getId().equals(executingTask.getId())) {
                 // compare all parameters of executing task to our new task

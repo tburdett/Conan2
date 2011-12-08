@@ -4,6 +4,8 @@ import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanTask;
 import uk.ac.ebi.fgpt.conan.service.exception.SubmissionException;
 
+import java.util.Set;
+
 /**
  * A service that is used to submit new {@link uk.ac.ebi.fgpt.conan.model.ConanTask}s to Conan.  A submission service
  * can only run tasks, but it has awareness of calibrated {@link uk.ac.ebi.fgpt.conan.model.ConanPipeline}s and their
@@ -36,4 +38,14 @@ public interface ConanSubmissionService {
      *          if the task duplicates another or if this service is no longer accepting submissions
      */
     void resubmitTask(ConanTask<? extends ConanPipeline> conanTask) throws SubmissionException;
+
+    /**
+     * Returns the set of tasks that have been submitted to Conan and that are currently executing.  Pending tasks, or
+     * tasks that are still in the holding queue prior to execution, should not be returned here, but any task that has
+     * had it's {@link uk.ac.ebi.fgpt.conan.model.ConanTask#execute()} method called and has not completed execution
+     * should be returned by this method.
+     *
+     * @return the set of currently executing Conan tasks.
+     */
+    Set<ConanTask<? extends ConanPipeline>> getExecutingTasks();
 }
