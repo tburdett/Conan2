@@ -16,7 +16,7 @@
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>
-            conan-dao.xml
+            WEB-INF/conan-dao.xml
             WEB-INF/conan-service.xml
         </param-value>
     </context-param>
