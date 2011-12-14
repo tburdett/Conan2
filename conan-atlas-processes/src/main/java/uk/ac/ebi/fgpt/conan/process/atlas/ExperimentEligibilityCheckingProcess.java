@@ -233,33 +233,53 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
           throw pex;
         }
 
-        //4 factor types are from controlled vocabulary
+        //6 and 7 factor types are from controlled vocabulary and not repeated
         boolean factorTypesFromCV = true;
-        List<String> missedFactorType = new ArrayList<String>();
+        boolean factorTypesVariable = true;
+        List<String> missedFactorTypes = new ArrayList<String>();
+        List<String> repeatedFactorTypes = new ArrayList<String>();
         for (String factorType : investigation.IDF.experimentalFactorType) {
           if (!controlledVocabularyDAO
               .getAtlasFactorTypes().contains(factorType.toLowerCase())) {
             factorTypesFromCV = false;
-            missedFactorType.add(factorType);
+            missedFactorTypes.add(factorType);
+          if (repeatedFactorTypes.contains(factorType))
+              factorTypesVariable = false;
+          repeatedFactorTypes.add(factorType);
           }
         }
         if (!factorTypesFromCV) {
           exitValue = 1;
           log.write(
-              "Experiment have Factor Types that are not in controlled vocabulary:" +
-                  missedFactorType + "\n");
+              "Experiment has Factor Types that are not in controlled vocabulary:" +
+                  missedFactorTypes + "\n");
           System.out.println(
-              "Experiment have Factor Types that are not in controlled vocabulary:" +
-                  missedFactorType);
+              "Experiment has Factor Types that are not in controlled vocabulary:" +
+                  missedFactorTypes);
           ProcessExecutionException pex =
               new ProcessExecutionException(exitValue,
-                                            "Experiment have Factor Types that are not in controlled vocabulary:" +
-                                                missedFactorType);
+                                            "Experiment has Factor Types that are not in controlled vocabulary:" +
+                                                missedFactorTypes);
 
           String[] errors = new String[1];
           errors[0] =
-              "Experiment have Factor Types that are not in controlled vocabulary:" +
-                  missedFactorType;
+              "Experiment has Factor Types that are not in controlled vocabulary:" +
+                  missedFactorTypes;
+          pex.setExceptionCausesAbort();
+          pex.setProcessOutput(errors);
+          throw pex;
+        }
+
+        if (!factorTypesVariable) {
+          exitValue = 1;
+          log.write("Experiment has repeated Factor Types.\n");
+          System.out.println("Experiment has repeated Factor Types.");
+          ProcessExecutionException pex =
+              new ProcessExecutionException(exitValue,
+                                            "Experiment has repeated Factor Types");
+
+          String[] errors = new String[1];
+          errors[0] = "Experiment has repeated Factor Types";
           pex.setExceptionCausesAbort();
           pex.setProcessOutput(errors);
           throw pex;
@@ -453,7 +473,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 " - ChIP-chip by array;\n" +
                 "4. Experiments is not two-channel;\n" +
                 "5. Experiment has factor values;\n" +
-                "6. Factor types are from controlled vocabulary.");
+                "6. Factor types are from controlled vocabulary;\n" +
+                "7. Factor types are variable (not repeated).");
         log.close();
       }
       catch (IOException e) {
@@ -748,7 +769,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 "ChIP-chip by array;\n" +
                 "4. Two-channel experiments - can't be loaded into Atlas;\n" +
                 "5. Experiment has factor values;\n" +
-                "6. Factor types are from controlled vocabulary.");
+                "6. Factor types are from controlled vocabulary;\n" +
+                "7. Factor types are variable (not repeated).");
         log.close();
       }
       catch (IOException e) {
