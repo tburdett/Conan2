@@ -243,10 +243,10 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
               .getAtlasFactorTypes().contains(factorType.toLowerCase())) {
             factorTypesFromCV = false;
             missedFactorTypes.add(factorType);
+          }
           if (repeatedFactorTypes.contains(factorType))
               factorTypesVariable = false;
           repeatedFactorTypes.add(factorType);
-          }
         }
         if (!factorTypesFromCV) {
           exitValue = 1;
@@ -622,26 +622,59 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       }
 
       //Ic factor types are from controlled vocabulary
+      System.out.println("FACTOR TYPES\n");
       boolean factorTypesFromCV = true;
-      List<String> missedFactorType = new ArrayList<String>();
-      for (String factorType : investigation.IDF.experimentalFactorType) {
-        if (!controlledVocabularyDAO
-            .getAtlasFactorTypes().contains(factorType)) {
-          factorTypesFromCV = false;
-          missedFactorType.add(factorType);
+        boolean factorTypesVariable = true;
+        List<String> missedFactorTypes = new ArrayList<String>();
+        List<String> repeatedFactorTypes = new ArrayList<String>();
+        for (String factorType : investigation.IDF.experimentalFactorType) {
+          if (!controlledVocabularyDAO
+              .getAtlasFactorTypes().contains(factorType.toLowerCase())) {
+            factorTypesFromCV = false;
+            missedFactorTypes.add(factorType);
+          }
+                      if (repeatedFactorTypes.contains(factorType)) {
+              factorTypesVariable = false;
+          }
+          repeatedFactorTypes.add(factorType);
+          System.out.println("FT"+factorType+"\n");
         }
-      }
-      if (!factorTypesFromCV) {
-        result = false;
-        log.write(
-            "Atlas Eligibility Check: experiment have Factor Types that are not in controlled vocabulary:" +
-                missedFactorType + "\n");
-        System.out.println(
-            "Atlas Eligibility Check:experiment have Factor Types that are not in controlled vocabulary:" +
-                missedFactorType);
-        throw new ProcessExecutionException(1,
-                                            "Atlas Eligibility Check: experiment have Factor Types that are not in controlled vocabulary");
-      }
+        if (!factorTypesFromCV) {
+
+          log.write(
+              "Experiment has Factor Types that are not in controlled vocabulary:" +
+                  missedFactorTypes + "\n");
+          System.out.println(
+              "Experiment has Factor Types that are not in controlled vocabulary:" +
+                  missedFactorTypes);
+          ProcessExecutionException pex =
+              new ProcessExecutionException(1,
+                                            "Experiment has Factor Types that are not in controlled vocabulary:" +
+                                                missedFactorTypes);
+
+          String[] errors = new String[1];
+          errors[0] =
+              "Experiment has Factor Types that are not in controlled vocabulary:" +
+                  missedFactorTypes;
+          pex.setExceptionCausesAbort();
+          pex.setProcessOutput(errors);
+          throw pex;
+        }
+
+        if (!factorTypesVariable) {
+
+          log.write("Experiment has repeated Factor Types.\n");
+          System.out.println("Experiment has repeated Factor Types.");
+          ProcessExecutionException pex =
+              new ProcessExecutionException(1,
+                                            "Experiment has repeated Factor Types");
+
+          String[] errors = new String[1];
+          errors[0] = "Experiment has repeated Factor Types";
+          pex.setExceptionCausesAbort();
+          pex.setProcessOutput(errors);
+          throw pex;
+        }
 
       // II check: array design is in Atlas
       for (String arrayDesign : ArrayDesignAccessions) {
