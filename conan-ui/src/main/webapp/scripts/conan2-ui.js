@@ -74,6 +74,7 @@ function configureUI() {
         iframeTarget:   '#batch_fileupload_response_iframe',
         beforeSubmit:   attachAdditionalBatchData,
         success:        displayBatchSubmitDialog,
+        error:          displayBatchSubmitErrorDialog,
         resetForm:      true,
         clearForm:      true
     };
@@ -1045,6 +1046,15 @@ function displayBatchStopDialog() {
         $("#conan-batch-stop-dialog-message").html("You have selected to remove " + i + " tasks.");
         $("#conan-batch-stop-dialog").dialog("open");
     }
+}
+
+function displayBatchSubmitErrorDialog(a,b,c) {
+    // batch submission file upload failed - inform user by showing the dialog
+    var errorMessage = "Batch file upload failed: this can sometimes happen due to a problem " +
+        "communicating with the server.  Please retry your submission.  If this problem repeatedly occurs, " +
+        "please inform the system administrator.<br/>[" + c + "]<br/>";
+    $("#conan-alert-message-text").html(errorMessage);
+    $("#conan-alert-message").dialog("open");
 }
 
 /**
