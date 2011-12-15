@@ -71,6 +71,7 @@ function configureUI() {
     // bind ajaxForm plugin to batch form
     var options = {
         target:         '#batch_fileupload_response',
+        iframeTarget:   '#batch_fileupload_response_iframe',
         beforeSubmit:   attachAdditionalBatchData,
         success:        displayBatchSubmitDialog,
         resetForm:      true,
@@ -117,16 +118,16 @@ function configureUI() {
                                         });
 
     // add extra classes to search boxes
-    $(".dataTables_filter > input").addClass("ui-widget ui-widget-content");
+    $(".dataTables_filter input").addClass("ui-widget ui-widget-content");
 
     // add search icon after this
-    $(".dataTables_filter > input").after("<span class=\"ui-icon ui-icon-search\"></span>");
+    $(".dataTables_filter input").after("<span class=\"ui-icon ui-icon-search\"></span>");
 
     // add extra classes to calendar boxes
-    $(".dataTables_calendar > input").addClass("ui-widget ui-widget-content");
+    $(".dataTables_calendar input").addClass("ui-widget ui-widget-content");
 
     // add calendar icon to calendar boxes
-    $(".dataTables_calendar > input").after("<span class=\"ui-icon ui-icon-calendar\"></span>");
+    $(".dataTables_calendar input").after("<span class=\"ui-icon ui-icon-calendar\"></span>");
 
     // add datepickers
     $("#conan-date-from-search").datepicker();
@@ -1021,7 +1022,7 @@ function displayMultiSubmitDialog() {
 function displayBatchSubmitDialog(responseText) {
     // extract json text from response
     var jsonText = $("#batch_fileupload_response").text();
-    var json = jQuery.parseJSON(jsonText);
+    var json = $.parseJSON(jsonText);
     // set generated batch
     generatedBatch = json;
     var requestCount = json.requests.length;

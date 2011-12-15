@@ -86,12 +86,10 @@ public class BatchController {
      * @return a batch response bean describing the outcome of batch generation
      */
     @RequestMapping(value = "/multi", method = RequestMethod.POST)
-    public
-    @ResponseBody
-    BatchResponseBean generateBatchSubmissionFromString(@RequestParam String restApiKey,
-                                                        @RequestParam String pipeline,
-                                                        @RequestParam int startingProcessIndex,
-                                                        @RequestParam String multiParams) {
+    public @ResponseBody BatchResponseBean generateBatchSubmissionFromString(@RequestParam String restApiKey,
+                                                                             @RequestParam String pipeline,
+                                                                             @RequestParam int startingProcessIndex,
+                                                                             @RequestParam String multiParams) {
         getLog().debug("Received post request for string: " + multiParams + ", pipeline " + pipeline);
 
         // get the user, identified by their rest api key
@@ -149,16 +147,14 @@ public class BatchController {
      * @throws java.io.IOException if the batchFile posted could not be read
      */
     @RequestMapping(value = "/batch", method = RequestMethod.POST)
-    public
-    @ResponseBody
-    String generateBatchSubmissionFromFile(
+    public @ResponseBody String generateBatchSubmissionFromFile(
             @RequestParam String restApiKey,
             @RequestParam String pipeline,
             @RequestParam int startingProcessIndex,
             @RequestParam MultipartFile batchFile)
             throws IOException {
-        getLog().debug(
-                "Received post request including file: " + batchFile.getOriginalFilename() + ", pipeline " + pipeline);
+        getLog().debug("Received post request including file: " + batchFile.getOriginalFilename() + ", " +
+                               "pipeline " + pipeline);
 
         // get the user, identified by their rest api key
         ConanUser conanUser = getUserService().getUserByRestApiKey(restApiKey);
@@ -168,7 +164,7 @@ public class BatchController {
         File uploadedFile = null;
         File uploadedDir = null;
 
-        boolean uploadOK = false;
+        boolean uploadOK = true;
         boolean pipelineAcceptsBatches = false;
         List<SubmissionRequestBean> submissions = new ArrayList<SubmissionRequestBean>();
 
@@ -177,13 +173,20 @@ public class BatchController {
             String origName = batchFile.getOriginalFilename();
             String batchFileName = origName.substring(0, origName.indexOf("."));
             uploadedDir = new File(tempDir, batchFileName);
+            getLog().debug("Upload directory for batch file: " + uploadedDir.getAbsolutePath());
             if (!uploadedDir.exists()) {
-                uploadedDir.mkdirs();
+                getLog().debug("Creating directory " + uploadedDir.getAbsolutePath() + "...");
+                if (uploadedDir.mkdirs()) {
+                    getLog().debug("Created " + uploadedDir.getAbsolutePath() + " ok!");
+                }
+                else {
+                    getLog().error("Failed to create " + uploadedDir.getAbsolutePath());
+                    uploadOK = false;
+                }
             }
             uploadedFile = new File(uploadedDir, batchFile.getOriginalFilename());
+            getLog().debug("Transferring uploaded file to " + uploadedFile.getAbsolutePath());
             batchFile.transferTo(uploadedFile);
-
-            uploadOK = true;
 
             // now, before we do anything else check out pipeline will accept this batch
             ConanPipeline p = getPipelineService().getPipeline(conanUser, pipeline);
@@ -195,6 +198,7 @@ public class BatchController {
 
             // now, read the contents of our file to extract accessions
             if (uploadOK && pipelineAcceptsBatches) {
+                getLog().debug("Upload completed OK, pipeline can accept batch submssions, so generating requests...");
                 List<String> paramValues = new ArrayList<String>();
                 BufferedReader reader = new BufferedReader(new FileReader(uploadedFile));
                 String nextParamValue;
@@ -204,10 +208,16 @@ public class BatchController {
                         paramValues.add(nextParamValue);
                     }
                 }
+                getLog().debug("All uploaded content read, there were " + paramValues.size() + " lines of content");
 
                 // once all accessions are read, close the reader and delete the file
                 reader.close();
-                uploadedFile.delete();
+                if (uploadedFile.delete()) {
+                    getLog().debug("Read all content, deleted uploaded file");
+                }
+                else {
+                    getLog().warn("Failed to delete uploaded file " + uploadedFile.getAbsolutePath());
+                }
 
                 // now create a new submission request for each accession
                 for (String paramValue : paramValues) {
@@ -220,25 +230,34 @@ public class BatchController {
                     request.setRestApiKey(restApiKey);
                     submissions.add(request);
                 }
+
+                BatchResponseBean response = new BatchResponseBean(uploadOK, pipelineAcceptsBatches, submissions);
+                StringWriter out = new StringWriter();
+                JsonFactory f = new MappingJsonFactory();
+                JsonGenerator g = f.createJsonGenerator(out);
+                g.writeObject(response);
+                return out.toString();
+            }
+            else {
+                getLog().error("File was not successfully uploaded");
+                BatchResponseBean response = new BatchResponseBean(uploadOK, pipelineAcceptsBatches, submissions);
+                StringWriter out = new StringWriter();
+                JsonFactory f = new MappingJsonFactory();
+                JsonGenerator g = f.createJsonGenerator(out);
+                g.writeObject(response);
+                return out.toString();
             }
         }
         finally {
             if (uploadedDir != null) {
                 if (recursivelyDelete(uploadedDir)) {
-                    log.debug("Deleted " + uploadedDir + " ok.");
+                    getLog().debug("Deleted " + uploadedDir + " ok.");
                 }
                 else {
-                    log.warn("Failed to delete " + uploadedDir);
+                    getLog().warn("Failed to delete " + uploadedDir);
                 }
             }
         }
-
-        BatchResponseBean response = new BatchResponseBean(uploadOK, pipelineAcceptsBatches, submissions);
-        StringWriter out = new StringWriter();
-        JsonFactory f = new MappingJsonFactory();
-        JsonGenerator g = f.createJsonGenerator(out);
-        g.writeObject(response);
-        return out.toString();
     }
 
     /**
