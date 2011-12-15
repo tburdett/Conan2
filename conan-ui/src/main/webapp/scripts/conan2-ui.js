@@ -71,7 +71,6 @@ function configureUI() {
     // bind ajaxForm plugin to batch form
     var options = {
         target:         '#batch_fileupload_response',
-        iframeTarget:   '#batch_fileupload_response_iframe',
         beforeSubmit:   attachAdditionalBatchData,
         success:        displayBatchSubmitDialog,
         error:          displayBatchSubmitErrorDialog,
