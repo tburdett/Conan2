@@ -27,7 +27,7 @@
     <pipeline name="BioSamples from IMSR" creator="faulcon">
         <processes>
             <process name="updatesourceimsr" displayName="update IMSR source raw.tab.txt" />
-            <process name="topresampletabimsrs" displayName="IMSR raw.tab.txt to sampletab.pre.txt" />
+            <process name="topresampletabimsr" displayName="IMSR raw.tab.txt to sampletab.pre.txt" />
             <process name="accessionsampletab" displayName="accession sampletab.pre.txt to sampletab.txt" />
             <!--
             <process name="toftp" displayName="copy to FTP site" />
