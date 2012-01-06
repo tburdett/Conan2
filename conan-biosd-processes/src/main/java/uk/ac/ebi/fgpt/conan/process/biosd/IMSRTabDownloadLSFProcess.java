@@ -44,6 +44,29 @@ public class IMSRTabDownloadLSFProcess extends AbstractBioSDLSFProcess {
 		//For the moment, it is hardcoded here.
 		//TODO unhardcode this
 		int accessionid = 0;
+		/*
+		GMS-JAX
+		GMS-HAR
+		GMS-MMRRC
+		GMS-ORNL
+		GMS-CARD
+		GMS-EM
+		GMS-NMICE
+		GMS-RBRC
+		GMS-NCIMR
+		GMS-CMMR
+		GMS-APB
+		GMS-EMS
+		GMS-HLB
+		GMS-NIG
+		GMS-TAC
+		GMS-MUGEN
+		GMS-TIGM
+		GMS-KOMP
+		GMS-RMRC-NLAC
+		GMS-OBS
+		GMS-WTSI
+		 */
 		
 		if      (accession.equals("GMS-JAX")) accessionid = 1;
 		else if (accession.equals("GMS-HAR")) accessionid = 2;
