@@ -91,7 +91,7 @@ public class IMSRTabDownloadLSFProcess extends AbstractBioSDLSFProcess {
 		else if (accession.equals("GMS-WTSI")) accessionid = 26;
 
 		if (accessionid == 0) {
-			throw new IllegalArgumentException("Accession is not valid");
+			throw new IllegalArgumentException("Accession ("+accession+") is not valid");
 		}
 
 		String scriptpath = ConanProperties
