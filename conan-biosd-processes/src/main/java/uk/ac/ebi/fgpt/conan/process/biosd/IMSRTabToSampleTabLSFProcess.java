@@ -61,7 +61,7 @@ public class IMSRTabToSampleTabLSFProcess extends AbstractBioSDLSFProcess {
 			throw new IllegalArgumentException("Unable to create directories for "+accession);
 		}
 		
-		String imsrTabFilename = accession.getAccession().substring(2)+".idf.txt";
+		String imsrTabFilename = "raw.tab.txt";
 		File imsrTabFile = new File(outdir, imsrTabFilename);
 		if (!imsrTabFile.exists()){
 			throw new IllegalArgumentException("IMSR Tab file does not exist for "+accession);			
