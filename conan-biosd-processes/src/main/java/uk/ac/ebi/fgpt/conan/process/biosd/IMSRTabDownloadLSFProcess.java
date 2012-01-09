@@ -68,30 +68,30 @@ public class IMSRTabDownloadLSFProcess extends AbstractBioSDLSFProcess {
 		GMS-WTSI
 		 */
 		
-		if      (accession.equals("GMS-JAX")) accessionid = 1;
-		else if (accession.equals("GMS-HAR")) accessionid = 2;
-		else if (accession.equals("GMS-MMRRC")) accessionid = 3;
-		else if (accession.equals("GMS-ORNL")) accessionid = 4;
-		else if (accession.equals("GMS-CARD")) accessionid = 5;
-		else if (accession.equals("GMS-EM")) accessionid = 6;
-		else if (accession.equals("GMS-NMICE")) accessionid = 7;
-		else if (accession.equals("GMS-RBRC")) accessionid = 9;
-		else if (accession.equals("GMS-NCIMR")) accessionid = 10;
-		else if (accession.equals("GMS-CMMR")) accessionid = 11;
-		else if (accession.equals("GMS-APB")) accessionid = 12;
-		else if (accession.equals("GMS-EMS")) accessionid = 13;
-		else if (accession.equals("GMS-HLB")) accessionid = 14;
-		else if (accession.equals("GMS-NIG")) accessionid = 17;
-		else if (accession.equals("GMS-TAC")) accessionid = 20;
-		else if (accession.equals("GMS-MUGEN")) accessionid = 21;
-		else if (accession.equals("GMS-TIGM")) accessionid = 22; //This is the really big one
-		else if (accession.equals("GMS-KOMP")) accessionid = 23;
-		else if (accession.equals("GMS-RMRC-NLAC")) accessionid = 24;
-		else if (accession.equals("GMS-OBS")) accessionid = 25;
-		else if (accession.equals("GMS-WTSI")) accessionid = 26;
+		if      (accession.getAccession().equals("GMS-JAX")) accessionid = 1;
+		else if (accession.getAccession().equals("GMS-HAR")) accessionid = 2;
+		else if (accession.getAccession().equals("GMS-MMRRC")) accessionid = 3;
+		else if (accession.getAccession().equals("GMS-ORNL")) accessionid = 4;
+		else if (accession.getAccession().equals("GMS-CARD")) accessionid = 5;
+		else if (accession.getAccession().equals("GMS-EM")) accessionid = 6;
+		else if (accession.getAccession().equals("GMS-NMICE")) accessionid = 7;
+		else if (accession.getAccession().equals("GMS-RBRC")) accessionid = 9;
+		else if (accession.getAccession().equals("GMS-NCIMR")) accessionid = 10;
+		else if (accession.getAccession().equals("GMS-CMMR")) accessionid = 11;
+		else if (accession.getAccession().equals("GMS-APB")) accessionid = 12;
+		else if (accession.getAccession().equals("GMS-EMS")) accessionid = 13;
+		else if (accession.getAccession().equals("GMS-HLB")) accessionid = 14;
+		else if (accession.getAccession().equals("GMS-NIG")) accessionid = 17;
+		else if (accession.getAccession().equals("GMS-TAC")) accessionid = 20;
+		else if (accession.getAccession().equals("GMS-MUGEN")) accessionid = 21;
+		else if (accession.getAccession().equals("GMS-TIGM")) accessionid = 22; //This is the really big one
+		else if (accession.getAccession().equals("GMS-KOMP")) accessionid = 23;
+		else if (accession.getAccession().equals("GMS-RMRC-NLAC")) accessionid = 24;
+		else if (accession.getAccession().equals("GMS-OBS")) accessionid = 25;
+		else if (accession.getAccession().equals("GMS-WTSI")) accessionid = 26;
 
 		if (accessionid == 0) {
-			throw new IllegalArgumentException("Accession ("+accession+") is not valid");
+			throw new IllegalArgumentException("Accession ("+accession.getAccession()+") is not valid");
 		}
 
 		String scriptpath = ConanProperties
@@ -103,7 +103,7 @@ public class IMSRTabDownloadLSFProcess extends AbstractBioSDLSFProcess {
 			outdir = getOutputDirectory(accession);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IllegalArgumentException("Unable to create directories for "+accession);
+			throw new IllegalArgumentException("Unable to create directories for "+accession.getAccession());
 		}
 		outfile = new File(outdir, "raw.tab.txt");
 		

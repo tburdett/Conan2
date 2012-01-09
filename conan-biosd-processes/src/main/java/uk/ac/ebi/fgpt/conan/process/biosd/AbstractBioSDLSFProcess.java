@@ -18,6 +18,12 @@ public abstract class AbstractBioSDLSFProcess extends AbstractLSFProcess {
 	protected final Collection<ConanParameter> parameters;
 	protected final SampleTabAccessionParameter accessionParameter;
 
+	private String getPathPrefix(SampleTabAccessionParameter accession){
+		if (accession.getAccession().startsWith("GMS-")) return "imsr";
+		else if (accession.getAccession().startsWith("GAE-")) return "ae";
+		else throw new IllegalArgumentException("Unable to get path prefix for "+accession.getAccession());
+	}
+	
 	public AbstractBioSDLSFProcess() {
 		parameters = new ArrayList<ConanParameter>();
 		accessionParameter = new SampleTabAccessionParameter();
@@ -27,8 +33,8 @@ public abstract class AbstractBioSDLSFProcess extends AbstractLSFProcess {
 	protected File getOutputDirectory(SampleTabAccessionParameter accession) throws IOException {
 		String sampletabpath = ConanProperties
 				.getProperty("biosamples.sampletab.path");
-		File sampletabAE = new File(sampletabpath, "ae");
-		File outdir = new File(sampletabAE, accession.getAccession());
+		File sampletab = new File(sampletabpath, getPathPrefix(accession));
+		File outdir = new File(sampletab, accession.getAccession());
 		if (!outdir.exists()) {
 			if (!outdir.mkdirs()) {
 				throw new IOException("Unable to create directories: "
