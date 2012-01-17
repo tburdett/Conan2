@@ -3,14 +3,13 @@ package uk.ac.ebi.fgpt.conan.process.biosd;
 import net.sourceforge.fluxion.spi.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.fgpt.conan.lsf.AbstractLSFProcess;
 import uk.ac.ebi.fgpt.conan.lsf.LSFProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
+import uk.ac.ebi.fgpt.conan.process.biosd.model.SampleTabAEAccessionParameter;
 import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -43,7 +42,7 @@ public class MageTabToSampleTabLSFProcess extends AbstractBioSDLSFProcess {
 						+ parameters.toString());
 
 		// deal with parameters
-		SampleTabAccessionParameter accession = new SampleTabAccessionParameter();
+		SampleTabAEAccessionParameter accession = new SampleTabAEAccessionParameter();
 		accession.setAccession(parameters.get(accessionParameter));
 		if (accession.getAccession() == null) {
 			throw new IllegalArgumentException("Accession cannot be null");
