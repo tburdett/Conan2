@@ -37,7 +37,7 @@ public class SampleTabAccessionerLSFProcess extends AbstractBioSDLSFProcess {
 
 	protected String getCommand(Map<ConanParameter, String> parameters)
 			throws IllegalArgumentException {
-		getLog().debug(
+		getLog().info(
 				"Executing " + getName() + " with the following parameters: "
 						+ parameters.toString());
 
@@ -72,7 +72,7 @@ public class SampleTabAccessionerLSFProcess extends AbstractBioSDLSFProcess {
 				+ " --database " + ConanProperties.getProperty("biosamples.accession.database")
 				+ " --username " + ConanProperties.getProperty("biosamples.accession.username")
 				+ " --password " + ConanProperties.getProperty("biosamples.accession.password");
-		getLog().debug("Command is: <" + mainCommand + ">");
+		getLog().info("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}
 }
