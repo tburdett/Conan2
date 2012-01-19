@@ -26,7 +26,6 @@
     <pipeline name="AE2 Experiment Unloading" creator="natalja">
         <processes>
             <process name="experiment unloading" />
-            <process name="unload cleanup" />
         </processes>
     </pipeline>
 
@@ -42,7 +41,6 @@
     <pipeline name="AE2 ADF Unloading" creator="natalja">
         <processes>
             <process name="adf unloading" />
-            <process name="unload cleanup" />
         </processes>
     </pipeline>
 
