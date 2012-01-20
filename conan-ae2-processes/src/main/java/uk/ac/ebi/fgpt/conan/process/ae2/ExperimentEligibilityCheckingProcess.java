@@ -1,10 +1,8 @@
 package uk.ac.ebi.fgpt.conan.process.ae2;
 
 import net.sourceforge.fluxion.spi.ServiceProvider;
-import org.mged.magetab.error.ErrorItem;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import uk.ac.ebi.arrayexpress2.magetab.exception.ParseException;
-import uk.ac.ebi.arrayexpress2.magetab.listener.ErrorItemListener;
 import uk.ac.ebi.arrayexpress2.magetab.parser.MAGETABParser;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.dao.DatabaseConanControlledVocabularyDAO;
@@ -56,7 +54,10 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
       BufferedWriter log;
 
+      String error_val = "";
+
       int exitValue = 0;
+
       //deal with parameters
       final AccessionParameter accession = new AccessionParameter();
       accession.setAccession(parameters.get(accessionParameter));
@@ -83,7 +84,6 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
         ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
         "Can't create report file '" + fileName + "'");
-
         String[] errors = new String[1];
         errors[0] =  "Can't create report file '" + fileName + "'";
         pex.setProcessOutput(errors);
@@ -92,18 +92,6 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
       // make a new parser
       MAGETABParser parser = new MAGETABParser();
-      // add error item listener that collects parsing errors
-/*      final Set<String> encounteredWarnings = new HashSet<String>();
-      parser.addErrorItemListener(new ErrorItemListener() {
-         public void errorOccurred(ErrorItem item) {
-             if (item.getErrorType().contains("error")) {
-               String errorExplanation = item.getErrorCode() + ": " + item.getMesg() + " [line " +
-                                      item.getLine() + ", column " + item.getCol() + "] (" +
-                                      item.getComment() + ")";
-               encounteredWarnings.add(errorExplanation);
-             }
-         }
-      });*/
 
       try {
         MAGETABInvestigation investigation = parser.parse(accession.getFile().getAbsoluteFile());
@@ -124,13 +112,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             catch(Exception e){
               exitValue = 1;
               System.out.println("There are no submitters with e-mail address");
-              ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-              "There are no submitters with e-mail address");
-
-              String[] errors = new String[1];
-              errors[0] = "There are no submitters with e-mail address";
-              pex.setProcessOutput(errors);
-              throw pex;
+              error_val = "There are no submitters with e-mail address.\n";
             }
           }
           j++;
@@ -142,37 +124,35 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
           exitValue = 1;
           log.write("There are no submitters with e-mail address\n");
           System.out.println("There are no submitters with e-mail address");
-          ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-          "There are no submitters with e-mail address");
-
-          String[] errors = new String[1];
-          errors[0] = "There are no submitters with e-mail address";
-          pex.setProcessOutput(errors);
-          throw pex;
+          error_val = "There are no submitters with e-mail address.\n";
         }
-        else {
-          //II check: protocol names
-          for (String protocol : investigation.IDF.protocolName) {
+        
+        //II check: protocol names
+        for (String protocol : investigation.IDF.protocolName) {
             for (String restrictedName : controlledVocabularyDAO
                 .getRestrictedProtocolNames()) {
-              if (protocol.equals(restrictedName)) {
+              if (protocol.toLowerCase().equals(restrictedName.toLowerCase())) {
                 restrictedProtocolNames = true;
                 protocolNames.add(protocol);
               }
             }
-          }
         }
+        
         if (restrictedProtocolNames) {
           exitValue = 1;
           log.write("Restricted protocol names are used: " + protocolNames + "\n");
           System.out.println("Restricted protocol names are used: " + protocolNames);
-          ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
-          "Restricted protocol names are used: " + protocolNames);
+          error_val = error_val + "Restricted protocol names are used: " + protocolNames + ".\n";
+        }
 
-          String[] errors = new String[1];
-          errors[0] = "Restricted protocol names are used: " + protocolNames;
-          pex.setProcessOutput(errors);
-          throw pex;
+        if (exitValue == 1){
+            ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+                   error_val);
+
+            String[] errors = new String[1];
+            errors[0] = "There are following problems in your experiment:\n" + error_val;
+            pex.setProcessOutput(errors);
+            throw pex;
         }
       }
       catch (ParseException e) {
@@ -182,8 +162,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                   e.getMessage());
 
         String[] errors = new String[1];
-        errors[0] = e.getMessage();
-        errors[1] = "Please check MAGE-TAB files and/or run validation process.\n";
+        errors[0] = "Please check MAGE-TAB files and/or run validation process.\n" + e.getMessage();
         pex.setProcessOutput(errors);
         throw pex;
     }
@@ -238,7 +217,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
     }
     else {
       String[] errors = new String[1];
-      errors[0] = "Something wrong in the code ";
+      errors[0] = "Something wrong in the code!\n " + error_val;
       pex.setProcessOutput(errors);
       throw pex;
     }
@@ -268,7 +247,10 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
 
       BufferedWriter log;
-      boolean result = true;
+
+      String error_val = "";
+
+      int exitValue = 0;
 
       //logging
       String reportsDir =
@@ -287,7 +269,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         log.write("AE Eligibility Check: START\n");
       }
       catch (IOException e) {
-        result = false;
+        exitValue = 1;
         System.out.println("Can't create report file '" +
             fileName + "'");
         throw new ProcessExecutionException(1, "Can't create report file '" +
@@ -298,86 +280,133 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
       MAGETABParser parser = new MAGETABParser();
 
 
-      try {
-        MAGETABInvestigation investigation = parser.parse(file);
-        // I check: e-mail address of submitter
-        boolean submitterWithEmail = false;
-        boolean restrictedProtocolNames = false;
-        int j = 0;
-        for (Iterator i = investigation.IDF.personRoles.iterator();
-             i.hasNext(); ) {
-          String role = (String) i.next();
-          if (role.equals("submitter")) {
-            try{
-              if (!investigation.IDF.personEmail.get(j).isEmpty())
-                submitterWithEmail = true;
-            }
-            catch(Exception e){
-              result = false;
-              System.out.println("There are no submitters with e-mail address");
-              throw new ProcessExecutionException(1,
-                                              "There are no submitters with e-mail address");
-            }
-          }
-          j++;
-        }
+       try {
+           MAGETABInvestigation investigation = parser.parse(file.getAbsoluteFile());
+           // I check: e-mail address of submitter
+           boolean submitterWithEmail = false;
+           boolean restrictedProtocolNames = false;
+           List<String> protocolNames = new ArrayList<String>();
+           int j = 0;
+           for (Iterator i = investigation.IDF.personRoles.iterator();
+                i.hasNext(); ) {
+               String role = (String) i.next();
+               //changed to "role.contains" since person could have multiple roles
+               if (role.contains("submitter")) {
+                   try{
+                       if (!investigation.IDF.personEmail.get(j).isEmpty())
+                           submitterWithEmail = true;
+                   }
+                   catch(Exception e){
+                       exitValue = 1;
+                       System.out.println("There are no submitters with e-mail address");
+                       error_val = "There are no submitters with e-mail address.\n";
+                   }
+               }
+               j++;
+           }
 
 
-        if (!submitterWithEmail)
-        {
-          result = false;
-          log.write("AE Eligibility Check: there are no submitters with e-mail address\n");
-          System.out.println("AE Eligibility Check: there are no submitters with e-mail address");
-          throw new ProcessExecutionException(1,
-                                              "There are no submitters with e-mail address");
-        }
-        else {
-          //II check: protocol names
-          for (String protocol : investigation.IDF.protocolName) {
-            for (String restrictedName : controlledVocabularyDAO
-                .getRestrictedProtocolNames()) {
-              if (protocol.equals(restrictedName)) {
-                restrictedProtocolNames = true;
-              }
-            }
-          }
-        }
-        if (restrictedProtocolNames) {
-          result = false;
-          log.write("AE Eligibility Check: restricted protocol names are used\n");
-          System.out.println("AE Eligibility Check: restricted protocol names are used");
-          throw new ProcessExecutionException(1,
-                                              "Restricted protocol names are used");
-        }
-      }
-      catch (Exception e) {
-        result = false;
-        e.printStackTrace();
-        throw new ProcessExecutionException(1,
-                                            "AE Eligibility Check: something is wrong in the code",
-                                            e);
-      }
-      finally {
-        try{
-          if (result)
-            log.write("AE Eligibility Check: experiment " + file.getName() +
-                          " is eligible for ArrayExpress\n");
-          else
-             log.write("AE Eligibility Check: experiment " + file.getName() +
-                          " is NOT eligible for ArrayExpress\n");
-          log.write("AE Eligibility Check: FINISHED");
-          log.close();
-        }
-        catch(IOException e){
-          result = false;
-          e.printStackTrace();
-          throw new ProcessExecutionException(1,
-                                            "AE Eligibility Check: can't close report file",
-                                            e);
-        }
-      }
+           if (!submitterWithEmail)
+           {
+               exitValue = 1;
+               log.write("There are no submitters with e-mail address\n");
+               System.out.println("There are no submitters with e-mail address");
+               error_val = "There are no submitters with e-mail address.\n";
+           }
 
-    return result;
+           //II check: protocol names
+           for (String protocol : investigation.IDF.protocolName) {
+               for (String restrictedName : controlledVocabularyDAO
+                       .getRestrictedProtocolNames()) {
+                   if (protocol.toLowerCase().equals(restrictedName.toLowerCase())) {
+                       restrictedProtocolNames = true;
+                       protocolNames.add(protocol);
+                   }
+               }
+           }
+
+           if (restrictedProtocolNames) {
+               exitValue = 1;
+               log.write("Restricted protocol names are used: " + protocolNames + "\n");
+               System.out.println("Restricted protocol names are used: " + protocolNames);
+               error_val = error_val + "Restricted protocol names are used: " + protocolNames + ".\n";
+           }
+           if (exitValue == 1){
+               ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+                       error_val);
+
+               String[] errors = new String[1];
+               errors[0] = "There are following problems in your experiment:\n" + error_val;
+               pex.setProcessOutput(errors);
+               throw pex;
+           }
+       }
+       catch (ParseException e) {
+           exitValue = 1;
+           e.printStackTrace();
+           ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+                   e.getMessage());
+
+           String[] errors = new String[1];
+           errors[0] = "Please check MAGE-TAB files and/or run validation process.\n" + e.getMessage();
+           pex.setProcessOutput(errors);
+           throw pex;
+       }
+       catch (IOException e) {
+           exitValue = 1;
+           e.printStackTrace();
+           ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+                   e.getMessage());
+
+           String[] errors = new String[1];
+           errors[0] = e.getMessage();
+           pex.setProcessOutput(errors);
+           throw pex;
+       }
+       catch (RuntimeException e) {
+           exitValue = 1;
+           e.printStackTrace();
+           ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+                   e.getMessage());
+
+           String[] errors = new String[1];
+           errors[0] = e.getMessage();
+           pex.setProcessOutput(errors);
+           throw pex;
+       }
+       finally {
+           try{
+               if (exitValue ==0)
+                   log.write("Experiment \"" +
+                           "\" is eligible for ArrayExpress\n");
+               else
+                   log.write("Experiment \"" +
+                           "\" is NOT eligible for ArrayExpress\n");
+               log.write("AE Eligibility Check: FINISHED\n");
+               log.close();
+           }
+           catch(IOException e){
+               e.printStackTrace();
+               ProcessExecutionException pex =  new ProcessExecutionException(exitValue,
+                       e.getMessage());
+
+               String[] errors = new String[1];
+               errors[0] = e.getMessage();
+               pex.setProcessOutput(errors);
+               throw pex;
+           }
+       }
+
+       ProcessExecutionException pex =  new ProcessExecutionException(exitValue,"Something wrong in the code ");
+       if (exitValue == 0) {
+           return true;
+       }
+       else {
+           String[] errors = new String[1];
+           errors[0] = "Something wrong in the code!\n " + error_val;
+           pex.setProcessOutput(errors);
+           throw pex;
+       }
    }
 
 }

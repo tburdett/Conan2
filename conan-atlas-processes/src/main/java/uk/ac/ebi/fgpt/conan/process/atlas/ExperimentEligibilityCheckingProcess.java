@@ -63,6 +63,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
     // Add to the desired logger
     BufferedWriter log;
+      
+    String error_val = "";
 
     //deal with parameters
     final AccessionParameter accession = new AccessionParameter();
@@ -101,18 +103,6 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
     // make a new parser
     MAGETABParser parser = new MAGETABParser();
-    // add error item listener that collects parsing errors
-/*    final Set<String> encounteredWarnings = new HashSet<String>();
-    parser.addErrorItemListener(new ErrorItemListener() {
-       public void errorOccurred(ErrorItem item) {
-           if (item.getErrorType().toLowerCase().contains("error")) {
-             String errorExplanation = item.getErrorCode() + ": " + item.getMesg() + " [line " +
-                                    item.getLine() + ", column " + item.getCol() + "] (" +
-                                    item.getComment() + ")";
-             encounteredWarnings.add(errorExplanation);
-           }
-       }
-    });*/
 
     try {
       MAGETABInvestigation investigation =
@@ -156,52 +146,31 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         System.out.println(
             "'Experiment Type' " + restrictedExptType +
                 " is not accepted by Atlas");
-
-        ProcessExecutionException pex = new ProcessExecutionException(exitValue,
-                                                                      "'Experiment Type' " +
-                                                                          restrictedExptType +
-                                                                          " is not accepted by Atlas");
-
-        String[] errors = new String[1];
-        errors[0] = "'Experiment Type' " + restrictedExptType +
-            " is not accepted by Atlas";
-        pex.setExceptionCausesAbort();
-        pex.setProcessOutput(errors);
-        throw pex;
-
+        error_val = "'Experiment Type' " + restrictedExptType +
+            " is not accepted by Atlas.\n";
       }
-      else {
-        //2 two-channel experiment
-        if (investigation.SDRF.getNumberOfChannels() > 1) {
+ 
+      //2 two-channel experiment
+      if (investigation.SDRF.getNumberOfChannels() > 1) {
           exitValue = 1;
           log.write(
               "Two-channel experiment is not accepted by Atlas\n");
           System.out.println(
               "Two-channel experiment is not accepted by Atlas");
-          ProcessExecutionException pex =
-              new ProcessExecutionException(exitValue,
-                                            "Two-channel experiment is not accepted by Atlas");
-
-          String[] errors = new String[1];
-          errors[0] = "Two-channel experiment is not accepted by Atlas";
-          pex.setExceptionCausesAbort();
-          pex.setProcessOutput(errors);
-          throw pex;
-        }
+          error_val = error_val + "Two-channel experiment is not accepted by Atlas. \n";
+      }
 
 
-        Collection<HybridizationNode> hybridizationNodes =
+      Collection<HybridizationNode> hybridizationNodes =
             investigation.SDRF.getNodes(HybridizationNode.class);
-        Collection<ArrayDataNode> rawDataNodes =
+      Collection<ArrayDataNode> rawDataNodes =
             investigation.SDRF.getNodes(ArrayDataNode.class);
-        Collection<DerivedArrayDataNode> processedDataNodes =
+      Collection<DerivedArrayDataNode> processedDataNodes =
             investigation.SDRF.getNodes(DerivedArrayDataNode.class);
-        Collection<DerivedArrayDataMatrixNode> processedDataMatrixNodes =
+      Collection<DerivedArrayDataMatrixNode> processedDataMatrixNodes =
             investigation.SDRF.getNodes(DerivedArrayDataMatrixNode.class);
-        int factorValues = 0;
-        for (HybridizationNode hybNode : hybridizationNodes)
-
-        {
+      int factorValues = 0;
+      for (HybridizationNode hybNode : hybridizationNodes){
           if (hybNode.factorValues.size() > 0) {
             factorValues++;
           }
@@ -212,33 +181,26 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
               ArrayDesignAccessions.add(arrayDesign.getAttributeValue());
             }
           }
-        }
+      }
 
-        //3 presence of factor values
-        if (factorValues == 0) {
+      //3 factor values
+      if (factorValues == 0) {
           exitValue = 1;
           log.write(
               "Experiment does not have Factor Values\n");
           System.out.println(
               "Experiment does not have Factor Values");
+          error_val = error_val + "Experiment does not have Factor Values. \n";
+      }
 
-          ProcessExecutionException pex =
-              new ProcessExecutionException(exitValue,
-                                            "Experiment does not have Factor Values");
-
-          String[] errors = new String[1];
-          errors[0] = "Experiment does not have Factor Values";
-          pex.setExceptionCausesAbort();
-          pex.setProcessOutput(errors);
-          throw pex;
-        }
-
-        //6 and 7 factor types are from controlled vocabulary and not repeated
-        boolean factorTypesFromCV = true;
-        boolean factorTypesVariable = true;
-        List<String> missedFactorTypes = new ArrayList<String>();
-        List<String> repeatedFactorTypes = new ArrayList<String>();
-        for (String factorType : investigation.IDF.experimentalFactorType) {
+      //6 and 7 factor types are from controlled vocabulary and not repeated
+      boolean factorTypesFromCV = true;
+      boolean factorTypesVariable = true;
+      boolean characteristicsVariable = true;
+      List<String> missedFactorTypes = new ArrayList<String>();
+      List<String> repeatedFactorTypes = new ArrayList<String>();
+      List<String> repeatedCharacteristics = new ArrayList<String>();
+      for (String factorType : investigation.IDF.experimentalFactorType) {
           if (!controlledVocabularyDAO
               .getAtlasFactorTypes().contains(factorType.toLowerCase())) {
             factorTypesFromCV = false;
@@ -247,8 +209,15 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
           if (repeatedFactorTypes.contains(factorType))
               factorTypesVariable = false;
           repeatedFactorTypes.add(factorType);
-        }
-        if (!factorTypesFromCV) {
+      }
+      for (SampleNode sampleNode : investigation.SDRF.getNodes(SampleNode.class)) {
+            for (CharacteristicsAttribute ca : sampleNode.characteristics){
+                if (repeatedCharacteristics.contains(ca.getAttributeType()))
+                    characteristicsVariable = false;
+                repeatedCharacteristics.add(ca.getAttributeType());
+            }
+      }
+      if (!factorTypesFromCV) {
           exitValue = 1;
           log.write(
               "Experiment has Factor Types that are not in controlled vocabulary:" +
@@ -256,34 +225,17 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
           System.out.println(
               "Experiment has Factor Types that are not in controlled vocabulary:" +
                   missedFactorTypes);
-          ProcessExecutionException pex =
-              new ProcessExecutionException(exitValue,
-                                            "Experiment has Factor Types that are not in controlled vocabulary:" +
-                                                missedFactorTypes);
-
-          String[] errors = new String[1];
-          errors[0] =
+          error_val = error_val +
               "Experiment has Factor Types that are not in controlled vocabulary:" +
-                  missedFactorTypes;
-          pex.setExceptionCausesAbort();
-          pex.setProcessOutput(errors);
-          throw pex;
-        }
+                  missedFactorTypes + ".\n";
+      }
 
-        if (!factorTypesVariable) {
+      if (!factorTypesVariable) {
           exitValue = 1;
           log.write("Experiment has repeated Factor Types.\n");
           System.out.println("Experiment has repeated Factor Types.");
-          ProcessExecutionException pex =
-              new ProcessExecutionException(exitValue,
-                                            "Experiment has repeated Factor Types");
-
-          String[] errors = new String[1];
-          errors[0] = "Experiment has repeated Factor Types";
-          pex.setExceptionCausesAbort();
-          pex.setProcessOutput(errors);
-          throw pex;
-        }
+          error_val = error_val + "Experiment has repeated Factor Types.\n";
+      }
 
         // 5 check: array design is in Atlas
         for (String arrayDesign : ArrayDesignAccessions) {
@@ -300,19 +252,9 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             System.out.println("Array design '" +
                                    arrayDesign +
                                    "' used in experiment is not in Atlas");
-            ProcessExecutionException pex =
-                new ProcessExecutionException(exitValue,
-                                              "Array design '" +
-                                                  arrayDesign +
-                                                  "' used in experiment is not in Atlas");
-
-            String[] errors = new String[1];
-            errors[0] = "Array design '" +
+            error_val = error_val + "Array design '" +
                 arrayDesign +
-                "' used in experiment is not in Atlas";
-            pex.setExceptionCausesAbort();
-            pex.setProcessOutput(errors);
-            throw pex;
+                "' used in experiment is not in Atlas. \n";
           }
 
           else {
@@ -368,15 +310,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                   "Affymetrix experiment without raw data files\n");
               System.out.println(
                   "Affymetrix experiment without raw data files");
-              ProcessExecutionException pex =
-                  new ProcessExecutionException(exitValue,
-                                                "Affymetrix experiment without raw data files");
-
-              String[] errors = new String[1];
-              errors[0] = "Affymetrix experiment without raw data files";
-              pex.setExceptionCausesAbort();
-              pex.setProcessOutput(errors);
-              throw pex;
+                error_val = error_val + "Affymetrix experiment without raw data files.\n";
             }
             else
               //6b not affy without processed data
@@ -388,21 +322,22 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                     "Non-Affymetrix experiment without processed data files\n");
                 System.out.println(
                     "Non-Affymetrix experiment without processed data files");
-                ProcessExecutionException pex =
-                    new ProcessExecutionException(exitValue,
-                                                  "Non-Affymetrix experiment without processed data files");
-
-                String[] errors = new String[1];
-                errors[0] =
-                    "Non-Affymetrix experiment without processed data files";
-                pex.setExceptionCausesAbort();
-                pex.setProcessOutput(errors);
-                throw pex;
+                error_val = error_val +
+                          "Non-Affymetrix experiment without processed data files. \n";
 
               }
           }
         }
-      }
+
+        if (exitValue == 1){
+            ProcessExecutionException pex = new ProcessExecutionException(exitValue,
+                    error_val);
+            String[] errors = new String[1];
+            errors[0] = error_val;
+            pex.setProcessOutput(errors);
+            throw pex;
+        }
+      
     }
     catch (ParseException e) {
       exitValue = 1;
@@ -474,7 +409,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 "4. Experiments is not two-channel;\n" +
                 "5. Experiment has factor values;\n" +
                 "6. Factor types are from controlled vocabulary;\n" +
-                "7. Factor types are variable (not repeated).");
+                "7. Factor types and Characteristics are variable (not repeated).");
         log.close();
       }
       catch (IOException e) {
