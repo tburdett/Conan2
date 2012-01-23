@@ -16,7 +16,7 @@
             <process name="topresampletabarrayexpress" displayName="idf/srdf to sampletab.pre.txt" />
             <process name="accessionsampletab" displayName="accession sampletab.pre.txt to sampletab.txt" />
 <!--             <process name="toftp" displayName="copy to FTP site" /> -->
-            <process name="totoloadsampletab" displayName="to sampletab.toload.txt" />
+            <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
 <!--             <process name="toagetab" displayName="to AGE-TAB" /> -->
 <!--             <process name="load" displayName="load" /> -->
         </processes>
@@ -28,7 +28,7 @@
             <process name="topresampletabimsr" displayName="IMSR raw.tab.txt to sampletab.pre.txt" />
             <process name="accessionsampletab" displayName="accession sampletab.pre.txt to sampletab.txt" />
 <!--             <process name="toftp" displayName="copy to FTP site" /> -->
-            <process name="totoloadsampletab" displayName="to sampletab.toload.txt" />
+            <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
 <!--             <process name="toagetab" displayName="to AGE-TAB" /> -->
 <!--             <process name="load" displayName="load" /> -->
         </processes>
@@ -40,7 +40,7 @@
             <process name="topresampletabenasra" displayName="ENA SRA study.xml and related sample xml files to sampletab.pre.txt" />
             <process name="accessionsampletab" displayName="accession sampletab.pre.txt to sampletab.txt" />
 <!--             <process name="toftp" displayName="copy to FTP site" /> -->
-            <process name="totoloadsampletab" displayName="to sampletab.toload.txt" />
+            <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
 <!--             <process name="toagetab" displayName="to AGE-TAB" /> -->
 <!--             <process name="load" displayName="load" /> -->
         </processes>
