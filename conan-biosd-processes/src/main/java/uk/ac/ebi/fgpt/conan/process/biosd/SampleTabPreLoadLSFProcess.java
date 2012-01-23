@@ -21,7 +21,7 @@ public class SampleTabPreLoadLSFProcess extends AbstractBioSDLSFProcess {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	public String getName() {
-		return "totoloadsampletab";
+		return "toloadsampletab";
 	}
 
 	protected Logger getLog() {
