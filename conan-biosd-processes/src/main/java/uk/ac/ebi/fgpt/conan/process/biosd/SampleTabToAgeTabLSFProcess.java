@@ -50,7 +50,7 @@ public class SampleTabToAgeTabLSFProcess extends AbstractBioSDLSFProcess {
 		}
 
 		String scriptpath = ConanProperties.getProperty("biosamples.script.path");
-		File script = new File(scriptpath, "SampleTabToLoad.sh");
+		File script = new File(scriptpath, "SampleTab-to-AGETAB.sh");
 
 		File outdir;
 		try {
@@ -61,18 +61,16 @@ public class SampleTabToAgeTabLSFProcess extends AbstractBioSDLSFProcess {
 					"Unable to create directories for " + accession);
 		}
 
-		File sampletabFile = new File(outdir, "sampletab.txt");
-		File sampletabtoloadFile = new File(outdir, "sampletab.toload.txt");
+		File sampletabFile = new File(outdir, "sampletab.toload.txt");
+		File agedir = new File(outdir, "age");
+		if (!agedir.exists()){
+			agedir.mkdirs();
+		}
 
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() 
-				+ " --input " + sampletabFile.getAbsolutePath() 
-				+ " --output " + sampletabtoloadFile.getAbsolutePath()
-				+ " --hostname " + ConanProperties.getProperty("biosamples.accession.hostname")
-				+ " --port " + ConanProperties.getProperty("biosamples.accession.port")
-				+ " --database " + ConanProperties.getProperty("biosamples.accession.database")
-				+ " --username " + ConanProperties.getProperty("biosamples.accession.username")
-				+ " --password " + ConanProperties.getProperty("biosamples.accession.password");
+				+ " -o " + agedir.getAbsolutePath() 
+				+ " " + sampletabFile.getAbsolutePath(); 
 		getLog().info("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}
