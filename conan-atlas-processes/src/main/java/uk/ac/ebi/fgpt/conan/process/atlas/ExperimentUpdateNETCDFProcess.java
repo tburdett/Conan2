@@ -93,7 +93,7 @@ public class ExperimentUpdateNETCDFProcess extends AbstractRESTAPIProcess {
       jobID = "&accession="+accession.getAccession()+"&type=updateexperiment";
          // response.get(accession.getFile().getAbsolutePath())
          //     .toString();
-      System.out.println("Atlas job ID: " + jobID);
+      getLog().debug("Atlas job ID: " + jobID);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -118,7 +118,7 @@ public class ExperimentUpdateNETCDFProcess extends AbstractRESTAPIProcess {
       jobID = "&accession="+parameters[1]+"&type=updateexperiment";
           //response.get(accession.getFile().getAbsolutePath())
             //  .toString();
-      System.out.println("Atlas job ID: " + jobID);
+      getLog().debug("Atlas job ID: " + jobID);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -161,7 +161,7 @@ public class ExperimentUpdateNETCDFProcess extends AbstractRESTAPIProcess {
         return atlas.ExperimentUpdateNETCDF + accession.getAccession();
       }
       else {
-        System.out.println("Experiment is needed, not array");
+        getLog().debug("Experiment is needed, not array");
         throw new IllegalArgumentException(
             "Experiment is needed, not array");
       }

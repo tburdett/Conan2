@@ -93,7 +93,7 @@ public class ExperimentPublicProcess extends AbstractRESTAPIProcess {
       jobID = "&accession="+accession.getAccession()+"&type=makeexperimentpublic";
          // response.get(accession.getFile().getAbsolutePath())
             //  .toString();
-      System.out.println("Atlas job ID: " + jobID);
+        getLog().debug("Atlas job ID: " + jobID);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -118,7 +118,7 @@ public class ExperimentPublicProcess extends AbstractRESTAPIProcess {
       jobID = "&accession="+parameters[1]+"&type=makeexperimentpublic";
           //response.get(accession.getFile().getAbsolutePath())
             //  .toString();
-      System.out.println("Atlas job ID: " + jobID);
+      getLog().debug("Atlas job ID: " + jobID);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -152,7 +152,7 @@ public class ExperimentPublicProcess extends AbstractRESTAPIProcess {
     accession.setAccession(parameters.get(accessionParameter));
 
     if (accession.getAccession() == null) {
-      System.out.println("Accession cannot be null");
+      getLog().debug("Accession cannot be null");
       throw new IllegalArgumentException("Accession cannot be null");
     }
     else {
@@ -161,7 +161,7 @@ public class ExperimentPublicProcess extends AbstractRESTAPIProcess {
         return atlas.ExperimentUpdatePublic + accession.getAccession();
       }
       else {
-        System.out.println("Experiment is needed, not array");
+        getLog().debug("Experiment is needed, not array");
         throw new IllegalArgumentException(
             "Experiment is needed, not array");
       }

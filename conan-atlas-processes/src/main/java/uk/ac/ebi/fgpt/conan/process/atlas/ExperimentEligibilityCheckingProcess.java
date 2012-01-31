@@ -1,20 +1,20 @@
 package uk.ac.ebi.fgpt.conan.process.atlas;
 
 import net.sourceforge.fluxion.spi.ServiceProvider;
-import org.mged.magetab.error.ErrorItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import uk.ac.ebi.arrayexpress2.magetab.datamodel.MAGETABInvestigation;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.graph.Node;
-import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.HybridizationNode;
+import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.*;
+import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.ArrayDesignAttribute;
+import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.CharacteristicsAttribute;
 import uk.ac.ebi.arrayexpress2.magetab.exception.ParseException;
-import uk.ac.ebi.arrayexpress2.magetab.listener.ErrorItemListener;
 import uk.ac.ebi.arrayexpress2.magetab.parser.MAGETABParser;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.dao.DatabaseConanControlledVocabularyDAO;
-import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
-import uk.ac.ebi.arrayexpress2.magetab.datamodel.MAGETABInvestigation;
-import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.*;
-import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.*;
+import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.io.BufferedWriter;
@@ -36,753 +36,750 @@ import java.util.*;
  */
 @ServiceProvider
 public class ExperimentEligibilityCheckingProcess implements ConanProcess {
-  private final Collection<ConanParameter> parameters;
-  private final AccessionParameter accessionParameter;
-  private final List<String> ArrayDesignAccessions = new ArrayList<String>();
-  private final DatabaseConanControlledVocabularyDAO controlledVocabularyDAO;
+    private final Collection<ConanParameter> parameters;
+    private final AccessionParameter accessionParameter;
+    private final List<String> ArrayDesignAccessions = new ArrayList<String>();
+    private final DatabaseConanControlledVocabularyDAO controlledVocabularyDAO;
 
-  /**
-   * Constructor for process. Initializes conan2 parameters for the process.
-   */
-  public ExperimentEligibilityCheckingProcess() {
-    parameters = new ArrayList<ConanParameter>();
-    accessionParameter = new AccessionParameter();
-    parameters.add(accessionParameter);
-    ClassPathXmlApplicationContext ctx =
-        new ClassPathXmlApplicationContext("controlled-vocabulary-context.xml");
-    controlledVocabularyDAO =
-        ctx.getBean("databaseConanControlledVocabularyDAO",
-                    DatabaseConanControlledVocabularyDAO.class);
-  }
+    private Logger log = LoggerFactory.getLogger(getClass());
 
-  public boolean execute(Map<ConanParameter, String> parameters)
-      throws ProcessExecutionException, IllegalArgumentException,
-      InterruptedException {
-
-    int exitValue = 0;
-
-    // Add to the desired logger
-    BufferedWriter log;
-      
-    String error_val = "";
-
-    //deal with parameters
-    final AccessionParameter accession = new AccessionParameter();
-    accession.setAccession(parameters.get(accessionParameter));
-
-    String reportsDir =
-        accession.getFile().getParentFile().getAbsolutePath() + File.separator +
-            "reports";
-    File reportsDirFile = new File(reportsDir);
-    if (!reportsDirFile.exists()) {
-      reportsDirFile.mkdirs();
+    protected Logger getLog() {
+        return log;
     }
 
-    String fileName = reportsDir + File.separator + accession.getAccession() +
-        "_AtlasEligibilityCheck" +
-        "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
-        ".report";
-    try {
-      log = new BufferedWriter(new FileWriter(fileName));
-      log.write("Atlas Eligibility Check: START\n");
-    }
-    catch (IOException e) {
-      exitValue = 1;
-      e.printStackTrace();
-
-      ProcessExecutionException pex = new ProcessExecutionException(exitValue,
-                                                                    "Can't create report file '" +
-                                                                        fileName +
-                                                                        "'");
-
-      String[] errors = new String[1];
-      errors[0] = "Can't create report file '" + fileName + "'";
-      pex.setProcessOutput(errors);
-      throw pex;
+    /**
+     * Constructor for process. Initializes conan2 parameters for the process.
+     */
+    public ExperimentEligibilityCheckingProcess() {
+        parameters = new ArrayList<ConanParameter>();
+        accessionParameter = new AccessionParameter();
+        parameters.add(accessionParameter);
+        ClassPathXmlApplicationContext ctx =
+                new ClassPathXmlApplicationContext("controlled-vocabulary-context.xml");
+        controlledVocabularyDAO =
+                ctx.getBean("databaseConanControlledVocabularyDAO",
+                            DatabaseConanControlledVocabularyDAO.class);
     }
 
-    // make a new parser
-    MAGETABParser parser = new MAGETABParser();
+    public boolean execute(Map<ConanParameter, String> parameters)
+            throws ProcessExecutionException, IllegalArgumentException,
+            InterruptedException {
 
-    try {
-      MAGETABInvestigation investigation =
-          parser.parse(accession.getFile().getAbsoluteFile());
+        int exitValue = 0;
 
-      // 1 check: experiment types
-      boolean isAtlasType = false;
-      String restrictedExptType = "";
-      if (investigation.IDF.getComments().containsKey("AEExperimentType")) {
-        for (String exptType : investigation.IDF.getComments()
-            .get("AEExperimentType")) {
-          for (String AtlasType : controlledVocabularyDAO
-              .getAtlasExperimentTypes()) {
-            if (exptType.equals(AtlasType)) {
-              isAtlasType = true;
-            }
-            else {
-              restrictedExptType = exptType;
-            }
-          }
+        // Add to the desired logger
+        BufferedWriter log;
+
+        String error_val = "";
+
+        //deal with parameters
+        final AccessionParameter accession = new AccessionParameter();
+        accession.setAccession(parameters.get(accessionParameter));
+
+        String reportsDir =
+                accession.getFile().getParentFile().getAbsolutePath() + File.separator +
+                        "reports";
+        File reportsDirFile = new File(reportsDir);
+        if (!reportsDirFile.exists()) {
+            reportsDirFile.mkdirs();
         }
-      }
-      else {
-        for (String exptType : investigation.IDF.experimentalDesign) {
-          for (String AtlasType : controlledVocabularyDAO
-              .getAtlasExperimentTypes()) {
-            if (exptType.equals(AtlasType)) {
-              isAtlasType = true;
-            }
-          }
+
+        String fileName = reportsDir + File.separator + accession.getAccession() +
+                "_AtlasEligibilityCheck" +
+                "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
+                ".report";
+        try {
+            log = new BufferedWriter(new FileWriter(fileName));
+            log.write("Atlas Eligibility Check: START\n");
         }
-      }
-
-      if (!isAtlasType)
-      //not in Atlas Experiment Types
-      {
-        exitValue = 1;
-        log.write(
-            "'Experiment Type' " + restrictedExptType +
-                " is not accepted by Atlas\n");
-        System.out.println(
-            "'Experiment Type' " + restrictedExptType +
-                " is not accepted by Atlas");
-        error_val = "'Experiment Type' " + restrictedExptType +
-            " is not accepted by Atlas.\n";
-      }
- 
-      //2 two-channel experiment
-      if (investigation.SDRF.getNumberOfChannels() > 1) {
-          exitValue = 1;
-          log.write(
-              "Two-channel experiment is not accepted by Atlas\n");
-          System.out.println(
-              "Two-channel experiment is not accepted by Atlas");
-          error_val = error_val + "Two-channel experiment is not accepted by Atlas. \n";
-      }
-
-
-      Collection<HybridizationNode> hybridizationNodes =
-            investigation.SDRF.getNodes(HybridizationNode.class);
-      Collection<ArrayDataNode> rawDataNodes =
-            investigation.SDRF.getNodes(ArrayDataNode.class);
-      Collection<DerivedArrayDataNode> processedDataNodes =
-            investigation.SDRF.getNodes(DerivedArrayDataNode.class);
-      Collection<DerivedArrayDataMatrixNode> processedDataMatrixNodes =
-            investigation.SDRF.getNodes(DerivedArrayDataMatrixNode.class);
-      int factorValues = 0;
-      for (HybridizationNode hybNode : hybridizationNodes){
-          if (hybNode.factorValues.size() > 0) {
-            factorValues++;
-          }
-          ArrayDesignAccessions.clear();
-          for (ArrayDesignAttribute arrayDesign : hybNode.arrayDesigns) {
-            if (!ArrayDesignAccessions
-                .contains(arrayDesign.getAttributeValue())) {
-              ArrayDesignAccessions.add(arrayDesign.getAttributeValue());
-            }
-          }
-      }
-
-      //3 factor values
-      if (factorValues == 0) {
-          exitValue = 1;
-          log.write(
-              "Experiment does not have Factor Values\n");
-          System.out.println(
-              "Experiment does not have Factor Values");
-          error_val = error_val + "Experiment does not have Factor Values. \n";
-      }
-
-      //6 and 7 factor types are from controlled vocabulary and not repeated
-      boolean factorTypesFromCV = true;
-      boolean factorTypesVariable = true;
-      boolean characteristicsVariable = true;
-      List<String> missedFactorTypes = new ArrayList<String>();
-      List<String> repeatedFactorTypes = new ArrayList<String>();
-      List<String> repeatedCharacteristics = new ArrayList<String>();
-      for (String factorType : investigation.IDF.experimentalFactorType) {
-          if (!controlledVocabularyDAO
-              .getAtlasFactorTypes().contains(factorType.toLowerCase())) {
-            factorTypesFromCV = false;
-            missedFactorTypes.add(factorType);
-          }
-          if (repeatedFactorTypes.contains(factorType))
-              factorTypesVariable = false;
-          repeatedFactorTypes.add(factorType);
-      }
-      for (SampleNode sampleNode : investigation.SDRF.getNodes(SampleNode.class)) {
-            for (CharacteristicsAttribute ca : sampleNode.characteristics){
-                if (repeatedCharacteristics.contains(ca.getAttributeType()))
-                    characteristicsVariable = false;
-                repeatedCharacteristics.add(ca.getAttributeType());
-            }
-      }
-      if (!factorTypesFromCV) {
-          exitValue = 1;
-          log.write(
-              "Experiment has Factor Types that are not in controlled vocabulary:" +
-                  missedFactorTypes + "\n");
-          System.out.println(
-              "Experiment has Factor Types that are not in controlled vocabulary:" +
-                  missedFactorTypes);
-          error_val = error_val +
-              "Experiment has Factor Types that are not in controlled vocabulary:" +
-                  missedFactorTypes + ".\n";
-      }
-
-      if (!factorTypesVariable) {
-          exitValue = 1;
-          log.write("Experiment has repeated Factor Types.\n");
-          System.out.println("Experiment has repeated Factor Types.");
-          error_val = error_val + "Experiment has repeated Factor Types.\n";
-      }
-
-        // 5 check: array design is in Atlas
-        for (String arrayDesign : ArrayDesignAccessions) {
-          ArrayDesignExistenceChecking arrayDesignExistenceChecking =
-              new ArrayDesignExistenceChecking();
-          String arrayCheckResult =
-              arrayDesignExistenceChecking.execute(arrayDesign);
-          if (arrayCheckResult.equals("empty") ||
-              arrayCheckResult.equals("no")) {
+        catch (IOException e) {
             exitValue = 1;
-            log.write("Array design '" +
-                          arrayDesign +
-                          "' used in experiment is not in Atlas\n");
-            System.out.println("Array design '" +
-                                   arrayDesign +
-                                   "' used in experiment is not in Atlas");
-            error_val = error_val + "Array design '" +
-                arrayDesign +
-                "' used in experiment is not in Atlas. \n";
-          }
+            e.printStackTrace();
 
-          else {
-            //Array Design is in Atlas
-            Collection<HybridizationNode> hybridizationSubNodes =
-                new ArrayList<HybridizationNode>();
-            Collection<Node> rawDataSubNodes = new ArrayList<Node>();
-            Collection<Node> processedDataSubNodes = new ArrayList<Node>();
-            Collection<Node> processedDataMatrixSubNodes =
-                new ArrayList<Node>();
-            //Number of arrays in experiment
-            if (ArrayDesignAccessions.size() > 1) {
-
-              for (HybridizationNode hybNode : hybridizationNodes) {
-                ArrayDesignAttribute attribute = new ArrayDesignAttribute();
-                attribute.setAttributeValue(arrayDesign);
-
-                if (hybNode.arrayDesigns.contains(attribute)) {
-                  //get data nodes for particular array design
-                  hybridizationSubNodes.add(hybNode);
-                  getNodes(hybNode, ArrayDataNode.class, rawDataSubNodes);
-                  getNodes(hybNode, DerivedArrayDataNode.class,
-                           processedDataSubNodes);
-                  getNodes(hybNode, DerivedArrayDataMatrixNode.class,
-                           processedDataMatrixSubNodes);
-
-                }
-
-              }
-            }
-            else {
-              //one array design in experiment
-              hybridizationSubNodes = hybridizationNodes;
-              for (ArrayDataNode node : rawDataNodes) {
-                rawDataSubNodes.add(node);
-              }
-              for (DerivedArrayDataNode node : processedDataNodes) {
-                processedDataSubNodes.add(node);
-              }
-              for (DerivedArrayDataMatrixNode node : processedDataMatrixNodes) {
-                processedDataMatrixSubNodes.add(node);
-              }
-
-            }
-
-            //6 check: if Affy then check for raw data files, else for derived
-            if (arrayCheckResult.equals("affy") &&
-                hybridizationSubNodes.size() != rawDataSubNodes.size())
-            //6a affy
-            {
-              exitValue = 1;
-              log.write(
-                  "Affymetrix experiment without raw data files\n");
-              System.out.println(
-                  "Affymetrix experiment without raw data files");
-                error_val = error_val + "Affymetrix experiment without raw data files.\n";
-            }
-            else
-              //6b not affy without processed data
-              if (!arrayCheckResult.equals("affy") &&
-                  //processedDataSubNodes.size() == 0 &&
-                  processedDataMatrixSubNodes.size() == 0) {
-                exitValue = 1;
-                log.write(
-                    "Non-Affymetrix experiment without processed data files\n");
-                System.out.println(
-                    "Non-Affymetrix experiment without processed data files");
-                error_val = error_val +
-                          "Non-Affymetrix experiment without processed data files. \n";
-
-              }
-          }
-        }
-
-        if (exitValue == 1){
             ProcessExecutionException pex = new ProcessExecutionException(exitValue,
-                    error_val);
+                                                                          "Can't create report file '" +
+                                                                                  fileName +
+                                                                                  "'");
+
             String[] errors = new String[1];
-            errors[0] = error_val;
+            errors[0] = "Can't create report file '" + fileName + "'";
             pex.setProcessOutput(errors);
             throw pex;
         }
-      
-    }
-    catch (ParseException e) {
-      exitValue = 1;
-/*      String errorMessage = "Parsing " + accession.getFile().getAbsoluteFile() + " completed with errors...";
-      System.out.println("Parse Exception: " + e.getMessage());
-      // print out any warnings from the parser
-      // check if any errors were encountered
-        for (String encounteredWarning : encounteredWarnings)
-          errorMessage = errorMessage + encounteredWarning;*/
 
-      e.printStackTrace();
-      ProcessExecutionException pex = new ProcessExecutionException(exitValue,
-                                                                    e.getMessage());
+        // make a new parser
+        MAGETABParser parser = new MAGETABParser();
 
-      String[] errors = new String[1];
-      errors[0] = e.getMessage();
-      errors[1] =
-          "Please check MAGE-TAB files and/or run validation process.\n";
-      pex.setProcessOutput(errors);
-      throw pex;
-    }
-    catch (IOException e) {
-      exitValue = 1;
-      e.printStackTrace();
-      ProcessExecutionException pex = new ProcessExecutionException(exitValue,
-                                                                    e.getMessage());
+        try {
+            MAGETABInvestigation investigation =
+                    parser.parse(accession.getFile().getAbsoluteFile());
 
-      String[] errors = new String[1];
-      errors[0] = e.getMessage();
-      pex.setProcessOutput(errors);
-      throw pex;
-    }
-    catch (RuntimeException e) {
-      exitValue = 1;
-      e.printStackTrace();
-      ProcessExecutionException pex = new ProcessExecutionException(exitValue,
-                                                                    e.getMessage());
-
-      String[] errors = new String[1];
-      errors[0] = e.getMessage();
-      pex.setProcessOutput(errors);
-      throw pex;
-    }
-    finally {
-      try {
-        if (exitValue == 0) {
-          log.write("Experiment \"" +
-                        accession.getAccession() +
-                        "\" is eligible for Atlas\n");
-        }
-        else {
-          log.write("Experiment \"" +
-                        accession.getAccession() +
-                        "\" is NOT eligible for Atlas\n");
-        }
-        log.write("Atlas Eligibility Check: FINISHED\n");
-        log.write(
-            "Eligibility checks for Gene Expression Atlas version 2.0.9.3: \n" +
-                "1. Experiment has raw data for Affymetrix platforms or normalized data for all other platforms;\n" +
-                "2. Array design(s) used in experiment are loaded into Atlas;\n" +
-                "3. Type of experiment is from the list: \n" +
-                " - transcription profiling by array,\n" +
-                " - methylation profiling by array,\n" +
-                " - tiling path by array,\n" +
-                " - comparative genomic hybridization by array,\n" +
-                " - microRNA profiling by array,\n" +
-                " - RNAi profiling by array,\n" +
-                " - ChIP-chip by array;\n" +
-                "4. Experiments is not two-channel;\n" +
-                "5. Experiment has factor values;\n" +
-                "6. Factor types are from controlled vocabulary;\n" +
-                "7. Factor types and Characteristics are variable (not repeated).");
-        log.close();
-      }
-      catch (IOException e) {
-        e.printStackTrace();
-        ProcessExecutionException pex = new ProcessExecutionException(exitValue,
-                                                                      e.getMessage());
-
-        String[] errors = new String[1];
-        errors[0] = e.getMessage();
-        pex.setProcessOutput(errors);
-        throw pex;
-      }
-    }
-
-    ProcessExecutionException pex = new ProcessExecutionException(exitValue,
-                                                                  "Something wrong in the code ");
-    if (exitValue == 0) {
-      return true;
-    }
-    else {
-      String[] errors = new String[1];
-      errors[0] = "Something wrong in the code ";
-      pex.setProcessOutput(errors);
-      throw pex;
-    }
-  }
-
-
-  public boolean executeMockup(String file)
-      throws ProcessExecutionException, IllegalArgumentException {
-
-    // Add to the desired logger
-    BufferedWriter log;
-
-    boolean result = false;
-
-    // now, parse from a file
-    File idfFile = new File(file);
-
-    String reportsDir =
-        idfFile.getParentFile().getAbsolutePath() + File.separator +
-            "reports";
-    File reportsDirFile = new File(reportsDir);
-    if (!reportsDirFile.exists()) {
-      reportsDirFile.mkdirs();
-    }
-
-    String fileName = reportsDir + File.separator + idfFile.getName() +
-        "_AtlasEligibilityCheck" +
-        "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
-        ".report";
-    try {
-      log = new BufferedWriter(new FileWriter(fileName));
-      log.write("Atlas Eligibility Check: START\n");
-    }
-    catch (IOException e) {
-      e.printStackTrace();
-      throw new ProcessExecutionException(1, "Can't create report file '" +
-          fileName + "'", e);
-    }
-
-    // make a new parser
-    MAGETABParser parser = new MAGETABParser();
-
-
-    try {
-      MAGETABInvestigation investigation = parser.parse(idfFile);
-      // I check: experiment types
-      boolean isAtlasType = false;
-      if (investigation.IDF.getComments().containsKey("AEExperimentType")) {
-        for (String exptType : investigation.IDF.getComments()
-            .get("AEExperimentType")) {
-          for (String AtlasType : controlledVocabularyDAO
-              .getAtlasExperimentTypes()) {
-            if (exptType.equals(AtlasType)) {
-              isAtlasType = true;
+            // 1 check: experiment types
+            boolean isAtlasType = false;
+            String restrictedExptType = "";
+            if (investigation.IDF.getComments().containsKey("AEExperimentType")) {
+                for (String exptType : investigation.IDF.getComments()
+                                                        .get("AEExperimentType")) {
+                    for (String AtlasType : controlledVocabularyDAO
+                            .getAtlasExperimentTypes()) {
+                        if (exptType.equals(AtlasType)) {
+                            isAtlasType = true;
+                        }
+                        else {
+                            restrictedExptType = exptType;
+                        }
+                    }
+                }
             }
-          }
-        }
-      }
-      else {
-        for (String exptType : investigation.IDF.experimentalDesign) {
-          for (String AtlasType : controlledVocabularyDAO
-              .getAtlasExperimentTypes()) {
-            if (exptType.equals(AtlasType)) {
-              isAtlasType = true;
+            else {
+                for (String exptType : investigation.IDF.experimentalDesign) {
+                    for (String AtlasType : controlledVocabularyDAO
+                            .getAtlasExperimentTypes()) {
+                        if (exptType.equals(AtlasType)) {
+                            isAtlasType = true;
+                        }
+                    }
+                }
             }
-          }
-        }
-      }
-      if (!isAtlasType)
-      //not in Atlas Experiment Types
-      {
-        result = false;
-        log.write(
-            "Atlas Eligibility Check: 'Experiment Type' is not accepted by Atlas\n");
-        System.out.println(
-            "Atlas Eligibility Check: 'Experiment Type' is not accepted by Atlas");
-        throw new ProcessExecutionException(1,
-                                            "Atlas Eligibility Check: 'Experiment Type' is not accepted by Atlas");
-      }
-      //Ia two-channel experiment
-      if (investigation.SDRF.getNumberOfChannels() > 1) {
-        result = false;
-        log.write(
-            "Atlas Eligibility Check: two-channel experiment is not accepted by Atlas\n");
-        System.out.println(
-            "Atlas Eligibility Check: two-channel experiment is not accepted by Atlas");
-        throw new ProcessExecutionException(1,
-                                            "Atlas Eligibility Check: two-channel experiment is not accepted by Atlas");
-      }
 
-      Collection<HybridizationNode> hybridizationNodes =
-          investigation.SDRF.getNodes(HybridizationNode.class);
-      Collection<ArrayDataNode> rawDataNodes =
-          investigation.SDRF.getNodes(ArrayDataNode.class);
-      Collection<DerivedArrayDataNode> processedDataNodes =
-          investigation.SDRF.getNodes(DerivedArrayDataNode.class);
-      Collection<DerivedArrayDataMatrixNode> processedDataMatrixNodes =
-          investigation.SDRF.getNodes(DerivedArrayDataMatrixNode.class);
-      int factorValues = 0;
-      for (HybridizationNode hybNode : hybridizationNodes)
+            if (!isAtlasType)
+            //not in Atlas Experiment Types
+            {
+                exitValue = 1;
+                log.write(
+                        "'Experiment Type' " + restrictedExptType +
+                                " is not accepted by Atlas\n");
+                getLog().debug(
+                        "'Experiment Type' " + restrictedExptType +
+                                " is not accepted by Atlas");
+                error_val = "'Experiment Type' " + restrictedExptType +
+                        " is not accepted by Atlas.\n";
+            }
 
-      {
-        if (hybNode.factorValues.size() > 0) {
-          factorValues++;
-        }
-        for (ArrayDesignAttribute arrayDesign : hybNode.arrayDesigns) {
-          if (!ArrayDesignAccessions
-              .contains(arrayDesign.getAttributeValue())) {
-            ArrayDesignAccessions.add(arrayDesign.getAttributeValue());
-          }
-        }
-      }
+            //2 two-channel experiment
+            if (investigation.SDRF.getNumberOfChannels() > 1) {
+                exitValue = 1;
+                log.write(
+                        "Two-channel experiment is not accepted by Atlas\n");
+                getLog().debug(
+                        "Two-channel experiment is not accepted by Atlas");
+                error_val = error_val + "Two-channel experiment is not accepted by Atlas. \n";
+            }
 
-      //Ib presence of factor values
-      if (factorValues == 0) {
-        result = false;
-        log.write(
-            "Atlas Eligibility Check: experiment does not have Factor Values\n");
-        System.out.println(
-            "Atlas Eligibility Check: experiment does not have Factor Values");
-        throw new ProcessExecutionException(1,
-                                            "Atlas Eligibility Check: experiment does not have Factor Values");
-      }
 
-      //Ic factor types are from controlled vocabulary
-      System.out.println("FACTOR TYPES\n");
-      boolean factorTypesFromCV = true;
-        boolean factorTypesVariable = true;
-        List<String> missedFactorTypes = new ArrayList<String>();
-        List<String> repeatedFactorTypes = new ArrayList<String>();
-        for (String factorType : investigation.IDF.experimentalFactorType) {
-          if (!controlledVocabularyDAO
-              .getAtlasFactorTypes().contains(factorType.toLowerCase())) {
-            factorTypesFromCV = false;
-            missedFactorTypes.add(factorType);
-          }
-                      if (repeatedFactorTypes.contains(factorType)) {
-              factorTypesVariable = false;
-          }
-          repeatedFactorTypes.add(factorType);
-          System.out.println("FT"+factorType+"\n");
-        }
-        if (!factorTypesFromCV) {
-
-          log.write(
-              "Experiment has Factor Types that are not in controlled vocabulary:" +
-                  missedFactorTypes + "\n");
-          System.out.println(
-              "Experiment has Factor Types that are not in controlled vocabulary:" +
-                  missedFactorTypes);
-          ProcessExecutionException pex =
-              new ProcessExecutionException(1,
-                                            "Experiment has Factor Types that are not in controlled vocabulary:" +
-                                                missedFactorTypes);
-
-          String[] errors = new String[1];
-          errors[0] =
-              "Experiment has Factor Types that are not in controlled vocabulary:" +
-                  missedFactorTypes;
-          pex.setExceptionCausesAbort();
-          pex.setProcessOutput(errors);
-          throw pex;
-        }
-
-        if (!factorTypesVariable) {
-
-          log.write("Experiment has repeated Factor Types.\n");
-          System.out.println("Experiment has repeated Factor Types.");
-          ProcessExecutionException pex =
-              new ProcessExecutionException(1,
-                                            "Experiment has repeated Factor Types");
-
-          String[] errors = new String[1];
-          errors[0] = "Experiment has repeated Factor Types";
-          pex.setExceptionCausesAbort();
-          pex.setProcessOutput(errors);
-          throw pex;
-        }
-
-      // II check: array design is in Atlas
-      for (String arrayDesign : ArrayDesignAccessions) {
-        ArrayDesignExistenceChecking arrayDesignExistenceChecking =
-            new ArrayDesignExistenceChecking();
-        String arrayCheckResult =
-            arrayDesignExistenceChecking.execute(arrayDesign);
-        if (arrayCheckResult.equals("empty") ||
-            arrayCheckResult.equals("no")) {
-          result = false;
-          log.write("Atlas Eligibility Check: array design '" +
-                        arrayDesign +
-                        "' used in experiment is not in Atlas\n");
-          System.out.println("Atlas Eligibility Check: array design '" +
-                                 arrayDesign +
-                                 "' used in experiment is not in Atlas");
-          throw new ProcessExecutionException(1,
-                                              "Atlas Eligibility Check: array design '" +
-                                                  arrayDesign +
-                                                  "' used in experiment is not in Atlas");
-        }
-
-        else {
-          //Array Design is in Atlas
-          Collection<HybridizationNode> hybridizationSubNodes =
-              new ArrayList<HybridizationNode>();
-          Collection<Node> rawDataSubNodes = new ArrayList<Node>();
-          Collection<Node> processedDataSubNodes = new ArrayList<Node>();
-          Collection<Node> processedDataMatrixSubNodes =
-              new ArrayList<Node>();
-          //Number of arrays in experiment
-          if (ArrayDesignAccessions.size() > 1) {
-
+            Collection<HybridizationNode> hybridizationNodes =
+                    investigation.SDRF.getNodes(HybridizationNode.class);
+            Collection<ArrayDataNode> rawDataNodes =
+                    investigation.SDRF.getNodes(ArrayDataNode.class);
+            Collection<DerivedArrayDataNode> processedDataNodes =
+                    investigation.SDRF.getNodes(DerivedArrayDataNode.class);
+            Collection<DerivedArrayDataMatrixNode> processedDataMatrixNodes =
+                    investigation.SDRF.getNodes(DerivedArrayDataMatrixNode.class);
+            int factorValues = 0;
             for (HybridizationNode hybNode : hybridizationNodes) {
-              ArrayDesignAttribute attribute = new ArrayDesignAttribute();
-              attribute.setAttributeValue(arrayDesign);
-
-              if (hybNode.arrayDesigns.contains(attribute)) {
-                //get data nodes for particular array design
-                hybridizationSubNodes.add(hybNode);
-                getNodes(hybNode, ArrayDataNode.class, rawDataSubNodes);
-                getNodes(hybNode, DerivedArrayDataNode.class,
-                         processedDataSubNodes);
-                getNodes(hybNode, DerivedArrayDataMatrixNode.class,
-                         processedDataMatrixSubNodes);
-
-              }
-
-            }
-          }
-          else {
-            //one array design in experiment
-            hybridizationSubNodes = hybridizationNodes;
-            for (ArrayDataNode node : rawDataNodes) {
-              rawDataSubNodes.add(node);
-            }
-            for (DerivedArrayDataNode node : processedDataNodes) {
-              processedDataSubNodes.add(node);
-            }
-            for (DerivedArrayDataMatrixNode node : processedDataMatrixNodes) {
-              processedDataMatrixSubNodes.add(node);
+                if (hybNode.factorValues.size() > 0) {
+                    factorValues++;
+                }
+                ArrayDesignAccessions.clear();
+                for (ArrayDesignAttribute arrayDesign : hybNode.arrayDesigns) {
+                    if (!ArrayDesignAccessions
+                            .contains(arrayDesign.getAttributeValue())) {
+                        ArrayDesignAccessions.add(arrayDesign.getAttributeValue());
+                    }
+                }
             }
 
-          }
+            //3 factor values
+            if (factorValues == 0) {
+                exitValue = 1;
+                log.write(
+                        "Experiment does not have Factor Values\n");
+                getLog().debug(
+                        "Experiment does not have Factor Values");
+                error_val = error_val + "Experiment does not have Factor Values. \n";
+            }
 
-          //III check: if Affy then check for raw data files, else for derived
-          if (arrayCheckResult.equals("affy") &&
-              hybridizationSubNodes.size() != rawDataSubNodes.size())
-          //affy
-          {
-            result = false;
-            log.write(
-                "Atlas Eligibility Check: Affymetrix experiment without raw data files\n");
-            System.out.println(
-                "Atlas Eligibility Check: Affymetrix experiment without raw data files");
-            throw new ProcessExecutionException(1,
-                                                "Atlas Eligibility Check: Affymetrix experiment without raw data files");
-          }
-          else
-            //not affy without processed data
-            if (!arrayCheckResult.equals("affy") &&
-                processedDataSubNodes.size() == 0 &&
-                processedDataMatrixSubNodes.size() == 0) {
-              result = false;
-              log.write(
-                  "Atlas Eligibility Check: non-Affymetrix experiment without processed data files\n");
-              System.out.println(
-                  "Atlas Eligibility Check: non-Affymetrix experiment without processed data files");
-              throw new ProcessExecutionException(1,
-                                                  "Atlas Eligibility Check: non-Affymetrix experiment without processed data files");
+            //6 and 7 factor types are from controlled vocabulary and not repeated
+            boolean factorTypesFromCV = true;
+            boolean factorTypesVariable = true;
+            boolean characteristicsVariable = true;
+            List<String> missedFactorTypes = new ArrayList<String>();
+            List<String> repeatedFactorTypes = new ArrayList<String>();
+            List<String> repeatedCharacteristics = new ArrayList<String>();
+            for (String factorType : investigation.IDF.experimentalFactorType) {
+                if (!controlledVocabularyDAO
+                        .getAtlasFactorTypes().contains(factorType.toLowerCase())) {
+                    factorTypesFromCV = false;
+                    missedFactorTypes.add(factorType);
+                }
+                if (repeatedFactorTypes.contains(factorType)) {
+                    factorTypesVariable = false;
+                }
+                repeatedFactorTypes.add(factorType);
+            }
+            for (SampleNode sampleNode : investigation.SDRF.getNodes(SampleNode.class)) {
+                for (CharacteristicsAttribute ca : sampleNode.characteristics) {
+                    if (repeatedCharacteristics.contains(ca.getAttributeType())) {
+                        characteristicsVariable = false;
+                    }
+                    repeatedCharacteristics.add(ca.getAttributeType());
+                }
+            }
+            if (!factorTypesFromCV) {
+                exitValue = 1;
+                log.write(
+                        "Experiment has Factor Types that are not in controlled vocabulary:" +
+                                missedFactorTypes + "\n");
+                getLog().debug(
+                        "Experiment has Factor Types that are not in controlled vocabulary:" +
+                                missedFactorTypes);
+                error_val = error_val +
+                        "Experiment has Factor Types that are not in controlled vocabulary:" +
+                        missedFactorTypes + ".\n";
+            }
+
+            if (!factorTypesVariable) {
+                exitValue = 1;
+                log.write("Experiment has repeated Factor Types.\n");
+                getLog().debug("Experiment has repeated Factor Types.");
+                error_val = error_val + "Experiment has repeated Factor Types.\n";
+            }
+
+            // 5 check: array design is in Atlas
+            for (String arrayDesign : ArrayDesignAccessions) {
+                ArrayDesignExistenceChecking arrayDesignExistenceChecking =
+                        new ArrayDesignExistenceChecking();
+                String arrayCheckResult =
+                        arrayDesignExistenceChecking.execute(arrayDesign);
+                if (arrayCheckResult.equals("empty") ||
+                        arrayCheckResult.equals("no")) {
+                    exitValue = 1;
+                    log.write("Array design '" +
+                                      arrayDesign +
+                                      "' used in experiment is not in Atlas\n");
+                    getLog().debug("Array design '" +
+                                           arrayDesign +
+                                           "' used in experiment is not in Atlas");
+                    error_val = error_val + "Array design '" +
+                            arrayDesign +
+                            "' used in experiment is not in Atlas. \n";
+                }
+
+                else {
+                    //Array Design is in Atlas
+                    Collection<HybridizationNode> hybridizationSubNodes =
+                            new ArrayList<HybridizationNode>();
+                    Collection<Node> rawDataSubNodes = new ArrayList<Node>();
+                    Collection<Node> processedDataSubNodes = new ArrayList<Node>();
+                    Collection<Node> processedDataMatrixSubNodes =
+                            new ArrayList<Node>();
+                    //Number of arrays in experiment
+                    if (ArrayDesignAccessions.size() > 1) {
+
+                        for (HybridizationNode hybNode : hybridizationNodes) {
+                            ArrayDesignAttribute attribute = new ArrayDesignAttribute();
+                            attribute.setAttributeValue(arrayDesign);
+
+                            if (hybNode.arrayDesigns.contains(attribute)) {
+                                //get data nodes for particular array design
+                                hybridizationSubNodes.add(hybNode);
+                                getNodes(hybNode, ArrayDataNode.class, rawDataSubNodes);
+                                getNodes(hybNode, DerivedArrayDataNode.class,
+                                         processedDataSubNodes);
+                                getNodes(hybNode, DerivedArrayDataMatrixNode.class,
+                                         processedDataMatrixSubNodes);
+
+                            }
+
+                        }
+                    }
+                    else {
+                        //one array design in experiment
+                        hybridizationSubNodes = hybridizationNodes;
+                        for (ArrayDataNode node : rawDataNodes) {
+                            rawDataSubNodes.add(node);
+                        }
+                        for (DerivedArrayDataNode node : processedDataNodes) {
+                            processedDataSubNodes.add(node);
+                        }
+                        for (DerivedArrayDataMatrixNode node : processedDataMatrixNodes) {
+                            processedDataMatrixSubNodes.add(node);
+                        }
+
+                    }
+
+                    //6 check: if Affy then check for raw data files, else for derived
+                    if (arrayCheckResult.equals("affy") &&
+                            hybridizationSubNodes.size() != rawDataSubNodes.size()) {   //6a affy
+                        exitValue = 1;
+                        log.write(
+                                "Affymetrix experiment without raw data files\n");
+                        getLog().debug(
+                                "Affymetrix experiment without raw data files");
+                        error_val = error_val + "Affymetrix experiment without raw data files.\n";
+                    }
+                    else {
+                        //6b not affy without processed data
+                        if (!arrayCheckResult.equals("affy") &&
+                                //processedDataSubNodes.size() == 0 &&
+                                processedDataMatrixSubNodes.size() == 0) {
+                            exitValue = 1;
+                            log.write(
+                                    "Non-Affymetrix experiment without processed data files\n");
+                            getLog().debug(
+                                    "Non-Affymetrix experiment without processed data files");
+                            error_val = error_val +
+                                    "Non-Affymetrix experiment without processed data files. \n";
+
+                        }
+                    }
+                }
+            }
+
+            if (exitValue == 1) {
+                ProcessExecutionException pex = new ProcessExecutionException(exitValue,
+                                                                              error_val);
+                String[] errors = new String[1];
+                errors[0] = error_val;
+                pex.setProcessOutput(errors);
+                throw pex;
+            }
+
+        }
+        catch (ParseException e) {
+            exitValue = 1;
+            ProcessExecutionException pex = new ProcessExecutionException(exitValue,
+                                                                          e.getMessage());
+
+            String[] errors = new String[1];
+            errors[0] = e.getMessage();
+            errors[1] =
+                    "Please check MAGE-TAB files and/or run validation process.\n";
+            pex.setProcessOutput(errors);
+            throw pex;
+        }
+        catch (IOException e) {
+            exitValue = 1;
+            ProcessExecutionException pex = new ProcessExecutionException(exitValue,
+                                                                          e.getMessage());
+
+            String[] errors = new String[1];
+            errors[0] = e.getMessage();
+            pex.setProcessOutput(errors);
+            throw pex;
+        }
+        catch (RuntimeException e) {
+            exitValue = 1;
+            ProcessExecutionException pex = new ProcessExecutionException(exitValue,
+                                                                          e.getMessage());
+
+            String[] errors = new String[1];
+            errors[0] = e.getMessage();
+            pex.setProcessOutput(errors);
+            throw pex;
+        }
+        finally {
+            try {
+                if (exitValue == 0) {
+                    log.write("Experiment \"" +
+                                      accession.getAccession() +
+                                      "\" is eligible for Atlas\n");
+                }
+                else {
+                    log.write("Experiment \"" +
+                                      accession.getAccession() +
+                                      "\" is NOT eligible for Atlas\n");
+                }
+                log.write("Atlas Eligibility Check: FINISHED\n");
+                log.write(
+                        "Eligibility checks for Gene Expression Atlas version 2.0.9.3: \n" +
+                                "1. Experiment has raw data for Affymetrix platforms or normalized data for all other platforms;\n" +
+                                "2. Array design(s) used in experiment are loaded into Atlas;\n" +
+                                "3. Type of experiment is from the list: \n" +
+                                " - transcription profiling by array,\n" +
+                                " - methylation profiling by array,\n" +
+                                " - tiling path by array,\n" +
+                                " - comparative genomic hybridization by array,\n" +
+                                " - microRNA profiling by array,\n" +
+                                " - RNAi profiling by array,\n" +
+                                " - ChIP-chip by array;\n" +
+                                "4. Experiments is not two-channel;\n" +
+                                "5. Experiment has factor values;\n" +
+                                "6. Factor types are from controlled vocabulary;\n" +
+                                "7. Factor types and Characteristics are variable (not repeated).");
+                log.close();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                ProcessExecutionException pex = new ProcessExecutionException(exitValue,
+                                                                              e.getMessage());
+
+                String[] errors = new String[1];
+                errors[0] = e.getMessage();
+                pex.setProcessOutput(errors);
+                throw pex;
             }
         }
-      }
-    }
-    catch (Exception e) {
-      result = false;
-      e.printStackTrace();
-      throw new ProcessExecutionException(1,
-                                          "Atlas Eligibility Check: something is wrong in the code",
-                                          e);
-    }
-    finally {
-      try {
-        if (result) {
-          log.write(
-              "Atlas Eligibility Check: experiment \"" + idfFile.getName() +
-                  "\" is eligible for ArrayExpress.\n");
+
+        ProcessExecutionException pex = new ProcessExecutionException(exitValue,
+                                                                      "Something wrong in the code ");
+        if (exitValue == 0) {
+            return true;
         }
         else {
-          log.write(
-              "Atlas Eligibility Check: experiment \"" + idfFile.getName() +
-                  "\" is NOT eligible for ArrayExpress.\n");
+            String[] errors = new String[1];
+            errors[0] = "Something wrong in the code ";
+            pex.setProcessOutput(errors);
+            throw pex;
         }
-        log.write("Atlas Eligibility Check: FINISHED\n");
-        log.write(
-            "Eligibility checks for Gene Expression Atlas version 2.0.9.3: \n" +
-                "1. Experiment has raw data for Affymetrix platforms or normalized data for all other platforms;\n" +
-                "2. Array design(s) used in experiment are loaded into Atlas;\n" +
-                "3. Type of experiment: transcription profiling by array,\n" +
-                "methylation profiling by array,\n" +
-                "tiling path by array,\n" +
-                "comparative genomic hybridization by array,\n" +
-                "microRNA profiling by array,\n" +
-                "RNAi profiling by array,\n" +
-                "ChIP-chip by array;\n" +
-                "4. Two-channel experiments - can't be loaded into Atlas;\n" +
-                "5. Experiment has factor values;\n" +
-                "6. Factor types are from controlled vocabulary;\n" +
-                "7. Factor types are variable (not repeated).");
-        log.close();
-      }
-      catch (IOException e) {
-        e.printStackTrace();
-        throw new ProcessExecutionException(1,
-                                            "Atlas Eligibility Check: can't close report file",
-                                            e);
-      }
     }
 
-    return result;
-  }
 
-  private Collection<Node> getNodes(Node parentNode, Class typeOfNode,
-                                    Collection<Node> nodes) {
-    for (Node childNode : parentNode.getChildNodes()) {
-      if (childNode.getClass().equals(typeOfNode) &&
-          !nodes.contains(childNode)) {
-        nodes.add(childNode);
-      }
-      else {
-        getNodes(childNode, typeOfNode, nodes);
-      }
+    public boolean executeMockup(String file)
+            throws ProcessExecutionException, IllegalArgumentException {
+
+        // Add to the desired logger
+        BufferedWriter log;
+
+        boolean result = false;
+
+        // now, parse from a file
+        File idfFile = new File(file);
+
+        String reportsDir =
+                idfFile.getParentFile().getAbsolutePath() + File.separator +
+                        "reports";
+        File reportsDirFile = new File(reportsDir);
+        if (!reportsDirFile.exists()) {
+            reportsDirFile.mkdirs();
+        }
+
+        String fileName = reportsDir + File.separator + idfFile.getName() +
+                "_AtlasEligibilityCheck" +
+                "_" + new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) +
+                ".report";
+        try {
+            log = new BufferedWriter(new FileWriter(fileName));
+            log.write("Atlas Eligibility Check: START\n");
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            throw new ProcessExecutionException(1, "Can't create report file '" +
+                    fileName + "'", e);
+        }
+
+        // make a new parser
+        MAGETABParser parser = new MAGETABParser();
+
+
+        try {
+            MAGETABInvestigation investigation = parser.parse(idfFile);
+            // I check: experiment types
+            boolean isAtlasType = false;
+            if (investigation.IDF.getComments().containsKey("AEExperimentType")) {
+                for (String exptType : investigation.IDF.getComments()
+                                                        .get("AEExperimentType")) {
+                    for (String AtlasType : controlledVocabularyDAO
+                            .getAtlasExperimentTypes()) {
+                        if (exptType.equals(AtlasType)) {
+                            isAtlasType = true;
+                        }
+                    }
+                }
+            }
+            else {
+                for (String exptType : investigation.IDF.experimentalDesign) {
+                    for (String AtlasType : controlledVocabularyDAO
+                            .getAtlasExperimentTypes()) {
+                        if (exptType.equals(AtlasType)) {
+                            isAtlasType = true;
+                        }
+                    }
+                }
+            }
+            if (!isAtlasType)
+            //not in Atlas Experiment Types
+            {
+                result = false;
+                log.write(
+                        "Atlas Eligibility Check: 'Experiment Type' is not accepted by Atlas\n");
+                getLog().debug(
+                        "Atlas Eligibility Check: 'Experiment Type' is not accepted by Atlas");
+                throw new ProcessExecutionException(1,
+                                                    "Atlas Eligibility Check: 'Experiment Type' is not accepted by Atlas");
+            }
+            //Ia two-channel experiment
+            if (investigation.SDRF.getNumberOfChannels() > 1) {
+                result = false;
+                log.write(
+                        "Atlas Eligibility Check: two-channel experiment is not accepted by Atlas\n");
+                getLog().debug(
+                        "Atlas Eligibility Check: two-channel experiment is not accepted by Atlas");
+                throw new ProcessExecutionException(1,
+                                                    "Atlas Eligibility Check: two-channel experiment is not accepted by Atlas");
+            }
+
+            Collection<HybridizationNode> hybridizationNodes =
+                    investigation.SDRF.getNodes(HybridizationNode.class);
+            Collection<ArrayDataNode> rawDataNodes =
+                    investigation.SDRF.getNodes(ArrayDataNode.class);
+            Collection<DerivedArrayDataNode> processedDataNodes =
+                    investigation.SDRF.getNodes(DerivedArrayDataNode.class);
+            Collection<DerivedArrayDataMatrixNode> processedDataMatrixNodes =
+                    investigation.SDRF.getNodes(DerivedArrayDataMatrixNode.class);
+            int factorValues = 0;
+            for (HybridizationNode hybNode : hybridizationNodes)
+
+            {
+                if (hybNode.factorValues.size() > 0) {
+                    factorValues++;
+                }
+                for (ArrayDesignAttribute arrayDesign : hybNode.arrayDesigns) {
+                    if (!ArrayDesignAccessions
+                            .contains(arrayDesign.getAttributeValue())) {
+                        ArrayDesignAccessions.add(arrayDesign.getAttributeValue());
+                    }
+                }
+            }
+
+            //Ib presence of factor values
+            if (factorValues == 0) {
+                result = false;
+                log.write(
+                        "Atlas Eligibility Check: experiment does not have Factor Values\n");
+                getLog().debug(
+                        "Atlas Eligibility Check: experiment does not have Factor Values");
+                throw new ProcessExecutionException(1,
+                                                    "Atlas Eligibility Check: experiment does not have Factor Values");
+            }
+
+            //Ic factor types are from controlled vocabulary
+            getLog().debug("FACTOR TYPES\n");
+            boolean factorTypesFromCV = true;
+            boolean factorTypesVariable = true;
+            List<String> missedFactorTypes = new ArrayList<String>();
+            List<String> repeatedFactorTypes = new ArrayList<String>();
+            for (String factorType : investigation.IDF.experimentalFactorType) {
+                if (!controlledVocabularyDAO
+                        .getAtlasFactorTypes().contains(factorType.toLowerCase())) {
+                    factorTypesFromCV = false;
+                    missedFactorTypes.add(factorType);
+                }
+                if (repeatedFactorTypes.contains(factorType)) {
+                    factorTypesVariable = false;
+                }
+                repeatedFactorTypes.add(factorType);
+                getLog().debug("FT" + factorType + "\n");
+            }
+            if (!factorTypesFromCV) {
+
+                log.write(
+                        "Experiment has Factor Types that are not in controlled vocabulary:" +
+                                missedFactorTypes + "\n");
+                getLog().debug(
+                        "Experiment has Factor Types that are not in controlled vocabulary:" +
+                                missedFactorTypes);
+                ProcessExecutionException pex =
+                        new ProcessExecutionException(1,
+                                                      "Experiment has Factor Types that are not in controlled vocabulary:" +
+                                                              missedFactorTypes);
+
+                String[] errors = new String[1];
+                errors[0] =
+                        "Experiment has Factor Types that are not in controlled vocabulary:" +
+                                missedFactorTypes;
+                pex.setExceptionCausesAbort();
+                pex.setProcessOutput(errors);
+                throw pex;
+            }
+
+            if (!factorTypesVariable) {
+
+                log.write("Experiment has repeated Factor Types.\n");
+                getLog().debug("Experiment has repeated Factor Types.");
+                ProcessExecutionException pex =
+                        new ProcessExecutionException(1,
+                                                      "Experiment has repeated Factor Types");
+
+                String[] errors = new String[1];
+                errors[0] = "Experiment has repeated Factor Types";
+                pex.setExceptionCausesAbort();
+                pex.setProcessOutput(errors);
+                throw pex;
+            }
+
+            // II check: array design is in Atlas
+            for (String arrayDesign : ArrayDesignAccessions) {
+                ArrayDesignExistenceChecking arrayDesignExistenceChecking =
+                        new ArrayDesignExistenceChecking();
+                String arrayCheckResult =
+                        arrayDesignExistenceChecking.execute(arrayDesign);
+                if (arrayCheckResult.equals("empty") ||
+                        arrayCheckResult.equals("no")) {
+                    result = false;
+                    log.write("Atlas Eligibility Check: array design '" +
+                                      arrayDesign +
+                                      "' used in experiment is not in Atlas\n");
+                    getLog().debug("Atlas Eligibility Check: array design '" +
+                                           arrayDesign +
+                                           "' used in experiment is not in Atlas");
+                    throw new ProcessExecutionException(1,
+                                                        "Atlas Eligibility Check: array design '" +
+                                                                arrayDesign +
+                                                                "' used in experiment is not in Atlas");
+                }
+
+                else {
+                    //Array Design is in Atlas
+                    Collection<HybridizationNode> hybridizationSubNodes =
+                            new ArrayList<HybridizationNode>();
+                    Collection<Node> rawDataSubNodes = new ArrayList<Node>();
+                    Collection<Node> processedDataSubNodes = new ArrayList<Node>();
+                    Collection<Node> processedDataMatrixSubNodes =
+                            new ArrayList<Node>();
+                    //Number of arrays in experiment
+                    if (ArrayDesignAccessions.size() > 1) {
+
+                        for (HybridizationNode hybNode : hybridizationNodes) {
+                            ArrayDesignAttribute attribute = new ArrayDesignAttribute();
+                            attribute.setAttributeValue(arrayDesign);
+
+                            if (hybNode.arrayDesigns.contains(attribute)) {
+                                //get data nodes for particular array design
+                                hybridizationSubNodes.add(hybNode);
+                                getNodes(hybNode, ArrayDataNode.class, rawDataSubNodes);
+                                getNodes(hybNode, DerivedArrayDataNode.class,
+                                         processedDataSubNodes);
+                                getNodes(hybNode, DerivedArrayDataMatrixNode.class,
+                                         processedDataMatrixSubNodes);
+
+                            }
+
+                        }
+                    }
+                    else {
+                        //one array design in experiment
+                        hybridizationSubNodes = hybridizationNodes;
+                        for (ArrayDataNode node : rawDataNodes) {
+                            rawDataSubNodes.add(node);
+                        }
+                        for (DerivedArrayDataNode node : processedDataNodes) {
+                            processedDataSubNodes.add(node);
+                        }
+                        for (DerivedArrayDataMatrixNode node : processedDataMatrixNodes) {
+                            processedDataMatrixSubNodes.add(node);
+                        }
+
+                    }
+
+                    //III check: if Affy then check for raw data files, else for derived
+                    if (arrayCheckResult.equals("affy") &&
+                            hybridizationSubNodes.size() != rawDataSubNodes.size())
+                    //affy
+                    {
+                        result = false;
+                        log.write(
+                                "Atlas Eligibility Check: Affymetrix experiment without raw data files\n");
+                        getLog().debug(
+                                "Atlas Eligibility Check: Affymetrix experiment without raw data files");
+                        throw new ProcessExecutionException(1,
+                                                            "Atlas Eligibility Check: Affymetrix experiment without raw data files");
+                    }
+                    else
+                        //not affy without processed data
+                        if (!arrayCheckResult.equals("affy") &&
+                                processedDataSubNodes.size() == 0 &&
+                                processedDataMatrixSubNodes.size() == 0) {
+                            result = false;
+                            log.write(
+                                    "Atlas Eligibility Check: non-Affymetrix experiment without processed data files\n");
+                            getLog().debug(
+                                    "Atlas Eligibility Check: non-Affymetrix experiment without processed data files");
+                            throw new ProcessExecutionException(1,
+                                                                "Atlas Eligibility Check: non-Affymetrix experiment without processed data files");
+                        }
+                }
+            }
+        }
+        catch (Exception e) {
+            result = false;
+            e.printStackTrace();
+            throw new ProcessExecutionException(1,
+                                                "Atlas Eligibility Check: something is wrong in the code",
+                                                e);
+        }
+        finally {
+            try {
+                if (result) {
+                    log.write(
+                            "Atlas Eligibility Check: experiment \"" + idfFile.getName() +
+                                    "\" is eligible for ArrayExpress.\n");
+                }
+                else {
+                    log.write(
+                            "Atlas Eligibility Check: experiment \"" + idfFile.getName() +
+                                    "\" is NOT eligible for ArrayExpress.\n");
+                }
+                log.write("Atlas Eligibility Check: FINISHED\n");
+                log.write(
+                        "Eligibility checks for Gene Expression Atlas version 2.0.9.3: \n" +
+                                "1. Experiment has raw data for Affymetrix platforms or normalized data for all other platforms;\n" +
+                                "2. Array design(s) used in experiment are loaded into Atlas;\n" +
+                                "3. Type of experiment: transcription profiling by array,\n" +
+                                "methylation profiling by array,\n" +
+                                "tiling path by array,\n" +
+                                "comparative genomic hybridization by array,\n" +
+                                "microRNA profiling by array,\n" +
+                                "RNAi profiling by array,\n" +
+                                "ChIP-chip by array;\n" +
+                                "4. Two-channel experiments - can't be loaded into Atlas;\n" +
+                                "5. Experiment has factor values;\n" +
+                                "6. Factor types are from controlled vocabulary;\n" +
+                                "7. Factor types are variable (not repeated).");
+                log.close();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                throw new ProcessExecutionException(1,
+                                                    "Atlas Eligibility Check: can't close report file",
+                                                    e);
+            }
+        }
+
+        return result;
     }
-    return nodes;
-  }
 
-  /**
-   * Returns the name of this process.
-   *
-   * @return the name of this process
-   */
-  public String getName() {
-    return "atlas eligibility";
-  }
+    private Collection<Node> getNodes(Node parentNode, Class typeOfNode,
+                                      Collection<Node> nodes) {
+        for (Node childNode : parentNode.getChildNodes()) {
+            if (childNode.getClass().equals(typeOfNode) &&
+                    !nodes.contains(childNode)) {
+                nodes.add(childNode);
+            }
+            else {
+                getNodes(childNode, typeOfNode, nodes);
+            }
+        }
+        return nodes;
+    }
 
-  /**
-   * Returns a collection of strings representing the names of the parameters.
-   *
-   * @return the parameter names required to generate a task
-   */
-  public Collection<ConanParameter> getParameters() {
-    return parameters;
-  }
+    /**
+     * Returns the name of this process.
+     *
+     * @return the name of this process
+     */
+    public String getName() {
+        return "atlas eligibility";
+    }
+
+    /**
+     * Returns a collection of strings representing the names of the parameters.
+     *
+     * @return the parameter names required to generate a task
+     */
+    public Collection<ConanParameter> getParameters() {
+        return parameters;
+    }
 
 
 }
