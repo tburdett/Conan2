@@ -297,6 +297,14 @@
 						<artifactId>maven-war-plugin</artifactId>
 						<configuration>
 							<webResources>
+                                <resource>
+                                    <directory>src/main/webapp/WEB-INF</directory>
+                                    <excludes>
+                                        <exclude>conan-dao.xml</exclude>
+                                        <exclude>conan-service.xml</exclude>
+                                        <exclude>conan-servlet.xml</exclude>
+                                    </excludes>
+                                </resource>
 								<resource>
 									<directory>src/main/webresources-demo</directory>
 								</resource>

@@ -33,14 +33,17 @@
           init-method="init"
           destroy-method="destroy">
         <!-- number of allowed parallel processes -->
-        <constructor-arg name="numberOfParallelJobs" value="30" />
+        <constructor-arg name="numberOfParallelJobs" value="20" />
         <!-- time in seconds to hold jobs before running -->
         <constructor-arg name="coolingOffPeriod" value="120" />
-        <property name="taskService" ref="taskService" />
+        <!--<property name="taskService" ref="taskService" />-->
+        <property name="conanTaskDAO" ref="conanTaskDAO" />
     </bean>
 
     <!-- Task service -->
     <bean name="taskService" class="uk.ac.ebi.fgpt.conan.service.DefaultTaskService">
+        <!--<property name="pipelineService" ref="pipelineService" />-->
+        <property name="conanSubmissionService" ref="submissionService" />
         <property name="conanPipelineDAO" ref="conanPipelineDAO" />
         <property name="conanTaskFactory" ref="taskFactory" />
         <property name="conanTaskDAO" ref="conanTaskDAO" />

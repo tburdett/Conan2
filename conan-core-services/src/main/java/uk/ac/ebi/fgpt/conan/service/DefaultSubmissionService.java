@@ -10,10 +10,7 @@ import uk.ac.ebi.fgpt.conan.model.ConanTask;
 import uk.ac.ebi.fgpt.conan.service.exception.SubmissionException;
 
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * A default implementation of a {@link ConanSubmissionService} that queues jobs in an {@link ExecutorService} for
@@ -31,7 +28,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
     private final ExecutorService taskExecutor;
     private final int coolingOffPeriod;
 
-    private final Set<ConanTask<? extends ConanPipeline>> executingTasks;
+    private final Map<ConanTask<? extends ConanPipeline>, Future<Boolean>> executingFutures;
 
     private ConanTaskDAO conanTaskDAO;
 
@@ -40,7 +37,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
     public DefaultSubmissionService(int numberOfParallelJobs, int coolingOffPeriod) {
         this.taskExecutor = Executors.newFixedThreadPool(numberOfParallelJobs);
         this.coolingOffPeriod = coolingOffPeriod;
-        this.executingTasks = new HashSet<ConanTask<? extends ConanPipeline>>();
+        this.executingFutures = new HashMap<ConanTask<? extends ConanPipeline>, Future<Boolean>>();
     }
 
     protected Logger getLog() {
@@ -65,7 +62,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
         ConanTask duplicate = checkForDuplication(conanTask);
         if (duplicate == null) {
             // wrap task in a callable and submit
-            taskExecutor.submit(new Callable<Boolean>() {
+            Future<Boolean> f = taskExecutor.submit(new Callable<Boolean>() {
                 public Boolean call() throws Exception {
                     ConanTask<? extends ConanPipeline> executingTask = null;
                     try {
@@ -81,7 +78,6 @@ public class DefaultSubmissionService implements ConanSubmissionService {
 
                         // now we've waited for the prescribed cooling off period, execute
                         executingTask = getConanTaskDAO().getTask(taskID);
-                        executingTasks.add(executingTask);
                         return executingTask.execute();
                     }
                     catch (Exception e) {
@@ -89,13 +85,13 @@ public class DefaultSubmissionService implements ConanSubmissionService {
                         throw e;
                     }
                     finally {
-                        if (executingTask != null) {
-                            // this executingTask has finished
-                            executingTasks.remove(executingTask);
+                        if (executingTask != null && executingFutures.containsKey(executingTask)) {
+                            executingFutures.remove(executingTask);
                         }
                     }
                 }
             });
+            executingFutures.put(conanTask, f);
 
             // flag the fact that this task was submitted, if it hasn't been restarted
             if (!conanTask.isSubmitted()) {
@@ -126,14 +122,20 @@ public class DefaultSubmissionService implements ConanSubmissionService {
         submitTask(conanTask);
     }
 
+    public void interruptTask(final ConanTask<? extends ConanPipeline> conanTask) {
+        getLog().debug("Forcing interruption of Task ID = " + conanTask.getId());
+        Future<Boolean> f = executingFutures.get(conanTask);
+        f.cancel(true);
+    }
+
     public Set<ConanTask<? extends ConanPipeline>> getExecutingTasks() {
-        return Collections.unmodifiableSet(executingTasks);
+        return Collections.unmodifiableSet(executingFutures.keySet());
     }
 
     /**
      * On startup, this submission service recovers any pre-existing and running tasks and immediately resubmits them
-     * with {@link #resubmitTask(uk.ac.ebi.fgpt.conan.model.ConanTask)}.  This allows any tasks that were running at the
-     * previous shutdown (or failure) to be recovered wherever possible.
+     * with {@link #resubmitTask(uk.ac.ebi.fgpt.conan.model.ConanTask)}.  This allows any tasks that were running at
+     * the previous shutdown (or failure) to be recovered wherever possible.
      */
     public void init() {
         Assert.notNull(getConanTaskDAO(), "A ConanTaskDAO must be provided");
@@ -174,10 +176,10 @@ public class DefaultSubmissionService implements ConanSubmissionService {
     }
 
     /**
-     * On shutdown, this submission service attempts a {@link java.util.concurrent.ExecutorService#shutdownNow()} on the
-     * executor service to which tasks are submitted, killing all running tasks once either: the running process
-     * completes; or the executing process responds to the interrupt.  Any processes that respod to the interrupt should
-     * be re-executed on startup.
+     * On shutdown, this submission service attempts a {@link java.util.concurrent.ExecutorService#shutdownNow()} on
+     * the executor service to which tasks are submitted, killing all running tasks once either: the running process
+     * completes; or the executing process responds to the interrupt.  Any processes that respod to the interrupt
+     * should be re-executed on startup.
      */
     public void destroy() {
         getLog().debug("Shutdown of " + getClass().getSimpleName() + " triggered, " +

@@ -16,7 +16,8 @@ import java.util.Set;
  */
 public interface ConanSubmissionService {
     /**
-     * Submit a new task to Conan.  This task will be submitted to the tail of the queue whilst this service is running,
+     * Submit a new task to Conan.  This task will be submitted to the tail of the queue whilst this service is
+     * running,
      * unless this task duplicates another.  If the service is shutdown, or is the task is a duplicate, a
      * SubmissionException will be thrown.
      *
@@ -38,6 +39,17 @@ public interface ConanSubmissionService {
      *          if the task duplicates another or if this service is no longer accepting submissions
      */
     void resubmitTask(ConanTask<? extends ConanPipeline> conanTask) throws SubmissionException;
+
+    /**
+     * Forcibly attempts to interrupt this task, halting execution of any operations currently running (if possible).
+     * This should only be used as a measure of last resort, as it can potentially leave processes in an inconsistent
+     * state.  Concrete classes should implement this method by taking measures to halt or interrupt running tasks and
+     * their processes as smoothly as possible, but with the proviso that tasks should always be removed from the
+     * interface as soon as possible even if execution of underlying processes could not be terminated.
+     *
+     * @param conanTask the task to interrupt
+     */
+    void interruptTask(ConanTask<? extends ConanPipeline> conanTask);
 
     /**
      * Returns the set of tasks that have been submitted to Conan and that are currently executing.  Pending tasks, or

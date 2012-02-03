@@ -219,7 +219,12 @@ public class InMemoryConanTaskDAO implements ConanTaskDAO {
                 results.add(task);
             }
         }
-        return results.subList(startingFrom, startingFrom + maxRecords);
+        if ((startingFrom + maxRecords) > results.size()) {
+            return results;
+        }
+        else {
+            return results.subList(startingFrom, startingFrom + maxRecords);
+        }
     }
 
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasksSummary(int maxRecords, int startingFrom) {
