@@ -70,7 +70,7 @@ public class SampleTabToAgeTabLSFProcess extends AbstractBioSDLSFProcess {
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() 
 				+ " -o " + agedir.getAbsolutePath() 
-				+ " " + sampletabFile.getAbsolutePath(); 
+				+ sampletabFile.getAbsolutePath(); 
 		getLog().info("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}

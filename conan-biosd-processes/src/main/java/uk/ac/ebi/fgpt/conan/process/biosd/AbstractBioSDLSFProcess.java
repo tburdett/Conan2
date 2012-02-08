@@ -22,6 +22,7 @@ public abstract class AbstractBioSDLSFProcess extends AbstractLSFProcess {
 	private String getPathPrefix(SampleTabAccessionParameter accession){
 		if (accession.getAccession().startsWith("GMS-")) return "imsr";
 		else if (accession.getAccession().startsWith("GAE-")) return "ae";
+        else if (accession.getAccession().startsWith("GRP-")) return "pride";
 		else throw new IllegalArgumentException("Unable to get path prefix for "+accession.getAccession());
 	}
 	
