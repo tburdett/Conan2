@@ -21,7 +21,8 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
 
-    <script type="text/javascript" src="https://raw.github.com/jsor/jcarousel/0.2.8/lib/jquery.jcarousel.min.js"></script>
+    <script type="text/javascript"
+            src="https://raw.github.com/jsor/jcarousel/0.2.8/lib/jquery.jcarousel.min.js"></script>
     <script type="text/javascript" src="http://datatables.net/download/build/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="http://malsup.github.com/jquery.form.js"></script>
 
@@ -541,6 +542,13 @@
         <span id="conan-submission-dialog-parameters"></span>
         and will start at <span id="conan-submission-dialog-process"></span><br/>
         Is this correct?
+    </p>
+</div>
+
+<div id="conan-kill-dialog" title="Kill running job?" style="display: none;">
+    <p class="ui-state-error ui-corner-all">
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
+        <span id="conan-kill-dialog-message">This job will be aborted and cannot be restarted.  Are you sure?</span><br/>
     </p>
 </div>
 

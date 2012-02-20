@@ -35,7 +35,7 @@
         <!-- number of allowed parallel processes -->
         <constructor-arg name="numberOfParallelJobs" value="20" />
         <!-- time in seconds to hold jobs before running -->
-        <constructor-arg name="coolingOffPeriod" value="120" />
+        <constructor-arg name="coolingOffPeriod" value="30" />
         <!--<property name="taskService" ref="taskService" />-->
         <property name="conanTaskDAO" ref="conanTaskDAO" />
     </bean>

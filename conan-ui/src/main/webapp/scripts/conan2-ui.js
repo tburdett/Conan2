@@ -176,6 +176,12 @@ function configureUI() {
                                                  }
                                              }
                                          });
+    // partially init kill dialog, need to add buttons at 'runtime' so as to set correct callbacks
+    $("#conan-kill-dialog").dialog({
+                                       autoOpen:false,
+                                       modal:true,
+                                       dialogClass:'alert'
+                                   });
     $("#conan-multi-submission-dialog").dialog({
                                                    autoOpen:false,
                                                    modal:true,
@@ -298,7 +304,7 @@ function initCarouselCallbackFunction(carousel, state) {
     // add our button icon
     $(".jcarousel-next-vertical")
             .html("<span class=\"ui-icon ui-icon-triangle-1-s\" style=\"margin-left: auto; margin-right: auto\"></span>");
-    // and add hover states
+    // add hover states
     $(".jcarousel-next-vertical").hover(
             function() {
                 $(this).addClass('ui-state-hover');
@@ -307,6 +313,8 @@ function initCarouselCallbackFunction(carousel, state) {
                 $(this).removeClass('ui-state-hover');
             }
     );
+    // finally, add overflow hidden to the container
+    $(".jcarousel-clip").css("overflow", "hidden");
 }
 
 /*
@@ -776,8 +784,18 @@ function requestTaskPause(taskID) {
 }
 
 function requestTaskStop(taskID, suppressRefresh) {
-    // create confirm dialog
-
+    // set up the rest of the kill dialog (add buttons for taskID callback)
+    $("#conan-kill-dialog").dialog("option", "buttons", {
+        "Kill this job":function() {
+            requestTaskAbort(taskID, suppressRefresh);
+            $(this).dialog("close");
+        },
+        Cancel:function() {
+            $(this).dialog("close");
+        }
+    });
+    // and open the dialog
+    $("#conan-kill-dialog").dialog("open");
 }
 
 /**
@@ -927,7 +945,6 @@ function displayParameterOptionsInJCarousel() {
     // and build the carousel
     $("#conan-carousel-or-single-parameters").jcarousel({
                                                             vertical:true,
-//                                                            size: 0,
                                                             scroll:1,
                                                             initCallback:initCarouselCallbackFunction
                                                         });
@@ -1214,11 +1231,11 @@ function displayRunningTasks() {
 
         var progressCol;
         if (restApiKey != undefined) {
-            // logged in users see a pause button
+            // logged in users see a stop button and a pause button
             progressCol = runningTask.currentProcess.name +
                     "<span style=\"float: right; margin-right: 0.3em;\"" +
                     "class=\"ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary stop-button clickable\"" +
-                    "onclick=\"requestTaskAbort(\'" + runningTask.id + "\');\" title=\"Stop this task\">" +
+                    "onclick=\"requestTaskStop(\'" + runningTask.id + "\');\" title=\"Forcibly kill this task\">" +
                     "<span class=\"ui-icon ui-icon-stop\"></span>" +
                     "</span>" +
                     "<span style=\"float: right; margin-right: 0.3em;\"" +
