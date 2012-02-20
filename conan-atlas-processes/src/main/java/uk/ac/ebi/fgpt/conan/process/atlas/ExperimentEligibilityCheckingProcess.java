@@ -9,6 +9,7 @@ import uk.ac.ebi.arrayexpress2.magetab.datamodel.graph.Node;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.*;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.ArrayDesignAttribute;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.CharacteristicsAttribute;
+import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.FactorValueAttribute;
 import uk.ac.ebi.arrayexpress2.magetab.exception.ParseException;
 import uk.ac.ebi.arrayexpress2.magetab.parser.MAGETABParser;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
@@ -180,6 +181,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 if (hybNode.factorValues.size() > 0) {
                     factorValues++;
                 }
+
+               
                 ArrayDesignAccessions.clear();
                 for (ArrayDesignAttribute arrayDesign : hybNode.arrayDesigns) {
                     if (!ArrayDesignAccessions
@@ -187,6 +190,54 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                         ArrayDesignAccessions.add(arrayDesign.getAttributeValue());
                     }
                 }
+            }
+
+
+            boolean replicates = true;
+            // All experiments must have replicates for at least 1 factor
+            Hashtable<String,Hashtable> factorTypesCounts = new Hashtable<String, Hashtable>();
+            for (String factorType : investigation.IDF.experimentalFactorType) {
+                Hashtable<String,Integer> factorValuesCounts = new Hashtable<String, Integer>();
+                for (HybridizationNode hybNode : hybridizationNodes) {
+                    String arrayDesignName = "";
+                    for (ArrayDesignAttribute arrayDesign : hybNode.arrayDesigns) {
+                        arrayDesignName=arrayDesign.getAttributeValue() ;
+                    }
+                    for (FactorValueAttribute fva : hybNode.factorValues) {
+                       if (fva.getAttributeType().equals(factorType)) {
+                        String key = arrayDesignName+"_"+fva.getAttributeValue();
+                        if (factorValuesCounts.get(key)==null){
+                            factorValuesCounts.put(key,1);
+                        }
+                        else {
+                            int value = factorValuesCounts.get(key);
+                            factorValuesCounts.put(key,value++);
+                        }
+                       }
+                    }
+                }
+                
+                factorTypesCounts.put(factorType,factorValuesCounts);
+            }
+
+
+            
+            for (Hashtable<String,Integer> fvc : factorTypesCounts.values() ) {
+               for (int val : fvc.values()){
+                   if (val == 0){
+                        replicates = false;
+                   }
+               }
+            }
+
+            // replicates
+            if (replicates == false) {
+                exitValue = 1;
+                log.write(
+                        "Experiment does not have replicates for at least 1 factor type\n");
+                getLog().debug(
+                        "Experiment does not have replicates for at least 1 factor type");
+                error_val = error_val + "Experiment does not have replicates for at least 1 factor type. \n";
             }
 
             //3 factor values
@@ -202,8 +253,10 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             //6 and 7 factor types are from controlled vocabulary and not repeated
             boolean factorTypesFromCV = true;
             boolean factorTypesVariable = true;
+            boolean characteristicsFromCV = true;
             boolean characteristicsVariable = true;
             List<String> missedFactorTypes = new ArrayList<String>();
+            List<String> missedCharacteristics = new ArrayList<String>();
             List<String> repeatedFactorTypes = new ArrayList<String>();
             List<String> repeatedCharacteristics = new ArrayList<String>();
             for (String factorType : investigation.IDF.experimentalFactorType) {
@@ -223,6 +276,11 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                         characteristicsVariable = false;
                     }
                     repeatedCharacteristics.add(ca.getAttributeType());
+                    if (!controlledVocabularyDAO
+                            .getAtlasFactorTypes().contains(ca.getAttributeType().toLowerCase())) {
+                        characteristicsFromCV = false;
+                        missedCharacteristics.add(ca.getAttributeType());
+                    }
                 }
             }
             if (!factorTypesFromCV) {
@@ -237,12 +295,31 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                         "Experiment has Factor Types that are not in controlled vocabulary:" +
                         missedFactorTypes + ".\n";
             }
+            if (!characteristicsFromCV) {
+                exitValue = 1;
+                log.write(
+                        "Experiment has Characteristics that are not in controlled vocabulary:" +
+                                missedCharacteristics + "\n");
+                getLog().debug(
+                        "Experiment has Characteristics that are not in controlled vocabulary:" +
+                                missedCharacteristics);
+                error_val = error_val +
+                        "Experiment has Characteristics that are not in controlled vocabulary:" +
+                        missedCharacteristics + ".\n";
+            }
 
             if (!factorTypesVariable) {
                 exitValue = 1;
                 log.write("Experiment has repeated Factor Types.\n");
                 getLog().debug("Experiment has repeated Factor Types.");
                 error_val = error_val + "Experiment has repeated Factor Types.\n";
+            }
+
+            if (!characteristicsVariable) {
+                exitValue = 1;
+                log.write("Experiment has repeated Characteristics.\n");
+                getLog().debug("Experiment has repeated Characteristics.");
+                error_val = error_val + "Experiment has repeated Characteristics.\n";
             }
 
             // 5 check: array design is in Atlas
@@ -405,8 +482,9 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                                 " - ChIP-chip by array;\n" +
                                 "4. Experiments is not two-channel;\n" +
                                 "5. Experiment has factor values;\n" +
-                                "6. Factor types are from controlled vocabulary;\n" +
-                                "7. Factor types and Characteristics are variable (not repeated).");
+                                "6. Experiment has replicates for at least 1 factor type;"+
+                                "7. Factor types and Characteristics are from controlled vocabulary;\n" +
+                                "8. Factor types and Characteristics are variable (not repeated).");
                 log.close();
             }
             catch (IOException e) {
