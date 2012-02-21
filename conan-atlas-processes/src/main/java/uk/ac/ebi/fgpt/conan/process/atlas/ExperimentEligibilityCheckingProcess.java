@@ -284,6 +284,19 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                     }
                 }
             }
+            for (SourceNode sourceNode : investigation.SDRF.getNodes(SourceNode.class)) {
+                for (CharacteristicsAttribute ca : sourceNode.characteristics) {
+                    if (repeatedCharacteristics.contains(ca.getAttributeType())) {
+                        characteristicsVariable = false;
+                    }
+                    repeatedCharacteristics.add(ca.getAttributeType());
+                    if (!controlledVocabularyDAO
+                            .getAtlasFactorTypes().contains(ca.getAttributeType().toLowerCase())) {
+                        characteristicsFromCV = false;
+                        missedCharacteristics.add(ca.getAttributeType());
+                    }
+                }
+            }
             if (!factorTypesFromCV) {
                 exitValue = 1;
                 log.write(
@@ -715,27 +728,30 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             List<String> repeatedFactorTypes = new ArrayList<String>();
             List<String> repeatedCharacteristics = new ArrayList<String>();
             for (String factorType : investigation.IDF.experimentalFactorType) {
-                if (!controlledVocabularyDAO
-                        .getAtlasFactorTypes().contains(factorType.toLowerCase())) {
-                    factorTypesFromCV = false;
-                    missedFactorTypes.add(factorType);
-                }
+                System.out.println("Repeated1");
                 if (repeatedFactorTypes.contains(factorType)) {
                     factorTypesVariable = false;
                 }
                 repeatedFactorTypes.add(factorType);
             }
             for (SampleNode sampleNode : investigation.SDRF.getNodes(SampleNode.class)) {
+                System.out.println("Repeated2");
                 for (CharacteristicsAttribute ca : sampleNode.characteristics) {
                     if (repeatedCharacteristics.contains(ca.getAttributeType())) {
                         characteristicsVariable = false;
                     }
                     repeatedCharacteristics.add(ca.getAttributeType());
-                    if (!controlledVocabularyDAO
-                            .getAtlasFactorTypes().contains(ca.getAttributeType().toLowerCase())) {
-                        characteristicsFromCV = false;
-                        missedCharacteristics.add(ca.getAttributeType());
+
+                }
+            }
+            for (SourceNode sourceNode : investigation.SDRF.getNodes(SourceNode.class)) {
+                System.out.println("Repeated2");
+                for (CharacteristicsAttribute ca : sourceNode.characteristics) {
+                    if (repeatedCharacteristics.contains(ca.getAttributeType())) {
+                        characteristicsVariable = false;
                     }
+                    repeatedCharacteristics.add(ca.getAttributeType());
+
                 }
             }
             if (!factorTypesFromCV) {
