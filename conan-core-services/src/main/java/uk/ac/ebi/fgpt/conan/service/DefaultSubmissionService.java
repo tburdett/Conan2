@@ -123,9 +123,15 @@ public class DefaultSubmissionService implements ConanSubmissionService {
     }
 
     public void interruptTask(final ConanTask<? extends ConanPipeline> conanTask) {
-        getLog().debug("Forcing interruption of Task ID = " + conanTask.getId());
         Future<Boolean> f = executingFutures.get(conanTask);
-        f.cancel(true);
+        if (f != null) {
+            getLog().debug("Forcing interruption of Task ID = " + conanTask.getId());
+            f.cancel(true);
+            getLog().debug("Cancelled Task ID = " + conanTask.getId() + " successfully");
+        }
+        else {
+            getLog().debug("Failed to interrupt Task ID = " + conanTask.getId() + ": not currently executing");
+        }
     }
 
     public Set<ConanTask<? extends ConanPipeline>> getExecutingTasks() {
@@ -134,8 +140,8 @@ public class DefaultSubmissionService implements ConanSubmissionService {
 
     /**
      * On startup, this submission service recovers any pre-existing and running tasks and immediately resubmits them
-     * with {@link #resubmitTask(uk.ac.ebi.fgpt.conan.model.ConanTask)}.  This allows any tasks that were running at
-     * the previous shutdown (or failure) to be recovered wherever possible.
+     * with {@link #resubmitTask(uk.ac.ebi.fgpt.conan.model.ConanTask)}.  This allows any tasks that were running at the
+     * previous shutdown (or failure) to be recovered wherever possible.
      */
     public void init() {
         Assert.notNull(getConanTaskDAO(), "A ConanTaskDAO must be provided");
@@ -176,10 +182,10 @@ public class DefaultSubmissionService implements ConanSubmissionService {
     }
 
     /**
-     * On shutdown, this submission service attempts a {@link java.util.concurrent.ExecutorService#shutdownNow()} on
-     * the executor service to which tasks are submitted, killing all running tasks once either: the running process
-     * completes; or the executing process responds to the interrupt.  Any processes that respod to the interrupt
-     * should be re-executed on startup.
+     * On shutdown, this submission service attempts a {@link java.util.concurrent.ExecutorService#shutdownNow()} on the
+     * executor service to which tasks are submitted, killing all running tasks once either: the running process
+     * completes; or the executing process responds to the interrupt.  Any processes that respod to the interrupt should
+     * be re-executed on startup.
      */
     public void destroy() {
         getLog().debug("Shutdown of " + getClass().getSimpleName() + " triggered, " +
