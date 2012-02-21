@@ -51,15 +51,15 @@ public class ArrayDesignExistenceChecking extends AbstractRESTAPISubprocess {
     try {
 
       //if (Integer.parseInt(response.get("numTotal").toString()) > 0) {
-        String accession = "\"accession\":\""+parameters+"\"";
-        String synonym = parameters+" ";
+       String accession = "accession="+parameters+",";
+       String synonym = parameters+" ";
        if (response.get("arraydesigns").toString().contains(accession) || response.get("arraydesigns").toString().contains(synonym)){
         result = "is";
+
         if (response.get("arraydesigns").toString().toLowerCase()
             .contains("affy")) {
           result = "affy";
         }
-
       }
       else {
         result = "no";
