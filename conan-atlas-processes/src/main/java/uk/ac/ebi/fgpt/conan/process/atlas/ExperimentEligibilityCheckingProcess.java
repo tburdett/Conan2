@@ -204,30 +204,31 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                         arrayDesignName=arrayDesign.getAttributeValue() ;
                     }
                     for (FactorValueAttribute fva : hybNode.factorValues) {
-                       if (fva.getAttributeType().equals(factorType)) {
-                        String key = arrayDesignName+"_"+fva.getAttributeValue();
-                        if (factorValuesCounts.get(key)==null){
-                            factorValuesCounts.put(key,1);
+                        if (fva.getAttributeType().toLowerCase().contains(factorType.toLowerCase())) {
+                            String key = arrayDesignName+"_"+fva.getAttributeValue();
+                            if (factorValuesCounts.get(key)==null){
+                                factorValuesCounts.put(key,1);
+                            }
+                            else {
+                                int value = factorValuesCounts.get(key);
+                                value++;
+                                factorValuesCounts.put(key,value);
+                            }
                         }
-                        else {
-                            int value = factorValuesCounts.get(key);
-                            factorValuesCounts.put(key,value++);
-                        }
-                       }
                     }
                 }
-                
+
                 factorTypesCounts.put(factorType,factorValuesCounts);
             }
 
 
-            
+
             for (Hashtable<String,Integer> fvc : factorTypesCounts.values() ) {
-               for (int val : fvc.values()){
-                   if (val == 0){
+                for (int val : fvc.values()){
+                    if (val == 1){
                         replicates = false;
-                   }
-               }
+                    }
+                }
             }
 
             // replicates
@@ -523,6 +524,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
         // now, parse from a file
         File idfFile = new File(file);
+        int exitValue = 0;
+        String error_val = "";
 
         String reportsDir =
                 idfFile.getParentFile().getAbsolutePath() + File.separator +
@@ -553,14 +556,19 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         try {
             MAGETABInvestigation investigation = parser.parse(idfFile);
             // I check: experiment types
-            boolean isAtlasType = false;
-            if (investigation.IDF.getComments().containsKey("AEExperimentType")) {
+            boolean isAtlasType = true;
+
+            String restrictedExptType = "";
+           /* if (investigation.IDF.getComments().containsKey("AEExperimentType")) {
                 for (String exptType : investigation.IDF.getComments()
-                                                        .get("AEExperimentType")) {
+                        .get("AEExperimentType")) {
                     for (String AtlasType : controlledVocabularyDAO
                             .getAtlasExperimentTypes()) {
                         if (exptType.equals(AtlasType)) {
                             isAtlasType = true;
+                        }
+                        else {
+                            restrictedExptType = exptType;
                         }
                     }
                 }
@@ -574,28 +582,32 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                         }
                     }
                 }
-            }
+            }        */
+
             if (!isAtlasType)
             //not in Atlas Experiment Types
             {
-                result = false;
+                exitValue = 1;
                 log.write(
-                        "Atlas Eligibility Check: 'Experiment Type' is not accepted by Atlas\n");
+                        "'Experiment Type' " + restrictedExptType +
+                                " is not accepted by Atlas\n");
                 getLog().debug(
-                        "Atlas Eligibility Check: 'Experiment Type' is not accepted by Atlas");
-                throw new ProcessExecutionException(1,
-                                                    "Atlas Eligibility Check: 'Experiment Type' is not accepted by Atlas");
+                        "'Experiment Type' " + restrictedExptType +
+                                " is not accepted by Atlas");
+                error_val = "'Experiment Type' " + restrictedExptType +
+                        " is not accepted by Atlas.\n";
             }
-            //Ia two-channel experiment
+
+            //2 two-channel experiment
             if (investigation.SDRF.getNumberOfChannels() > 1) {
-                result = false;
+                exitValue = 1;
                 log.write(
-                        "Atlas Eligibility Check: two-channel experiment is not accepted by Atlas\n");
+                        "Two-channel experiment is not accepted by Atlas\n");
                 getLog().debug(
-                        "Atlas Eligibility Check: two-channel experiment is not accepted by Atlas");
-                throw new ProcessExecutionException(1,
-                                                    "Atlas Eligibility Check: two-channel experiment is not accepted by Atlas");
+                        "Two-channel experiment is not accepted by Atlas");
+                error_val = error_val + "Two-channel experiment is not accepted by Atlas. \n";
             }
+
 
             Collection<HybridizationNode> hybridizationNodes =
                     investigation.SDRF.getNodes(HybridizationNode.class);
@@ -606,12 +618,13 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             Collection<DerivedArrayDataMatrixNode> processedDataMatrixNodes =
                     investigation.SDRF.getNodes(DerivedArrayDataMatrixNode.class);
             int factorValues = 0;
-            for (HybridizationNode hybNode : hybridizationNodes)
-
-            {
+            for (HybridizationNode hybNode : hybridizationNodes) {
                 if (hybNode.factorValues.size() > 0) {
                     factorValues++;
                 }
+
+
+                ArrayDesignAccessions.clear();
                 for (ArrayDesignAttribute arrayDesign : hybNode.arrayDesigns) {
                     if (!ArrayDesignAccessions
                             .contains(arrayDesign.getAttributeValue())) {
@@ -620,23 +633,74 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 }
             }
 
-            //Ib presence of factor values
-            if (factorValues == 0) {
-                result = false;
-                log.write(
-                        "Atlas Eligibility Check: experiment does not have Factor Values\n");
-                getLog().debug(
-                        "Atlas Eligibility Check: experiment does not have Factor Values");
-                throw new ProcessExecutionException(1,
-                                                    "Atlas Eligibility Check: experiment does not have Factor Values");
+
+            boolean replicates = true;
+            // All experiments must have replicates for at least 1 factor
+            Hashtable<String,Hashtable> factorTypesCounts = new Hashtable<String, Hashtable>();
+            for (String factorType : investigation.IDF.experimentalFactorType) {
+                Hashtable<String,Integer> factorValuesCounts = new Hashtable<String, Integer>();
+                for (HybridizationNode hybNode : hybridizationNodes) {
+                    String arrayDesignName = "";
+                    for (ArrayDesignAttribute arrayDesign : hybNode.arrayDesigns) {
+                        arrayDesignName=arrayDesign.getAttributeValue() ;
+                    }
+                    for (FactorValueAttribute fva : hybNode.factorValues) {
+                        if (fva.getAttributeType().toLowerCase().contains(factorType.toLowerCase())) {
+                            String key = arrayDesignName+"_"+fva.getAttributeValue();
+                            if (factorValuesCounts.get(key)==null){
+                                factorValuesCounts.put(key,1);
+                            }
+                            else {
+                                int value = factorValuesCounts.get(key);
+                                value++;
+                                factorValuesCounts.put(key,value);
+                            }
+                        }
+                    }
+                }
+
+                factorTypesCounts.put(factorType,factorValuesCounts);
             }
 
-            //Ic factor types are from controlled vocabulary
-            getLog().debug("FACTOR TYPES\n");
+
+
+            for (Hashtable<String,Integer> fvc : factorTypesCounts.values() ) {
+                for (int val : fvc.values()){
+                    if (val == 1){
+                        replicates = false;
+                    }
+                }
+            }
+
+            // replicates
+            if (replicates == false) {
+                exitValue = 1;
+                log.write(
+                        "Experiment does not have replicates for at least 1 factor type\n");
+                getLog().debug(
+                        "Experiment does not have replicates for at least 1 factor type");
+                error_val = error_val + "Experiment does not have replicates for at least 1 factor type. \n";
+            }
+
+            //3 factor values
+            if (factorValues == 0) {
+                exitValue = 1;
+                log.write(
+                        "Experiment does not have Factor Values\n");
+                getLog().debug(
+                        "Experiment does not have Factor Values");
+                error_val = error_val + "Experiment does not have Factor Values. \n";
+            }
+
+            //6 and 7 factor types are from controlled vocabulary and not repeated
             boolean factorTypesFromCV = true;
             boolean factorTypesVariable = true;
+            boolean characteristicsFromCV = true;
+            boolean characteristicsVariable = true;
             List<String> missedFactorTypes = new ArrayList<String>();
+            List<String> missedCharacteristics = new ArrayList<String>();
             List<String> repeatedFactorTypes = new ArrayList<String>();
+            List<String> repeatedCharacteristics = new ArrayList<String>();
             for (String factorType : investigation.IDF.experimentalFactorType) {
                 if (!controlledVocabularyDAO
                         .getAtlasFactorTypes().contains(factorType.toLowerCase())) {
@@ -647,46 +711,60 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                     factorTypesVariable = false;
                 }
                 repeatedFactorTypes.add(factorType);
-                getLog().debug("FT" + factorType + "\n");
+            }
+            for (SampleNode sampleNode : investigation.SDRF.getNodes(SampleNode.class)) {
+                for (CharacteristicsAttribute ca : sampleNode.characteristics) {
+                    if (repeatedCharacteristics.contains(ca.getAttributeType())) {
+                        characteristicsVariable = false;
+                    }
+                    repeatedCharacteristics.add(ca.getAttributeType());
+                    if (!controlledVocabularyDAO
+                            .getAtlasFactorTypes().contains(ca.getAttributeType().toLowerCase())) {
+                        characteristicsFromCV = false;
+                        missedCharacteristics.add(ca.getAttributeType());
+                    }
+                }
             }
             if (!factorTypesFromCV) {
-
+                exitValue = 1;
                 log.write(
                         "Experiment has Factor Types that are not in controlled vocabulary:" +
                                 missedFactorTypes + "\n");
                 getLog().debug(
                         "Experiment has Factor Types that are not in controlled vocabulary:" +
                                 missedFactorTypes);
-                ProcessExecutionException pex =
-                        new ProcessExecutionException(1,
-                                                      "Experiment has Factor Types that are not in controlled vocabulary:" +
-                                                              missedFactorTypes);
-
-                String[] errors = new String[1];
-                errors[0] =
+                error_val = error_val +
                         "Experiment has Factor Types that are not in controlled vocabulary:" +
-                                missedFactorTypes;
-                pex.setExceptionCausesAbort();
-                pex.setProcessOutput(errors);
-                throw pex;
+                        missedFactorTypes + ".\n";
+            }
+            if (!characteristicsFromCV) {
+                exitValue = 1;
+                log.write(
+                        "Experiment has Characteristics that are not in controlled vocabulary:" +
+                                missedCharacteristics + "\n");
+                getLog().debug(
+                        "Experiment has Characteristics that are not in controlled vocabulary:" +
+                                missedCharacteristics);
+                error_val = error_val +
+                        "Experiment has Characteristics that are not in controlled vocabulary:" +
+                        missedCharacteristics + ".\n";
             }
 
             if (!factorTypesVariable) {
-
+                exitValue = 1;
                 log.write("Experiment has repeated Factor Types.\n");
                 getLog().debug("Experiment has repeated Factor Types.");
-                ProcessExecutionException pex =
-                        new ProcessExecutionException(1,
-                                                      "Experiment has repeated Factor Types");
-
-                String[] errors = new String[1];
-                errors[0] = "Experiment has repeated Factor Types";
-                pex.setExceptionCausesAbort();
-                pex.setProcessOutput(errors);
-                throw pex;
+                error_val = error_val + "Experiment has repeated Factor Types.\n";
             }
 
-            // II check: array design is in Atlas
+            if (!characteristicsVariable) {
+                exitValue = 1;
+                log.write("Experiment has repeated Characteristics.\n");
+                getLog().debug("Experiment has repeated Characteristics.");
+                error_val = error_val + "Experiment has repeated Characteristics.\n";
+            }
+
+            // 5 check: array design is in Atlas
             for (String arrayDesign : ArrayDesignAccessions) {
                 ArrayDesignExistenceChecking arrayDesignExistenceChecking =
                         new ArrayDesignExistenceChecking();
@@ -694,17 +772,16 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                         arrayDesignExistenceChecking.execute(arrayDesign);
                 if (arrayCheckResult.equals("empty") ||
                         arrayCheckResult.equals("no")) {
-                    result = false;
-                    log.write("Atlas Eligibility Check: array design '" +
-                                      arrayDesign +
-                                      "' used in experiment is not in Atlas\n");
-                    getLog().debug("Atlas Eligibility Check: array design '" +
-                                           arrayDesign +
-                                           "' used in experiment is not in Atlas");
-                    throw new ProcessExecutionException(1,
-                                                        "Atlas Eligibility Check: array design '" +
-                                                                arrayDesign +
-                                                                "' used in experiment is not in Atlas");
+                    exitValue = 1;
+                    log.write("Array design '" +
+                            arrayDesign +
+                            "' used in experiment is not in Atlas\n");
+                    getLog().debug("Array design '" +
+                            arrayDesign +
+                            "' used in experiment is not in Atlas");
+                    error_val = error_val + "Array design '" +
+                            arrayDesign +
+                            "' used in experiment is not in Atlas. \n";
                 }
 
                 else {
@@ -727,9 +804,9 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                                 hybridizationSubNodes.add(hybNode);
                                 getNodes(hybNode, ArrayDataNode.class, rawDataSubNodes);
                                 getNodes(hybNode, DerivedArrayDataNode.class,
-                                         processedDataSubNodes);
+                                        processedDataSubNodes);
                                 getNodes(hybNode, DerivedArrayDataMatrixNode.class,
-                                         processedDataMatrixSubNodes);
+                                        processedDataMatrixSubNodes);
 
                             }
 
@@ -750,32 +827,31 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
                     }
 
-                    //III check: if Affy then check for raw data files, else for derived
+                    //6 check: if Affy then check for raw data files, else for derived
                     if (arrayCheckResult.equals("affy") &&
-                            hybridizationSubNodes.size() != rawDataSubNodes.size())
-                    //affy
-                    {
-                        result = false;
+                            hybridizationSubNodes.size() != rawDataSubNodes.size()) {   //6a affy
+                        exitValue = 1;
                         log.write(
-                                "Atlas Eligibility Check: Affymetrix experiment without raw data files\n");
+                                "Affymetrix experiment without raw data files\n");
                         getLog().debug(
-                                "Atlas Eligibility Check: Affymetrix experiment without raw data files");
-                        throw new ProcessExecutionException(1,
-                                                            "Atlas Eligibility Check: Affymetrix experiment without raw data files");
+                                "Affymetrix experiment without raw data files");
+                        error_val = error_val + "Affymetrix experiment without raw data files.\n";
                     }
-                    else
-                        //not affy without processed data
+                    else {
+                        //6b not affy without processed data
                         if (!arrayCheckResult.equals("affy") &&
-                                processedDataSubNodes.size() == 0 &&
+                                //processedDataSubNodes.size() == 0 &&
                                 processedDataMatrixSubNodes.size() == 0) {
-                            result = false;
+                            exitValue = 1;
                             log.write(
-                                    "Atlas Eligibility Check: non-Affymetrix experiment without processed data files\n");
+                                    "Non-Affymetrix experiment without processed data files\n");
                             getLog().debug(
-                                    "Atlas Eligibility Check: non-Affymetrix experiment without processed data files");
-                            throw new ProcessExecutionException(1,
-                                                                "Atlas Eligibility Check: non-Affymetrix experiment without processed data files");
+                                    "Non-Affymetrix experiment without processed data files");
+                            error_val = error_val +
+                                    "Non-Affymetrix experiment without processed data files. \n";
+
                         }
+                    }
                 }
             }
         }
@@ -798,6 +874,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                             "Atlas Eligibility Check: experiment \"" + idfFile.getName() +
                                     "\" is NOT eligible for ArrayExpress.\n");
                 }
+                log.write(error_val);
+                System.out.println(error_val);
                 log.write("Atlas Eligibility Check: FINISHED\n");
                 log.write(
                         "Eligibility checks for Gene Expression Atlas version 2.0.9.3: \n" +
