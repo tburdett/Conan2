@@ -467,6 +467,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                     log.write("Experiment \"" +
                                       accession.getAccession() +
                                       "\" is NOT eligible for Atlas\n");
+                    log.write(error_val);
                 }
                 log.write("Atlas Eligibility Check: FINISHED\n");
                 log.write(
