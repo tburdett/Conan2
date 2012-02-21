@@ -146,6 +146,9 @@ function configureUI() {
     $("#conan-history-table_last").prepend("<div style=\"float: right; margin-left: 0.3em;\" class=\"ui-icon ui-icon-seek-end\"></div>");
     $("#conan-history-table_last").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
 
+    // remove 'next' class as it collides with a class from ebi basicstyles.css and causes horrid button twitch
+    $("#conan-history-table_next").removeClass("next");
+
     // add button hover states
     $(".ui-button").hover(
             function() {
