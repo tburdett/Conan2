@@ -136,15 +136,15 @@ function configureUI() {
     $("#conan-date-to-search").datepicker("option", "dateFormat", "dd/mm/yy");
 
     // add icons to relevant buttons
-    $(".first").prepend("<div style=\"float: left; margin-right: 0.3em;\" class=\"ui-icon ui-icon-seek-start\"></div>");
-    $(".first").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
-    $(".previous")
+    $("#conan-history-table_first").prepend("<div style=\"float: left; margin-right: 0.3em;\" class=\"ui-icon ui-icon-seek-start\"></div>");
+    $("#conan-history-table_first").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
+    $("#conan-history-table_previous")
             .prepend("<div style=\"float: left; margin-right: 0.3em;\" class=\"ui-icon ui-icon-seek-prev\"></div>");
-    $(".previous").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
-    $(".next").prepend("<div style=\"float: right; margin-left: 0.3em;\" class=\"ui-icon ui-icon-seek-next\"></div>");
-    $(".next").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
-    $(".last").prepend("<div style=\"float: right; margin-left: 0.3em;\" class=\"ui-icon ui-icon-seek-end\"></div>");
-    $(".last").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
+    $("#conan-history-table_previous").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
+    $("#conan-history-table_next").prepend("<div style=\"float: right; margin-left: 0.3em;\" class=\"ui-icon ui-icon-seek-next\"></div>");
+    $("#conan-history-table_next").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
+    $("#conan-history-table_last").prepend("<div style=\"float: right; margin-left: 0.3em;\" class=\"ui-icon ui-icon-seek-end\"></div>");
+    $("#conan-history-table_last").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
 
     // add button hover states
     $(".ui-button").hover(
