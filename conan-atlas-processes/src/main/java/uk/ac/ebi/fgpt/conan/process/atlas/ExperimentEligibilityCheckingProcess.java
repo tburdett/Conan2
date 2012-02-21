@@ -390,11 +390,23 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                     if (arrayCheckResult.equals("affy") &&
                             hybridizationSubNodes.size() != rawDataSubNodes.size()) {   //6a affy
                         exitValue = 1;
-                        log.write(
-                                "Affymetrix experiment without raw data files\n");
-                        getLog().debug(
-                                "Affymetrix experiment without raw data files");
-                        error_val = error_val + "Affymetrix experiment without raw data files.\n";
+                        if (rawDataSubNodes.size()==0) {
+                            log.write(
+                                    "Affymetrix experiment without raw data files\n");
+                            getLog().debug(
+                                    "Affymetrix experiment without raw data files");
+                            error_val = error_val + "Affymetrix experiment without raw data files.\n";
+                        }
+                        else {
+                            log.write(
+                                    "Affymetrix experiment with different numbers of hybs ("
+                                    +hybridizationSubNodes.size()+") and raw data files ("+rawDataSubNodes.size()+") \n");
+                            getLog().debug(
+                                    "Affymetrix experiment with different numbers of hybs ("
+                                    +hybridizationSubNodes.size()+") and raw data files ("+rawDataSubNodes.size()+")");
+                            error_val = error_val + "Affymetrix experiment with different numbers of hybs ("
+                                    +hybridizationSubNodes.size()+") and raw data files ("+rawDataSubNodes.size()+").\n";
+                        }
                     }
                     else {
                         //6b not affy without processed data
@@ -830,13 +842,22 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
                     //6 check: if Affy then check for raw data files, else for derived
                     if (arrayCheckResult.equals("affy") &&
-                            hybridizationSubNodes.size() != rawDataSubNodes.size()) {   //6a affy
+                            hybridizationSubNodes.size() != rawDataSubNodes.size()) { 
                         exitValue = 1;
-                        log.write(
+                        if (rawDataSubNodes.size()==0) {
+                            log.write(
                                 "Affymetrix experiment without raw data files\n");
-                        getLog().debug(
+                            getLog().debug(
                                 "Affymetrix experiment without raw data files");
-                        error_val = error_val + "Affymetrix experiment without raw data files.\n";
+                            error_val = error_val + "Affymetrix experiment without raw data files.\n";
+                        }
+                        else {
+                            log.write(
+                                    "Affymetrix experiment with different numbers of hybs ("+hybridizationSubNodes.size()+") and raw data files ("+rawDataSubNodes.size()+") \n");
+                            getLog().debug(
+                                    "Affymetrix experiment with different numbers of hybs ("+hybridizationSubNodes.size()+") and raw data files ("+rawDataSubNodes.size()+")");
+                            error_val = error_val + "Affymetrix experiment with different numbers of hybs ("+hybridizationSubNodes.size()+") and raw data files ("+rawDataSubNodes.size()+").\n";
+                        }
                     }
                     else {
                         //6b not affy without processed data
