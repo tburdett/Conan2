@@ -28,7 +28,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
     private final ExecutorService taskExecutor;
     private final int coolingOffPeriod;
 
-    private final Map<ConanTask<? extends ConanPipeline>, Future<Boolean>> executingFutures;
+    private final Map<String, Future<Boolean>> executingFutures;
 
     private ConanTaskDAO conanTaskDAO;
 
@@ -37,7 +37,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
     public DefaultSubmissionService(int numberOfParallelJobs, int coolingOffPeriod) {
         this.taskExecutor = Executors.newFixedThreadPool(numberOfParallelJobs);
         this.coolingOffPeriod = coolingOffPeriod;
-        this.executingFutures = new HashMap<ConanTask<? extends ConanPipeline>, Future<Boolean>>();
+        this.executingFutures = new HashMap<String, Future<Boolean>>();
     }
 
     protected Logger getLog() {
@@ -85,13 +85,13 @@ public class DefaultSubmissionService implements ConanSubmissionService {
                         throw e;
                     }
                     finally {
-                        if (executingTask != null && executingFutures.containsKey(executingTask)) {
-                            executingFutures.remove(executingTask);
+                        if (executingTask != null && executingFutures.containsKey(executingTask.getId())) {
+                            executingFutures.remove(executingTask.getId());
                         }
                     }
                 }
             });
-            executingFutures.put(conanTask, f);
+            executingFutures.put(conanTask.getId(), f);
 
             // flag the fact that this task was submitted, if it hasn't been restarted
             if (!conanTask.isSubmitted()) {
@@ -123,7 +123,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
     }
 
     public void interruptTask(final ConanTask<? extends ConanPipeline> conanTask) {
-        Future<Boolean> f = executingFutures.get(conanTask);
+        Future<Boolean> f = executingFutures.get(conanTask.getId());
         if (f != null) {
             getLog().debug("Forcing interruption of Task ID = " + conanTask.getId());
             f.cancel(true);
@@ -135,7 +135,13 @@ public class DefaultSubmissionService implements ConanSubmissionService {
     }
 
     public Set<ConanTask<? extends ConanPipeline>> getExecutingTasks() {
-        return Collections.unmodifiableSet(executingFutures.keySet());
+        // retrieve all tasks by ID from the executingFutures keySet
+        Set<ConanTask<? extends ConanPipeline>> executingTasks = new HashSet<ConanTask<? extends ConanPipeline>>();
+        for (String taskID : executingFutures.keySet()) {
+            executingTasks.add(getConanTaskDAO().getTask(taskID));
+        }
+        // retrieve the snapshot of the currently executing tasks
+        return Collections.unmodifiableSet(executingTasks);
     }
 
     /**
