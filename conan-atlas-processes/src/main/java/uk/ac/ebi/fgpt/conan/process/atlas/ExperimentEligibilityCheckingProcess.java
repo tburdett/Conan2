@@ -280,7 +280,9 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                     if (!controlledVocabularyDAO
                             .getAtlasFactorTypes().contains(ca.type.toLowerCase())) {
                         characteristicsFromCV = false;
-                        missedCharacteristics.add(ca.type);
+                        if (!missedCharacteristics.contains(ca.type)){
+                            missedCharacteristics.add(ca.type);
+                        }
                     }
                 }
             }
@@ -293,7 +295,9 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                     if (!controlledVocabularyDAO
                             .getAtlasFactorTypes().contains(ca.type.toLowerCase())) {
                         characteristicsFromCV = false;
-                        missedCharacteristics.add(ca.type);
+                        if (!missedCharacteristics.contains(ca.type)){
+                            missedCharacteristics.add(ca.type);
+                        }
                     }
                 }
             }
@@ -509,7 +513,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                                 " - ChIP-chip by array;\n" +
                                 "4. Experiments is not two-channel;\n" +
                                 "5. Experiment has factor values;\n" +
-                                "6. Experiment has replicates for at least 1 factor type;"+
+                                "6. Experiment has replicates for at least 1 factor type;\n"+
                                 "7. Factor types and Characteristics are from controlled vocabulary;\n" +
                                 "8. Factor types and Characteristics are variable (not repeated).");
                 log.close();
