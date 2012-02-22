@@ -273,27 +273,27 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             }
             for (SampleNode sampleNode : investigation.SDRF.getNodes(SampleNode.class)) {
                 for (CharacteristicsAttribute ca : sampleNode.characteristics) {
-                    if (repeatedCharacteristics.contains(ca.getAttributeType())) {
+                    if (repeatedCharacteristics.contains(ca.type)) {
                         characteristicsVariable = false;
                     }
-                    repeatedCharacteristics.add(ca.getAttributeType());
+                    repeatedCharacteristics.add(ca.type);
                     if (!controlledVocabularyDAO
-                            .getAtlasFactorTypes().contains(ca.getAttributeType().toLowerCase())) {
+                            .getAtlasFactorTypes().contains(ca.type.toLowerCase())) {
                         characteristicsFromCV = false;
-                        missedCharacteristics.add(ca.getAttributeType());
+                        missedCharacteristics.add(ca.type);
                     }
                 }
             }
             for (SourceNode sourceNode : investigation.SDRF.getNodes(SourceNode.class)) {
                 for (CharacteristicsAttribute ca : sourceNode.characteristics) {
-                    if (repeatedCharacteristics.contains(ca.getAttributeType())) {
+                    if (repeatedCharacteristics.contains(ca.type)) {
                         characteristicsVariable = false;
                     }
-                    repeatedCharacteristics.add(ca.getAttributeType());
+                    repeatedCharacteristics.add(ca.type);
                     if (!controlledVocabularyDAO
-                            .getAtlasFactorTypes().contains(ca.getAttributeType().toLowerCase())) {
+                            .getAtlasFactorTypes().contains(ca.type.toLowerCase())) {
                         characteristicsFromCV = false;
-                        missedCharacteristics.add(ca.getAttributeType());
+                        missedCharacteristics.add(ca.type);
                     }
                 }
             }
@@ -737,20 +737,20 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             for (SampleNode sampleNode : investigation.SDRF.getNodes(SampleNode.class)) {
                 System.out.println("Repeated2");
                 for (CharacteristicsAttribute ca : sampleNode.characteristics) {
-                    if (repeatedCharacteristics.contains(ca.getAttributeType())) {
+                    if (repeatedCharacteristics.contains(ca.type)) {
                         characteristicsVariable = false;
                     }
-                    repeatedCharacteristics.add(ca.getAttributeType());
+                    repeatedCharacteristics.add(ca.type);
 
                 }
             }
             for (SourceNode sourceNode : investigation.SDRF.getNodes(SourceNode.class)) {
                 System.out.println("Repeated2");
                 for (CharacteristicsAttribute ca : sourceNode.characteristics) {
-                    if (repeatedCharacteristics.contains(ca.getAttributeType())) {
+                    if (repeatedCharacteristics.contains(ca.type)) {
                         characteristicsVariable = false;
                     }
-                    repeatedCharacteristics.add(ca.getAttributeType());
+                    repeatedCharacteristics.add(ca.type);
 
                 }
             }
