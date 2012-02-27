@@ -252,6 +252,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             }
 
             //6 and 7 factor types are from controlled vocabulary and not repeated
+            //6 and 7 factor types are from controlled vocabulary and not repeated
             boolean factorTypesFromCV = true;
             boolean factorTypesVariable = true;
             boolean characteristicsFromCV = true;
@@ -259,7 +260,10 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             List<String> missedFactorTypes = new ArrayList<String>();
             List<String> missedCharacteristics = new ArrayList<String>();
             List<String> repeatedFactorTypes = new ArrayList<String>();
+            List<String> repeatedFactorTypesList = new ArrayList<String>();
             List<String> repeatedCharacteristics = new ArrayList<String>();
+            List<String> repeatedCharacteristicsList = new ArrayList<String>();
+
             for (String factorType : investigation.IDF.experimentalFactorType) {
                 if (!controlledVocabularyDAO
                         .getAtlasFactorTypes().contains(factorType.toLowerCase())) {
@@ -268,15 +272,23 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 }
                 if (repeatedFactorTypes.contains(factorType)) {
                     factorTypesVariable = false;
+                    if (repeatedFactorTypesList.contains(factorType)){
+                        repeatedFactorTypesList.add(factorType);
+                    }
                 }
                 repeatedFactorTypes.add(factorType);
             }
             for (SampleNode sampleNode : investigation.SDRF.getNodes(SampleNode.class)) {
                 for (CharacteristicsAttribute ca : sampleNode.characteristics) {
-                    if (repeatedCharacteristics.contains(ca.type)) {
+                    String key = sampleNode.getNodeName() + ca.type;
+                    if (repeatedCharacteristics.contains(key)) {
                         characteristicsVariable = false;
+                        if (!repeatedCharacteristicsList.contains(ca.type)) {
+                            repeatedCharacteristicsList.add(ca.type);
+                        }
                     }
-                    repeatedCharacteristics.add(ca.type);
+                    repeatedCharacteristics.add(key);
+
                     if (!controlledVocabularyDAO
                             .getAtlasFactorTypes().contains(ca.type.toLowerCase())) {
                         characteristicsFromCV = false;
@@ -288,10 +300,15 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             }
             for (SourceNode sourceNode : investigation.SDRF.getNodes(SourceNode.class)) {
                 for (CharacteristicsAttribute ca : sourceNode.characteristics) {
-                    if (repeatedCharacteristics.contains(ca.type)) {
+                    String key = sourceNode.getNodeName() + ca.type;
+                    if (repeatedCharacteristics.contains(key)) {
                         characteristicsVariable = false;
+                        if (!repeatedCharacteristicsList.contains(ca.type)) {
+                            repeatedCharacteristicsList.add(ca.type);
+                        }
                     }
-                    repeatedCharacteristics.add(ca.type);
+                    repeatedCharacteristics.add(key);
+
                     if (!controlledVocabularyDAO
                             .getAtlasFactorTypes().contains(ca.type.toLowerCase())) {
                         characteristicsFromCV = false;
@@ -328,16 +345,22 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
             if (!factorTypesVariable) {
                 exitValue = 1;
-                log.write("Experiment has repeated Factor Types.\n");
-                getLog().debug("Experiment has repeated Factor Types.");
-                error_val = error_val + "Experiment has repeated Factor Types.\n";
+                log.write("Experiment has repeated Factor Types: " +
+                        repeatedFactorTypesList + "\n");
+                getLog().debug("Experiment has repeated Factor Types: " +
+                        repeatedFactorTypesList + ".");
+                error_val = error_val + "Experiment has repeated Factor Types: " +
+                        repeatedFactorTypesList + ".\n";
             }
 
             if (!characteristicsVariable) {
                 exitValue = 1;
-                log.write("Experiment has repeated Characteristics.\n");
-                getLog().debug("Experiment has repeated Characteristics.");
-                error_val = error_val + "Experiment has repeated Characteristics.\n";
+                log.write("Experiment has repeated Characteristics: " +
+                        repeatedCharacteristicsList + ".\n");
+                getLog().debug("Experiment has repeated Characteristics: " +
+                        repeatedCharacteristicsList + ".");
+                error_val = error_val + "Experiment has repeated Characteristics: " +
+                        repeatedCharacteristicsList + ".\n";
             }
 
             // 5 check: array design is in Atlas
@@ -730,31 +753,46 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             List<String> missedFactorTypes = new ArrayList<String>();
             List<String> missedCharacteristics = new ArrayList<String>();
             List<String> repeatedFactorTypes = new ArrayList<String>();
+            List<String> repeatedFactorTypesList = new ArrayList<String>();
             List<String> repeatedCharacteristics = new ArrayList<String>();
+            List<String> repeatedCharacteristicsList = new ArrayList<String>();
             for (String factorType : investigation.IDF.experimentalFactorType) {
                 System.out.println("Repeated1");
                 if (repeatedFactorTypes.contains(factorType)) {
                     factorTypesVariable = false;
+                    if (repeatedFactorTypesList.contains(factorType)){
+                        repeatedFactorTypesList.add(factorType);
+                    }
                 }
                 repeatedFactorTypes.add(factorType);
             }
             for (SampleNode sampleNode : investigation.SDRF.getNodes(SampleNode.class)) {
                 System.out.println("Repeated2");
                 for (CharacteristicsAttribute ca : sampleNode.characteristics) {
-                    if (repeatedCharacteristics.contains(ca.type)) {
+                    String key = sampleNode.getNodeName() + ca.type;
+                    System.out.println("Key:" + key );
+                    if (repeatedCharacteristics.contains(key)) {
                         characteristicsVariable = false;
+                        if (!repeatedCharacteristicsList.contains(ca.type)) {
+                            repeatedCharacteristicsList.add(ca.type);
+                        }
                     }
-                    repeatedCharacteristics.add(ca.type);
+                    repeatedCharacteristics.add(key);
 
                 }
             }
             for (SourceNode sourceNode : investigation.SDRF.getNodes(SourceNode.class)) {
                 System.out.println("Repeated2");
                 for (CharacteristicsAttribute ca : sourceNode.characteristics) {
-                    if (repeatedCharacteristics.contains(ca.type)) {
+                    String key = sourceNode.getNodeName() + ca.type;
+                    System.out.println("Key:" + key );
+                    if (repeatedCharacteristics.contains(key)) {
                         characteristicsVariable = false;
+                        if (!repeatedCharacteristicsList.contains(ca.type)) {
+                            repeatedCharacteristicsList.add(ca.type);
+                        }
                     }
-                    repeatedCharacteristics.add(ca.type);
+                    repeatedCharacteristics.add(key);
 
                 }
             }
@@ -777,7 +815,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                                 missedCharacteristics + "\n");
                 getLog().debug(
                         "Experiment has Characteristics that are not in controlled vocabulary:" +
-                                missedCharacteristics);
+                                missedCharacteristics + ".");
                 error_val = error_val +
                         "Experiment has Characteristics that are not in controlled vocabulary:" +
                         missedCharacteristics + ".\n";
@@ -785,16 +823,22 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
             if (!factorTypesVariable) {
                 exitValue = 1;
-                log.write("Experiment has repeated Factor Types.\n");
-                getLog().debug("Experiment has repeated Factor Types.");
-                error_val = error_val + "Experiment has repeated Factor Types.\n";
+                log.write("Experiment has repeated Factor Types: " +
+                        repeatedFactorTypesList + "\n");
+                getLog().debug("Experiment has repeated Factor Types: " +
+                        repeatedFactorTypesList + ".");
+                error_val = error_val + "Experiment has repeated Factor Types: " +
+                        repeatedFactorTypesList + ".\n";
             }
 
             if (!characteristicsVariable) {
                 exitValue = 1;
-                log.write("Experiment has repeated Characteristics.\n");
-                getLog().debug("Experiment has repeated Characteristics.");
-                error_val = error_val + "Experiment has repeated Characteristics.\n";
+                log.write("Experiment has repeated Characteristics: " +
+                        repeatedCharacteristicsList + ".\n");
+                getLog().debug("Experiment has repeated Characteristics: " +
+                        repeatedCharacteristicsList + ".");
+                error_val = error_val + "Experiment has repeated Characteristics: " +
+                        repeatedCharacteristicsList + ".\n";
             }
 
             // 5 check: array design is in Atlas
