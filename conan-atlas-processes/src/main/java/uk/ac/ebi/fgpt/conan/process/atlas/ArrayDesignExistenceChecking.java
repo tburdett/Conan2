@@ -53,6 +53,7 @@ public class ArrayDesignExistenceChecking extends AbstractRESTAPISubprocess {
       //if (Integer.parseInt(response.get("numTotal").toString()) > 0) {
        String accession = "accession="+parameters+",";
        String synonym = parameters+" ";
+       System.out.println(response.get("arraydesigns").toString());
        if (response.get("arraydesigns").toString().contains(accession) || response.get("arraydesigns").toString().contains(synonym)){
         result = "is";
 
@@ -80,6 +81,7 @@ public class ArrayDesignExistenceChecking extends AbstractRESTAPISubprocess {
    * @throws IllegalArgumentException
    */
   @Override protected String getRestApiRequest(String parameters) {
+    System.out.println(atlas.ArrayDesignSearch + parameters);
     return atlas.ArrayDesignSearch + parameters;
 
   }
