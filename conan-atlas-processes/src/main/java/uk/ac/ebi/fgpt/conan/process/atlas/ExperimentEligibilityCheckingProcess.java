@@ -204,7 +204,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                         arrayDesignName=arrayDesign.getAttributeValue() ;
                     }
                     for (FactorValueAttribute fva : hybNode.factorValues) {
-                        if (fva.getAttributeType().toLowerCase().contains(factorType.toLowerCase())) {
+                        if (fva.type.toLowerCase().equals(factorType.toLowerCase().replace("_"," "))) {
                             String key = arrayDesignName+"_"+fva.getAttributeValue();
                             if (factorValuesCounts.get(key)==null){
                                 factorValuesCounts.put(key,1);
@@ -698,7 +698,8 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                         arrayDesignName=arrayDesign.getAttributeValue() ;
                     }
                     for (FactorValueAttribute fva : hybNode.factorValues) {
-                        if (fva.getAttributeType().toLowerCase().contains(factorType.toLowerCase())) {
+                        System.out.println(fva.type.toLowerCase()+" - "+factorType.toLowerCase().replace("_"," "));
+                        if (fva.type.toLowerCase().equals(factorType.toLowerCase().replace("_"," "))) {
                             String key = arrayDesignName+"_"+fva.getAttributeValue();
                             if (factorValuesCounts.get(key)==null){
                                 factorValuesCounts.put(key,1);
@@ -757,7 +758,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             List<String> repeatedCharacteristics = new ArrayList<String>();
             List<String> repeatedCharacteristicsList = new ArrayList<String>();
             for (String factorType : investigation.IDF.experimentalFactorType) {
-                System.out.println("Repeated1");
+                //System.out.println("Repeated1");
                 if (repeatedFactorTypes.contains(factorType)) {
                     factorTypesVariable = false;
                     if (repeatedFactorTypesList.contains(factorType)){
@@ -767,10 +768,10 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 repeatedFactorTypes.add(factorType);
             }
             for (SampleNode sampleNode : investigation.SDRF.getNodes(SampleNode.class)) {
-                System.out.println("Repeated2");
+                //System.out.println("Repeated2");
                 for (CharacteristicsAttribute ca : sampleNode.characteristics) {
                     String key = sampleNode.getNodeName() + ca.type;
-                    System.out.println("Key:" + key );
+                    //System.out.println("Key:" + key );
                     if (repeatedCharacteristics.contains(key)) {
                         characteristicsVariable = false;
                         if (!repeatedCharacteristicsList.contains(ca.type)) {
@@ -782,10 +783,10 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 }
             }
             for (SourceNode sourceNode : investigation.SDRF.getNodes(SourceNode.class)) {
-                System.out.println("Repeated2");
+                //System.out.println("Repeated2");
                 for (CharacteristicsAttribute ca : sourceNode.characteristics) {
                     String key = sourceNode.getNodeName() + ca.type;
-                    System.out.println("Key:" + key );
+                    //System.out.println("Key:" + key );
                     if (repeatedCharacteristics.contains(key)) {
                         characteristicsVariable = false;
                         if (!repeatedCharacteristicsList.contains(ca.type)) {
