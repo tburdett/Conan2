@@ -19,6 +19,7 @@ public class DefaultProcessRun implements ConanProcessRun {
     private Date endDate;
     private int exitValue = -1;
     private ConanUser submitter;
+    private String errorMessage = null;
 
     public DefaultProcessRun(String processName, ConanUser submitter) {
         this.processName = processName;
@@ -69,6 +70,14 @@ public class DefaultProcessRun implements ConanProcessRun {
 
     public void setExitValue(int exitValue) {
         this.exitValue = exitValue;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     public ConanUser getUser() {

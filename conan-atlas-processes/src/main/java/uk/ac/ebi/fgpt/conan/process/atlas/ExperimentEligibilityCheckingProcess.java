@@ -71,7 +71,9 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
         // Add to the desired logger
         BufferedWriter log;
 
+        //errors and messaging
         String error_val = "";
+        List<FailureReasons> failureReasons = new ArrayList<FailureReasons>();
 
         //deal with parameters
         final AccessionParameter accession = new AccessionParameter();
@@ -155,6 +157,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                                 " is not accepted by Atlas");
                 error_val = "'Experiment Type' " + restrictedExptType +
                         " is not accepted by Atlas.\n";
+                failureReasons.add(FailureReasons.TYPE_OF_EXPERIMENT);
             }
 
             //2 two-channel experiment
@@ -165,6 +168,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 getLog().debug(
                         "Two-channel experiment is not accepted by Atlas");
                 error_val = error_val + "Two-channel experiment is not accepted by Atlas. \n";
+                failureReasons.add(FailureReasons.TWO_CHANNELS);
             }
 
 
@@ -239,6 +243,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 getLog().debug(
                         "Experiment does not have replicates for at least 1 factor type");
                 error_val = error_val + "Experiment does not have replicates for at least 1 factor type. \n";
+                failureReasons.add(FailureReasons.REPLICATES);
             }
 
             //3 factor values
@@ -249,6 +254,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 getLog().debug(
                         "Experiment does not have Factor Values");
                 error_val = error_val + "Experiment does not have Factor Values. \n";
+                failureReasons.add(FailureReasons.NO_FACTOR_VALUES);
             }
 
             //6 and 7 factor types are from controlled vocabulary and not repeated
@@ -329,6 +335,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 error_val = error_val +
                         "Experiment has Factor Types that are not in controlled vocabulary:" +
                         missedFactorTypes + ".\n";
+                failureReasons.add(FailureReasons.NOT_IN_CONTROLLED_VOCABULARY);
             }
             if (!characteristicsFromCV) {
                 exitValue = 1;
@@ -341,6 +348,9 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 error_val = error_val +
                         "Experiment has Characteristics that are not in controlled vocabulary:" +
                         missedCharacteristics + ".\n";
+                if (!failureReasons.contains(FailureReasons.NOT_IN_CONTROLLED_VOCABULARY)){
+                    failureReasons.add(FailureReasons.NOT_IN_CONTROLLED_VOCABULARY);    
+                }
             }
 
             if (!factorTypesVariable) {
@@ -351,6 +361,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                         repeatedFactorTypesList + ".");
                 error_val = error_val + "Experiment has repeated Factor Types: " +
                         repeatedFactorTypesList + ".\n";
+                failureReasons.add(FailureReasons.REPEATED);
             }
 
             if (!characteristicsVariable) {
@@ -361,6 +372,9 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                         repeatedCharacteristicsList + ".");
                 error_val = error_val + "Experiment has repeated Characteristics: " +
                         repeatedCharacteristicsList + ".\n";
+                if (!failureReasons.contains(FailureReasons.REPEATED)){
+                    failureReasons.add(FailureReasons.REPEATED);
+                }
             }
 
             // 5 check: array design is in Atlas
@@ -381,6 +395,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                     error_val = error_val + "Array design '" +
                             arrayDesign +
                             "' used in experiment is not in Atlas. \n";
+                    failureReasons.add(FailureReasons.ARRAY_DESIGN_NOT_IN_ATLAS);
                 }
 
                 else {
@@ -447,6 +462,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                             error_val = error_val + "Affymetrix experiment with different numbers of hybs ("
                                     +hybridizationSubNodes.size()+") and raw data files ("+rawDataSubNodes.size()+").\n";
                         }
+                        failureReasons.add(FailureReasons.DATA_FILES_MISSING);
                     }
                     else {
                         //6b not affy without processed data
@@ -460,15 +476,24 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                                     "Non-Affymetrix experiment without processed data files");
                             error_val = error_val +
                                     "Non-Affymetrix experiment without processed data files. \n";
+                            failureReasons.add(FailureReasons.DATA_FILES_MISSING);
 
                         }
                     }
                 }
             }
 
+            //error message for Submission Tracking database
+            String message = "";
+            Collections.sort(failureReasons);
+            for (FailureReasons reason : failureReasons){
+                message = message + reason.getCode() + ",";
+            }
+            message = message.substring(0,message.length()-1);
+
             if (exitValue == 1) {
                 ProcessExecutionException pex = new ProcessExecutionException(exitValue,
-                                                                              error_val);
+                                                                              error_val, message);
                 String[] errors = new String[1];
                 errors[0] = error_val;
                 pex.setProcessOutput(errors);
@@ -519,7 +544,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                     log.write("Experiment \"" +
                                       accession.getAccession() +
                                       "\" is NOT eligible for Atlas\n");
-                    //log.write(error_val);
+
                 }
                 log.write("Atlas Eligibility Check: FINISHED\n");
                 log.write(
@@ -534,11 +559,11 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                                 " - microRNA profiling by array,\n" +
                                 " - RNAi profiling by array,\n" +
                                 " - ChIP-chip by array;\n" +
-                                "4. Experiments is not two-channel;\n" +
+                                "4. Experiment is not two-channel;\n" +
                                 "5. Experiment has factor values;\n" +
                                 "6. Experiment has replicates for at least 1 factor type;\n"+
-                                "7. Factor types and Characteristics are from controlled vocabulary;\n" +
-                                "8. Factor types and Characteristics are variable (not repeated).");
+                                "7. Factor types and Characteristics types are from controlled vocabulary;\n" +
+                                "8. Factor types and Characteristics types are variable (not repeated).");
                 log.close();
             }
             catch (IOException e) {
@@ -572,6 +597,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
         // Add to the desired logger
         BufferedWriter log;
+        List<FailureReasons> fr = new ArrayList<FailureReasons>();
 
         boolean result = false;
 
@@ -649,6 +675,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                                 " is not accepted by Atlas");
                 error_val = "'Experiment Type' " + restrictedExptType +
                         " is not accepted by Atlas.\n";
+                fr.add(FailureReasons.TYPE_OF_EXPERIMENT);
             }
 
             //2 two-channel experiment
@@ -659,6 +686,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 getLog().debug(
                         "Two-channel experiment is not accepted by Atlas");
                 error_val = error_val + "Two-channel experiment is not accepted by Atlas. \n";
+                fr.add(FailureReasons.TWO_CHANNELS);
             }
 
 
@@ -734,6 +762,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 getLog().debug(
                         "Experiment does not have replicates for at least 1 factor type");
                 error_val = error_val + "Experiment does not have replicates for at least 1 factor type. \n";
+                fr.add(FailureReasons.REPLICATES);
             }
 
             //3 factor values
@@ -744,6 +773,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 getLog().debug(
                         "Experiment does not have Factor Values");
                 error_val = error_val + "Experiment does not have Factor Values. \n";
+                fr.add(FailureReasons.NO_FACTOR_VALUES);
             }
 
             //6 and 7 factor types are from controlled vocabulary and not repeated
@@ -808,6 +838,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 error_val = error_val +
                         "Experiment has Factor Types that are not in controlled vocabulary:" +
                         missedFactorTypes + ".\n";
+                fr.add(FailureReasons.NOT_IN_CONTROLLED_VOCABULARY);
             }
             if (!characteristicsFromCV) {
                 exitValue = 1;
@@ -820,6 +851,9 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 error_val = error_val +
                         "Experiment has Characteristics that are not in controlled vocabulary:" +
                         missedCharacteristics + ".\n";
+                if (!fr.contains(FailureReasons.NOT_IN_CONTROLLED_VOCABULARY)){
+                    fr.add(FailureReasons.NOT_IN_CONTROLLED_VOCABULARY);
+                }
             }
 
             if (!factorTypesVariable) {
@@ -830,6 +864,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                         repeatedFactorTypesList + ".");
                 error_val = error_val + "Experiment has repeated Factor Types: " +
                         repeatedFactorTypesList + ".\n";
+                fr.add(FailureReasons.REPEATED);
             }
 
             if (!characteristicsVariable) {
@@ -840,6 +875,9 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                         repeatedCharacteristicsList + ".");
                 error_val = error_val + "Experiment has repeated Characteristics: " +
                         repeatedCharacteristicsList + ".\n";
+                if (!fr.contains(FailureReasons.REPEATED)){
+                    fr.add(FailureReasons.REPEATED);
+                }
             }
 
             // 5 check: array design is in Atlas
@@ -860,6 +898,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                     error_val = error_val + "Array design '" +
                             arrayDesign +
                             "' used in experiment is not in Atlas. \n";
+                    fr.add(FailureReasons.ARRAY_DESIGN_NOT_IN_ATLAS);
                 }
 
                 else {
@@ -923,6 +962,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                                     "Affymetrix experiment with different numbers of hybs ("+hybridizationSubNodes.size()+") and raw data files ("+rawDataSubNodes.size()+")");
                             error_val = error_val + "Affymetrix experiment with different numbers of hybs ("+hybridizationSubNodes.size()+") and raw data files ("+rawDataSubNodes.size()+").\n";
                         }
+                        fr.add(FailureReasons.DATA_FILES_MISSING);
                     }
                     else {
                         //6b not affy without processed data
@@ -936,6 +976,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                                     "Non-Affymetrix experiment without processed data files");
                             error_val = error_val +
                                     "Non-Affymetrix experiment without processed data files. \n";
+                            fr.add(FailureReasons.DATA_FILES_MISSING);
 
                         }
                     }
@@ -963,6 +1004,13 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 }
                 log.write(error_val);
                 System.out.println(error_val);
+                String message = "";
+                Collections.sort(fr);
+                for (FailureReasons reason : fr){
+                    message = message + reason.getCode() + ",";
+                }
+                System.out.println(message.substring(0,message.length()-1));
+
                 log.write("Atlas Eligibility Check: FINISHED\n");
                 log.write(
                         "Eligibility checks for Gene Expression Atlas version 2.0.9.3: \n" +

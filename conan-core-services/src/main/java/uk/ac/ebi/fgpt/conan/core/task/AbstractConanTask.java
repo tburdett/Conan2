@@ -468,6 +468,7 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
         DefaultProcessRun pr = (DefaultProcessRun) processRuns.get(processRuns.size() - 1);
         pr.setEndDate(new Date());
         pr.setExitValue(0);
+        pr.setErrorMessage(null);
 
         ConanTaskEvent event = new ConanTaskEvent(this, getCurrentState(), getLastProcess(), pr);
         for (ConanTaskListener listener : getListeners()) {
@@ -487,6 +488,7 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
         DefaultProcessRun pr = (DefaultProcessRun) processRuns.get(processRuns.size() - 1);
         pr.setEndDate(new Date());
         pr.setExitValue(pex.getExitValue());
+        pr.setErrorMessage(pex.getErrorMessage());
 
         ConanTaskEvent event =
                 new ConanTaskEvent(this, getCurrentState(), getLastProcess(), pr, pex);
@@ -507,6 +509,7 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
         DefaultProcessRun pr = (DefaultProcessRun) processRuns.get(processRuns.size() - 1);
         pr.setEndDate(new Date());
         pr.setExitValue(exitValue);
+        pr.setErrorMessage(null);
 
         ConanTaskEvent event =
                 new ConanTaskEvent(this, getCurrentState(), getLastProcess(), pr);

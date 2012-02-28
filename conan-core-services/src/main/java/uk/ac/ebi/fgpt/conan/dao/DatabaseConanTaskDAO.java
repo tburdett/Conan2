@@ -99,10 +99,10 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
                     "where p.TASK_ID = t.ID and (t.STATE = 'COMPLETED' or t.STATE = 'ABORTED')";
     public static final String PROCESS_INSERT =
             "insert into CONAN_PROCESSES (" +
-                    "ID, NAME, START_DATE, END_DATE, USER_ID, EXIT_CODE, TASK_ID) " +
-                    "values (?, ?, ?, ?, ?, ?, ?)";
+                    "ID, NAME, START_DATE, END_DATE, USER_ID, EXIT_CODE, TASK_ID, ERROR_MESSAGE) " +
+                    "values (?, ?, ?, ?, ?, ?, ?, ?)";
     public static final String PROCESS_UPDATE =
-            "update CONAN_PROCESSES set NAME = ?, START_DATE = ?, END_DATE = ?, USER_ID = ?, EXIT_CODE = ?, TASK_ID = ? " +
+            "update CONAN_PROCESSES set NAME = ?, START_DATE = ?, END_DATE = ?, USER_ID = ?, EXIT_CODE = ?, TASK_ID = ?, ERROR_MESSAGE = ? " +
                     "where ID = ?";
 
     public static final String PARAMETER_SELECT =
@@ -331,7 +331,8 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
                                      javaDateToSQLDate(conanProcessRun.getEndDate()),
                                      conanProcessRun.getUser().getId(),
                                      conanProcessRun.getExitValue(),
-                                     conanTaskID);
+                                     conanTaskID,
+                                     conanProcessRun.getErrorMessage());
 
             conanProcessRun.setId(Integer.toString(processRunID));
         }
@@ -343,6 +344,7 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
                                      conanProcessRun.getUser().getId(),
                                      conanProcessRun.getExitValue(),
                                      conanTaskID,
+                                     conanProcessRun.getErrorMessage(),
                                      conanProcessRun.getId());
         }
 

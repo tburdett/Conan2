@@ -13,6 +13,7 @@ public class ProcessExecutionException extends Exception {
     private String[] processOutput = new String[]{"No output captured"};
     private String processExecutionHost = "unknown";
     private boolean exceptionCausesAbort = false;
+    private String errorMessage = null;
 
     public ProcessExecutionException(int exitValue) {
         super();
@@ -22,6 +23,12 @@ public class ProcessExecutionException extends Exception {
     public ProcessExecutionException(int exitValue, String message) {
         super(message);
         this.exitValue = exitValue;
+    }
+
+    public ProcessExecutionException(int exitValue, String message, String errorMessage) {
+        super(message);
+        this.exitValue = exitValue;
+        this.errorMessage = errorMessage;
     }
 
     public ProcessExecutionException(int exitValue, String message, Throwable cause) {
@@ -36,6 +43,10 @@ public class ProcessExecutionException extends Exception {
 
     public int getExitValue() {
         return exitValue;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
     public String[] getProcessOutput() {

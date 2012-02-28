@@ -58,6 +58,13 @@ public interface ConanProcessRun extends Serializable {
     int getExitValue();
 
     /**
+     * The error message this processes exited with, if complete.  If the process has not yet ended, this will be null
+     *
+     * @return the process error message
+     */
+    String getErrorMessage();
+
+    /**
      * The user who created this process run.  This is the user who owned the task when the process that generated this
      * run began.
      *
