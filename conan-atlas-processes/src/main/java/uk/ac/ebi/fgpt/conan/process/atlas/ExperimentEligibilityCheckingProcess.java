@@ -489,7 +489,9 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             for (FailureReasons reason : failureReasons){
                 message = message + reason.getCode() + ",";
             }
-            message = message.substring(0,message.length()-1);
+            if (message.length() > 1){
+                message = message.substring(0,message.length()-1);
+            }
 
             if (exitValue == 1) {
                 ProcessExecutionException pex = new ProcessExecutionException(exitValue,
@@ -524,7 +526,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             throw pex;
         }
         catch (RuntimeException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             exitValue = 1;
             ProcessExecutionException pex = new ProcessExecutionException(exitValue,
                                                                           e.getMessage());
