@@ -200,7 +200,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             boolean replicates = true;
             // All experiments must have replicates for at least 1 factor
             Hashtable<String,Hashtable> factorTypesCounts = new Hashtable<String, Hashtable>();
-            for (String factorType : investigation.IDF.experimentalFactorType) {
+            for (String factorType : investigation.IDF.experimentalFactorName) {
                 Hashtable<String,Integer> factorValuesCounts = new Hashtable<String, Integer>();
                 for (HybridizationNode hybNode : hybridizationNodes) {
                     String arrayDesignName = "";
@@ -208,7 +208,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                         arrayDesignName=arrayDesign.getAttributeValue() ;
                     }
                     for (FactorValueAttribute fva : hybNode.factorValues) {
-                        if (fva.type.toLowerCase().equals(factorType.toLowerCase().replace("_"," "))) {
+                        if (fva.type.toLowerCase().equals(factorType.toLowerCase())) {
                             String key = arrayDesignName+"_"+fva.getAttributeValue();
                             if (factorValuesCounts.get(key)==null){
                                 factorValuesCounts.put(key,1);
@@ -268,7 +268,6 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             List<String> repeatedFactorTypes = new ArrayList<String>();
             List<String> repeatedFactorTypesList = new ArrayList<String>();
             List<String> repeatedCharacteristics = new ArrayList<String>();
-            List<String> repeatedCharacteristicsList = new ArrayList<String>();
 
             for (String factorType : investigation.IDF.experimentalFactorType) {
                 if (!controlledVocabularyDAO
@@ -287,13 +286,12 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             for (SampleNode sampleNode : investigation.SDRF.getNodes(SampleNode.class)) {
                 for (CharacteristicsAttribute ca : sampleNode.characteristics) {
                     String key = sampleNode.getNodeName() + ca.type;
-                    if (repeatedCharacteristics.contains(key)) {
-                        characteristicsVariable = false;
-                        if (!repeatedCharacteristicsList.contains(ca.type)) {
-                            repeatedCharacteristicsList.add(ca.type);
+                    if (ca.type.toLowerCase().equals("organism")) {
+                        if (repeatedCharacteristics.contains(key)) {
+                            characteristicsVariable = false;
                         }
+                        repeatedCharacteristics.add(key);
                     }
-                    repeatedCharacteristics.add(key);
 
                     if (!controlledVocabularyDAO
                             .getAtlasFactorTypes().contains(ca.type.toLowerCase())) {
@@ -307,13 +305,12 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             for (SourceNode sourceNode : investigation.SDRF.getNodes(SourceNode.class)) {
                 for (CharacteristicsAttribute ca : sourceNode.characteristics) {
                     String key = sourceNode.getNodeName() + ca.type;
-                    if (repeatedCharacteristics.contains(key)) {
-                        characteristicsVariable = false;
-                        if (!repeatedCharacteristicsList.contains(ca.type)) {
-                            repeatedCharacteristicsList.add(ca.type);
+                    if (ca.type.toLowerCase().equals("organism")) {
+                        if (repeatedCharacteristics.contains(key)) {
+                            characteristicsVariable = false;
                         }
+                        repeatedCharacteristics.add(key);
                     }
-                    repeatedCharacteristics.add(key);
 
                     if (!controlledVocabularyDAO
                             .getAtlasFactorTypes().contains(ca.type.toLowerCase())) {
@@ -366,12 +363,9 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
             if (!characteristicsVariable) {
                 exitValue = 1;
-                log.write("Experiment has repeated Characteristics: " +
-                        repeatedCharacteristicsList + ".\n");
-                getLog().debug("Experiment has repeated Characteristics: " +
-                        repeatedCharacteristicsList + ".");
-                error_val = error_val + "Experiment has repeated Characteristics: " +
-                        repeatedCharacteristicsList + ".\n";
+                log.write("Experiment has repeated Characteristics \"Organism\" .\n");
+                getLog().debug("Experiment has repeated Characteristics \"Organism\" .");
+                error_val = error_val + "Experiment has repeated Characteristics \"Organism\".\n";
                 if (!failureReasons.contains(FailureReasons.REPEATED)){
                     failureReasons.add(FailureReasons.REPEATED);
                 }
@@ -489,6 +483,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             for (FailureReasons reason : failureReasons){
                 message = message + reason.getCode() + ",";
             }
+
             if (message.length() > 1){
                 message = message.substring(0,message.length()-1);
             }
@@ -721,7 +716,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             boolean replicates = true;
             // All experiments must have replicates for at least 1 factor
             Hashtable<String,Hashtable> factorTypesCounts = new Hashtable<String, Hashtable>();
-            for (String factorType : investigation.IDF.experimentalFactorType) {
+            for (String factorType : investigation.IDF.experimentalFactorName) {
                 Hashtable<String,Integer> factorValuesCounts = new Hashtable<String, Integer>();
                 for (HybridizationNode hybNode : hybridizationNodes) {
                     String arrayDesignName = "";
@@ -729,9 +724,10 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                         arrayDesignName=arrayDesign.getAttributeValue() ;
                     }
                     for (FactorValueAttribute fva : hybNode.factorValues) {
-                        System.out.println(fva.type.toLowerCase()+" - "+factorType.toLowerCase().replace("_"," "));
-                        if (fva.type.toLowerCase().equals(factorType.toLowerCase().replace("_"," "))) {
+                        System.out.println(fva.type.toLowerCase()+" - "+factorType.toLowerCase());
+                        if (fva.type.toLowerCase().equals(factorType.toLowerCase())) {
                             String key = arrayDesignName+"_"+fva.getAttributeValue();
+                            System.out.println(key);
                             if (factorValuesCounts.get(key)==null){
                                 factorValuesCounts.put(key,1);
                             }
