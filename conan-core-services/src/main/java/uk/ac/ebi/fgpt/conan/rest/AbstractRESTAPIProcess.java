@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.conan.rest;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -23,6 +24,7 @@ import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -113,7 +115,16 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                     logIn = (Boolean) logonResults.get("success");
 
                 }
-                catch (Exception e) {
+                catch (ClientProtocolException e) {
+                    exitValue = 1;
+                    ProcessExecutionException pex = new ProcessExecutionException(exitValue, "Can't login");
+                    String[] errors = new String[1];
+                    errors[0] = "Can't login";
+                    pex.setProcessOutput(errors);
+                    throw pex;
+
+                }
+                catch (IOException e) {
                     exitValue = 1;
                     ProcessExecutionException pex = new ProcessExecutionException(exitValue, "Can't login");
                     String[] errors = new String[1];
@@ -134,7 +145,6 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                 String idToMonitor =
                         getResultValue(restApiRequest(jobQuery, httpclient, localContext, log), parameters);
                 log.write("REST API task to monitor: " + idToMonitor + "\n");
-                try {
                     if (!idToMonitor.equals(RESTAPIEvents.WITHOUT_MONITORING)) {
                         // set up monitoring
                         final RESTAPIStatusMonitor
@@ -166,23 +176,12 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                         log.write("REST API Process completed with exit value " + exitValue + "\n");
                         return true;
                     }
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    exitValue = 1;
-
-                    ProcessExecutionException pex = new ProcessExecutionException(exitValue, e.getMessage());
-                    String[] errors = new String[1];
-                    errors[0] = e.getMessage();
-                    pex.setProcessOutput(errors);
-                    throw pex;
-                }
             }
             else {
                 return false;
             }
         }
-        catch (Exception e) {
+        catch (IOException e) {
             e.printStackTrace();
             exitValue = 1;
 
@@ -197,7 +196,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                 log.write("REST API: FINISHED\n");
                 log.close();
             }
-            catch (Exception e) {
+            catch (IOException e) {
                 e.printStackTrace();
                 exitValue = 1;
 
