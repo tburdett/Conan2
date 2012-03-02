@@ -217,18 +217,24 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
             getLog().debug("Execution exception follows", e);
             getLog().debug("Is this event to abort: " + e.causesAbort() + " Output: " + e.getProcessOutput());
             if (e.causesAbort()) {
-              // critical fail, should cause instant abort
-              fireProcessFailedEvent(e);
-              abort();
+                // critical fail, should cause instant abort
+                fireProcessFailedEvent(e);
+                abort();
             }
             else {
-              fireProcessFailedEvent(e);
+                fireProcessFailedEvent(e);
             }
             throw new TaskExecutionException(e);
         }
-        catch (Exception e) {
+        catch (InterruptedException e) {
             // log this exception
-            getLog().error("An exception occurred whilst executing task '" + getId() + "'", e);
+            getLog().error("Executing process '" + getCurrentProcess().getName() + "' was interrupted", e);
+            fireProcessInterruptedEvent();
+            throw e;
+        }
+        catch (RuntimeException e) {
+            // log this exception
+            getLog().error("An unexpected runtime exception occurred whilst executing task '" + getId() + "'", e);
             getLog().error("Process '" + getCurrentProcess().getName() + "' failed to execute");
             fireProcessFailedEvent(1);
             throw new TaskExecutionException(e);
@@ -517,6 +523,28 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
             listener.processFailed(event);
         }
     }
+
+    protected void fireProcessInterruptedEvent() {
+        getLog().debug("Task " + getId() + " was interrupted during " + getCurrentProcess().getName());
+        updateCurrentStatusMessage("Killed at " + getCurrentProcess().getName());
+        updateCurrentState(State.FAILED);
+
+        // increment the execution index
+        currentExecutionIndex++;
+
+        // get the last process run object, and set it's end date
+        DefaultProcessRun pr = (DefaultProcessRun) processRuns.get(processRuns.size() - 1);
+        pr.setEndDate(new Date());
+        pr.setExitValue(1);
+        pr.setErrorMessage(null);
+
+        ConanTaskEvent event =
+                new ConanTaskEvent(this, getCurrentState(), getLastProcess(), pr);
+        for (ConanTaskListener listener : getListeners()) {
+            listener.processFailed(event);
+        }
+    }
+
 
     private Set<ConanTaskListener> getListeners() {
         return listeners;
