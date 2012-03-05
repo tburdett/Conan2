@@ -494,6 +494,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
                 String[] errors = new String[1];
                 errors[0] = error_val;
                 pex.setProcessOutput(errors);
+                pex.setExceptionCausesAbort();
                 throw pex;
             }
 
@@ -520,17 +521,17 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
             pex.setProcessOutput(errors);
             throw pex;
         }
-        catch (RuntimeException e) {
-            //e.printStackTrace();
-            exitValue = 1;
-            ProcessExecutionException pex = new ProcessExecutionException(exitValue,
-                                                                          e.getMessage());
-
-            String[] errors = new String[1];
-            errors[0] = e.getMessage();
-            pex.setProcessOutput(errors);
-            throw pex;
-        }
+//        catch (RuntimeException e) {
+//            //e.printStackTrace();
+//            exitValue = 1;
+//            ProcessExecutionException pex = new ProcessExecutionException(exitValue,
+//                                                                          e.getMessage());
+//
+//            String[] errors = new String[1];
+//            errors[0] = e.getMessage();
+//            pex.setProcessOutput(errors);
+//            throw pex;
+//        }
         finally {
             try {
                 if (exitValue == 0) {
