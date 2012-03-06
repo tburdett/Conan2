@@ -199,40 +199,30 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
             boolean replicates = true;
             // All experiments must have replicates for at least 1 factor
-            Hashtable<String,Hashtable> factorTypesCounts = new Hashtable<String, Hashtable>();
-            for (String factorType : investigation.IDF.experimentalFactorName) {
-                Hashtable<String,Integer> factorValuesCounts = new Hashtable<String, Integer>();
-                for (HybridizationNode hybNode : hybridizationNodes) {
+            Hashtable<String,Integer> factorTypesCounts = new Hashtable<String, Integer>();
+            for (HybridizationNode hybNode : hybridizationNodes) {
                     String arrayDesignName = "";
                     for (ArrayDesignAttribute arrayDesign : hybNode.arrayDesigns) {
                         arrayDesignName=arrayDesign.getAttributeValue() ;
                     }
                     for (FactorValueAttribute fva : hybNode.factorValues) {
-                        if (fva.type.toLowerCase().equals(factorType.toLowerCase())) {
-                            String key = arrayDesignName+"_"+fva.getAttributeValue();
-                            if (factorValuesCounts.get(key)==null){
-                                factorValuesCounts.put(key,1);
+                            String key = arrayDesignName+"_"+fva.type.toLowerCase()+"_" + fva.getAttributeValue();
+                            System.out.println(key);
+                            if (factorTypesCounts.get(key)==null){
+                                factorTypesCounts.put(key,1);
                             }
                             else {
-                                int value = factorValuesCounts.get(key);
+                                int value = factorTypesCounts.get(key);
                                 value++;
-                                factorValuesCounts.put(key,value);
+                                factorTypesCounts.put(key,value);
                             }
-                        }
                     }
-                }
-
-                factorTypesCounts.put(factorType,factorValuesCounts);
             }
 
-
-
-            for (Hashtable<String,Integer> fvc : factorTypesCounts.values() ) {
-                for (int val : fvc.values()){
-                    if (val == 1){
-                        replicates = false;
-                    }
-                }
+            for (Map.Entry<String, Integer> fvc : factorTypesCounts.entrySet()) {
+                  if (fvc.getValue() == 1){
+                    replicates = false;
+                  }
             }
 
             // replicates
@@ -716,43 +706,48 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
 
             boolean replicates = true;
             // All experiments must have replicates for at least 1 factor
-            Hashtable<String,Hashtable> factorTypesCounts = new Hashtable<String, Hashtable>();
+            Hashtable<String,Integer> factorTypesCounts = new Hashtable<String, Integer>();
             for (String factorType : investigation.IDF.experimentalFactorName) {
-                Hashtable<String,Integer> factorValuesCounts = new Hashtable<String, Integer>();
+                //Hashtable<String,Integer> factorValuesCounts = new Hashtable<String, Integer>();
                 for (HybridizationNode hybNode : hybridizationNodes) {
                     String arrayDesignName = "";
                     for (ArrayDesignAttribute arrayDesign : hybNode.arrayDesigns) {
                         arrayDesignName=arrayDesign.getAttributeValue() ;
                     }
                     for (FactorValueAttribute fva : hybNode.factorValues) {
-                        System.out.println(fva.type.toLowerCase()+" - "+factorType.toLowerCase());
-                        if (fva.type.toLowerCase().equals(factorType.toLowerCase())) {
-                            String key = arrayDesignName+"_"+fva.getAttributeValue();
+                        //System.out.println(fva.type.toLowerCase()+" - "+factorType.toLowerCase());
+                       // if (fva.type.toLowerCase().equals(factorType.toLowerCase())) {
+                            String key = arrayDesignName+"_"+fva.type.toLowerCase()+"_" + fva.getAttributeValue();
                             System.out.println(key);
-                            if (factorValuesCounts.get(key)==null){
-                                factorValuesCounts.put(key,1);
+                            if (factorTypesCounts.get(key)==null){
+                                factorTypesCounts.put(key,1);
                             }
                             else {
-                                int value = factorValuesCounts.get(key);
+                                int value = factorTypesCounts.get(key);
                                 value++;
-                                factorValuesCounts.put(key,value);
+                                factorTypesCounts.put(key,value);
                             }
-                        }
+                       // }
                     }
                 }
 
-                factorTypesCounts.put(factorType,factorValuesCounts);
+               // factorTypesCounts.put(factorType,factorValuesCounts);
             }
 
+            for (Map.Entry<String, Integer> fvc : factorTypesCounts.entrySet()) {
+                  if (fvc.getValue() == 1){
+                    replicates = false;
+                    System.out.println(fvc.getKey() + "-" +fvc.getValue());
+                  }
+            }
 
-
-            for (Hashtable<String,Integer> fvc : factorTypesCounts.values() ) {
+          /*  for (Hashtable<String,Integer> fvc : factorTypesCounts.values() ) {
                 for (int val : fvc.values()){
                     if (val == 1){
                         replicates = false;
                     }
                 }
-            }
+            }*/
 
             // replicates
             if (replicates == false) {
