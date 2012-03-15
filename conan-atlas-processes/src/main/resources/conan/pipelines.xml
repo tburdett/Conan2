@@ -25,6 +25,12 @@
             <process name="atlas update" />
         </processes>
     </pipeline>
+    <pipeline name="Atlas retrofit eligibility check" creator="natalja" daemonized="true">
+        <processes>
+            <process name="validation" />
+            <process name="atlas eligibility" />
+        </processes>
+    </pipeline>
 
     <pipeline name="Atlas Experiment Unloading" creator="natalja">
         <processes>
