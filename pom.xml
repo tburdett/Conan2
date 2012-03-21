@@ -143,12 +143,12 @@
                 <repository>
                     <id>hasbanana-repo</id>
                     <name>hasBanana repository</name>
-                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/maven/repo</url>
+		    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/maven/repo</url>
                 </repository>
                 <snapshotRepository>
                     <id>hasbanana-repo</id>
                     <name>hasBanana repository</name>
-                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/maven/repo</url>
+		    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/maven/repo</url>
                 </snapshotRepository>
                 <site>
                     <id>hasbanana-repo</id>
