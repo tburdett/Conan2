@@ -25,8 +25,9 @@ import java.util.Map;
  */
 public abstract class AbstractLSFProcess implements ConanProcess {
     private String bsubPath = "bsub";
-    private String queueName = "production";
+    private String queueName = "production-rh6";
     private int monitorInterval = 15;
+    private String jobName;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -75,12 +76,40 @@ public abstract class AbstractLSFProcess implements ConanProcess {
         this.queueName = queueName;
     }
 
+    /**
+     * Gets the monitoring interval, in seconds, to use when checking for output from LSF processes.
+     *
+     * @return the interval between monitoring polls for LSF output, in seconds
+     */
     protected int getMonitorInterval() {
         return monitorInterval;
     }
 
+    /**
+     * Sets the monitoring interval, in seconds, to use when checking for output from LSF processes.
+     *
+     * @param monitorInterval the interval between monitoring polls for LSF output, in seconds
+     */
     protected void setMonitorInterval(int monitorInterval) {
         this.monitorInterval = monitorInterval;
+    }
+
+    /**
+     * Gets the LSF job name to use when submitting this job to an LSF cluster.
+     *
+     * @return the LSF jobname
+     */
+    protected String getJobName() {
+        return jobName;
+    }
+
+    /**
+     * Sets the LSF job name to use when submitting this job to an LSF cluster
+     *
+     * @param jobName the LSF jobname
+     */
+    protected void setJobName(String jobName) {
+        this.jobName = jobName;
     }
 
     /**
@@ -130,6 +159,7 @@ public abstract class AbstractLSFProcess implements ConanProcess {
                             "-M " + memReq + " " +
                             "-R \"rusage[mem=" + memReq + "]\" " +
                             (getQueueName() == null || getQueueName().equals("") ? "" : "-q " + getQueueName() + " ") +
+                            (getJobName() == null || getJobName().equals("") ? "" : "-J " + getJobName() + " ") +
                             "-oo " + getLSFOutputFilePath(parameters) + " " +
                             "-u " + backupEmail + " \"" +
                             getCommand(parameters) + " " +
@@ -140,6 +170,7 @@ public abstract class AbstractLSFProcess implements ConanProcess {
             bsubCommand =
                     bsubPath + " " +
                             (getQueueName() == null || getQueueName().equals("") ? "" : "-q " + getQueueName() + " ") +
+                            (getJobName() == null || getJobName().equals("") ? "" : "-J " + getJobName() + " ") +
                             "-oo " + getLSFOutputFilePath(parameters) + " " +
                             "-u " + backupEmail + " \"" +
                             getCommand(parameters) + " " +
@@ -167,7 +198,7 @@ public abstract class AbstractLSFProcess implements ConanProcess {
         // set up monitoring of the lsfOutputFile
         InvocationTrackingLSFProcessListener listener = new InvocationTrackingLSFProcessListener();
 
-        final LSFProcessAdapter adapter = new LSFProcessAdapter(lsfOutputFilePath, monitorInterval);
+        final LSFProcessAdapter adapter = new LSFProcessAdapter(lsfOutputFilePath, getMonitorInterval());
         adapter.addLSFProcessListener(listener);
 
         // process dispatch
