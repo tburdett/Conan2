@@ -28,6 +28,7 @@ public abstract class AbstractLSFProcess implements ConanProcess {
     private String queueName = "production-rh6";
     private int monitorInterval = 15;
     private String jobName;
+    private String lsfOptions;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -147,6 +148,7 @@ public abstract class AbstractLSFProcess implements ConanProcess {
             throws IllegalArgumentException, ProcessExecutionException, InterruptedException {
         getLog().debug("Executing an LSF process with parameters: " + parameters);
         int memReq = getMemoryRequirement(parameters);
+        String lsfOptions = getLSFOptions(parameters);
 
         // get email address to use as backup in case process fails
         String backupEmail = ConanProperties.getProperty("lsf.backup.email");
@@ -156,6 +158,7 @@ public abstract class AbstractLSFProcess implements ConanProcess {
             // generate actual bsub command from template
             bsubCommand =
                     bsubPath + " " +
+                            (lsfOptions == null || lsfOptions.equals("") ? "" : lsfOptions + " ") +
                             "-M " + memReq + " " +
                             "-R \"rusage[mem=" + memReq + "]\" " +
                             (getQueueName() == null || getQueueName().equals("") ? "" : "-q " + getQueueName() + " ") +
@@ -169,6 +172,7 @@ public abstract class AbstractLSFProcess implements ConanProcess {
             // generate actual bsub command from template excluding memory options
             bsubCommand =
                     bsubPath + " " +
+                            (lsfOptions == null || lsfOptions.equals("") ? "" : lsfOptions + " ") +
                             (getQueueName() == null || getQueueName().equals("") ? "" : "-q " + getQueueName() + " ") +
                             (getJobName() == null || getJobName().equals("") ? "" : "-J " + getJobName() + " ") +
                             "-oo " + getLSFOutputFilePath(parameters) + " " +
@@ -308,6 +312,24 @@ public abstract class AbstractLSFProcess implements ConanProcess {
      */
     protected int getMemoryRequirement(Map<ConanParameter, String> parameterStringMap) {
         return -1;
+    }
+
+    /**
+     * Returns any custom LSF flags that must be set for the LSF process that will be dispatched.  By default, this is
+     * not used and therefore processes run with environment defaults and parameters that can be explicitly set (like
+     * queue name, for example).
+     * <p/>
+     * This is a power user feature for cases when you require fine grained control over the execution options of an LSF
+     * command.  Note that if you require multiple -R options, over and above simple memory requirement setting, you
+     * should ensure {@link #getMemoryRequirement(java.util.Map)} always returns 0 and manually specify the required -R
+     * flag (along with -M if needed).
+     *
+     * @param parameterStringMap the parameters supplied to this process, as this may potentially alter the
+     *                           requirements
+     * @return the customized options to set for this LSF command
+     */
+    protected String getLSFOptions(Map<ConanParameter, String> parameterStringMap) {
+        return "";
     }
 
     /**
