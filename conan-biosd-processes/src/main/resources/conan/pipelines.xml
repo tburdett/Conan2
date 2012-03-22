@@ -10,13 +10,13 @@
     Note that the interface will display these pipelines in declaration order, with the first pipeline as the default
     -->
 
-    <pipeline name="BioSamples from ArrayExpress" creator="faulcon" daemonized="true">
+    <pipeline name="BioSamples from ArrayExpress" creator="faulcon">
         <processes>
             <process name="topresampletabarrayexpress" displayName="idf/srdf to sampletab.pre.txt" />
         </processes>
     </pipeline>
     
-    <pipeline name="BioSamples from IMSR" creator="faulcon" daemonized="true">
+    <pipeline name="BioSamples from IMSR" creator="faulcon">
         <processes>
             <process name="topresampletabimsr" displayName="IMSR raw.tab.txt to sampletab.pre.txt" />
         </processes>
@@ -28,7 +28,7 @@
         </processes>
     </pipeline>
     
-    <pipeline name="BioSamples accession and load" creator="faulcon" daemonized="true">
+    <pipeline name="BioSamples accession and load" creator="faulcon">
         <processes>
             <process name="accessionsampletab" displayName="accession sampletab.pre.txt to sampletab.txt" />
 <!--             <process name="toftp" displayName="copy to FTP site" /> -->
