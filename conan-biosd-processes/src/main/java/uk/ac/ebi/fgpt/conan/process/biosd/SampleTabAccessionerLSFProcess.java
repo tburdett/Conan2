@@ -60,6 +60,7 @@ public class SampleTabAccessionerLSFProcess extends AbstractBioSDLSFProcess {
 		}
 
 		File sampletabpreFile = new File(outdir, "sampletab.pre.txt");
+        File sampletabFile = new File(outdir, "sampletab.txt");
 
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() 
@@ -69,7 +70,8 @@ public class SampleTabAccessionerLSFProcess extends AbstractBioSDLSFProcess {
 				+ " --port " + ConanProperties.getProperty("biosamples.accession.port")
 				+ " --database " + ConanProperties.getProperty("biosamples.accession.database")
 				+ " --username " + ConanProperties.getProperty("biosamples.accession.username")
-				+ " --password " + ConanProperties.getProperty("biosamples.accession.password");
+				+ " --password " + ConanProperties.getProperty("biosamples.accession.password")
+                + " | tee "+sampletabFile.getAbsolutePath()+".log";
 		getLog().info("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}

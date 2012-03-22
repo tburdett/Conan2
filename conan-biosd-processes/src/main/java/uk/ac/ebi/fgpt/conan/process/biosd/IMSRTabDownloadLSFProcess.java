@@ -103,10 +103,12 @@ public class IMSRTabDownloadLSFProcess extends AbstractBioSDLSFProcess {
 			throw new IllegalArgumentException("Unable to create directories for "+accession.getAccession());
 		}
 		outfile = new File(outdir, "raw.tab.txt");
+        File logfile = new File(outdir, "IMSRTabDownload.sh.log");
 		
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() + " "
-				+ accessionid + " " + outfile.getAbsolutePath();
+				+ accessionid + " " + outfile.getAbsolutePath()
+                + " | tee "+logfile.getAbsolutePath();
 		getLog().debug("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}

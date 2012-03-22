@@ -16,7 +16,7 @@
         </processes>
     </pipeline>
     
-    <pipeline name="BioSamples from IMSR" creator="faulcon">
+    <pipeline name="BioSamples from IMSR" creator="faulcon" daemonized="true">
         <processes>
             <process name="topresampletabimsr" displayName="IMSR raw.tab.txt to sampletab.pre.txt" />
         </processes>

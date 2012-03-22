@@ -62,16 +62,18 @@ public class SampleTabPreLoadLSFProcess extends AbstractBioSDLSFProcess {
 		}
 
 		File sampletabFile = new File(outdir, "sampletab.txt");
+        File sampletabLoadFile = new File(outdir, "sampletab.toload.txt");
 
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() 
 				+ " --input " + sampletabFile.getAbsolutePath() 
-				+ " --output sampletab.toload.txt"
+				+ " --output sampletab.toload.txt" 
 				+ " --hostname " + ConanProperties.getProperty("biosamples.accession.hostname")
 				+ " --port " + ConanProperties.getProperty("biosamples.accession.port")
 				+ " --database " + ConanProperties.getProperty("biosamples.accession.database")
 				+ " --username " + ConanProperties.getProperty("biosamples.accession.username")
-				+ " --password " + ConanProperties.getProperty("biosamples.accession.password");
+				+ " --password " + ConanProperties.getProperty("biosamples.accession.password")
+				+ " | tee "+sampletabLoadFile.getAbsolutePath()+".log";
 		getLog().info("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}

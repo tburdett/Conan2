@@ -23,6 +23,11 @@ public abstract class AbstractBioSDLSFProcess extends AbstractLSFProcess {
 		if (accession.getAccession().startsWith("GMS-")) return "imsr";
 		else if (accession.getAccession().startsWith("GAE-")) return "ae";
         else if (accession.getAccession().startsWith("GRP-")) return "pride";
+        else if (accession.getAccession().startsWith("GVA-")) return "dgva";
+        else if (accession.getAccession().startsWith("GCR-")) return "corriel";
+        else if (accession.getAccession().startsWith("GEN-")) return "sra";
+        else if (accession.getAccession().equals("GEN")) return "encode";
+        else if (accession.getAccession().equals("G1K")) return "g1k";
 		else throw new IllegalArgumentException("Unable to get path prefix for "+accession.getAccession());
 	}
 	

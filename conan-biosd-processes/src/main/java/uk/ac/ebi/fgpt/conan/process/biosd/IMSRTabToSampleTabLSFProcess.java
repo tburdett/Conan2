@@ -69,7 +69,8 @@ public class IMSRTabToSampleTabLSFProcess extends AbstractBioSDLSFProcess {
 
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() + " "
-				+ imsrTabFile.getAbsolutePath() + " " + sampletabFile.getAbsolutePath();
+				+ imsrTabFile.getAbsolutePath() + " " + sampletabFile.getAbsolutePath()
+				+ " | tee "+sampletabFile.getAbsolutePath()+".log";
 		getLog().debug("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}

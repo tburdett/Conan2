@@ -15,40 +15,42 @@ import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 
 public class AccessionDaemonInputs implements ConanDaemonInputsDAO {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+    private Logger log = LoggerFactory.getLogger(getClass());
 
-	public Class<? extends ConanParameter> getParameterType() {
-		return SampleTabAccessionParameter.class;
-	}
+    public Class<? extends ConanParameter> getParameterType() {
+        return SampleTabAccessionParameter.class;
+    }
 
-	public List<String> getParameterValues() {
-		// this must get a list of NEW parameter values to run
-		// in this context this means ones that have not been copied yet
+    public List<String> getParameterValues() {
+        // this must get a list of NEW parameter values to run
+        // in this context this means ones that have not been copied yet
 
-		String sampletabpath = ConanProperties
-				.getProperty("biosamples.sampletab.path");
+        String sampletabpath = ConanProperties.getProperty("biosamples.sampletab.path");
 
-		List<String> parametervalues = new ArrayList<String>();
+        List<String> parametervalues = new ArrayList<String>();
 
-		File dir = new File(sampletabpath, "ae");
-		for (File subdir : dir.listFiles()) {
-			if (subdir.isDirectory()) {
-				String staccession = subdir.getName();
-				
-				File sampletabpre = new File(subdir, "sampletab.pre.txt");
-                File sampletab = new File(subdir, "sampletab.txt");
-				
-				if (sampletabpre.exists()){
-					if (!sampletab.exists() 
-							|| sampletab.lastModified() > sampletabpre.lastModified()){
-					    //TODO check other parts of this pipeline rather than assume based on first part?
-						parametervalues.add(staccession);
-					}
-				}
-			}
-		}
+        File dir = new File(sampletabpath);
+        for (File subdir : dir.listFiles()) {
+            if (subdir.isDirectory()) {
+                for (File subsubdir : subdir.listFiles()) {
+                    if (subsubdir.isDirectory()) {
+                        String staccession = subsubdir.getName();
 
-		return parametervalues;
-	}
+                        File sampletabpre = new File(subsubdir, "sampletab.pre.txt");
+                        File sampletab = new File(subsubdir, "sampletab.txt");
+
+                        if (sampletabpre.exists()) {
+                            if (!sampletab.exists() || sampletab.lastModified() > sampletabpre.lastModified()) {
+                                // TODO check other parts of this pipeline rather than assume based on first part?
+                                parametervalues.add(staccession);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return parametervalues;
+    }
 
 }
