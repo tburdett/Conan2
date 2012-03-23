@@ -70,7 +70,7 @@ public class SampleTabLoadLSFProcess extends AbstractBioSDLSFProcess {
 				+ " -o "+ageout.getAbsolutePath()
 				+ " -u "+ConanProperties.getProperty("biosamples.biosd.username")
 				+ " -p "+ConanProperties.getProperty("biosamples.biosd.password")
-				+ " -h \""+ConanProperties.getProperty("biosamples.biosd.url")
+				+ " -h \""+ConanProperties.getProperty("biosamples.biosd.url")+"\""
 				+ " "+agedir.getAbsolutePath(); 
 		getLog().info("Command is: <" + mainCommand + ">");
 		return mainCommand;
