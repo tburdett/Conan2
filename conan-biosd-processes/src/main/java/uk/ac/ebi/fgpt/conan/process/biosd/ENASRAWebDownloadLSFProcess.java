@@ -52,7 +52,7 @@ public class ENASRAWebDownloadLSFProcess extends AbstractBioSDLSFProcess {
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() + " "
 				+ accession.getAccession() + " " + outdir.getAbsolutePath()
-                + " | tee "+logfile.getAbsolutePath();
+                + " 2>&1 | tee "+logfile.getAbsolutePath();
 		getLog().debug("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}

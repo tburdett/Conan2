@@ -62,11 +62,12 @@ public class SampleTabLoadLSFProcess extends AbstractBioSDLSFProcess {
 		}
 
 		File agedir = new File(outdir, "age");
+        File ageout = new File(outdir, "load");
 
 		// main command to execute script
-		//TODO unhardcode username/password
 		String mainCommand = script.getAbsolutePath() 
 				+ "-s -m -i -e "
+				+ "-o "+ageout.getAbsolutePath()+" "
 				+ "-u "+ConanProperties.getProperty("biosamples.biosd.username")+" "
 				+ "-p "+ConanProperties.getProperty("biosamples.biosd.password")+" "
 				+ "-h \""+ConanProperties.getProperty("biosamples.biosd.url")+"\" "

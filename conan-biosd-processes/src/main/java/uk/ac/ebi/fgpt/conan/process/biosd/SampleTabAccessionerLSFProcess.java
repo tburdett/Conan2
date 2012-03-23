@@ -71,7 +71,7 @@ public class SampleTabAccessionerLSFProcess extends AbstractBioSDLSFProcess {
 				+ " --database " + ConanProperties.getProperty("biosamples.accession.database")
 				+ " --username " + ConanProperties.getProperty("biosamples.accession.username")
 				+ " --password " + ConanProperties.getProperty("biosamples.accession.password")
-                + " | tee "+sampletabFile.getAbsolutePath()+".log";
+                + " 2>&1 | tee "+sampletabFile.getAbsolutePath()+".log";
 		getLog().info("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}
