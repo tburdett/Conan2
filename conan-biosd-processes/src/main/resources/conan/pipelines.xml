@@ -34,8 +34,7 @@
 <!--             <process name="toftp" displayName="copy to FTP site" /> -->
             <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
             <process name="toagetab" displayName="to AGE-TAB" />
-<!--             <process name="load" displayName="load" /> -->
+            <process name="load" displayName="load" />
         </processes>
     </pipeline>
-
 </conan-pipelines>
