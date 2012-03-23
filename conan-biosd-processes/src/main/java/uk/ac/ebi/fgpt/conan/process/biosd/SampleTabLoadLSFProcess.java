@@ -66,12 +66,12 @@ public class SampleTabLoadLSFProcess extends AbstractBioSDLSFProcess {
 
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() 
-				+ "-s -m -i -e "
-				+ "-o "+ageout.getAbsolutePath()+" "
-				+ "-u "+ConanProperties.getProperty("biosamples.biosd.username")+" "
-				+ "-p "+ConanProperties.getProperty("biosamples.biosd.password")+" "
-				+ "-h \""+ConanProperties.getProperty("biosamples.biosd.url")+"\" "
-				+ agedir.getAbsolutePath(); 
+				+ " -s -m -i -e"
+				+ " -o "+ageout.getAbsolutePath()
+				+ " -u "+ConanProperties.getProperty("biosamples.biosd.username")
+				+ " -p "+ConanProperties.getProperty("biosamples.biosd.password")
+				+ " -h \""+ConanProperties.getProperty("biosamples.biosd.url")
+				+ " "+agedir.getAbsolutePath(); 
 		getLog().info("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}
