@@ -2,8 +2,10 @@ package uk.ac.ebi.fgpt.conan.process.biosd;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -86,4 +88,11 @@ public abstract class AbstractBioSDLSFProcess extends AbstractLSFProcess {
 
 	}
 
+	
+	protected File getDateTimeLogfile(File outdir, String prefix){
+
+        SimpleDateFormat simpledateformat = new SimpleDateFormat("yyyyMMdd_hhmmss");
+        File logfile = new File(outdir, prefix+"_"+simpledateformat.format(new Date())+".log");
+        return logfile;
+	}
 }

@@ -11,8 +11,10 @@ import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 @ServiceProvider
@@ -64,6 +66,8 @@ public class SampleTabPreLoadLSFProcess extends AbstractBioSDLSFProcess {
 		File sampletabFile = new File(outdir, "sampletab.txt");
         File sampletabLoadFile = new File(outdir, "sampletab.toload.txt");
 
+        File logfile = getDateTimeLogfile(outdir, "sampletab.toload.txt");
+
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() 
 				+ " --input " + sampletabFile.getAbsolutePath() 
@@ -73,7 +77,7 @@ public class SampleTabPreLoadLSFProcess extends AbstractBioSDLSFProcess {
 				+ " --database " + ConanProperties.getProperty("biosamples.accession.database")
 				+ " --username " + ConanProperties.getProperty("biosamples.accession.username")
 				+ " --password " + ConanProperties.getProperty("biosamples.accession.password")
-				+ " 2>&1 | tee "+sampletabLoadFile.getAbsolutePath()+".log";
+				+ " 2>&1 | tee "+logfile.getAbsolutePath();
 		getLog().info("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}

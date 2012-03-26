@@ -9,6 +9,8 @@ import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 @ServiceProvider
@@ -102,8 +104,10 @@ public class IMSRTabDownloadLSFProcess extends AbstractBioSDLSFProcess {
 			e.printStackTrace();
 			throw new IllegalArgumentException("Unable to create directories for "+accession.getAccession());
 		}
+		
 		outfile = new File(outdir, "raw.tab.txt");
-        File logfile = new File(outdir, "IMSRTabDownload.sh.log");
+		
+        File logfile = getDateTimeLogfile(outdir, "IMSRTabDownload.sh");
 		
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() + " "

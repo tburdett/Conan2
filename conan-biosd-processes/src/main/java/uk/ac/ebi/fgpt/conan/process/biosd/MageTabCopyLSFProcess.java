@@ -9,6 +9,8 @@ import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 @ServiceProvider
@@ -47,7 +49,7 @@ public class MageTabCopyLSFProcess extends AbstractBioSDLSFProcess {
 			e.printStackTrace();
 			throw new IllegalArgumentException("Unable to create directories for "+accession);
 		}
-		File logfile = new File(outdir, "MageTabFTPDownload.sh.log");
+        File logfile = getDateTimeLogfile(outdir, "MageTabFTPDownload.sh");
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() + " "
 				+ accession.getAccession().substring(2) + " " + outdir.getAbsolutePath()

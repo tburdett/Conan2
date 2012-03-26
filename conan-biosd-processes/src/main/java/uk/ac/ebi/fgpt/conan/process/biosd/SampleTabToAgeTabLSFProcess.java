@@ -11,8 +11,10 @@ import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 @ServiceProvider
@@ -66,12 +68,13 @@ public class SampleTabToAgeTabLSFProcess extends AbstractBioSDLSFProcess {
 		if (!agedir.exists()){
 			agedir.mkdirs();
 		}
+        File logfile = getDateTimeLogfile(outdir, "age");
 
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() 
 				+ " -o " + agedir.getAbsolutePath()
 				+ " "+sampletabFile.getAbsolutePath()
-                + " 2>&1 | tee "+agedir.getAbsolutePath()+".log";
+                + " 2>&1 | tee "+logfile.getAbsolutePath();
 		getLog().info("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}

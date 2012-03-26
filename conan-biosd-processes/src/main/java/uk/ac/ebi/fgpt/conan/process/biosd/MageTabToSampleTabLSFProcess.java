@@ -10,7 +10,9 @@ import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 @ServiceProvider
@@ -67,11 +69,12 @@ public class MageTabToSampleTabLSFProcess extends AbstractBioSDLSFProcess {
 		}
 		
 		File sampletabFile = new File(outdir, "sampletab.pre.txt");
+        File logfile = getDateTimeLogfile(outdir, "sampletab.pre.txt");
 
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() + " "
 				+ idfFile.getAbsolutePath() + " " + sampletabFile.getAbsolutePath()
-				+ " 2>&1 | tee "+sampletabFile.getAbsolutePath()+".log";
+				+ " 2>&1 | tee "+logfile.getAbsolutePath();
 		getLog().debug("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}
