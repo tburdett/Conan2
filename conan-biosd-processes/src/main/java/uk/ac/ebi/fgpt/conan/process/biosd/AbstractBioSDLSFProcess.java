@@ -91,7 +91,7 @@ public abstract class AbstractBioSDLSFProcess extends AbstractLSFProcess {
 	
 	protected File getDateTimeLogfile(File outdir, String prefix){
 
-        SimpleDateFormat simpledateformat = new SimpleDateFormat("yyyyMMdd_hhmmss");
+        SimpleDateFormat simpledateformat = new SimpleDateFormat("yyyyMMdd_HHmmss");
         File logfile = new File(outdir, prefix+"_"+simpledateformat.format(new Date())+".log");
         return logfile;
 	}
