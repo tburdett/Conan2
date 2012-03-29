@@ -317,13 +317,11 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
                             }
                             catch (InterruptedException e) {
                                 // if interrupted, die
-                                //log.write("Interrupted exception causing thread to die\n");
                                 stop();
                             }
                         }
                     }
                 }
-                //log.write("Stopping polling of " + restApiStatusURL + "\n");
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -362,7 +360,7 @@ public abstract class AbstractRESTAPIProcess implements ConanProcess {
     }
 
 
-    //*****************************************************************************//
+//*****************************************************************************//
 //*********************Abstract methods to be implemented *********************//
 //*****************************************************************************//
     protected abstract String getComponentName();
