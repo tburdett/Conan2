@@ -30,7 +30,7 @@ public class ValidationProcess extends AbstractAE2LSFProcess {
         parameters = new ArrayList<ConanParameter>();
         accessionParameter = new AccessionParameter();
         parameters.add(accessionParameter);
-        setQueueName("production");
+//        setQueueName("production");
     }
 
     protected Logger getLog() {
@@ -62,7 +62,8 @@ public class ValidationProcess extends AbstractAE2LSFProcess {
         else {
             // main command to execute perl script
             String mainCommand = "cd " + accession.getFile().getParentFile().getAbsolutePath() + "; " +
-                    "perl /ebi/microarray/ma-subs/AE/subs/PERL_SCRIPTS/validate_magetab.pl ";
+                    "perl /ebi/microarray/home/fgpt/sw/lib/perl/Red_Hat/validate_magetab.pl ";
+//                    "perl /ebi/microarray/ma-subs/AE/subs/PERL_SCRIPTS/validate_magetab.pl ";
             // path to relevant file
             String filePath = accession.getFile().getAbsolutePath();
             // return command string
