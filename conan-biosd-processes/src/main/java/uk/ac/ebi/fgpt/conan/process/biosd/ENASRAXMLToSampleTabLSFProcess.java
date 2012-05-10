@@ -62,8 +62,8 @@ public class ENASRAXMLToSampleTabLSFProcess extends AbstractBioSDLSFProcess {
 			throw new IllegalArgumentException("Unable to create directories for "+accession);
 		}
 		
-		File imsrTabFile = new File(outdir, "study.xml");
-		if (!imsrTabFile.exists()){
+		File inputFile = new File(outdir, "study.xml");
+		if (!inputFile.exists()){
 			throw new IllegalArgumentException("Study XML file does not exist for "+accession);			
 		}
 		
@@ -73,7 +73,7 @@ public class ENASRAXMLToSampleTabLSFProcess extends AbstractBioSDLSFProcess {
 
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() + " "
-				+ imsrTabFile.getAbsolutePath() + " " + sampletabFile.getAbsolutePath()
+				+ inputFile.getAbsolutePath() + " " + sampletabFile.getAbsolutePath()
 				+ " 2>&1 | tee "+logfile.getAbsolutePath();
 		getLog().debug("Command is: <" + mainCommand + ">");
 		return mainCommand;

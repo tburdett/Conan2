@@ -62,8 +62,8 @@ public class IMSRTabToSampleTabLSFProcess extends AbstractBioSDLSFProcess {
 			throw new IllegalArgumentException("Unable to create directories for "+accession);
 		}
 		
-		File imsrTabFile = new File(outdir, "raw.tab.txt");
-		if (!imsrTabFile.exists()){
+		File inputFile = new File(outdir, "raw.tab.txt");
+		if (!inputFile.exists()){
 			throw new IllegalArgumentException("IMSR Tab file does not exist for "+accession);			
 		}
 		
@@ -72,7 +72,7 @@ public class IMSRTabToSampleTabLSFProcess extends AbstractBioSDLSFProcess {
 
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() + " "
-				+ imsrTabFile.getAbsolutePath() + " " + sampletabFile.getAbsolutePath()
+				+ inputFile.getAbsolutePath() + " " + sampletabFile.getAbsolutePath()
 				+ " 2>&1 | tee "+logfile.getAbsolutePath();
 		getLog().debug("Command is: <" + mainCommand + ">");
 		return mainCommand;
