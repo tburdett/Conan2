@@ -95,4 +95,18 @@ public abstract class AbstractBioSDLSFProcess extends AbstractLSFProcess {
         File logfile = new File(outdir, prefix+"_"+simpledateformat.format(new Date())+".log");
         return logfile;
 	}
+
+    /**
+     * Returns the memory requirements, in MB, for the LSF process that will be dispatched.  By default, this is not
+     * used and therefore processes run with environment defaults (8GB for the EBI LSF at the time of writing).  You can
+     * override this for more memory hungry (or indeed, less memory hungry!) jobs.
+     *
+     * @param parameterStringMap the parameters supplied to this process, as this may potentially alter the
+     *                           requirements
+     * @return the number of MB required to run this process
+     */
+	@Override
+    protected int getMemoryRequirement(Map<ConanParameter, String> parameterStringMap) {
+        return 8192;
+    }
 }
