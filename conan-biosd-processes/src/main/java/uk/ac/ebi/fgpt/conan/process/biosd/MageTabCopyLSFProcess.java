@@ -44,7 +44,7 @@ public class MageTabCopyLSFProcess extends AbstractBioSDLSFProcess {
 		File script = new File(scriptpath, "MageTabFTPDownload.sh");
 		File outdir;
 		try {
-			outdir = getOutputDirectory(accession);
+			outdir = getDirectory(accession);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException("Unable to create directories for "+accession);

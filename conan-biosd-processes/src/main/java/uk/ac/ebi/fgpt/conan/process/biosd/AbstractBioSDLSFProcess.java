@@ -18,19 +18,14 @@ import uk.ac.ebi.fgpt.conan.process.biosd.model.SampleTabAccessionParameter;
 import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 
 public abstract class AbstractBioSDLSFProcess extends AbstractLSFProcess {
+    
 	protected final Collection<ConanParameter> parameters;
 	protected final SampleTabAccessionParameter accessionParameter;
 
-	private String getPathPrefix(SampleTabAccessionParameter accession){
-		if (accession.getAccession().startsWith("GMS-")) return "imsr";
-		else if (accession.getAccession().startsWith("GAE-")) return "ae";
-        else if (accession.getAccession().startsWith("GRP-")) return "pride";
-        else if (accession.getAccession().startsWith("GVA-")) return "dgva";
-        else if (accession.getAccession().startsWith("GCR-")) return "corriel";
-        else if (accession.getAccession().startsWith("GEN-")) return "sra";
-        else if (accession.getAccession().equals("GEN")) return "encode";
-        else if (accession.getAccession().equals("G1K")) return "g1k";
-		else throw new IllegalArgumentException("Unable to get path prefix for "+accession.getAccession());
+    private Logger log = LoggerFactory.getLogger(getClass());
+
+	public static String getPathPrefix(SampleTabAccessionParameter accession) {
+		return AbstractBioSDProcess.getPathPrefix(accession);
 	}
 	
 	public AbstractBioSDLSFProcess() {
@@ -39,7 +34,7 @@ public abstract class AbstractBioSDLSFProcess extends AbstractLSFProcess {
 		parameters.add(accessionParameter);
 	}
 
-	protected File getOutputDirectory(SampleTabAccessionParameter accession) throws IOException {
+	protected File getDirectory(SampleTabAccessionParameter accession) throws IOException {
 		String sampletabpath = ConanProperties
 				.getProperty("biosamples.sampletab.path");
 		File sampletab = new File(sampletabpath, getPathPrefix(accession));
@@ -77,7 +72,7 @@ public abstract class AbstractBioSDLSFProcess extends AbstractLSFProcess {
 
 		File outDir;
 		try {
-			outDir = getOutputDirectory(accession);
+			outDir = getDirectory(accession);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException("Unable to create directories for "+accession);
@@ -89,11 +84,8 @@ public abstract class AbstractBioSDLSFProcess extends AbstractLSFProcess {
 	}
 
 	
-	protected File getDateTimeLogfile(File outdir, String prefix){
-
-        SimpleDateFormat simpledateformat = new SimpleDateFormat("yyyyMMdd_HHmmss");
-        File logfile = new File(outdir, prefix+"_"+simpledateformat.format(new Date())+".log");
-        return logfile;
+	public static File getDateTimeLogfile(File outdir, String prefix){
+	    return AbstractBioSDProcess.getDateTimeLogfile(outdir, prefix);
 	}
 
     /**

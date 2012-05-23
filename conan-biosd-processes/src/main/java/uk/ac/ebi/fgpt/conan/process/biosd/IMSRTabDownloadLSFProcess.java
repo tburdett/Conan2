@@ -99,7 +99,7 @@ public class IMSRTabDownloadLSFProcess extends AbstractBioSDLSFProcess {
 		File outdir;
 		File outfile;
 		try {
-			outdir = getOutputDirectory(accession);
+			outdir = getDirectory(accession);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException("Unable to create directories for "+accession.getAccession());

@@ -56,7 +56,7 @@ public class SampleTabToAgeTabLSFProcess extends AbstractBioSDLSFProcess {
 
 		File outdir;
 		try {
-			outdir = getOutputDirectory(accession);
+			outdir = getDirectory(accession);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(
