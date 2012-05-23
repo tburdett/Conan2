@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.Map;
 
+import net.sourceforge.fluxion.spi.ServiceProvider;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,10 +17,15 @@ import uk.ac.ebi.fgpt.conan.process.biosd.model.SampleTabAccessionParameter;
 import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
-
+@ServiceProvider
 public class SampleTabToFTPProcess extends AbstractBioSDProcess {
 
     private Logger log = LoggerFactory.getLogger(getClass());
+
+
+    public String getName() {
+        return "toftp";
+    }
     
     public boolean execute(Map<ConanParameter, String> parameters) throws ProcessExecutionException,
             IllegalArgumentException, InterruptedException {
@@ -60,10 +67,6 @@ public class SampleTabToFTPProcess extends AbstractBioSDProcess {
         
         return true;
         
-    }
-
-    public String getName() {
-        return "toftp";
     }
     
 
