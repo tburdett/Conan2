@@ -91,14 +91,14 @@
     <pipeline name="BioSamples make public" creator="faulcon">
         <processes>
             <process name="toftp" displayName="copy to FTP site" />
-            <process name="makepublic" displayname="make public in AGE db" />
+            <process name="makepublic" displayName="make public in AGE db" />
         </processes>
     </pipeline>
     
     <pipeline name="BioSamples make non-public" creator="faulcon">
         <processes>
             <process name="removeftp" displayName="remove from FTP site" />
-            <process name="makenonpublic" displayname="make non-public in AGE db" />
+            <process name="makenonpublic" displayName="make non-public in AGE db" />
         </processes>
     </pipeline>
 </conan-pipelines>
