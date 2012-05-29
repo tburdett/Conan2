@@ -62,12 +62,12 @@ public class SampleTabLoadLSFProcess extends AbstractBioSDLSFProcess {
 		}
 
 		File agedir = new File(outdir, "age");
-        File ageout = new File(outdir, "load");
+        File loadoutdir = new File(outdir, "load");
 
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() 
 				+ " -s -m -i -e"
-				+ " -o "+ageout.getAbsolutePath()
+				+ " -o "+loadoutdir.getAbsolutePath()
 				+ " -u "+ConanProperties.getProperty("biosamples.biosd.username")
 				+ " -p "+ConanProperties.getProperty("biosamples.biosd.password")
 				+ " -h \""+ConanProperties.getProperty("biosamples.biosd.url")+"\""
