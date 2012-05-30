@@ -53,7 +53,7 @@ public class MageTabCopyLSFProcess extends AbstractBioSDLSFProcess {
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() + " "
 				+ accession.getAccession().substring(2) + " " + outdir.getAbsolutePath()
-				+ " 2>&1 | tee "+logfile.getAbsolutePath();
+				+ " &> "+logfile.getAbsolutePath();
 		getLog().debug("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}

@@ -77,7 +77,7 @@ public class SampleTabPreLoadLSFProcess extends AbstractBioSDLSFProcess {
 				+ " --database " + ConanProperties.getProperty("biosamples.accession.database")
 				+ " --username " + ConanProperties.getProperty("biosamples.accession.username")
 				+ " --password " + ConanProperties.getProperty("biosamples.accession.password")
-				+ " 2>&1 | tee "+logfile.getAbsolutePath();
+				+ " &> "+logfile.getAbsolutePath();
 		getLog().info("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}

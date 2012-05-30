@@ -75,7 +75,7 @@ public class DGVaXMLToSampleTabLSFProcess extends AbstractBioSDLSFProcess {
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() + " "
 				+ inputFile.getAbsolutePath() + " " + sampletabFile.getAbsolutePath()
-				+ " 2>&1 | tee "+logfile.getAbsolutePath();
+				+ " &> "+logfile.getAbsolutePath();
 		getLog().debug("Command is: <" + mainCommand + ">");
 		return mainCommand;
 	}
