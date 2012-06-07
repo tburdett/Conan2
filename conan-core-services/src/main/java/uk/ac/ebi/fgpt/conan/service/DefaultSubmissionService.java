@@ -267,24 +267,39 @@ public class DefaultSubmissionService implements ConanSubmissionService {
                                        "and task '" + task2.getId() + "' [" + task2.getName() + "]");
                 Map<ConanParameter, String> paramValues1 = task1.getParameterValues();
                 Map<ConanParameter, String> paramValues2 = task2.getParameterValues();
-                for (ConanParameter param : paramValues1.keySet()) {
-                    if (paramValues2.containsKey(param)) {
-                        // get the values for this key and check
-                        getLog().debug("Compared tasks have parameter type " + param.getName() + " in common, " +
-                                               "checking values...");
-                        String val1 = paramValues1.get(param);
-                        String val2 = paramValues2.get(param);
+                if (paramValues1 != null) {
+                    for (ConanParameter param : paramValues1.keySet()) {
+                        if (paramValues2 != null) {
+                            if (paramValues2.containsKey(param)) {
+                                // get the values for this key and check
+                                getLog().debug(
+                                        "Compared tasks have parameter type " + param.getName() + " in common, " +
+                                                "checking values...");
+                                String val1 = paramValues1.get(param);
+                                String val2 = paramValues2.get(param);
 
-                        // if values are equal, all vals are still equal
-                        getLog().debug("Comparing values '" + val1 + "' and '" + val2 + "'");
-                        if (!val1.equals(val2)) {
-                            diffCount++;
+                                // if values are equal, all vals are still equal
+                                getLog().debug("Comparing values '" + val1 + "' and '" + val2 + "'");
+                                if (!val1.equals(val2)) {
+                                    diffCount++;
+                                }
+                                allEqual = allEqual && val1.equals(val2);
+                            }
+                            else {
+                                allEqual = false;
+                                diffCount++;
+                            }
                         }
-                        allEqual = allEqual && val1.equals(val2);
+                        else {
+                            // paramValues1 is not null, but paramValues2 is - not all equal
+                            allEqual = false;
+                        }
                     }
-                    else {
+                }
+                else {
+                    // null paramValues1, if paramValues2 is not also null, allEqual = false
+                    if (paramValues2 != null) {
                         allEqual = false;
-                        diffCount++;
                     }
                 }
 
