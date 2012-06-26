@@ -12,7 +12,10 @@
 
     <pipeline name="BioSamples (AE)" creator="faulcon">
         <processes>
-            <process name="topresampletabarrayexpress" displayName="isampletab.pre.txt" />
+            <process name="topresampletabarrayexpress" displayName="to sampletab.pre.txt" />
+            <process name="accessionsampletab" displayName="to sampletab.txt" />
+            <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
+            <process name="toagetab" displayName="to AGE-TAB" />
         </processes>
     </pipeline>    
     <pipeline name="BioSamples (AE) and load" creator="faulcon">
@@ -30,6 +33,9 @@
     <pipeline name="BioSamples (IMSR)" creator="faulcon">
         <processes>
             <process name="topresampletabimsr" displayName="IMSR raw.tab.txt to sampletab.pre.txt" />
+            <process name="accessionsampletab" displayName="to sampletab.txt" />
+            <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
+            <process name="toagetab" displayName="to AGE-TAB" />
         </processes>
     </pipeline>    
     <pipeline name="BioSamples (IMSR) and load" creator="faulcon">
@@ -47,6 +53,9 @@
     <pipeline name="BioSamples (SRA)" creator="faulcon">
         <processes>
             <process name="topresampletabenasra" displayName="ENA SRA study.xml and related sample xml files to sampletab.pre.txt" />
+            <process name="accessionsampletab" displayName="to sampletab.txt" />
+            <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
+            <process name="toagetab" displayName="to AGE-TAB" />
         </processes>
     </pipeline>    
     <pipeline name="BioSamples (SRA) and load" creator="faulcon">
@@ -64,6 +73,9 @@
     <pipeline name="BioSamples (DGVa)" creator="faulcon">
         <processes>
             <process name="topresampletabdgva" displayName="DGVa raw.xml file to sampletab.pre.txt" />
+            <process name="accessionsampletab" displayName="to sampletab.txt" />
+            <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
+            <process name="toagetab" displayName="to AGE-TAB" />
         </processes>
     </pipeline>    
     <pipeline name="BioSamples (DGVa) and load" creator="faulcon">
