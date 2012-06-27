@@ -60,7 +60,7 @@ public class MageTabExportProcess extends AbstractAE2LSFProcess {
         else {
             String environmentPath = ConanProperties.getProperty("environment.path");
             String publicFTPPath = ConanProperties.getProperty("ftp.path")  +
-                                    "/MAGE-TAB-EXPORT/" + accession.getSubDir();;
+                                    "/MAGE-TAB-EXPORT";
             return environmentPath  + "software/magetab_exporter_0.0.1-SNAPSHOT/magetab_exporter.sh "
                 + accession.getAccession()
                 + " --no-adf "
