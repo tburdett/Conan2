@@ -87,7 +87,7 @@ public class MageTabExportProcess extends AbstractAE2LSFProcess {
             final File outputDir = new File(parentDir, ".conan");
 
             // lsf output file
-            return new File(outputDir, "idfexport.lsfoutput.txt").getAbsolutePath();
+            return new File(outputDir, "MageTabexport.lsfoutput.txt").getAbsolutePath();
         }
     }
 }
