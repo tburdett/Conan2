@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.conan.process.ae2;
 
+import net.sourceforge.fluxion.spi.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
@@ -18,6 +19,7 @@ import java.util.Map;
  * @author Tobias Ternent
  * @date 20-Jun-2012
  */
+@ServiceProvider
 public class MageTabExportProcess extends AbstractAE2LSFProcess {
     private final Collection<ConanParameter> parameters;
     private final AccessionParameter accessionParameter;
