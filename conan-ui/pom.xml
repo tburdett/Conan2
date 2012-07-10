@@ -110,6 +110,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-war-plugin</artifactId>
+                        <version>2.1.1</version>
                         <configuration>
                             <webResources>
                                 <resource>
@@ -170,6 +171,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-war-plugin</artifactId>
+                        <version>2.1.1</version>
                         <configuration>
                             <webResources>
                                 <resource>
@@ -230,6 +232,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-war-plugin</artifactId>
+                        <version>2.1.1</version>
                         <configuration>
                             <webResources>
                                 <resource>
@@ -290,6 +293,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-war-plugin</artifactId>
+                        <version>2.1.1</version>
                         <configuration>
                             <webResources>
                                 <resource>
@@ -319,4 +323,5 @@
             </dependencies>
         </profile>
     </profiles>
+>>>>>>> .r18562
 </project>
