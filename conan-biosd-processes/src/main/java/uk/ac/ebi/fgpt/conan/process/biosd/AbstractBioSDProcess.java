@@ -28,7 +28,7 @@ public abstract class AbstractBioSDProcess implements ConanProcess {
     public static String getPathPrefix(SampleTabAccessionParameter accession){
 		if (accession.getAccession().startsWith("GMS-")) return "imsr";
 		else if (accession.getAccession().startsWith("GAE-")) return "ae";
-        else if (accession.getAccession().startsWith("GRP-")) return "pride";
+        else if (accession.getAccession().startsWith("GPR-")) return "pride";
         else if (accession.getAccession().startsWith("GVA-")) return "dgva";
         else if (accession.getAccession().startsWith("GCR-")) return "coriell";
         else if (accession.getAccession().startsWith("GEN-")) return "sra";
