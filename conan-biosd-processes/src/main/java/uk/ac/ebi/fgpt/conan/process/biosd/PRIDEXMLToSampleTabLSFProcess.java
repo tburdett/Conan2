@@ -68,9 +68,9 @@ public class PRIDEXMLToSampleTabLSFProcess extends AbstractBioSDLSFProcess {
 
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() 
-            + " -p " + projectFile.getAbsolutePath()
-		    + " " + sampletabFile.getAbsolutePath()
-            + " " + inputFile.getAbsolutePath() 
+                + " -p " + projectFile.getAbsolutePath()
+		        + " " + sampletabFile.getAbsolutePath()
+                + " " + inputFile.getAbsolutePath() 
 				+ " &> "+logfile.getAbsolutePath();
 		getLog().debug("Command is: <" + mainCommand + ">");
 		return mainCommand;
