@@ -5,14 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.lsf.LSFProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
-import uk.ac.ebi.fgpt.conan.process.biosd.model.SampleTabENASRAAccessionParameter;
+import uk.ac.ebi.fgpt.conan.process.biosd.model.SampleTabPRIDEAccessionParameter;
 import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Map;
 
 @ServiceProvider
@@ -44,7 +42,7 @@ public class PRIDEXMLToSampleTabLSFProcess extends AbstractBioSDLSFProcess {
 						+ parameters.toString());
 
 		// deal with parameters
-		SampleTabENASRAAccessionParameter accession = new SampleTabENASRAAccessionParameter();
+		SampleTabPRIDEAccessionParameter accession = new SampleTabPRIDEAccessionParameter();
 		accession.setAccession(parameters.get(accessionParameter));
 		if (accession.getAccession() == null) {
 			throw new IllegalArgumentException("Accession cannot be null");
