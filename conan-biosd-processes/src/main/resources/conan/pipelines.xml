@@ -90,6 +90,26 @@
     </pipeline>
     
     
+    <pipeline name="BioSamples (PRIDE)" creator="faulcon">
+        <processes>
+            <process name="topresampletabdgva" displayName="PRIDE trimmed.xml file to sampletab.pre.txt" />
+            <process name="accessionsampletab" displayName="to sampletab.txt" />
+            <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
+            <process name="toagetab" displayName="to AGE-TAB" />
+        </processes>
+    </pipeline>    
+    <pipeline name="BioSamples (PRIDE) and load" creator="faulcon">
+        <processes>
+            <process name="topresampletabdgva" displayName="PRIDE trimmed.xml file to sampletab.pre.txt" />
+            <process name="accessionsampletab" displayName="to sampletab.txt" />
+            <process name="toftp" displayName="copy to FTP site" />
+            <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
+            <process name="toagetab" displayName="to AGE-TAB" />
+            <process name="load" displayName="load" />
+        </processes>
+    </pipeline>
+    
+    
     <pipeline name="BioSamples accession and load" creator="faulcon">
         <processes>
             <process name="accessionsampletab" displayName="accession sampletab.pre.txt and load" />
