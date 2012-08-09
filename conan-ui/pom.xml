@@ -145,11 +145,6 @@
                     <artifactId>conan-atlas-processes</artifactId>
                     <version>1.0-SNAPSHOT</version>
                 </dependency>
-                <dependency>
-                    <groupId>uk.ac.ebi.fgpt</groupId>
-                    <artifactId>conan-biosd-processes</artifactId>
-                    <version>2.0.5-SNAPSHOT</version>
-                </dependency>
             </dependencies>
         </profile>
 
@@ -204,11 +199,6 @@
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>conan-atlas-processes</artifactId>
                     <version>1.0-SNAPSHOT</version>
-                </dependency>
-                <dependency>
-                    <groupId>uk.ac.ebi.fgpt</groupId>
-                    <artifactId>conan-biosd-processes</artifactId>
-                    <version>2.0.5-SNAPSHOT</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -265,6 +255,46 @@
                     <artifactId>conan-atlas-processes</artifactId>
                     <version>1.0-SNAPSHOT</version>
                 </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- profile for biosd, uses files from resources-biosd and webresources-biosd -->
+        <profile>
+            <id>biosd</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <finalName>conan2</finalName>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources-biosd</directory>
+                    </resource>
+                </resources>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <configuration>
+                            <webResources>
+                                <resource>
+                                    <directory>src/main/webresources-biosd</directory>
+                                </resource>
+                            </webResources>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+
+            <dependencies>
+                <!-- AE specific implementations -->
+                <dependency>
+                    <groupId>uk.ac.ebi.fgpt</groupId>
+                    <artifactId>conan-ae-services</artifactId>
+                    <version>2.0.5-SNAPSHOT</version>
+                </dependency>
+
+                <!-- precanned conan processes -->
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>conan-biosd-processes</artifactId>
@@ -272,6 +302,8 @@
                 </dependency>
             </dependencies>
         </profile>
+
+
 
         <!-- profile for a standalone conan demo, uses no AE dependencies at all -->
         <profile>
