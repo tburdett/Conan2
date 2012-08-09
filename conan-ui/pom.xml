@@ -265,7 +265,7 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <build>
-                <finalName>conan2</finalName>
+                <finalName>conan2-biosd</finalName>
                 <resources>
                     <resource>
                         <directory>src/main/resources-biosd</directory>
