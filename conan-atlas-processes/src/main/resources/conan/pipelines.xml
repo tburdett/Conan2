@@ -20,6 +20,7 @@
             <process name="afterloading" />
             <process name="validation" displayName="afterload validation"/>
             <process name="QM calculation" />
+            <process name="MAGE-TAB Export" />
             <process name="atlas eligibility" />
             <process name="atlas loading" />
             <process name="atlas update" />
