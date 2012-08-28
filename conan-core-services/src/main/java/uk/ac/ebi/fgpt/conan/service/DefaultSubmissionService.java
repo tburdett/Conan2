@@ -229,7 +229,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
         // comparator that checks for tasks that are equal or have all the same params
         TaskParametersComparator comparator = new TaskParametersComparator();
 
-        for (ConanTask executingTask : getConanTaskDAO().getRunningTasks()) {
+        for (ConanTask executingTask : getConanTaskDAO().getIncompleteTasks()) {
             // don't compare tasks if they have the same ID
             if (!task.getId().equals(executingTask.getId())) {
                 // compare all parameters of executing task to our new task

@@ -49,6 +49,8 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
             "where STATE = 'RUNNING'";
     public static final String TASK_SELECT_COMPLETED = TASK_SELECT + " " +
             "where (STATE = 'COMPLETED' or STATE = 'ABORTED')";
+    public static final String TASK_SELECT_INCOMPLETE = TASK_SELECT + " " +
+            "where (STATE != 'COMPLETED' and STATE != 'ABORTED')";
     public static final String TASK_SELECT_COMPLETED_PAGED =
             "select ID, NAME, START_DATE, END_DATE, USER_ID, PIPELINE_NAME, PRIORITY, FIRST_PROCESS_INDEX, STATE, STATUS_MESSAGE, CURRENT_EXECUTED_INDEX, CREATION_DATE " +
                     "from (" + TASK_SELECT + " where (STATE = 'COMPLETED' or STATE = 'ABORTED') order by END_DATE desc) " +
@@ -432,6 +434,20 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
 
         //additional sets
         addConanTaskChildren(conanTasks, TaskType.COMPLETED);
+        return conanTasks;
+    }
+    
+
+
+    public List<ConanTask<? extends ConanPipeline>> getIncompleteTasks() {
+        Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
+        List<ConanTask<? extends ConanPipeline>> conanTasks =
+                getJdbcTemplate().query(TASK_SELECT_INCOMPLETE, new ConanTaskMapper());
+
+        //additional sets
+        addConanTaskChildren(conanTasks, TaskType.RUNNING);
+        addConanTaskChildren(conanTasks, TaskType.PENDING);
+        addConanTaskChildren(conanTasks, TaskType.OTHER);
         return conanTasks;
     }
 

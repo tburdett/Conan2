@@ -117,6 +117,15 @@ public interface ConanTaskDAO {
     List<ConanTask<? extends ConanPipeline>> getCompletedTasks();
 
     /**
+     * Gets a list of all tasks do not have a "completed" status.  This includes tasks that are currently running, 
+     * those that are queued, and those that have had a process fail but have not yet been marked as complete by
+     * the submitter. 
+     *
+     * @return the tasks that have completed
+     */
+    List<ConanTask<? extends ConanPipeline>> getIncompleteTasks();
+
+    /**
      * Gets a list of all tasks have a "completed" status, excluding process info.  This includes tasks that completed
      * successfully, and those that completed because a process failed and was subsequently marked as complete by the
      * submitter.
