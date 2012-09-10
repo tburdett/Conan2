@@ -3,13 +3,17 @@ package uk.ac.ebi.fgpt.conan.process.ae2;
 import net.sourceforge.fluxion.spi.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.arrayexpress2.exception.ComponentNames;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
-import uk.ac.ebi.fgpt.conan.lsf.AbstractLSFProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
+import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
+import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
+import uk.ac.ebi.fgpt.conan.utils.CommandExecutionException;
+import uk.ac.ebi.fgpt.conan.utils.ProcessRunner;
 
-import java.io.File;
+import java.io.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -17,12 +21,15 @@ import java.util.Map;
 /**
  * Process that should be run after each unload to perform required cleanup of load directories and FTP directories,
  * ready for "clean" reload.
+ * <p/>
+ * Must be run locally - ony works on banana.  If Conan is ever migrated to a different machine (not banana) this
+ * process will need modifying to take account for this (or else script permssions must be updated).
  *
  * @author Tony Burdett
  * @date 19/04/11
  */
 @ServiceProvider
-public class UnloadCleanupProcess extends AbstractAE2LSFProcess {
+public class UnloadCleanupProcess implements ConanProcess {
     private final Collection<ConanParameter> parameters;
     private final AccessionParameter accessionParameter;
 
@@ -46,12 +53,52 @@ public class UnloadCleanupProcess extends AbstractAE2LSFProcess {
         return parameters;
     }
 
-    protected int getMemoryRequirement(Map<ConanParameter, String> parameterStringMap) {
-        return 512;
-    }
+    public boolean execute(Map<ConanParameter, String> parameters)
+            throws ProcessExecutionException, IllegalArgumentException, InterruptedException {
+        try {
+            String command = getCommand(parameters);
+            getLog().debug("Issuing command: [" + command + "]");
+            ProcessRunner runner = new ProcessRunner();
+            runner.redirectStderr(true);
+            String[] output = runner.runCommmand(command);
 
-    protected String getComponentName() {
-        return ComponentNames.EXPLOADER;
+            // debugging output
+            if (output.length > 0) {
+                getLog().debug("Response from command [" + command + "]: " +
+                                       output.length + " lines, first line was " + output[0]);
+
+                // write response to report file
+                File f = new File(getOutputFilePath(parameters));
+                PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(f)));
+                for (String line : output) {
+                    writer.println(line);
+                }
+                writer.close();
+            }
+
+            return true;
+        }
+        catch (CommandExecutionException e) {
+            // could not dispatch to LSF
+            getLog().error("Failed to dispatch job (exited with exit code " + e.getExitCode() + ")", e);
+            ProcessExecutionException pex = new ProcessExecutionException(
+                    e.getExitCode(),
+                    "Failed to dispatch job (exited with exit code " + e.getExitCode() + ")",
+                    e);
+            pex.setProcessOutput(e.getErrorOutput());
+            try {
+                pex.setProcessExecutionHost(InetAddress.getLocalHost().getHostName());
+            }
+            catch (UnknownHostException e1) {
+                getLog().debug("Unknown host", e1);
+            }
+            throw pex;
+        }
+        catch (IOException e) {
+            getLog().error("Failed to read output stream of native system process");
+            getLog().debug("IOException follows", e);
+            throw new ProcessExecutionException(1, "Failed to read output stream of native system process", e);
+        }
     }
 
     protected String getCommand(Map<ConanParameter, String> parameters) {
@@ -69,7 +116,7 @@ public class UnloadCleanupProcess extends AbstractAE2LSFProcess {
         }
     }
 
-    protected String getLSFOutputFilePath(Map<ConanParameter, String> parameters) {
+    private String getOutputFilePath(Map<ConanParameter, String> parameters) {
         // deal with parameters
         AccessionParameter accession = new AccessionParameter();
         for (ConanParameter conanParameter : parameters.keySet()) {
