@@ -483,7 +483,6 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
     }
 
     protected void fireProcessFailedEvent(ProcessExecutionException pex) {
-        getLog().debug("Task " + getId() + " failed its current process, exit code " + pex.getExitValue());
         updateCurrentStatusMessage("Failed at " + getCurrentProcess().getName());
         updateCurrentState(State.FAILED);
 
@@ -501,6 +500,15 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
         for (ConanTaskListener listener : getListeners()) {
             listener.processFailed(event);
         }
+
+        // log error output
+        getLog().error("Task " + getId() + " failed its current process, exit code " + pex.getExitValue());
+        StringBuilder errorContent = new StringBuilder();
+        errorContent.append("Output follows...\n");
+        for (String s : pex.getProcessOutput()) {
+            errorContent.append(s).append("\n");
+        }
+        getLog().error(errorContent.toString());
     }
 
     protected void fireProcessFailedEvent(int exitValue) {
