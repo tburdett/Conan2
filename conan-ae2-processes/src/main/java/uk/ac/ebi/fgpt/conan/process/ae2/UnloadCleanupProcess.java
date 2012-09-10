@@ -14,8 +14,10 @@ import uk.ac.ebi.fgpt.conan.utils.ProcessRunner;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -68,7 +70,7 @@ public class UnloadCleanupProcess implements ConanProcess {
                                        output.length + " lines, first line was " + output[0]);
 
                 // write response to report file
-                File f = new File(getOutputFilePath(parameters));
+                File f = new File(getReportFilePath(parameters));
                 PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(f)));
                 for (String line : output) {
                     writer.println(line);
@@ -116,7 +118,7 @@ public class UnloadCleanupProcess implements ConanProcess {
         }
     }
 
-    private String getOutputFilePath(Map<ConanParameter, String> parameters) {
+    private String getReportFilePath(Map<ConanParameter, String> parameters) {
         // deal with parameters
         AccessionParameter accession = new AccessionParameter();
         for (ConanParameter conanParameter : parameters.keySet()) {
@@ -133,10 +135,13 @@ public class UnloadCleanupProcess implements ConanProcess {
             final File parentDir = accession.getFile().getAbsoluteFile().getParentFile();
 
             // files to write output to
-            final File outputDir = new File(parentDir, ".conan");
+            final File outputDir = new File(parentDir, "reports");
+
+            String fileName = accession.getAccession() + "_UnloadCleanup_" +
+                    new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()) + ".report";
 
             // lsf output file
-            return new File(outputDir, "unloadcleanup.lsfoutput.txt").getAbsolutePath();
+            return new File(outputDir, fileName).getAbsolutePath();
         }
     }
 

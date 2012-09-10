@@ -4,7 +4,6 @@ import net.sourceforge.fluxion.spi.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
-import uk.ac.ebi.fgpt.conan.lsf.AbstractLSFProcess;
 import uk.ac.ebi.fgpt.conan.lsf.LSFProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 
@@ -63,7 +62,6 @@ public class ValidationProcess extends AbstractAE2LSFProcess {
             // main command to execute perl script
             String mainCommand = "cd " + accession.getFile().getParentFile().getAbsolutePath() + "; " +
                     "perl /ebi/microarray/home/fgpt/sw/lib/perl/Red_Hat/validate_magetab.pl ";
-//                    "perl /ebi/microarray/ma-subs/AE/subs/PERL_SCRIPTS/validate_magetab.pl ";
             // path to relevant file
             String filePath = accession.getFile().getAbsolutePath();
             // return command string
@@ -78,8 +76,6 @@ public class ValidationProcess extends AbstractAE2LSFProcess {
 
     protected String getLSFOutputFilePath(Map<ConanParameter, String> parameters)
             throws IllegalArgumentException {
-        getLog().debug("Executing " + getName() + " with the following parameters: " + parameters.toString());
-
         // deal with parameters
         AccessionParameter accession = new AccessionParameter();
         accession.setAccession(parameters.get(accessionParameter));
