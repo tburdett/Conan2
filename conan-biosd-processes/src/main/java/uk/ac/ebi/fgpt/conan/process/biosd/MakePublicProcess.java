@@ -70,43 +70,5 @@ public class MakePublicProcess extends AbstractBioSDProcess {
         }
         
     }
-    
-
-    private File getFTPDirectory(SampleTabAccessionParameter accession) throws IOException {
-        String sampletabpath = ConanProperties
-                .getProperty("biosamples.ftp.path");
-        File sampletab = new File(sampletabpath, getPathPrefix(accession));
-        File outdir = new File(sampletab, accession.getAccession());
-        if (!outdir.exists()) {
-            if (!outdir.mkdirs()) {
-                throw new IOException("Unable to create directories: "
-                        + outdir.getPath());
-            }
-        }
-        return outdir;
-    }
-        
-    private static void copyFile(File sourceFile, File destFile) throws IOException {
-        //copied from http://stackoverflow.com/a/115086/932342
-        if(!destFile.exists()) {
-            destFile.createNewFile();
-        }
-
-        FileChannel source = null;
-        FileChannel destination = null;
-
-        try {
-            source = new FileInputStream(sourceFile).getChannel();
-            destination = new FileOutputStream(destFile).getChannel();
-            destination.transferFrom(source, 0, source.size());
-        } finally {
-            if(source != null) {
-                source.close();
-            }
-            if(destination != null) {
-                destination.close();
-            }
-        }
-    }
 
 }
