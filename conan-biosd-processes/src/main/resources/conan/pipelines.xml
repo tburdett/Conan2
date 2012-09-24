@@ -13,21 +13,21 @@
     <pipeline name="BioSamples (AE)" creator="faulcon">
         <processes>
             <process name="topresampletabarrayexpress" displayName="MageTab to sampletab.pre.txt" />
-            <process name="accessionsampletab" displayName="MageTab to sampletab.txt" />
+            <process name="accessionsampletab" displayName="to sampletab.txt" />
             <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
             <process name="toagetab" displayName="to AGE-TAB" />
         </processes>
     </pipeline>    
-    <pipeline name="BioSamples (AE) and load" creator="faulcon">
-        <processes>
-            <process name="topresampletabarrayexpress" displayName="to sampletab.pre.txt" />
-            <process name="accessionsampletab" displayName="to sampletab.txt" />
-            <process name="toftp" displayName="to FTP site" />
-            <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
-            <process name="toagetab" displayName="to AGE-TAB" />
-            <process name="load" displayName="load" />
-        </processes>
-    </pipeline>
+<!--     <pipeline name="BioSamples (AE) and load" creator="faulcon"> -->
+<!--         <processes> -->
+<!--             <process name="topresampletabarrayexpress" displayName="to sampletab.pre.txt" /> -->
+<!--             <process name="accessionsampletab" displayName="to sampletab.txt" /> -->
+<!--             <process name="toftp" displayName="to FTP site" /> -->
+<!--             <process name="toloadsampletab" displayName="to sampletab.toload.txt" /> -->
+<!--             <process name="toagetab" displayName="to AGE-TAB" /> -->
+<!--             <process name="load" displayName="load" /> -->
+<!--         </processes> -->
+<!--     </pipeline> -->
     
     
     <pipeline name="BioSamples (IMSR)" creator="faulcon">
@@ -38,16 +38,16 @@
             <process name="toagetab" displayName="to AGE-TAB" />
         </processes>
     </pipeline>    
-    <pipeline name="BioSamples (IMSR) and load" creator="faulcon">
-        <processes>
-            <process name="topresampletabimsr" displayName="IMSR raw.tab.txt to sampletab.pre.txt" />
-            <process name="accessionsampletab" displayName="to sampletab.txt" />
-            <process name="toftp" displayName="to FTP site" />
-            <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
-            <process name="toagetab" displayName="to AGE-TAB" />
-            <process name="load" displayName="load" />
-        </processes>
-    </pipeline>
+<!--     <pipeline name="BioSamples (IMSR) and load" creator="faulcon"> -->
+<!--         <processes> -->
+<!--             <process name="topresampletabimsr" displayName="IMSR raw.tab.txt to sampletab.pre.txt" /> -->
+<!--             <process name="accessionsampletab" displayName="to sampletab.txt" /> -->
+<!--             <process name="toftp" displayName="to FTP site" /> -->
+<!--             <process name="toloadsampletab" displayName="to sampletab.toload.txt" /> -->
+<!--             <process name="toagetab" displayName="to AGE-TAB" /> -->
+<!--             <process name="load" displayName="load" /> -->
+<!--         </processes> -->
+<!--     </pipeline> -->
     
     
     <pipeline name="BioSamples (SRA)" creator="faulcon">
@@ -58,16 +58,16 @@
             <process name="toagetab" displayName="to AGE-TAB" />
         </processes>
     </pipeline>    
-    <pipeline name="BioSamples (SRA) and load" creator="faulcon">
-        <processes>
-            <process name="topresampletabenasra" displayName="ENA SRA study.xml and related sample xml files to sampletab.pre.txt" />
-            <process name="accessionsampletab" displayName="to sampletab.txt" />
-            <process name="toftp" displayName="copy to FTP site" />
-            <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
-            <process name="toagetab" displayName="to AGE-TAB" />
-            <process name="load" displayName="load" />
-        </processes>
-    </pipeline>
+<!--     <pipeline name="BioSamples (SRA) and load" creator="faulcon"> -->
+<!--         <processes> -->
+<!--             <process name="topresampletabenasra" displayName="ENA SRA study.xml and related sample xml files to sampletab.pre.txt" /> -->
+<!--             <process name="accessionsampletab" displayName="to sampletab.txt" /> -->
+<!--             <process name="toftp" displayName="copy to FTP site" /> -->
+<!--             <process name="toloadsampletab" displayName="to sampletab.toload.txt" /> -->
+<!--             <process name="toagetab" displayName="to AGE-TAB" /> -->
+<!--             <process name="load" displayName="load" /> -->
+<!--         </processes> -->
+<!--     </pipeline> -->
     
     
     <pipeline name="BioSamples (DGVa)" creator="faulcon">
@@ -78,16 +78,16 @@
             <process name="toagetab" displayName="to AGE-TAB" />
         </processes>
     </pipeline>    
-    <pipeline name="BioSamples (DGVa) and load" creator="faulcon">
-        <processes>
-            <process name="topresampletabdgva" displayName="DGVa raw.xml file to sampletab.pre.txt" />
-            <process name="accessionsampletab" displayName="to sampletab.txt" />
-            <process name="toftp" displayName="copy to FTP site" />
-            <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
-            <process name="toagetab" displayName="to AGE-TAB" />
-            <process name="load" displayName="load" />
-        </processes>
-    </pipeline>
+<!--     <pipeline name="BioSamples (DGVa) and load" creator="faulcon"> -->
+<!--         <processes> -->
+<!--             <process name="topresampletabdgva" displayName="DGVa raw.xml file to sampletab.pre.txt" /> -->
+<!--             <process name="accessionsampletab" displayName="to sampletab.txt" /> -->
+<!--             <process name="toftp" displayName="copy to FTP site" /> -->
+<!--             <process name="toloadsampletab" displayName="to sampletab.toload.txt" /> -->
+<!--             <process name="toagetab" displayName="to AGE-TAB" /> -->
+<!--             <process name="load" displayName="load" /> -->
+<!--         </processes> -->
+<!--     </pipeline> -->
     
     
     <pipeline name="BioSamples (PRIDE)" creator="faulcon">
@@ -98,27 +98,35 @@
             <process name="toagetab" displayName="to AGE-TAB" />
         </processes>
     </pipeline>    
-    <pipeline name="BioSamples (PRIDE) and load" creator="faulcon">
-        <processes>
-            <process name="topresampletabpride" displayName="PRIDE trimmed.xml file to sampletab.pre.txt" />
-            <process name="accessionsampletab" displayName="to sampletab.txt" />
-            <process name="toftp" displayName="copy to FTP site" />
-            <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
-            <process name="toagetab" displayName="to AGE-TAB" />
-            <process name="load" displayName="load" />
-        </processes>
-    </pipeline>
+<!--     <pipeline name="BioSamples (PRIDE) and load" creator="faulcon"> -->
+<!--         <processes> -->
+<!--             <process name="topresampletabpride" displayName="PRIDE trimmed.xml file to sampletab.pre.txt" /> -->
+<!--             <process name="accessionsampletab" displayName="to sampletab.txt" /> -->
+<!--             <process name="toftp" displayName="copy to FTP site" /> -->
+<!--             <process name="toloadsampletab" displayName="to sampletab.toload.txt" /> -->
+<!--             <process name="toagetab" displayName="to AGE-TAB" /> -->
+<!--             <process name="load" displayName="load" /> -->
+<!--         </processes> -->
+<!--     </pipeline> -->
     
     
-    <pipeline name="BioSamples accession and load" creator="faulcon">
+    <pipeline name="BioSamples accession" creator="faulcon">
         <processes>
             <process name="accessionsampletab" displayName="accession sampletab.pre.txt and load" />
             <process name="toftp" displayName="copy to FTP site" />
             <process name="toloadsampletab" displayName="to sampletab.toload.txt" />
             <process name="toagetab" displayName="to AGE-TAB" />
-            <process name="load" displayName="load" />
         </processes>
     </pipeline>
+<!--     <pipeline name="BioSamples accession and load" creator="faulcon"> -->
+<!--         <processes> -->
+<!--             <process name="accessionsampletab" displayName="accession sampletab.pre.txt and load" /> -->
+<!--             <process name="toftp" displayName="copy to FTP site" /> -->
+<!--             <process name="toloadsampletab" displayName="to sampletab.toload.txt" /> -->
+<!--             <process name="toagetab" displayName="to AGE-TAB" /> -->
+<!--             <process name="load" displayName="load" /> -->
+<!--         </processes> -->
+<!--     </pipeline> -->
     
     <pipeline name="BioSamples make public" creator="faulcon">
         <processes>
