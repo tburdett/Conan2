@@ -6,7 +6,12 @@ import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanUser;
 
+import javax.xml.XMLConstants;
 import javax.xml.stream.*;
+import javax.xml.transform.stax.StAXSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -68,38 +73,35 @@ public class PipelineXMLStAXParser extends AbstractPipelineXMLParser {
 
     @Override
     public Collection<ConanPipeline> parseAndValidatePipelineXML(URL pipelineXMLResource) throws IOException {
-        // throw unsupported exception instead of schema validation, because it isn't supported in StAX right now
-//        getLog().debug("Parsing and validating pipeline XML from " + pipelineXMLResource);
-//        Collection<ConanPipeline> conanPipelines = new HashSet<ConanPipeline>();
-//
-//        try {
-//            getLog().debug("Creating XMLStreamReader from " + pipelineXMLResource);
-//
-//            XMLStreamReader reader;
-//            synchronized (inputFactory) {
-//                // switch schema validation on
-//                inputFactory.setProperty("javax.xml.stream.isValidating", Boolean.TRUE);
-//                inputFactory.setXMLReporter(new PipelineXMLReporter());
-//                reader = inputFactory.createXMLStreamReader(pipelineXMLResource.openStream());
-//            }
-//
-//            while (reader.hasNext()) {
-//                int event = reader.next();
-//                if (event == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(pipelineElement)) {
-//                    conanPipelines.add(readPipeline(reader));
-//                }
-//                else {
-//                    // skip
-//                }
-//            }
-//        }
-//        catch (XMLStreamException e) {
-//            throw new IOException("Unable to read from " + pipelineXMLResource, e);
-//        }
-//
-//        return conanPipelines;
+        getLog().debug("Parsing and validating pipeline XML from " + pipelineXMLResource);
+        Collection<ConanPipeline> conanPipelines = new HashSet<ConanPipeline>();
 
-        throw new UnsupportedOperationException("StAX parser does not currently support XML validation");
+        try {
+            getLog().debug("Creating XMLStreamReader from " + pipelineXMLResource);
+
+            XMLStreamReader reader;
+            synchronized (inputFactory) {
+                // switch schema validation on
+                inputFactory.setProperty("javax.xml.stream.isValidating", Boolean.TRUE);
+                inputFactory.setXMLReporter(new PipelineXMLReporter());
+                reader = inputFactory.createXMLStreamReader(pipelineXMLResource.openStream());
+            }
+
+            while (reader.hasNext()) {
+                int event = reader.next();
+                if (event == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(PIPELINE_ELEMENT)) {
+                    conanPipelines.add(readPipeline(reader));
+                }
+                else {
+                    // skip
+                }
+            }
+        }
+        catch (XMLStreamException e) {
+            throw new IOException("Unable to read from " + pipelineXMLResource, e);
+        }
+
+        return conanPipelines;
     }
 
     private ConanPipeline readPipeline(XMLStreamReader reader) throws XMLStreamException {
