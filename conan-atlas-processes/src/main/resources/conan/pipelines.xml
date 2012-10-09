@@ -26,7 +26,8 @@
             <process name="atlas update" />
         </processes>
     </pipeline>
-    <pipeline name="Atlas retrofit eligibility check" creator="natalja" daemonized="true">
+
+    <pipeline name="Atlas retrofit eligibility check" creator="natalja">
         <processes>
             <process name="validation" />
             <process name="atlas eligibility" />
