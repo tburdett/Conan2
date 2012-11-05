@@ -15,9 +15,9 @@
         <processes>
             <process name="validation" />
             <process name="eligibility" />
+            <process name="afterloading" />
             <process name="experiment loading" />
             <process name="scoring" />
-            <process name="afterloading" />
             <process name="validation" displayName="afterload validation"/>
             <process name="QM calculation" />
             <process name="MAGE-TAB Export" />
