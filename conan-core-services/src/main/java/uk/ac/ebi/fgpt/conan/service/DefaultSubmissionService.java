@@ -28,7 +28,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
     private final ExecutorService taskExecutor;
     private final int coolingOffPeriod;
 
-    private final Map<String, Future<Boolean>> executingFutures;
+    private final ConcurrentMap<String, Future<Boolean>> executingFutures;
 
     private ConanTaskDAO conanTaskDAO;
 
@@ -37,7 +37,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
     public DefaultSubmissionService(int numberOfParallelJobs, int coolingOffPeriod) {
         this.taskExecutor = Executors.newFixedThreadPool(numberOfParallelJobs);
         this.coolingOffPeriod = coolingOffPeriod;
-        this.executingFutures = new HashMap<String, Future<Boolean>>();
+        this.executingFutures = new ConcurrentHashMap<String, Future<Boolean>>();
     }
 
     protected Logger getLog() {
