@@ -259,17 +259,17 @@
             </dependencies>
         </profile>
 
-        <!-- profile for biosd, uses files from resources-biosd and webresources-biosd -->
+        <!-- profile for biosd-test, uses files from resources-biosd-test and webresources-biosd-test -->
         <profile>
-            <id>biosd</id>
+            <id>biosd-test</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
             <build>
-                <finalName>conan2-biosd</finalName>
+                <finalName>conan2-biosd-test</finalName>
                 <resources>
                     <resource>
-                        <directory>src/main/resources-biosd</directory>
+                        <directory>src/main/resources-biosd-test</directory>
                     </resource>
                 </resources>
                 <plugins>
@@ -279,7 +279,52 @@
                         <configuration>
                             <webResources>
                                 <resource>
-                                    <directory>src/main/webresources-biosd</directory>
+                                    <directory>src/main/webresources-biosd-test</directory>
+                                </resource>
+                            </webResources>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+
+            <dependencies>
+                <!-- AE specific implementations -->
+                <dependency>
+                    <groupId>uk.ac.ebi.fgpt</groupId>
+                    <artifactId>conan-ae-services</artifactId>
+                    <version>2.0.6-SNAPSHOT</version>
+                </dependency>
+
+                <!-- precanned conan processes -->
+                <dependency>
+                    <groupId>uk.ac.ebi.fgpt</groupId>
+                    <artifactId>conan-biosd-processes</artifactId>
+                    <version>2.0.6-SNAPSHOT</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- profile for biosd-prod, uses files from resources-biosd-prod and webresources-biosd-prod -->
+        <profile>
+            <id>biosd-prod</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <finalName>conan2-biosd-prod</finalName>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources-biosd-prod</directory>
+                    </resource>
+                </resources>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <configuration>
+                            <webResources>
+                                <resource>
+                                    <directory>src/main/webresources-biosd-prod</directory>
                                 </resource>
                             </webResources>
                         </configuration>
