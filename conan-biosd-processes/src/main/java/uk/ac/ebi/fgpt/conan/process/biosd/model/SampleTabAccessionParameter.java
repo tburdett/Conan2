@@ -15,7 +15,7 @@ public class SampleTabAccessionParameter extends AbstractConanParameter {
 	}
 	
 	public void setAccession(String accession) throws IllegalArgumentException {
-	    if (!accession.startsWith("G") || !accession.contains("-"))
+	    if (!accession.startsWith("G"))
 	        throw new IllegalArgumentException("Invalid accession "+accession);
 		this.accession = accession;
 	}
