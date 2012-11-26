@@ -34,9 +34,9 @@
           init-method="init"
           destroy-method="destroy">
         <!-- number of allowed parallel processes -->
-        <constructor-arg name="numberOfParallelJobs" value="100" />
+        <constructor-arg name="numberOfParallelJobs" value="250" />
         <!-- time in seconds to hold jobs before running -->
-        <constructor-arg name="coolingOffPeriod" value="120" />
+        <constructor-arg name="coolingOffPeriod" value="10" />
         <!--<property name="taskService" ref="taskService" />-->
         <property name="conanTaskDAO" ref="conanTaskDAO" />
     </bean>
