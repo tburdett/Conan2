@@ -33,6 +33,7 @@ public abstract class AbstractBioSDProcess implements ConanProcess {
         else if (accession.getAccession().startsWith("GCR-")) return "coriell";
         else if (accession.getAccession().startsWith("GEN-")) return "sra"; //ena sra
         else if (accession.getAccession().startsWith("GEM-")) return "GEM"; //emblbank
+        else if (accession.getAccession().startsWith("GSB-")) return "GSB"; //direct submission
         else if (accession.getAccession().equals("GEN")) return "encode";
         else if (accession.getAccession().equals("G1K")) return "g1k";
         else if (accession.getAccession().equals("GHM")) return "hapmap";
