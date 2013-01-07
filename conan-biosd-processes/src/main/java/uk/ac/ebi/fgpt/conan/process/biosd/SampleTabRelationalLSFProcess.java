@@ -67,7 +67,7 @@ public class SampleTabRelationalLSFProcess extends AbstractBioSDLSFProcess {
         
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() 
-				+ sampletabFile.getAbsolutePath()
+				+ " "+sampletabFile.getAbsolutePath()
                 + " &> "+logfile.getAbsolutePath();
 		getLog().info("Command is: <" + mainCommand + ">");
 		return mainCommand;
