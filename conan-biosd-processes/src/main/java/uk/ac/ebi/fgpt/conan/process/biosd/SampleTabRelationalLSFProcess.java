@@ -49,8 +49,8 @@ public class SampleTabRelationalLSFProcess extends AbstractBioSDLSFProcess {
 			throw new IllegalArgumentException("Accession cannot be null");
 		}
 
-		String scriptpath = ConanProperties.getProperty("biosamples.script.path");
-		File script = new File(scriptpath, "RelationalLoader.sh");
+		String scriptpath = ConanProperties.getProperty("biosamples.loader.path");
+		File script = new File(scriptpath);
 
 		File outdir;
 		try {
