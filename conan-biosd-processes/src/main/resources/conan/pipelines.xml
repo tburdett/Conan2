@@ -13,8 +13,8 @@
             <process name="toagetab" displayName="to AGE-TAB" />
 <!--             <process name="load" displayName="load" /> -->
             <process name="toguixml" displayName="to GUI XML" />
-<!--             <process name="sampletabmyequivalents" displayName="to MyEquivalents" /> -->
-<!--             <process name="sampletabrelationalloader" displayName="to relational DB" /> -->
+            <process name="sampletabmyequivalents" displayName="to MyEquivalents" />
+            <process name="sampletabrelationalloader" displayName="to relational DB" />
         </processes>
     </pipeline>    
     
@@ -27,8 +27,8 @@
             <process name="toagetab" displayName="to AGE-TAB" />
 <!--             <process name="load" displayName="load" /> -->
             <process name="toguixml" displayName="to GUI XML" />
-<!--             <process name="sampletabmyequivalents" displayName="to MyEquivalents" /> -->
-<!--             <process name="sampletabrelationalloader" displayName="to relational DB" /> -->
+            <process name="sampletabmyequivalents" displayName="to MyEquivalents" />
+            <process name="sampletabrelationalloader" displayName="to relational DB" />
         </processes>
     </pipeline>        
     
@@ -40,8 +40,8 @@
             <process name="toagetab" displayName="to AGE-TAB" />
 <!--             <process name="load" displayName="load" /> -->
             <process name="toguixml" displayName="to GUI XML" />
-<!--             <process name="sampletabmyequivalents" displayName="to MyEquivalents" /> -->
-<!--             <process name="sampletabrelationalloader" displayName="to relational DB" /> -->
+            <process name="sampletabmyequivalents" displayName="to MyEquivalents" />
+            <process name="sampletabrelationalloader" displayName="to relational DB" />
         </processes>
     </pipeline>    
     
@@ -53,8 +53,8 @@
             <process name="toagetab" displayName="to AGE-TAB" />
 <!--             <process name="load" displayName="load" /> -->
             <process name="toguixml" displayName="to GUI XML" />
-<!--             <process name="sampletabmyequivalents" displayName="to MyEquivalents" /> -->
-<!--             <process name="sampletabrelationalloader" displayName="to relational DB" /> -->
+            <process name="sampletabmyequivalents" displayName="to MyEquivalents" />
+            <process name="sampletabrelationalloader" displayName="to relational DB" />
         </processes>
     </pipeline>       
     
@@ -76,8 +76,8 @@
             <process name="toagetab" displayName="to AGE-TAB" />
 <!--             <process name="load" displayName="load" /> -->
             <process name="toguixml" displayName="to GUI XML" />
-<!--             <process name="sampletabmyequivalents" displayName="to MyEquivalents" /> -->
-<!--             <process name="sampletabrelationalloader" displayName="to relational DB" /> -->
+            <process name="sampletabmyequivalents" displayName="to MyEquivalents" />
+            <process name="sampletabrelationalloader" displayName="to relational DB" />
         </processes>
     </pipeline>
     
