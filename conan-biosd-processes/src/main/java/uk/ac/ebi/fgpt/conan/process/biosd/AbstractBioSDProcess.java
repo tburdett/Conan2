@@ -25,19 +25,23 @@ public abstract class AbstractBioSDProcess implements ConanProcess {
 	
     private Logger log = LoggerFactory.getLogger(getClass());
 
-    public static String getPathPrefix(SampleTabAccessionParameter accession){
-		if (accession.getAccession().startsWith("GMS-")) return "imsr";
-		else if (accession.getAccession().startsWith("GAE-")) return "ae";
-        else if (accession.getAccession().startsWith("GPR-")) return "pride";
-        else if (accession.getAccession().startsWith("GVA-")) return "dgva";
-        else if (accession.getAccession().startsWith("GCR-")) return "coriell";
-        else if (accession.getAccession().startsWith("GEN-")) return "sra"; //ena sra
-        else if (accession.getAccession().startsWith("GEM-")) return "GEM"; //emblbank
-        else if (accession.getAccession().startsWith("GSB-")) return "GSB"; //direct submission
-        else if (accession.getAccession().equals("GEN")) return "encode";
-        else if (accession.getAccession().equals("G1K")) return "g1k";
-        else if (accession.getAccession().equals("GHM")) return "hapmap";
-		else throw new IllegalArgumentException("Unable to get path prefix for "+accession.getAccession());
+    //make sure this is kept in sync with uk.ac.ebi.fgpt.sampletab.utils.SampleTabUtils.getPathPrefix
+    public static String getPathPrefix(SampleTabAccessionParameter submissionId){
+		if (submissionId.getAccession().startsWith("GMS-")) return "imsr";
+		else if (submissionId.getAccession().startsWith("GAE-")) return "ae";
+        else if (submissionId.getAccession().startsWith("GPR-")) return "pride";
+        else if (submissionId.getAccession().startsWith("GVA-")) return "dgva";
+        else if (submissionId.getAccession().startsWith("GCR-")) return "coriell";
+        else if (submissionId.getAccession().startsWith("GEN-")) return "sra"; //ena sra
+        else if (submissionId.getAccession().startsWith("GEM-")) {
+            File targetfile = new File("GEM", submissionId.getAccession().substring(0,7));
+            return targetfile.getPath();
+        }
+        else if (submissionId.getAccession().startsWith("GSB-")) return "GSB"; //direct submission
+        else if (submissionId.getAccession().equals("GEN")) return "encode";
+        else if (submissionId.getAccession().equals("G1K")) return "g1k";
+        else if (submissionId.getAccession().equals("GHM")) return "hapmap";
+		else throw new IllegalArgumentException("Unable to get path prefix for "+submissionId.getAccession());
 	}
 	
 	public AbstractBioSDProcess() {
