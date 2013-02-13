@@ -24,9 +24,15 @@ package uk.ac.ebi.fgpt.conan.model.context;
  */
 public interface ExitStatus {
 
-    ExitStatusType getExitStatus();
+    Type getExitStatus();
 
     String getCommand();
 
-    ExitStatus create(ExitStatusType exitStatusType);
+    ExitStatus create(Type exitStatusType);
+
+    public enum Type {
+
+        COMPLETED_SUCCESS,
+        COMPLETED_FAILED
+    }
 }

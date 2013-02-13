@@ -2,8 +2,11 @@ package uk.ac.ebi.fgpt.conan.core.task;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.conan.core.context.DefaultExecutionContext;
 import uk.ac.ebi.fgpt.conan.core.process.DefaultProcessRun;
 import uk.ac.ebi.fgpt.conan.model.*;
+import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 import uk.ac.ebi.fgpt.conan.service.exception.TaskExecutionException;
 
@@ -87,8 +90,7 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
     public ConanProcess getFirstProcess() {
         if (firstTaskIndex < getPipeline().getProcesses().size()) {
             return getPipeline().getProcesses().get(firstTaskIndex);
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -96,8 +98,7 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
     public synchronized ConanProcess getLastProcess() {
         if (currentExecutionIndex > firstTaskIndex && currentExecutionIndex <= getPipeline().getProcesses().size()) {
             return getPipeline().getProcesses().get(currentExecutionIndex - 1);
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -105,8 +106,7 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
     public synchronized ConanProcess getCurrentProcess() {
         if (getCurrentState() == State.RUNNING && currentExecutionIndex < getPipeline().getProcesses().size()) {
             return getPipeline().getProcesses().get(currentExecutionIndex);
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -115,16 +115,13 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
         if (getCurrentState() == State.RUNNING) {
             if ((currentExecutionIndex + 1) < getPipeline().getProcesses().size()) {
                 return getPipeline().getProcesses().get(currentExecutionIndex + 1);
-            }
-            else {
+            } else {
                 return null;
             }
-        }
-        else {
+        } else {
             if (currentExecutionIndex < getPipeline().getProcesses().size()) {
                 return getPipeline().getProcesses().get(currentExecutionIndex);
-            }
-            else {
+            } else {
                 return null;
             }
         }
@@ -160,10 +157,9 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
                 }
             }
             return results;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("The process '" + process.getName() + "' " +
-                                                       "is not part of the pipeline for task '" + getId() + "'");
+                    "is not part of the pipeline for task '" + getId() + "'");
         }
     }
 
@@ -175,7 +171,8 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
         return statusMessage;
     }
 
-    public boolean execute() throws TaskExecutionException, InterruptedException {
+    public boolean execute(ExecutionContext executionContext) throws TaskExecutionException, InterruptedException {
+
         // check the current state for execution
         checkState();
 
@@ -196,12 +193,12 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
 
                 // increment the execution index and fire an event as we're about to start
                 getLog().debug("Process being executed for task " + getId() + " is " +
-                                       getCurrentProcess().getName() + ", " + "supplying parameters: " +
-                                       nextProcessParams);
+                        getCurrentProcess().getName() + ", " + "supplying parameters: " +
+                        nextProcessParams);
                 fireProcessStartedEvent();
 
                 // now execute
-                getCurrentProcess().execute(nextProcessParams);
+                getCurrentProcess().execute(nextProcessParams, executionContext);
 
                 // once finished, update the end date
                 fireProcessEndedEvent();
@@ -209,37 +206,37 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
 
             // finalise task execution
             return checkExitStatus();
-        }
-        catch (ProcessExecutionException e) {
+        } catch (ProcessExecutionException e) {
             // log this exception
             getLog().error("Process '" + getCurrentProcess().getName() + "' failed to execute, " +
-                                   "exit code " + e.getExitValue());
+                    "exit code " + e.getExitValue());
             getLog().debug("Execution exception follows", e);
             getLog().debug("Is this event to abort: " + e.causesAbort() + " Output: " + e.getProcessOutput());
             if (e.causesAbort()) {
-              // critical fail, should cause instant abort
-              fireProcessFailedEvent(e);
-              abort();
-            }
-            else {
-              fireProcessFailedEvent(e);
+                // critical fail, should cause instant abort
+                fireProcessFailedEvent(e);
+                abort();
+            } else {
+                fireProcessFailedEvent(e);
             }
             throw new TaskExecutionException(e);
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             // log this exception
             getLog().error("A runtime exception occurred whilst executing task '" + getId() + "'", e);
             getLog().error("Process '" + getCurrentProcess().getName() + "' failed to execute");
             fireProcessFailedEvent(1);
             throw new TaskExecutionException(e);
-        }
-        finally {
+        } finally {
             // finally, if we have completed or stopped, remove all listeners so this object is dereferenced
             if (getCurrentState() == ConanTask.State.COMPLETED || getCurrentState() == ConanTask.State.ABORTED) {
                 setListeners(Collections.<ConanTaskListener>emptySet());
             }
             getLog().debug("Task '" + getId() + "' execution ended");
         }
+    }
+
+    public boolean execute() throws TaskExecutionException, InterruptedException {
+        return this.execute(new DefaultExecutionContext());
     }
 
     public void submit() {
@@ -293,16 +290,13 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
         if (getCurrentState() == ConanTask.State.ABORTED) {
             // stopped tasks must never re-execute
             throw new TaskExecutionException("Task has previously stopped, and cannot be re-executed");
-        }
-        else if (getCurrentState().compareTo(State.SUBMITTED) < 0) {
+        } else if (getCurrentState().compareTo(State.SUBMITTED) < 0) {
             // this is task hasn't ever been submitted
             throw new TaskExecutionException("Task does not appear to have ever been submitted");
-        }
-        else if (getCurrentState() == State.RUNNING) {
+        } else if (getCurrentState() == State.RUNNING) {
             // this task was recovered after a shutdown, so we can start executing again
             fireTaskRecoveryEvent();
-        }
-        else {
+        } else {
             // has been submitted but not running, probably paused or failed, so start this task
             fireTaskStartedEvent();
         }
@@ -314,16 +308,14 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
             // we paused, so we didn't complete everything successfully
             fireTaskPausedEvent();
             return false;
-        }
-        else {
+        } else {
             // we didn't pause, so we either got to the end or were interrupted
             if (Thread.currentThread().isInterrupted()) {
                 // we were interrupted, so we didn't complete successfully
                 getLog().warn("Task '" + getId() + "' is terminating following an interrupt request " +
-                                      "to thread " + Thread.currentThread().getName());
+                        "to thread " + Thread.currentThread().getName());
                 return false;
-            }
-            else {
+            } else {
                 // if we didn't pause this task, we got to the end, so flag it as complete
                 fireTaskCompletedEvent();
                 return true;
@@ -356,8 +348,7 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
         if (getCurrentState() == State.SUBMITTED) {
             updateCurrentStatusMessage("Started");
             this.startDate = new Date();
-        }
-        else {
+        } else {
             updateCurrentStatusMessage("Restarted");
         }
 
@@ -389,8 +380,7 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
         updateCurrentState(State.PAUSED);
         if (getNextProcess() == null) {
             updateCurrentStatusMessage("Paused during the last process");
-        }
-        else {
+        } else {
             updateCurrentStatusMessage("Paused before " + getNextProcess().getName());
         }
 
@@ -422,8 +412,7 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
         updateCurrentState(State.ABORTED);
         if (getLastProcess() == null) {
             updateCurrentStatusMessage("Aborted before the first process started");
-        }
-        else {
+        } else {
             updateCurrentStatusMessage("Aborted after " + getLastProcess().getName());
         }
 
@@ -431,8 +420,7 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
         ConanTaskEvent event;
         if (processRuns.isEmpty()) {
             event = new ConanTaskEvent(this, getCurrentState(), null, null);
-        }
-        else {
+        } else {
             event = new ConanTaskEvent(this, getCurrentState(), null, processRuns.get(processRuns.size() - 1));
         }
         for (ConanTaskListener listener : getListeners()) {
@@ -442,7 +430,7 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
 
     protected void fireProcessStartedEvent() {
         getLog().debug("Task " + getId() + " is commencing next process, " + getCurrentProcess().getName() + " " +
-                               "(execution index = " + currentExecutionIndex + ")");
+                "(execution index = " + currentExecutionIndex + ")");
         updateCurrentState(State.RUNNING);
 
         // create our process run object for the process we're going to execute

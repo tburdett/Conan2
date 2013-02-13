@@ -75,23 +75,26 @@ public class PipelineController {
      * @return the list of pipelines
      */
     @RequestMapping(method = RequestMethod.GET)
-    public @ResponseBody Collection<ConanPipeline> getPipelines(@RequestParam String restApiKey) {
+    public
+    @ResponseBody
+    Collection<ConanPipeline> getPipelines(@RequestParam String restApiKey) {
         // retrieve the user
         ConanUser conanUser = getUserService().getUserByRestApiKey(restApiKey);
 
         // return this user, or log an error and return an empty collection if this isn't a valid user
         if (conanUser != null) {
             return getPipelineService().getPipelines(conanUser);
-        }
-        else {
+        } else {
             getLog().warn("Cannot recover any details about the logged in user.  " +
-                                  "No pipelines will be available to them.");
+                    "No pipelines will be available to them.");
             return Collections.emptyList();
         }
     }
 
     @RequestMapping(method = RequestMethod.PUT)
-    public @ResponseBody PipelineReorderResponseBean reorderPipelines(
+    public
+    @ResponseBody
+    PipelineReorderResponseBean reorderPipelines(
             @RequestBody PipelineReorderRequestBean reorderRequest) {
         // recover the rest api key from the request
         String restApiKey = reorderRequest.getRestApiKey();
@@ -106,8 +109,7 @@ public class PipelineController {
 
             String msg = "Pipelines have been reordered as required";
             return new PipelineReorderResponseBean(true, msg, getPipelineService().getPipelines(conanUser));
-        }
-        else {
+        } else {
             String msg = "You do not have permission to create new pipelines";
             return new PipelineReorderResponseBean(false, msg, getPipelineService().getPipelines(conanUser));
         }
@@ -123,7 +125,9 @@ public class PipelineController {
      * @return the pipelines available to use after the new pipelines have been added
      */
     @RequestMapping(method = RequestMethod.POST)
-    public @ResponseBody PipelineCreationResponseBean addPipeline(@RequestBody PipelineRequestBean pipelineRequest) {
+    public
+    @ResponseBody
+    PipelineCreationResponseBean addPipeline(@RequestBody PipelineRequestBean pipelineRequest) {
         // recover the rest api key from the request
         String restApiKey = pipelineRequest.getRestApiKey();
 
@@ -142,16 +146,15 @@ public class PipelineController {
 
             // now we've created all the processes we need, generate the pipeline
             ConanPipeline newPipeline = getPipelineService().createPipeline(pipelineRequest.getName(),
-                                                                            conanProcesses,
-                                                                            conanUser,
-                                                                            pipelineRequest.isPrivate());
+                    conanProcesses,
+                    conanUser,
+                    pipelineRequest.isPrivate());
 
             // and return the list of pipelines now
             String msg = "Your pipeline '" + newPipeline.getName() + "' was successfully created";
             return new PipelineCreationResponseBean(true, msg, newPipeline,
-                                                    getPipelineService().getPipelines(conanUser));
-        }
-        else {
+                    getPipelineService().getPipelines(conanUser));
+        } else {
             String msg = "You do not have permission to create new pipelines";
             return new PipelineCreationResponseBean(false, msg, null, Collections.<ConanPipeline>emptySet());
         }

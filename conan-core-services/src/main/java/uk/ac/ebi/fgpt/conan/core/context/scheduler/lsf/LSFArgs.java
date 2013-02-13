@@ -17,9 +17,9 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf;
 
-import uk.ac.tgac.rampart.conan.conanx.exec.context.scheduler.AbstractSchedulerArgs;
-import uk.ac.tgac.rampart.conan.conanx.exec.context.scheduler.SchedulerArgs;
-import uk.ac.tgac.rampart.core.utils.StringJoiner;
+import uk.ac.ebi.fgpt.conan.core.context.scheduler.AbstractSchedulerArgs;
+import uk.ac.ebi.fgpt.conan.model.context.SchedulerArgs;
+import uk.ac.ebi.fgpt.conan.util.StringJoiner;
 
 
 public class LSFArgs extends AbstractSchedulerArgs {

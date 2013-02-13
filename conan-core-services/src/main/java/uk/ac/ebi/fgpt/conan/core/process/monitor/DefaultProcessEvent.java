@@ -17,12 +17,15 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.process.monitor;
 
+import uk.ac.ebi.fgpt.conan.model.monitor.ProcessEvent;
+
 /**
  * User: maplesod
  * Date: 24/01/13
  * Time: 16:51
  */
-public class DefaultProcessEvent {
+public class DefaultProcessEvent implements ProcessEvent {
+
     private String[] newOutput;
     private long lastOutputTime;
     private int exitValue;

@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.ac.ebi.fgpt</groupId>
-    <artifactId>conan2</artifactId>
-    <version>2.1-SNAPSHOT</version>
+    <artifactId>conan3</artifactId>
+    <version>3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Conan 2</name>
+    <name>Conan 3</name>
     <url>http://www.ebi.ac.uk/arrayexpress</url>
 
     <properties>
@@ -21,22 +21,22 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
+                    <source>1.6</source>
+                    <target>1.6</target>
                 </configuration>
             </plugin>
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-javadoc-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>aggregate</id>-->
-                        <!--<goals>-->
-                            <!--<goal>aggregate</goal>-->
-                        <!--</goals>-->
-                        <!--<phase>site</phase>-->
-                    <!--</execution>-->
-                <!--</executions>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-javadoc-plugin</artifactId>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>aggregate</id>-->
+            <!--<goals>-->
+            <!--<goal>aggregate</goal>-->
+            <!--</goals>-->
+            <!--<phase>site</phase>-->
+            <!--</execution>-->
+            <!--</executions>-->
             <!--</plugin>-->
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
@@ -100,7 +100,7 @@
                 <role>developer</role>
             </roles>
             <timezone>0</timezone>
-            <properties />
+            <properties/>
         </developer>
         <developer>
             <id>natalja</id>
@@ -112,7 +112,19 @@
                 <role>developer</role>
             </roles>
             <timezone>0</timezone>
-            <properties />
+            <properties/>
+        </developer>
+        <developer>
+            <id>maplesod</id>
+            <name>Daniel Mapleson</name>
+            <email>maplesod@tgac.ac.uk</email>
+            <organization>TGAC</organization>
+            <organizationUrl>http://www.tgac.ac.uk</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+            <properties/>
         </developer>
     </developers>
 
@@ -143,12 +155,12 @@
                 <repository>
                     <id>hasbanana-repo</id>
                     <name>hasBanana repository</name>
-		    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/maven/repo</url>
+                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/maven/repo</url>
                 </repository>
                 <snapshotRepository>
                     <id>hasbanana-repo</id>
                     <name>hasBanana repository</name>
-		    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/maven/repo</url>
+                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/maven/repo</url>
                 </snapshotRepository>
                 <site>
                     <id>hasbanana-repo</id>

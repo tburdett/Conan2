@@ -19,6 +19,8 @@ package uk.ac.ebi.fgpt.conan.core.process.monitor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
+import uk.ac.ebi.fgpt.conan.model.monitor.ProcessListener;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 import uk.ac.ebi.fgpt.conan.utils.ProcessUtils;
 
@@ -171,7 +173,7 @@ public abstract class AbstractFileProcessAdapter extends File implements Process
             reader.close();
 
             // only fire completion events if already completed
-            ProcessEvent evt = new ProcessEvent(lines.toArray(new String[lines.size()]), lastModified, exitValue);
+            DefaultProcessEvent evt = new DefaultProcessEvent(lines.toArray(new String[lines.size()]), lastModified, exitValue);
             for (ProcessListener listener : listeners) {
                 if (complete) {
                     listener.processComplete(evt);
@@ -208,7 +210,7 @@ public abstract class AbstractFileProcessAdapter extends File implements Process
             reader.close();
 
             // now create our event and fire listeners
-            ProcessEvent evt = new ProcessEvent(lines.toArray(new String[lines.size()]), lastModified, exitValue);
+            DefaultProcessEvent evt = new DefaultProcessEvent(lines.toArray(new String[lines.size()]), lastModified, exitValue);
             for (ProcessListener listener : listeners) {
                 if (complete) {
                     listener.processComplete(evt);
@@ -229,7 +231,7 @@ public abstract class AbstractFileProcessAdapter extends File implements Process
         fileMonitor.stop();
 
         // now create our event and fire listeners
-        ProcessEvent evt = new ProcessEvent(new String[0], lastModified, -1);
+        DefaultProcessEvent evt = new DefaultProcessEvent(new String[0], lastModified, -1);
         for (ProcessListener listener : listeners) {
             listener.processError(evt);
         }

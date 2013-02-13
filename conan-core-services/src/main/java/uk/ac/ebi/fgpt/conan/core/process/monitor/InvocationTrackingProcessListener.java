@@ -19,9 +19,11 @@ package uk.ac.ebi.fgpt.conan.core.process.monitor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.conan.model.monitor.ProcessEvent;
+import uk.ac.ebi.fgpt.conan.model.monitor.ProcessListener;
 
 /**
- * An {@link ProcessListener} that encapsulates the state of each invocation of
+ * An {@link uk.ac.ebi.fgpt.conan.model.monitor.ProcessListener} that encapsulates the state of each invocation of
  * a proc and updates flags for completion and success.  Processes using this listener implementation can block on
  * {@link #waitFor()}, which only returns once the proc being listened to is complete.
  * <p/>
@@ -41,6 +43,7 @@ public class InvocationTrackingProcessListener implements ProcessListener {
         exitValue = -1;
     }
 
+    @Override
     public void processComplete(ProcessEvent evt) {
         log.debug("Task complete, proc exit value was " + evt.getExitValue());
         exitValue = evt.getExitValue();
@@ -50,6 +53,7 @@ public class InvocationTrackingProcessListener implements ProcessListener {
         }
     }
 
+    @Override
     public void processUpdate(ProcessEvent evt) {
         // do nothing, not yet finished
         log.debug("File was modified");
@@ -58,6 +62,7 @@ public class InvocationTrackingProcessListener implements ProcessListener {
         }
     }
 
+    @Override
     public void processError(ProcessEvent evt) {
         // something went wrong
         log.debug("File was deleted by an proc proc");

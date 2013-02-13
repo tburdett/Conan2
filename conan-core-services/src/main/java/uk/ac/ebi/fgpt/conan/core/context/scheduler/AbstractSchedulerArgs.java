@@ -1,5 +1,7 @@
 package uk.ac.ebi.fgpt.conan.core.context.scheduler;
 
+import uk.ac.ebi.fgpt.conan.model.context.SchedulerArgs;
+
 import java.io.File;
 
 public abstract class AbstractSchedulerArgs implements SchedulerArgs {

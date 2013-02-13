@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.core.task.AbstractConanTask;
 import uk.ac.ebi.fgpt.conan.core.task.ConanTaskListener;
 import uk.ac.ebi.fgpt.conan.core.task.UserCreatedConanTask;
-import uk.ac.ebi.fgpt.conan.model.ConanParameter;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanTask;
 import uk.ac.ebi.fgpt.conan.model.ConanUser;
@@ -65,10 +65,10 @@ public class DefaultTaskFactory implements ConanTaskFactory {
 
         // create new trackable task
         UserCreatedConanTask<P> task = new UserCreatedConanTask<P>(priority,
-                                                                   pipeline,
-                                                                   startingProcessIndex,
-                                                                   parameters,
-                                                                   conanUser);
+                pipeline,
+                startingProcessIndex,
+                parameters,
+                conanUser);
         // register listeners to this task
         registerListeners(task);
 

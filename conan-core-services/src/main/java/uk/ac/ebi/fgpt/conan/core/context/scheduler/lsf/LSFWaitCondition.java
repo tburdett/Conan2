@@ -17,9 +17,8 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf;
 
-import uk.ac.tgac.rampart.conan.conanx.exec.context.WaitCondition;
-import uk.ac.tgac.rampart.conan.conanx.exec.context.scheduler.ExitStatus;
-import uk.ac.tgac.rampart.conan.conanx.exec.context.scheduler.ExitStatusType;
+import uk.ac.ebi.fgpt.conan.model.context.ExitStatus;
+import uk.ac.ebi.fgpt.conan.model.context.WaitCondition;
 
 public class LSFWaitCondition implements WaitCondition {
 
@@ -39,7 +38,7 @@ public class LSFWaitCondition implements WaitCondition {
     }      */
 
     @Override
-    public ExitStatus createExitStatus(ExitStatusType exitStatusType) {
+    public ExitStatus createExitStatus(ExitStatus.Type exitStatusType) {
 
         /*if (exitStatusType == ExitStatusType.COMPLETED_SUCCESS)
             return LSFExitStatusType.DONE;

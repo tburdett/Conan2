@@ -117,8 +117,8 @@ public class BatchController {
                 Map<String, String> paramValueMap = new HashMap<String, String>();
                 paramValueMap.put(pipelineParamName, paramValue);
                 SubmissionRequestBean request = new SubmissionRequestBean(ConanTask.Priority.LOW.toString(),
-                                                                          pipeline,
-                                                                          paramValueMap);
+                        pipeline,
+                        paramValueMap);
                 request.setStartingProcessIndex(startingProcessIndex);
                 request.setRestApiKey(restApiKey);
                 submissions.add(request);
@@ -214,20 +214,18 @@ public class BatchController {
                     Map<String, String> paramValueMap = new HashMap<String, String>();
                     paramValueMap.put(pipelineParamName, paramValue);
                     SubmissionRequestBean request = new SubmissionRequestBean(ConanTask.Priority.LOW.toString(),
-                                                                              pipeline,
-                                                                              paramValueMap);
+                            pipeline,
+                            paramValueMap);
                     request.setStartingProcessIndex(startingProcessIndex);
                     request.setRestApiKey(restApiKey);
                     submissions.add(request);
                 }
             }
-        }
-        finally {
+        } finally {
             if (uploadedDir != null) {
                 if (recursivelyDelete(uploadedDir)) {
                     log.debug("Deleted " + uploadedDir + " ok.");
-                }
-                else {
+                } else {
                     log.warn("Failed to delete " + uploadedDir);
                 }
             }
@@ -258,8 +256,7 @@ public class BatchController {
 
             // delete the directory, which should now be empty
             success = success && file.delete();
-        }
-        else {
+        } else {
             file.delete();
         }
 

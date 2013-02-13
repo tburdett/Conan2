@@ -51,7 +51,9 @@ public class TaskController {
      * @return the task assigned this ID
      */
     @RequestMapping(value = "/{taskID}", method = RequestMethod.GET)
-    public @ResponseBody ConanTask getTask(@PathVariable String taskID) {
+    public
+    @ResponseBody
+    ConanTask getTask(@PathVariable String taskID) {
         return getTaskService().getTask(taskID);
     }
 
@@ -65,7 +67,9 @@ public class TaskController {
      * @return the list of all submitted tasks
      */
     @RequestMapping(method = RequestMethod.GET)
-    public @ResponseBody List<ConanTask<? extends ConanPipeline>> getTasks(
+    public
+    @ResponseBody
+    List<ConanTask<? extends ConanPipeline>> getTasks(
             @RequestParam(defaultValue = "false") boolean summaryView) {
         return (summaryView ? getTaskService().getTasksSummary() : getTaskService().getTasks());
     }
@@ -80,7 +84,9 @@ public class TaskController {
      * @return a list of all tasks pending execution
      */
     @RequestMapping(method = RequestMethod.GET, params = "pending")
-    public @ResponseBody List<ConanTask<? extends ConanPipeline>> getPendingTasks(
+    public
+    @ResponseBody
+    List<ConanTask<? extends ConanPipeline>> getPendingTasks(
             @RequestParam(defaultValue = "false") boolean summaryView) {
         return (summaryView ? getTaskService().getPendingTasksSummary() : getTaskService().getPendingTasks());
     }
@@ -94,7 +100,9 @@ public class TaskController {
      * @return the currently executing tasks
      */
     @RequestMapping(method = RequestMethod.GET, params = "running")
-    public @ResponseBody List<ConanTask<? extends ConanPipeline>> getRunningTasks(
+    public
+    @ResponseBody
+    List<ConanTask<? extends ConanPipeline>> getRunningTasks(
             @RequestParam(defaultValue = "false") boolean summaryView) {
         return (summaryView ? getTaskService().getRunningTasksSummary() : getTaskService().getRunningTasks());
     }
@@ -109,13 +117,17 @@ public class TaskController {
      * @return the tasks that have completed
      */
     @RequestMapping(method = RequestMethod.GET, params = "complete")
-    public @ResponseBody List<ConanTask<? extends ConanPipeline>> getCompletedTasks(
+    public
+    @ResponseBody
+    List<ConanTask<? extends ConanPipeline>> getCompletedTasks(
             @RequestParam(defaultValue = "false") boolean summaryView) {
         return (summaryView ? getTaskService().getCompletedTasksSummary() : getTaskService().getCompletedTasks());
     }
 
     @RequestMapping(value = "/search", method = RequestMethod.GET)
-    public @ResponseBody List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(
+    public
+    @ResponseBody
+    List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(
             @RequestParam(defaultValue = "") String name,
             @RequestParam(defaultValue = "") String userID,
             @RequestParam(defaultValue = "") String from,

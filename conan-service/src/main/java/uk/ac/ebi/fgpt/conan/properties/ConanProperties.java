@@ -139,8 +139,7 @@ public class ConanProperties {
         try {
             properties.load(new BufferedInputStream(new FileInputStream(conanPropertiesFile)));
             getLog().info("Loaded Conan properties from " + conanPropertiesFile.getAbsolutePath());
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             getLog().error("Could not read from file " + conanPropertiesFile.getAbsolutePath() + ": " +
                     "properties will not be loaded");
             throw new RuntimeException("Could not read from file " + conanPropertiesFile.getAbsolutePath() + ": " +

@@ -39,8 +39,7 @@ public class DummyUserDAO implements ConanUserDAO {
     public Collection<ConanUser> getUserByUserName(String userName) {
         if (!userName.equals("daemon")) {
             return Collections.singleton(user);
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }

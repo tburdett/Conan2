@@ -20,12 +20,11 @@ package uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.core.context.scheduler.AbstractScheduler;
-import uk.ac.ebi.fgpt.conan.model.context.ExitStatusType;
+import uk.ac.ebi.fgpt.conan.model.context.ExitStatus;
 import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
 import uk.ac.ebi.fgpt.conan.model.context.WaitCondition;
 import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
 import uk.ac.ebi.fgpt.conan.util.StringJoiner;
-import uk.ac.tgac.rampart.core.utils.StringJoiner;
 
 import java.io.File;
 
@@ -82,7 +81,7 @@ public class LSFScheduler extends AbstractScheduler {
     }
 
     @Override
-    public WaitCondition createWaitCondition(ExitStatusType exitStatus, String condition) {
+    public WaitCondition createWaitCondition(ExitStatus.Type exitStatus, String condition) {
         return new LSFWaitCondition(LSFExitStatusType.select(exitStatus), condition);
     }
 

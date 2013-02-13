@@ -129,7 +129,8 @@ public class SubmissionRequestBean {
         this.restApiKey = restApiKey;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "SubmissionRequest: " +
                 "pipelineName='" + pipelineName + "', " +
                 "startingProcessIndex='" + startingProcessIndex + "', " +

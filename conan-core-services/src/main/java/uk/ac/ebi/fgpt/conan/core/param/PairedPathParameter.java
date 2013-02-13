@@ -17,7 +17,9 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.param;
 
-import uk.ac.ebi.fgpt.conan.model.AbstractConanParameter;
+import uk.ac.ebi.fgpt.conan.model.param.AbstractConanParameter;
+import uk.ac.ebi.fgpt.conan.model.param.Optionable;
+import uk.ac.ebi.fgpt.conan.model.param.Transientable;
 
 /**
  * @author Dan Mapleson

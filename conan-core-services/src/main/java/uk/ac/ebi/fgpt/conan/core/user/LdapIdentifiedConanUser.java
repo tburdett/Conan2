@@ -62,8 +62,7 @@ public class LdapIdentifiedConanUser implements ConanUser {
     public int compareTo(Object o) {
         if (o instanceof ConanUser) {
             return getSurname().compareTo(((ConanUser) o).getSurname());
-        }
-        else {
+        } else {
             throw new ClassCastException(o.getClass().getSimpleName() + " cannot be compared to " +
                     getClass().getSimpleName());
         }

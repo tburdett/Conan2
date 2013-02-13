@@ -19,7 +19,9 @@ package uk.ac.ebi.fgpt.conan.core.context.scheduler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.tgac.rampart.conan.conanx.exec.process.monitor.ProcessAdapter;
+import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
+import uk.ac.ebi.fgpt.conan.model.context.SchedulerArgs;
+import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
 
 public abstract class AbstractScheduler implements Scheduler {
 
@@ -66,8 +68,8 @@ public abstract class AbstractScheduler implements Scheduler {
      * @return
      */
     @Override
-    public ProcessAdapter createTaskAdapter() {
-        return createTaskAdapter(this.args.getMonitorFile(), this.args.getMonitorInterval());
+    public ProcessAdapter createProcessAdapter() {
+        return createProcessAdapter(this.args.getMonitorFile(), this.args.getMonitorInterval());
     }
 
 }

@@ -64,8 +64,7 @@ public class GuestUser implements ConanUser {
     public int compareTo(Object o) {
         if (o instanceof ConanUser) {
             return getEmail().compareTo(((ConanUser) o).getEmail());
-        }
-        else {
+        } else {
             throw new ClassCastException(o.getClass().getSimpleName() + " cannot be compared to " +
                     getClass().getSimpleName());
         }

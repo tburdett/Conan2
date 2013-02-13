@@ -17,9 +17,6 @@
  **/
 package uk.ac.ebi.fgpt.conan.model.context;
 
-import uk.ac.tgac.rampart.conan.conanx.exec.context.scheduler.ExitStatus;
-import uk.ac.tgac.rampart.conan.conanx.exec.context.scheduler.ExitStatusType;
-
 /**
  * User: maplesod
  * Date: 10/01/13
@@ -27,7 +24,7 @@ import uk.ac.tgac.rampart.conan.conanx.exec.context.scheduler.ExitStatusType;
  */
 public interface WaitCondition {
 
-    ExitStatus createExitStatus(ExitStatusType exitStatusType);
+    ExitStatus createExitStatus(ExitStatus.Type exitStatusType);
 
     ExitStatus getExitStatus();
 

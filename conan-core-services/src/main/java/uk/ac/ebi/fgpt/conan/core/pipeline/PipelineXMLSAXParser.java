@@ -54,11 +54,9 @@ public class PipelineXMLSAXParser extends AbstractPipelineXMLParser {
             reader.setContentHandler(new PipelineXMLContentHandler(conanPipelines));
             reader.setErrorHandler(new PipelineXMLErrorHandler());
             reader.parse(new InputSource(pipelineXMLResource.openStream()));
-        }
-        catch (SAXException e) {
+        } catch (SAXException e) {
             throw new IOException("Unable to read from " + pipelineXMLResource, e);
-        }
-        catch (ParserConfigurationException e) {
+        } catch (ParserConfigurationException e) {
             throw new IOException("Unable to configure SAX parser", e);
         }
 
@@ -89,11 +87,9 @@ public class PipelineXMLSAXParser extends AbstractPipelineXMLParser {
             reader.setContentHandler(new PipelineXMLContentHandler(conanPipelines));
             reader.setErrorHandler(new PipelineXMLErrorHandler());
             reader.parse(new InputSource(pipelineXMLResource.openStream()));
-        }
-        catch (SAXException e) {
+        } catch (SAXException e) {
             throw new IOException("Unable to read from " + pipelineXMLResource, e);
-        }
-        catch (ParserConfigurationException e) {
+        } catch (ParserConfigurationException e) {
             throw new IOException("Unable to configure SAX parser", e);
         }
 
@@ -115,11 +111,9 @@ public class PipelineXMLSAXParser extends AbstractPipelineXMLParser {
                 throws SAXException {
             if (uri.equals(PIPELINES_SCHEMA_NAMESPACE) && localName.equals(PIPELINE_ELEMENT)) {
                 currentPipeline = readPipeline(attributes);
-            }
-            else if (uri.equals(PIPELINES_SCHEMA_NAMESPACE) && localName.equals(PROCESSES_ELEMENT)) {
+            } else if (uri.equals(PIPELINES_SCHEMA_NAMESPACE) && localName.equals(PROCESSES_ELEMENT)) {
                 currentProcesses = readProcesses();
-            }
-            else if (uri.equals(PIPELINES_SCHEMA_NAMESPACE) && localName.equals(PROCESS_ELEMENT)) {
+            } else if (uri.equals(PIPELINES_SCHEMA_NAMESPACE) && localName.equals(PROCESS_ELEMENT)) {
                 currentProcess = readProcess(attributes);
             }
         }
@@ -131,25 +125,21 @@ public class PipelineXMLSAXParser extends AbstractPipelineXMLParser {
                     getLog().debug("Loaded pipeline '" + currentPipeline.getName() + "'");
                     conanPipelines.add(currentPipeline);
                 }
-            }
-            else if (uri.equals(PIPELINES_SCHEMA_NAMESPACE) && localName.equals(PROCESSES_ELEMENT)) {
+            } else if (uri.equals(PIPELINES_SCHEMA_NAMESPACE) && localName.equals(PROCESSES_ELEMENT)) {
                 if (currentPipeline != null) {
                     currentPipeline.setProcesses(currentProcesses);
-                }
-                else {
+                } else {
                     getLog().warn(
                             "Read a set of processes, but the pipeline to which they should be added is not valid.  " +
                                     "These processes will not be available");
                 }
-            }
-            else if (uri.equals(PIPELINES_SCHEMA_NAMESPACE) && localName.equals(PROCESS_ELEMENT)) {
+            } else if (uri.equals(PIPELINES_SCHEMA_NAMESPACE) && localName.equals(PROCESS_ELEMENT)) {
                 getLog().debug("Loaded process '" + currentProcess.getName() + "'");
                 if (currentProcesses != null) {
                     currentProcesses.add(currentProcess);
-                }
-                else {
+                } else {
                     getLog().warn("Read process '" + currentProcess + "' but it could not be added to a valid " +
-                                          "collection of processes.  This process will not be available.");
+                            "collection of processes.  This process will not be available.");
                 }
 
             }
@@ -158,8 +148,8 @@ public class PipelineXMLSAXParser extends AbstractPipelineXMLParser {
         private DefaultConanPipeline readPipeline(Attributes attributes) {
             for (int i = 0; i < attributes.getLength(); i++) {
                 getLog().trace("Next attribute: " +
-                                       attributes.getQName(i) + " = " +
-                                       attributes.getValue(i));
+                        attributes.getQName(i) + " = " +
+                        attributes.getValue(i));
             }
 
             // read out pipeline metadata
@@ -172,10 +162,9 @@ public class PipelineXMLSAXParser extends AbstractPipelineXMLParser {
             Collection<ConanUser> conanUsers = getUserDAO().getUserByUserName(usernameStr);
             if (conanUsers.isEmpty()) {
                 getLog().error("An unknown user '" + usernameStr + "' was named as the creator of " +
-                                       "the pipeline '" + name + "'.  This pipeline will not be loaded.");
+                        "the pipeline '" + name + "'.  This pipeline will not be loaded.");
                 return null;
-            }
-            else {
+            } else {
                 if (conanUsers.size() > 1) {
                     getLog().error(
                             "The username '" + usernameStr + "' is ambiguous, there are " + conanUsers.size() + " " +
@@ -202,8 +191,8 @@ public class PipelineXMLSAXParser extends AbstractPipelineXMLParser {
         private ConanProcess readProcess(Attributes attributes) {
             for (int i = 0; i < attributes.getLength(); i++) {
                 getLog().trace("Next attribute: " +
-                                       attributes.getQName(i) + " = " +
-                                       attributes.getValue(i));
+                        attributes.getQName(i) + " = " +
+                        attributes.getValue(i));
             }
 
             String processName = attributes.getValue(PROCESS_NAME_ATTRIBUTE);
@@ -216,12 +205,10 @@ public class PipelineXMLSAXParser extends AbstractPipelineXMLParser {
                 if (processDisplayName != null) {
                     getLog().trace("Decorating '" + p.getName() + "' with display name '" + processDisplayName + "'");
                     return new DisplayNameProcessDecorator(p, processDisplayName);
-                }
-                else {
+                } else {
                     return p;
                 }
-            }
-            else {
+            } else {
                 String msg = "pipelines.xml references a process (" + processName + ") that was not loaded";
                 getLog().error(msg);
                 throw new ServiceConfigurationError(msg);
@@ -232,18 +219,18 @@ public class PipelineXMLSAXParser extends AbstractPipelineXMLParser {
     private class PipelineXMLErrorHandler implements ErrorHandler {
         public void warning(SAXParseException exception) throws SAXException {
             getLog().warn("XML parse warning at line " + exception.getLineNumber() + ", " +
-                                  "column " + exception.getColumnNumber() + ": " + exception.getMessage());
+                    "column " + exception.getColumnNumber() + ": " + exception.getMessage());
         }
 
         public void error(SAXParseException exception) throws SAXException {
             getLog().error("XML parse error at line " + exception.getLineNumber() + ", " +
-                                   "column " + exception.getColumnNumber() + ": " + exception.getMessage());
+                    "column " + exception.getColumnNumber() + ": " + exception.getMessage());
             throw exception;
         }
 
         public void fatalError(SAXParseException exception) throws SAXException {
             getLog().error("XML parsing fatal error at line " + exception.getLineNumber() + ", " +
-                                   "column " + exception.getColumnNumber() + ": " + exception.getMessage());
+                    "column " + exception.getColumnNumber() + ": " + exception.getMessage());
             throw exception;
         }
     }

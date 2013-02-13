@@ -20,9 +20,10 @@ package uk.ac.ebi.fgpt.conan.core.context.locality;
 import com.jcraft.jsch.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.conan.model.context.Locality;
+import uk.ac.ebi.fgpt.conan.model.context.WaitCondition;
+import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
-import uk.ac.tgac.rampart.conan.conanx.exec.context.WaitCondition;
-import uk.ac.tgac.rampart.conan.conanx.exec.process.monitor.ProcessAdapter;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -147,6 +148,7 @@ public class Remote implements Locality {
      *
      * @param command The command that is to be executed in the background
      * @throws uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException
+     *
      * @throws InterruptedException
      */
     @Override

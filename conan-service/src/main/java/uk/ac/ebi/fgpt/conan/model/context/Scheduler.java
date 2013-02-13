@@ -17,8 +17,7 @@
  **/
 package uk.ac.ebi.fgpt.conan.model.context;
 
-import uk.ac.tgac.rampart.conan.conanx.exec.context.WaitCondition;
-import uk.ac.tgac.rampart.conan.conanx.exec.process.monitor.ProcessAdapter;
+import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
 
 import java.io.File;
 
@@ -74,21 +73,21 @@ public interface Scheduler {
     String createKillCommand(String jobId);
 
     /**
-     * Creates a {@link uk.ac.tgac.rampart.conan.conanx.exec.process.monitor.ProcessAdapter} specific to this scheduler.  Automatically, uses the monitor file and interval stored in
+     * Creates a <code>ProcessAdapter</code> specific to this scheduler.  Automatically, uses the monitor file and interval stored in
      * this object.
      *
-     * @return A {@link uk.ac.tgac.rampart.conan.conanx.exec.process.monitor.ProcessAdapter} that monitors progress of a scheduled proc.
+     * @return A <code>ProcessAdapter</code> that monitors progress of a scheduled proc.
      */
-    ProcessAdapter createTaskAdapter();
+    ProcessAdapter createProcessAdapter();
 
     /**
-     * Creates a proc adapter specific to this scheduler.  Uses a custom monitor file and interval.
+     * Creates a <code>ProcessAdapter</code> specific to this scheduler.  Uses a custom monitor file and interval.
      *
      * @param monitorFile     The file that this adapter will monitor.
      * @param monitorInterval The frequency at which this adapter will monitor the file.
      * @return A proc adapter specific to this scheduler.
      */
-    ProcessAdapter createTaskAdapter(File monitorFile, int monitorInterval);
+    ProcessAdapter createProcessAdapter(File monitorFile, int monitorInterval);
 
 
     /**
@@ -98,7 +97,7 @@ public interface Scheduler {
      * @param condition  The condition to wait for
      * @return A new wait condition object suitable for this architecture
      */
-    WaitCondition createWaitCondition(ExitStatusType exitStatus, String condition);
+    WaitCondition createWaitCondition(ExitStatus.Type exitStatus, String condition);
 
 
     /**

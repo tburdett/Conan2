@@ -18,10 +18,11 @@
 package uk.ac.ebi.fgpt.conan.core.context;
 
 import uk.ac.ebi.fgpt.conan.core.context.locality.Local;
-import uk.ac.ebi.fgpt.conan.core.context.locality.Locality;
-import uk.ac.ebi.fgpt.conan.core.context.scheduler.Scheduler;
+import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
+import uk.ac.ebi.fgpt.conan.model.context.Locality;
+import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
 
-public class DefaultExecutionContext {
+public class DefaultExecutionContext implements ExecutionContext {
 
     private Locality locality;
     private Scheduler scheduler;

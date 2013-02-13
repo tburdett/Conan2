@@ -13,80 +13,80 @@
 
     <!-- Conan Pipeline DAO, used in several places to fetch loaded pipelines -->
     <bean name="conanPipelineDAO" class="uk.ac.ebi.fgpt.conan.dao.XMLLoadingPipelineDAO">
-        <property name="processDAO" ref="conanProcessDAO" />
-        <property name="userDAO" ref="databaseUserDAO" />
+        <property name="processDAO" ref="conanProcessDAO"/>
+        <property name="userDAO" ref="databaseUserDAO"/>
     </bean>
 
     <!-- Conan Process DAO, used by Pipeline DAO to fetch available processes -->
     <bean name="conanProcessDAO" class="uk.ac.ebi.fgpt.conan.dao.SpiDiscoveringProcessDAO">
-        <property name="conanProperties" ref="conanProperties" />
+        <property name="conanProperties" ref="conanProperties"/>
     </bean>
 
     <!-- Conan User DAOs - database and LDAP versions -->
     <bean name="databaseUserDAO" class="uk.ac.ebi.fgpt.conan.dao.DatabaseConanUserDAO">
-        <property name="jdbcTemplate" ref="conanJdbcTemplate" />
+        <property name="jdbcTemplate" ref="conanJdbcTemplate"/>
     </bean>
 
     <bean name="ldapUserDAO" class="uk.ac.ebi.fgpt.conan.dao.LdapConanUserDAO">
-        <property name="ldapTemplate" ref="ldapTemplate" />
+        <property name="ldapTemplate" ref="ldapTemplate"/>
     </bean>
 
     <bean name="conanTaskDAO" class="uk.ac.ebi.fgpt.conan.dao.DatabaseConanTaskDAO">
-        <property name="pipelineDAO" ref="conanPipelineDAO" />
-        <property name="userDAO" ref="databaseUserDAO" />
-        <property name="jdbcTemplate" ref="conanJdbcTemplate" />
+        <property name="pipelineDAO" ref="conanPipelineDAO"/>
+        <property name="userDAO" ref="databaseUserDAO"/>
+        <property name="jdbcTemplate" ref="conanJdbcTemplate"/>
         <property name="conanTaskListeners">
             <util:set value-type="uk.ac.ebi.fgpt.conan.core.task.ConanTaskListener">
-                <ref bean="taskListener" />
+                <ref bean="taskListener"/>
             </util:set>
         </property>
     </bean>
 
     <bean name="ae1SubmitterDetailsDAO" class="uk.ac.ebi.fgpt.conan.ae.dao.SubmitterDetailsFromAE1DAO">
-        <property name="jdbcTemplate" ref="ae1JdbcTemplate" />
+        <property name="jdbcTemplate" ref="ae1JdbcTemplate"/>
     </bean>
 
     <bean name="ae2SubmitterDetailsDAO" class="uk.ac.ebi.fgpt.conan.ae.dao.SubmitterDetailsFromAE2DAO">
-        <property name="jdbcTemplate" ref="ae2JdbcTemplate" />
+        <property name="jdbcTemplate" ref="ae2JdbcTemplate"/>
     </bean>
 
     <bean name="ae1DaemonDAO" class="uk.ac.ebi.fgpt.conan.ae.dao.DaemonInputsForAE1DAO">
-        <property name="jdbcTemplate" ref="autosubsJdbcTemplate" />
+        <property name="jdbcTemplate" ref="autosubsJdbcTemplate"/>
     </bean>
 
     <bean name="ae2DaemonDAO" class="uk.ac.ebi.fgpt.conan.ae.dao.DaemonInputsForAE2DAO">
-        <property name="jdbcTemplate" ref="autosubsJdbcTemplate" />
+        <property name="jdbcTemplate" ref="autosubsJdbcTemplate"/>
     </bean>
 
     <!--template for retrieving persisted data from Conan DB via jdbc -->
     <bean name="conanJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-        <property name="dataSource" ref="conanDataSource" />
+        <property name="dataSource" ref="conanDataSource"/>
     </bean>
 
     <!--template for retrieving persisted data from Conan DB via jdbc -->
     <bean name="ae1JdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-        <property name="dataSource" ref="ae1DataSource" />
+        <property name="dataSource" ref="ae1DataSource"/>
     </bean>
 
     <!--template for retrieving persisted data from Conan DB via jdbc -->
     <bean name="ae2JdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-        <property name="dataSource" ref="ae2DataSource" />
+        <property name="dataSource" ref="ae2DataSource"/>
     </bean>
 
     <!-- template for retrieving data from Submissions Tracking -->
     <bean name="autosubsJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-        <property name="dataSource" ref="autosubsDataSource" />
+        <property name="dataSource" ref="autosubsDataSource"/>
     </bean>
 
     <!-- template for retrieving persisted data via ldap -->
     <bean name="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
-        <property name="contextSource" ref="contextSource" />
+        <property name="contextSource" ref="contextSource"/>
     </bean>
 
     <bean name="contextSource" class="org.springframework.ldap.core.support.LdapContextSource">
-        <property name="anonymousReadOnly" value="true" />
-        <property name="url" value="ldap://ldap.ebi.ac.uk:389" />
-        <property name="base" value="ou=people,dc=ebi,dc=ac,dc=uk" />
+        <property name="anonymousReadOnly" value="true"/>
+        <property name="url" value="ldap://ldap.ebi.ac.uk:389"/>
+        <property name="base" value="ou=people,dc=ebi,dc=ac,dc=uk"/>
     </bean>
 
     <!--
@@ -118,32 +118,32 @@
     <bean name="conanProperties"
           class="uk.ac.ebi.fgpt.conan.properties.ConanProperties"
           factory-method="getConanProperties">
-        <property name="propertiesFile" ref="conanPropertiesFile" />
+        <property name="propertiesFile" ref="conanPropertiesFile"/>
     </bean>
 
     <!-- JNDI declaration of required datasources -->
     <jee:jndi-lookup id="conanDataSource"
                      jndi-name="/jdbc/CONAN"
-                     resource-ref="true" />
+                     resource-ref="true"/>
 
     <jee:jndi-lookup id="ae1DataSource"
                      jndi-name="/jdbc/AE1"
-                     resource-ref="true" />
+                     resource-ref="true"/>
 
     <jee:jndi-lookup id="ae2DataSource"
                      jndi-name="/jdbc/AE2"
-                     resource-ref="true" />
+                     resource-ref="true"/>
 
     <jee:jndi-lookup id="autosubsDataSource"
                      jndi-name="/jdbc/AUTOSUBS"
-                     resource-ref="true" />
+                     resource-ref="true"/>
 
     <jee:jndi-lookup id="mailSession"
                      jndi-name="/mail/SESSION"
-                     resource-ref="true" />
+                     resource-ref="true"/>
 
     <jee:jndi-lookup id="conanPropertiesFile"
                      jndi-name="/file/CONAN_PROPERTIES"
-                     resource-ref="true" />
+                     resource-ref="true"/>
 
 </beans>

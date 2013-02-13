@@ -93,6 +93,7 @@ public interface ProcessAdapter {
      * Creates the monitor object that tracks the progress of this proc.
      *
      * @throws uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException
+     *
      */
     void createMonitor() throws ProcessExecutionException;
 

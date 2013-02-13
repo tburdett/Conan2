@@ -18,6 +18,7 @@
 package uk.ac.ebi.fgpt.conan.core.param;
 
 import org.springframework.util.StringUtils;
+import uk.ac.ebi.fgpt.conan.model.param.Optionable;
 
 import java.io.File;
 import java.io.IOException;

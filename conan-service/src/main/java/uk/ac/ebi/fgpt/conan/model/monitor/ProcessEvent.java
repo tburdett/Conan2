@@ -22,31 +22,12 @@ package uk.ac.ebi.fgpt.conan.model.monitor;
  * Date: 24/01/13
  * Time: 16:51
  */
-public class ProcessEvent {
-    private String[] newOutput;
-    private long lastOutputTime;
-    private int exitValue;
+public interface ProcessEvent {
 
-    public ProcessEvent(String[] newOutput, long lastOutputTime) {
-        this.newOutput = newOutput;
-        this.lastOutputTime = lastOutputTime;
-    }
 
-    public ProcessEvent(String[] newOutput, long lastOutputTime, int exitValue) {
-        this.newOutput = newOutput;
-        this.lastOutputTime = lastOutputTime;
-        this.exitValue = exitValue;
-    }
+    String[] getNewOutput();
 
-    public String[] getNewOutput() {
-        return newOutput;
-    }
+    long getLastOutputTime();
 
-    public long getLastOutputTime() {
-        return lastOutputTime;
-    }
-
-    public int getExitValue() {
-        return exitValue;
-    }
+    int getExitValue();
 }

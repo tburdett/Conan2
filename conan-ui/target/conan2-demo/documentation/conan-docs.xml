@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book xmlns="http://docbook.org/ns/docbook"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd">
+
+    <title>Very simple book</title>
+    <chapter>
+        <title>Conan 2 Overview</title>
+        <para>This is a brief introduction to Conan 2</para>
+    </chapter>
+    <chapter>
+        <title>Getting Started</title>
+        <para>Making sense of the Conan 2 interface</para>
+    </chapter>
+    <chapter>
+        <title>Submitting Jobs</title>
+        <para>How to submit jobs</para>
+    </chapter>
+    <chapter>
+        <title>Viewing Running Jobs</title>
+        <para>How to see what jobs are running</para>
+    </chapter>
+    <chapter>
+        <title>Completed Jobs</title>
+        <para>How to see what jobs have finished</para>
+    </chapter>
+</book>
+

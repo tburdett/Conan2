@@ -55,13 +55,12 @@ public class DefaultPipelineService implements ConanPipelineService {
             for (ConanPipeline conanPipeline : conanPipelines) {
                 if (conanPipeline.isDaemonized()) {
                     getLog().info("Pipeline '" + conanPipeline.getName() + "' " +
-                                          "is daemonized and will be added to daemon service");
+                            "is daemonized and will be added to daemon service");
                     if (getDaemonService() != null) {
                         getDaemonService().addPipeline(conanPipeline);
-                    }
-                    else {
+                    } else {
                         getLog().warn("No DaemonService was configured - pipeline '" + conanPipeline.getName() + "' " +
-                                              "was flagged as daemonized but will not be started");
+                                "was flagged as daemonized but will not be started");
                     }
                 }
             }
@@ -87,8 +86,7 @@ public class DefaultPipelineService implements ConanPipelineService {
 
         if (conanUser.getPermissions().compareTo(ConanUser.Permissions.ADMINISTRATOR) <= 0) {
             sortPipelines(requiredPipelineOrder);
-        }
-        else {
+        } else {
             getLog().warn(conanUser.getUserName() + " does not have required admin privileges to resort pipelines");
         }
     }
@@ -108,8 +106,7 @@ public class DefaultPipelineService implements ConanPipelineService {
                     // matching user, ok to add
                     result.add(conanPipeline);
                 }
-            }
-            else {
+            } else {
                 // ok to return
                 result.add(conanPipeline);
             }
@@ -153,10 +150,9 @@ public class DefaultPipelineService implements ConanPipelineService {
                 }
                 reader.close();
                 sortPipelines(sortedPipelineNames);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 getLog().warn("Unable to load pipeline sort order config from " + configFile.getAbsolutePath() +
-                                      ": no ordering of pipelines will be applied");
+                        ": no ordering of pipelines will be applied");
             }
         }
     }
@@ -175,10 +171,9 @@ public class DefaultPipelineService implements ConanPipelineService {
                 writer.println(pipeline.getName());
             }
             writer.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             getLog().warn("Unable to save pipeline sort order config to " + configFile.getAbsolutePath() + ": " +
-                                  "pipeline order may be lost on restart");
+                    "pipeline order may be lost on restart");
         }
     }
 
@@ -191,19 +186,16 @@ public class DefaultPipelineService implements ConanPipelineService {
                         // both named, can compare
                         return requiredPipelineOrder.indexOf(p1.getName()) -
                                 requiredPipelineOrder.indexOf(p2.getName());
-                    }
-                    else {
+                    } else {
                         // p1 named, p2 not, so move p2 after p1
                         return 1;
                     }
-                }
-                else {
+                } else {
                     // p1 not named, is p2?
                     if (requiredPipelineOrder.contains(p2.getName())) {
                         // p2 named, p1 not, so move p1 after p2
                         return -1;
-                    }
-                    else {
+                    } else {
                         // neither named, leave where they both are
                         // note: this makes this comparator inconsistent with equals
                         getLog().debug(

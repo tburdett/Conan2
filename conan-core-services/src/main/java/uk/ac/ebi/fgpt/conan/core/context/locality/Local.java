@@ -19,13 +19,14 @@ package uk.ac.ebi.fgpt.conan.core.context.locality;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.conan.core.process.monitor.InvocationTrackingProcessListener;
+import uk.ac.ebi.fgpt.conan.model.context.Locality;
+import uk.ac.ebi.fgpt.conan.model.context.WaitCondition;
+import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 import uk.ac.ebi.fgpt.conan.utils.CommandExecutionException;
 import uk.ac.ebi.fgpt.conan.utils.ProcessRunner;
 import uk.ac.ebi.fgpt.conan.utils.ProcessUtils;
-import uk.ac.tgac.rampart.conan.conanx.exec.context.WaitCondition;
-import uk.ac.tgac.rampart.conan.conanx.exec.process.monitor.InvocationTrackingProcessListener;
-import uk.ac.tgac.rampart.conan.conanx.exec.process.monitor.ProcessAdapter;
 
 import java.io.IOException;
 import java.net.InetAddress;

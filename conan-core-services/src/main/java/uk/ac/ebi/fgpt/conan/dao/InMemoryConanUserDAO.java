@@ -87,7 +87,7 @@ public class InMemoryConanUserDAO implements ConanUserDAO {
                     ConanUser nextUser = userIt.next();
                     if (nextUser.getId().equals(user.getId())) {
                         getLog().debug("Removing user " + nextUser.getId() + " '" + nextUser.getUserName() +
-                                               "', replaced with a new version");
+                                "', replaced with a new version");
                         userIt.remove();
                         break;
                     }
@@ -95,16 +95,14 @@ public class InMemoryConanUserDAO implements ConanUserDAO {
                 // and add the new user
                 users.add(user);
                 getLog().debug("Saved new version of user " + user.getId() + " '" + user.getUserName() + "', " +
-                                       "users now: " + users.size());
-            }
-            else {
+                        "users now: " + users.size());
+            } else {
                 ((ConanUserWithPermissions) user).setId(Integer.toString(userCounter++));
                 getLog().debug("Assigned ID '" + (userCounter - 1) + "' to new user, saving");
                 users.add(user);
             }
             return user;
-        }
-        else {
+        } else {
             // not saveable user
             throw new IllegalArgumentException(
                     "Only users of type " + ConanUserWithPermissions.class.getSimpleName() + " can be saved");

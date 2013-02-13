@@ -3,6 +3,7 @@ package uk.ac.ebi.fgpt.conan.dao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+
 import javax.sql.DataSource;
 import java.util.List;
 
@@ -15,20 +16,20 @@ import java.util.List;
 public class DatabaseConanControlledVocabularyDAO {
 
     public static final String CONTROLLED_VOCABULARY_SELECT_ATLAS_EXPT_TYPES = "select VALUE from CONTROLLED_VOCABULARY " +
-        "where ATLAS_ELIGIBLE=1 " +
-        "and TYPE='Experiment type'";
+            "where ATLAS_ELIGIBLE=1 " +
+            "and TYPE='Experiment type'";
 
     public static final String CONTROLLED_VOCABULARY_SELECT_AE_EXPT_TYPES = "select VALUE from CONTROLLED_VOCABULARY " +
-        "where AE_ELIGIBLE=1 " +
-        "and TYPE='Experiment type'";
+            "where AE_ELIGIBLE=1 " +
+            "and TYPE='Experiment type'";
 
     public static final String CONTROLLED_VOCABULARY_SELECT_RESTRICTED_PROTOCOL_NAMES = "select VALUE from CONTROLLED_VOCABULARY " +
-        "where AE_ELIGIBLE=0 " +
-        "and TYPE='Protocol Accession'";
+            "where AE_ELIGIBLE=0 " +
+            "and TYPE='Protocol Accession'";
 
     public static final String CONTROLLED_VOCABULARY_SELECT_ATLAS_FACTOR_TYPES = "select VALUE from CONTROLLED_VOCABULARY " +
-        "where ATLAS_ELIGIBLE=1 " +
-        "and TYPE='Factor type'";
+            "where ATLAS_ELIGIBLE=1 " +
+            "and TYPE='Factor type'";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -52,22 +53,22 @@ public class DatabaseConanControlledVocabularyDAO {
 
     public List<String> getAtlasExperimentTypes() {
         return getJdbcTemplate().queryForList(
-            CONTROLLED_VOCABULARY_SELECT_ATLAS_EXPT_TYPES, String.class);
+                CONTROLLED_VOCABULARY_SELECT_ATLAS_EXPT_TYPES, String.class);
     }
 
     public List<String> getAtlasFactorTypes() {
         return getJdbcTemplate().queryForList(
-            CONTROLLED_VOCABULARY_SELECT_ATLAS_FACTOR_TYPES, String.class);
+                CONTROLLED_VOCABULARY_SELECT_ATLAS_FACTOR_TYPES, String.class);
     }
 
     public List<String> getRestrictedProtocolNames() {
         return getJdbcTemplate().queryForList(
-            CONTROLLED_VOCABULARY_SELECT_RESTRICTED_PROTOCOL_NAMES, String.class);
+                CONTROLLED_VOCABULARY_SELECT_RESTRICTED_PROTOCOL_NAMES, String.class);
     }
 
     public List<String> getAEExperimentTypes() {
         return getJdbcTemplate().queryForList(
-            CONTROLLED_VOCABULARY_SELECT_AE_EXPT_TYPES, String.class);
+                CONTROLLED_VOCABULARY_SELECT_AE_EXPT_TYPES, String.class);
     }
 
 }

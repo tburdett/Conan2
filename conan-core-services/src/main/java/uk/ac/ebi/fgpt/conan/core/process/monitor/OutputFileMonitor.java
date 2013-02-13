@@ -19,6 +19,7 @@ package uk.ac.ebi.fgpt.conan.core.process.monitor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
 
 import java.io.File;
 

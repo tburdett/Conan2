@@ -3,7 +3,6 @@ package uk.ac.ebi.fgpt.conan.web.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -75,7 +74,9 @@ public class DaemonController {
      * @return a daemon response bean indicating daemon mode state
      */
     @RequestMapping(method = RequestMethod.GET)
-    public @ResponseBody DaemonResponseBean isRunning() {
+    public
+    @ResponseBody
+    DaemonResponseBean isRunning() {
         getLog().debug("Querying for current state of daemon mode");
         boolean running = getDaemonService().isRunning();
         String msg = "Daemon mode " + (running ? "is" : "is not") + " running";
@@ -92,7 +93,9 @@ public class DaemonController {
      * @return true if daemon mode is activated, false otherwise
      */
     @RequestMapping(method = RequestMethod.PUT)
-    public @ResponseBody DaemonResponseBean toggle(@RequestParam boolean enable, @RequestParam String restApiKey) {
+    public
+    @ResponseBody
+    DaemonResponseBean toggle(@RequestParam boolean enable, @RequestParam String restApiKey) {
         getLog().debug("Request to toggle daemon mode: currently " +
                 (getDaemonService().isRunning() ? "enabled" : "disabled") + ", request to " +
                 (enable ? "enable" : "disable"));
@@ -105,8 +108,7 @@ public class DaemonController {
                 if (!getDaemonService().isRunning()) {
                     getDaemonService().start();
                 }
-            }
-            else {
+            } else {
                 if (getDaemonService().isRunning()) {
                     getDaemonService().stop();
                 }
@@ -117,22 +119,21 @@ public class DaemonController {
             // generate responses before returning a result
             for (ConanResponderService responder : getResponderServices()) {
                 responder.generateDaemonModeToggleResponse(getDaemonService().isRunning(),
-                                                           conanUser,
-                                                           getDaemonService().getDaemonUser());
+                        conanUser,
+                        getDaemonService().getDaemonUser());
             }
 
             // and return the successful result
             return new DaemonResponseBean(true,
-                                          msg,
-                                          getDaemonService().isRunning(),
-                                          getDaemonService().getDaemonUser().getEmail());
-        }
-        else {
+                    msg,
+                    getDaemonService().isRunning(),
+                    getDaemonService().getDaemonUser().getEmail());
+        } else {
             String msg = "You do not have permission to toggle daemon mode";
             return new DaemonResponseBean(false,
-                                          msg,
-                                          getDaemonService().isRunning(),
-                                          getDaemonService().getDaemonUser().getEmail());
+                    msg,
+                    getDaemonService().isRunning(),
+                    getDaemonService().getDaemonUser().getEmail());
         }
     }
 
@@ -144,8 +145,10 @@ public class DaemonController {
      * @return a response bean indicating whether this update was successful or not
      */
     @RequestMapping(value = "email", method = RequestMethod.PUT)
-    public @ResponseBody DaemonResponseBean updateNotificationEmailAddress(@RequestParam String emailAddress,
-                                                                           @RequestParam String restApiKey) {
+    public
+    @ResponseBody
+    DaemonResponseBean updateNotificationEmailAddress(@RequestParam String emailAddress,
+                                                      @RequestParam String restApiKey) {
         getLog().debug(
                 "Request to update daemon mode email: " +
                         "currently '" + getDaemonService().getDaemonUser().getEmail() + "', " +
@@ -162,22 +165,21 @@ public class DaemonController {
             // generate responses before returning a result
             for (ConanResponderService responder : getResponderServices()) {
                 responder.generateDaemonOwnerChangeResponse(oldEmail,
-                                                            conanUser,
-                                                            getDaemonService().getDaemonUser());
+                        conanUser,
+                        getDaemonService().getDaemonUser());
             }
 
             // and return the successful result
             return new DaemonResponseBean(true,
-                                          msg,
-                                          getDaemonService().isRunning(),
-                                          getDaemonService().getDaemonUser().getEmail());
-        }
-        else {
+                    msg,
+                    getDaemonService().isRunning(),
+                    getDaemonService().getDaemonUser().getEmail());
+        } else {
             String msg = "You do not have permission to toggle daemon mode";
             return new DaemonResponseBean(false,
-                                          msg,
-                                          getDaemonService().isRunning(),
-                                          getDaemonService().getDaemonUser().getEmail());
+                    msg,
+                    getDaemonService().isRunning(),
+                    getDaemonService().getDaemonUser().getEmail());
         }
     }
 }

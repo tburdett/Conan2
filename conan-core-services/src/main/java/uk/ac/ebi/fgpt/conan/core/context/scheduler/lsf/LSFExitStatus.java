@@ -17,8 +17,7 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf;
 
-import uk.ac.tgac.rampart.conan.conanx.exec.context.scheduler.ExitStatus;
-import uk.ac.tgac.rampart.conan.conanx.exec.context.scheduler.ExitStatusType;
+import uk.ac.ebi.fgpt.conan.model.context.ExitStatus;
 
 /**
  * User: maplesod
@@ -38,7 +37,7 @@ public class LSFExitStatus implements ExitStatus {
     }
 
     @Override
-    public ExitStatusType getExitStatus() {
+    public ExitStatus.Type getExitStatus() {
         return this.command.getExitStatus();
     }
 
@@ -48,7 +47,7 @@ public class LSFExitStatus implements ExitStatus {
     }
 
     @Override
-    public ExitStatus create(ExitStatusType exitStatusType) {
+    public ExitStatus create(ExitStatus.Type exitStatusType) {
 
         for (LSFExitStatusType type : LSFExitStatusType.values()) {
             if (type.getExitStatus() == exitStatusType) {

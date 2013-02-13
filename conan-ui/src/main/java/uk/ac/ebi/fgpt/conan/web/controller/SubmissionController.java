@@ -3,7 +3,6 @@ package uk.ac.ebi.fgpt.conan.web.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
@@ -74,7 +73,9 @@ public class SubmissionController {
      * @return the view name for the newly created task
      */
     @RequestMapping(method = RequestMethod.POST)
-    public @ResponseBody SubmissionResponseBean submitTask(@RequestBody SubmissionRequestBean submissionRequest) {
+    public
+    @ResponseBody
+    SubmissionResponseBean submitTask(@RequestBody SubmissionRequestBean submissionRequest) {
         getLog().debug("Submission request received: " + submissionRequest.toString());
 
         // get the user, identified by their rest api key
@@ -95,10 +96,10 @@ public class SubmissionController {
                 // generate task
                 ConanTask<? extends ConanPipeline> conanTask =
                         getTaskService().createNewTask(submissionRequest.getPipelineName(),
-                                                       submissionRequest.getStartingProcessIndex(),
-                                                       submissionRequest.getInputParameters(),
-                                                       priority,
-                                                       conanUser);
+                                submissionRequest.getStartingProcessIndex(),
+                                submissionRequest.getInputParameters(),
+                                priority,
+                                conanUser);
 
                 // and submit the newly generated task
                 getSubmissionService().submitTask(conanTask);
@@ -106,17 +107,14 @@ public class SubmissionController {
                 String msg = "Your submission was accepted - " +
                         "task '" + conanTask.getName() + "' has been added to the queue";
                 return new SubmissionResponseBean(true, msg, conanTask.getId(), conanTask.getName());
-            }
-            catch (SubmissionException e) {
+            } catch (SubmissionException e) {
+                String msg = "Your submission was rejected - " + e.getMessage();
+                return new SubmissionResponseBean(false, msg, null, null);
+            } catch (IllegalArgumentException e) {
                 String msg = "Your submission was rejected - " + e.getMessage();
                 return new SubmissionResponseBean(false, msg, null, null);
             }
-            catch (IllegalArgumentException e) {
-                String msg = "Your submission was rejected - " + e.getMessage();
-                return new SubmissionResponseBean(false, msg, null, null);
-            }
-        }
-        else {
+        } else {
             String msg = "You do not have permission to submit new tasks";
             return new SubmissionResponseBean(false, msg, null, null);
         }
@@ -131,7 +129,9 @@ public class SubmissionController {
      * @return the view name for the newly created task
      */
     @RequestMapping(value = "/batch", method = RequestMethod.POST)
-    public @ResponseBody List<SubmissionResponseBean> submitTasks(
+    public
+    @ResponseBody
+    List<SubmissionResponseBean> submitTasks(
             @RequestBody BatchRequestBean batchRequest) {
         List<SubmissionResponseBean> submissionResponses = new ArrayList<SubmissionResponseBean>();
         for (SubmissionRequestBean submissionRequest : batchRequest.getSubmissionRequests()) {
@@ -155,10 +155,10 @@ public class SubmissionController {
                 try {
                     ConanTask<? extends ConanPipeline> conanTask =
                             getTaskService().createNewTask(submissionRequest.getPipelineName(),
-                                                           submissionRequest.getStartingProcessIndex(),
-                                                           submissionRequest.getInputParameters(),
-                                                           priority,
-                                                           conanUser);
+                                    submissionRequest.getStartingProcessIndex(),
+                                    submissionRequest.getInputParameters(),
+                                    priority,
+                                    conanUser);
 
                     // and submit the newly generated task
                     getSubmissionService().submitTask(conanTask);
@@ -167,20 +167,17 @@ public class SubmissionController {
                             "Your submission was accepted - task '" + conanTask.getName() +
                                     "' has been added to the queue";
                     submissionResponses.add(new SubmissionResponseBean(true,
-                                                                       msg,
-                                                                       conanTask.getId(),
-                                                                       conanTask.getName()));
-                }
-                catch (SubmissionException e) {
+                            msg,
+                            conanTask.getId(),
+                            conanTask.getName()));
+                } catch (SubmissionException e) {
+                    String msg = "Your submission was rejected - " + e.getMessage();
+                    submissionResponses.add(new SubmissionResponseBean(false, msg, null, null));
+                } catch (IllegalArgumentException e) {
                     String msg = "Your submission was rejected - " + e.getMessage();
                     submissionResponses.add(new SubmissionResponseBean(false, msg, null, null));
                 }
-                catch (IllegalArgumentException e) {
-                    String msg = "Your submission was rejected - " + e.getMessage();
-                    submissionResponses.add(new SubmissionResponseBean(false, msg, null, null));
-                }
-            }
-            else {
+            } else {
                 String msg = "You do not have permission to submit new tasks";
                 submissionResponses.add(new SubmissionResponseBean(false, msg, null, null));
             }
@@ -201,7 +198,9 @@ public class SubmissionController {
      * @throws IllegalArgumentException if there was no task with the given ID
      */
     @RequestMapping(value = "/{taskID}", method = RequestMethod.PUT, params = "pause")
-    public @ResponseBody SubmissionResponseBean pauseTask(@PathVariable String taskID, @RequestParam String restApiKey)
+    public
+    @ResponseBody
+    SubmissionResponseBean pauseTask(@PathVariable String taskID, @RequestParam String restApiKey)
             throws IllegalArgumentException {
         // retrieve the user
         ConanUser conanUser = getUserService().getUserByRestApiKey(restApiKey);
@@ -217,31 +216,27 @@ public class SubmissionController {
                     String msg = "Task '" + task.getName() + "' will be paused once the current process completes";
                     task.pause();
                     return new SubmissionResponseBean(true, msg, taskID, task.getName());
-                }
-                else if (task.getCurrentState().compareTo(ConanTask.State.RUNNING) < 0) {
+                } else if (task.getCurrentState().compareTo(ConanTask.State.RUNNING) < 0) {
                     return new SubmissionResponseBean(false,
-                                                      "Task '" + task.getName() + "' is already paused",
-                                                      taskID,
-                                                      task.getName());
-                }
-                else {
+                            "Task '" + task.getName() + "' is already paused",
+                            taskID,
+                            task.getName());
+                } else {
                     return new SubmissionResponseBean(false,
-                                                      "Task '" + task.getName() +
-                                                              "' cannot be paused because it has finished",
-                                                      taskID,
-                                                      task.getName());
+                            "Task '" + task.getName() +
+                                    "' cannot be paused because it has finished",
+                            taskID,
+                            task.getName());
                 }
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("There is no task with ID '" + taskID + "'");
             }
-        }
-        else {
+        } else {
             return new SubmissionResponseBean(false,
-                                              "You cannot pause task '" + task.getName() + "', " +
-                                                      "because you do not have permission",
-                                              taskID,
-                                              task.getName());
+                    "You cannot pause task '" + task.getName() + "', " +
+                            "because you do not have permission",
+                    taskID,
+                    task.getName());
         }
     }
 
@@ -256,7 +251,9 @@ public class SubmissionController {
      * @throws IllegalArgumentException if there was no task with the given ID
      */
     @RequestMapping(value = "/{taskID}", method = RequestMethod.PUT, params = "resume")
-    public @ResponseBody SubmissionResponseBean resumeTask(@PathVariable String taskID, @RequestParam String restApiKey)
+    public
+    @ResponseBody
+    SubmissionResponseBean resumeTask(@PathVariable String taskID, @RequestParam String restApiKey)
             throws IllegalArgumentException {
         // retrieve the user
         ConanUser conanUser = getUserService().getUserByRestApiKey(restApiKey);
@@ -278,30 +275,26 @@ public class SubmissionController {
                     try {
                         getSubmissionService().submitTask(task);
                         return new SubmissionResponseBean(true, msg, task.getId(), task.getName());
-                    }
-                    catch (SubmissionException e) {
+                    } catch (SubmissionException e) {
                         msg = "Your submission was rejected - " + e.getMessage();
                         return new SubmissionResponseBean(false, msg, null, null);
                     }
-                }
-                else {
+                } else {
                     return new SubmissionResponseBean(false,
-                                                      "Task '" + task.getName() + "' cannot be resumed because " +
-                                                              "it is not paused",
-                                                      taskID,
-                                                      task.getName());
+                            "Task '" + task.getName() + "' cannot be resumed because " +
+                                    "it is not paused",
+                            taskID,
+                            task.getName());
                 }
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("There is no task with ID '" + taskID + "'");
             }
-        }
-        else {
+        } else {
             return new SubmissionResponseBean(false,
-                                              "You cannot resume task '" + task.getName() + "', " +
-                                                      "because you do not have permission",
-                                              taskID,
-                                              task.getName());
+                    "You cannot resume task '" + task.getName() + "', " +
+                            "because you do not have permission",
+                    taskID,
+                    task.getName());
         }
     }
 
@@ -315,7 +308,9 @@ public class SubmissionController {
      * @throws IllegalArgumentException if there was no task with the given ID
      */
     @RequestMapping(value = "/{taskID}", method = RequestMethod.PUT, params = "retry")
-    public @ResponseBody SubmissionResponseBean retryTask(@PathVariable String taskID, @RequestParam String restApiKey)
+    public
+    @ResponseBody
+    SubmissionResponseBean retryTask(@PathVariable String taskID, @RequestParam String restApiKey)
             throws IllegalArgumentException {
         // retrieve the user
         ConanUser conanUser = getUserService().getUserByRestApiKey(restApiKey);
@@ -337,29 +332,25 @@ public class SubmissionController {
                     try {
                         getSubmissionService().submitTask(task);
                         return new SubmissionResponseBean(true, msg, task.getId(), task.getName());
-                    }
-                    catch (SubmissionException e) {
+                    } catch (SubmissionException e) {
                         msg = "Your submission was rejected - " + e.getMessage();
                         return new SubmissionResponseBean(false, msg, null, null);
                     }
-                }
-                else {
+                } else {
                     return new SubmissionResponseBean(false,
-                                                      "Task '" + task.getName() + "' cannot be retried because " +
-                                                              "it is not paused",
-                                                      taskID,
-                                                      task.getName());
+                            "Task '" + task.getName() + "' cannot be retried because " +
+                                    "it is not paused",
+                            taskID,
+                            task.getName());
                 }
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("There is no task with ID '" + taskID + "'");
             }
-        }
-        else {
+        } else {
             return new SubmissionResponseBean(false,
-                                              "You cannot retry this task, because you do not have permission",
-                                              taskID,
-                                              task.getName());
+                    "You cannot retry this task, because you do not have permission",
+                    taskID,
+                    task.getName());
         }
     }
 
@@ -374,8 +365,10 @@ public class SubmissionController {
      * @throws IllegalArgumentException if there was no task with the given ID
      */
     @RequestMapping(value = "/{taskID}", method = RequestMethod.PUT, params = "restart")
-    public @ResponseBody SubmissionResponseBean restartTask(@PathVariable String taskID,
-                                                            @RequestParam String restApiKey)
+    public
+    @ResponseBody
+    SubmissionResponseBean restartTask(@PathVariable String taskID,
+                                       @RequestParam String restApiKey)
             throws IllegalArgumentException {
         // retrieve the user
         ConanUser conanUser = getUserService().getUserByRestApiKey(restApiKey);
@@ -398,30 +391,26 @@ public class SubmissionController {
                     try {
                         getSubmissionService().submitTask(task);
                         return new SubmissionResponseBean(true, msg, task.getId(), task.getName());
-                    }
-                    catch (SubmissionException e) {
+                    } catch (SubmissionException e) {
                         msg = "Your submission was rejected - " + e.getMessage();
                         return new SubmissionResponseBean(false, msg, null, null);
                     }
-                }
-                else {
+                } else {
                     return new SubmissionResponseBean(false,
-                                                      "Task '" + task.getName() + "' cannot be restarted " +
-                                                              "because it is not paused",
-                                                      taskID,
-                                                      task.getName());
+                            "Task '" + task.getName() + "' cannot be restarted " +
+                                    "because it is not paused",
+                            taskID,
+                            task.getName());
                 }
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("There is no task with ID '" + taskID + "'");
             }
-        }
-        else {
+        } else {
             return new SubmissionResponseBean(false,
-                                              "You cannot restart task '" + task.getName() + "', " +
-                                                      "because you do not have permission",
-                                              taskID,
-                                              task.getName());
+                    "You cannot restart task '" + task.getName() + "', " +
+                            "because you do not have permission",
+                    taskID,
+                    task.getName());
         }
     }
 
@@ -437,7 +426,9 @@ public class SubmissionController {
      * @throws IllegalArgumentException if there was no task with the given ID
      */
     @RequestMapping(value = "/{taskID}", method = RequestMethod.PUT, params = "stop")
-    public @ResponseBody SubmissionResponseBean stopTask(@PathVariable String taskID, @RequestParam String restApiKey)
+    public
+    @ResponseBody
+    SubmissionResponseBean stopTask(@PathVariable String taskID, @RequestParam String restApiKey)
             throws IllegalArgumentException {
         // retrieve the user
         ConanUser conanUser = getUserService().getUserByRestApiKey(restApiKey);
@@ -456,25 +447,22 @@ public class SubmissionController {
                     String msg = "Task '" + task.getName() + "' will be stopped";
                     task.abort();
                     return new SubmissionResponseBean(true, msg, taskID, task.getName());
-                }
-                else {
+                } else {
                     return new SubmissionResponseBean(false,
-                                                      "Task '" + task.getName() + "' cannot be stopped because " +
-                                                              "it is not paused",
-                                                      taskID,
-                                                      task.getName());
+                            "Task '" + task.getName() + "' cannot be stopped because " +
+                                    "it is not paused",
+                            taskID,
+                            task.getName());
                 }
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("There is no task with ID '" + taskID + "'");
             }
-        }
-        else {
+        } else {
             return new SubmissionResponseBean(false,
-                                              "You cannot stop this task '" + task.getName() + "', " +
-                                                      "because you do not have permission",
-                                              taskID,
-                                              task.getName());
+                    "You cannot stop this task '" + task.getName() + "', " +
+                            "because you do not have permission",
+                    taskID,
+                    task.getName());
         }
     }
 }

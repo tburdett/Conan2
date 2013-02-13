@@ -1,7 +1,7 @@
 package uk.ac.ebi.fgpt.conan.process.demo;
 
 import net.sourceforge.fluxion.spi.ServiceProvider;
-import uk.ac.ebi.fgpt.conan.model.ConanParameter;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.util.Map;

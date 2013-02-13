@@ -68,26 +68,26 @@ public class DatabaseConanUserDAO implements ConanUserDAO {
 
     public Collection<ConanUser> getUserByUserName(String userName) {
         return getJdbcTemplate().query(USER_SELECT_BY_USERNAME,
-                                       new Object[]{userName},
-                                       new ConanUserMapper());
+                new Object[]{userName},
+                new ConanUserMapper());
     }
 
     public ConanUser getUser(String userID) {
         return getJdbcTemplate().queryForObject(USER_SELECT_BY_USER_ID,
-                                                new Object[]{userID},
-                                                new ConanUserMapper());
+                new Object[]{userID},
+                new ConanUserMapper());
     }
 
     public Collection<ConanUser> getUserByEmail(String userEmailAddress) {
         return getJdbcTemplate().query(USER_SELECT_BY_EMAIL,
-                                       new Object[]{userEmailAddress},
-                                       new ConanUserMapper());
+                new Object[]{userEmailAddress},
+                new ConanUserMapper());
     }
 
     public ConanUser getUserByRestApiKey(String restApiKey) {
         return getJdbcTemplate().queryForObject(USER_SELECT_BY_REST_API_KEY,
-                                                new Object[]{restApiKey},
-                                                new ConanUserMapper());
+                new Object[]{restApiKey},
+                new ConanUserMapper());
     }
 
     public ConanUser saveUser(ConanUser user) {
@@ -95,33 +95,31 @@ public class DatabaseConanUserDAO implements ConanUserDAO {
 
         if (user.getId() != null) {
             userCheck = getJdbcTemplate().queryForInt(USER_COUNT,
-                                                      user.getId());
+                    user.getId());
         }
 
         //There is no such user in database
         if (userCheck == 0) {
             int userID = getJdbcTemplate().queryForInt(SEQUENCE_SELECT);
             getJdbcTemplate().update(USER_INSERT,
-                                     userID,
-                                     user.getUserName(),
-                                     user.getFirstName(),
-                                     user.getSurname(),
-                                     user.getEmail(),
-                                     user.getRestApiKey(),
-                                     user.getPermissions().toString());
+                    userID,
+                    user.getUserName(),
+                    user.getFirstName(),
+                    user.getSurname(),
+                    user.getEmail(),
+                    user.getRestApiKey(),
+                    user.getPermissions().toString());
             if (user instanceof ConanUserWithPermissions) {
                 ((ConanUserWithPermissions) user).setId(Integer.toString(userID));
-            }
-            else {
+            } else {
                 getLog().warn("User acquired from database was of unexpected type " +
                         user.getClass().getSimpleName() + ", cannot set user ID");
             }
-        }
-        else {
+        } else {
             getJdbcTemplate().update(USER_UPDATE,
-                                     user.getUserName(), user.getFirstName(), user.getSurname(),
-                                     user.getEmail(),
-                                     user.getRestApiKey(), user.getPermissions().toString(), user.getId());
+                    user.getUserName(), user.getFirstName(), user.getSurname(),
+                    user.getEmail(),
+                    user.getRestApiKey(), user.getPermissions().toString(), user.getId());
         }
 
         return user;
@@ -129,12 +127,12 @@ public class DatabaseConanUserDAO implements ConanUserDAO {
 
     public Collection<ConanUser> getUsers() {
         return getJdbcTemplate().query(USER_SELECT,
-                                       new ConanUserMapper());
+                new ConanUserMapper());
     }
 
     public void deleteUser(ConanUser user) {
         getJdbcTemplate().update(USER_DELETE,
-                                 user.getId());
+                user.getId());
     }
 
     /**
@@ -149,11 +147,11 @@ public class DatabaseConanUserDAO implements ConanUserDAO {
                 permissions = ConanUser.Permissions.valueOf(resultSet.getString(7));
             }
             ConanUserWithPermissions user = new ConanUserWithPermissions(resultSet.getString(2),
-                                                                         resultSet.getString(3),
-                                                                         resultSet.getString(4),
-                                                                         resultSet.getString(5),
-                                                                         resultSet.getString(6),
-                                                                         permissions);
+                    resultSet.getString(3),
+                    resultSet.getString(4),
+                    resultSet.getString(5),
+                    resultSet.getString(6),
+                    permissions);
             user.setId(resultSet.getString(1));
             return user;
         }

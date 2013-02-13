@@ -17,7 +17,7 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf;
 
-import uk.ac.tgac.rampart.conan.conanx.exec.context.scheduler.ExitStatusType;
+import uk.ac.ebi.fgpt.conan.model.context.ExitStatus;
 
 /**
  * User: maplesod
@@ -28,8 +28,8 @@ public enum LSFExitStatusType {
 
     ENDED {
         @Override
-        public ExitStatusType getExitStatus() {
-            return ExitStatusType.COMPLETED_FAILED;
+        public ExitStatus.Type getExitStatus() {
+            return ExitStatus.Type.COMPLETED_FAILED;
         }
 
         @Override
@@ -41,8 +41,8 @@ public enum LSFExitStatusType {
     },
     DONE {
         @Override
-        public ExitStatusType getExitStatus() {
-            return ExitStatusType.COMPLETED_SUCCESS;
+        public ExitStatus.Type getExitStatus() {
+            return ExitStatus.Type.COMPLETED_SUCCESS;
         }
 
         public String getCommand() {
@@ -50,14 +50,14 @@ public enum LSFExitStatusType {
         }
     };
 
-    public abstract ExitStatusType getExitStatus();
+    public abstract ExitStatus.Type getExitStatus();
 
     public abstract String getCommand();
 
-    public static LSFExitStatusType select(ExitStatusType type) {
-        if (type == ExitStatusType.COMPLETED_SUCCESS)
+    public static LSFExitStatusType select(ExitStatus.Type type) {
+        if (type == ExitStatus.Type.COMPLETED_SUCCESS)
             return DONE;
-        else if (type == ExitStatusType.COMPLETED_FAILED) {
+        else if (type == ExitStatus.Type.COMPLETED_FAILED) {
             return ENDED;
         }
 

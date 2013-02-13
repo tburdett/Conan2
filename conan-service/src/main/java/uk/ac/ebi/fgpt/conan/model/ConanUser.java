@@ -57,7 +57,8 @@ public interface ConanUser extends Comparable, Serializable {
      *
      * @return the user's REST API key, required for accessing protected Conan functions
      */
-    @JsonIgnore String getRestApiKey();
+    @JsonIgnore
+    String getRestApiKey();
 
     /**
      * The permissions attributed to this user.  For authenticated users, this would normally be SUBMITTER unless

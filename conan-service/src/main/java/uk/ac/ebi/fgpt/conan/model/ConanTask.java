@@ -1,6 +1,8 @@
 package uk.ac.ebi.fgpt.conan.model;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.service.exception.TaskExecutionException;
 
 import java.io.Serializable;
@@ -44,7 +46,7 @@ public interface ConanTask<P extends ConanPipeline> extends Serializable {
 
     /**
      * Executes this task.  To execute a task means that each {@link ConanProcess} in that task's {@link ConanPipeline}
-     * is executed in turn.  The {@link ConanParameter}s supplied to this task must be the union of all parameters
+     * is executed in turn.  The {@link uk.ac.ebi.fgpt.conan.model.param.ConanParameter}s supplied to this task must be the union of all parameters
      * required by each process in the pipeline - there is a convenience method to acquire these process on {@link
      * ConanPipeline}, {@link uk.ac.ebi.fgpt.conan.model.ConanPipeline#getAllRequiredParameters()}.
      * <p/>
@@ -67,6 +69,31 @@ public interface ConanTask<P extends ConanPipeline> extends Serializable {
     boolean execute() throws TaskExecutionException, InterruptedException;
 
     /**
+     * Executes this task within a specific {@link ExecutionContext}.  To execute a task means that each
+     * {@link ConanProcess} in that task's {@link ConanPipeline} is executed in turn.  The {@link uk.ac.ebi.fgpt.conan.model.param.ConanParameter}s
+     * supplied to this task must be the union of all parameters required by each process in the pipeline - there is a
+     * convenience method to acquire these process on {@link ConanPipeline},
+     * {@link uk.ac.ebi.fgpt.conan.model.ConanPipeline#getAllRequiredParameters()}.
+     * <p/>
+     * Whilst executing, this task should keep tracking information up to date, such as {@link #getCurrentProcess()},
+     * {@link #getCurrentState()} and so on.  This enables a monitoring client to determine the current progress of this
+     * task.
+     * <p/>
+     * Good implementations of this method will check that the calling thread is not interrupted between processes, so
+     * as to allow graceful termination of tasks on a shutdown request.  It is very desirable for tasks to cleanly
+     * shutdown on such a request, updating tracking information as they do so, so that tasks are easily recoverable on
+     * restart.
+     * <p/>
+     * This method returns true if the task succeeds (indicating all constituent Processes, by definition, succeeded) or
+     * false otherwise.
+     *
+     * @return true if the execution completed successfully, false if not
+     * @throws TaskExecutionException if the execution of the task caused an exception
+     * @throws InterruptedException   if the execution of the task was interrupted
+     */
+    boolean execute(ExecutionContext executionContext) throws TaskExecutionException, InterruptedException;
+
+    /**
      * Gets the priority of this task.  High priority tasks should always be executed before medium priority tasks, and
      * medium priority tasks always executed before low priority ones.
      *
@@ -79,7 +106,8 @@ public interface ConanTask<P extends ConanPipeline> extends Serializable {
      *
      * @return the pipeline this task is part of
      */
-    @JsonSerialize(as = ConanPipeline.class) P getPipeline();
+    @JsonSerialize(as = ConanPipeline.class)
+    P getPipeline();
 
     /**
      * Returns a map of parameters to the values set for this Task.

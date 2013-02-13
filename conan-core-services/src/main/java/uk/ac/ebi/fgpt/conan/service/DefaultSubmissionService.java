@@ -3,7 +3,7 @@ package uk.ac.ebi.fgpt.conan.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
-import uk.ac.ebi.fgpt.conan.model.ConanParameter;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanTask;
 import uk.ac.ebi.fgpt.conan.service.exception.SubmissionException;
@@ -73,8 +73,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
 
                         // now we've waited for the prescribed cooling off period, execute
                         return conanTask.execute();
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         getLog().error("There was a problem executing task '" + conanTask.getId() + "'", e);
                         throw e;
                     }
@@ -85,8 +84,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
             if (!conanTask.isSubmitted()) {
                 conanTask.submit();
             }
-        }
-        else {
+        } else {
             // abort task, otherwise it will be forever stuck with "created" status
             conanTask.abort();
             throw new SubmissionException(
@@ -133,15 +131,13 @@ public class DefaultSubmissionService implements ConanSubmissionService {
             if (recoveredTask.getCurrentProcess() != null &&
                     recoveredTask.getCurrentProcess().getName().startsWith("AE1")) {
                 getLog().warn("Not recovering '" + recoveredTask.getId() + "', " +
-                                      "this is doing an AE1 process so can't be restarted. " +
-                                      "This task will be aborted following shutdown/restart");
+                        "this is doing an AE1 process so can't be restarted. " +
+                        "This task will be aborted following shutdown/restart");
                 recoveredTask.abort();
-            }
-            else {
+            } else {
                 try {
                     resubmitTask(recoveredTask);
-                }
-                catch (SubmissionException e) {
+                } catch (SubmissionException e) {
                     getLog().warn("Automatic resubmission of task '" + recoveredTask.getId() + "' failed", e);
                 }
             }
@@ -150,7 +146,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
         long end = System.currentTimeMillis();
         double time = ((double) (end - start)) / 1000;
         getLog().info("Submission service startup in " + time + " s.  " + recoveredTasks.size() +
-                              " tasks were recovered and resubmitted.");
+                " tasks were recovered and resubmitted.");
     }
 
     /**
@@ -161,7 +157,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
      */
     public void destroy() {
         getLog().debug("Shutdown of " + getClass().getSimpleName() + " triggered, " +
-                               "will attempt shutdownNow() on " + taskExecutor.getClass().getSimpleName());
+                "will attempt shutdownNow() on " + taskExecutor.getClass().getSimpleName());
 
         // shutdown the taskExecutor
         taskExecutor.shutdownNow();
@@ -174,13 +170,11 @@ public class DefaultSubmissionService implements ConanSubmissionService {
                 long end = System.currentTimeMillis();
                 double time = ((double) (end - start)) / 1000;
                 getLog().info("Submission service shutdown in " + time + " s.");
-            }
-            else {
+            } else {
                 getLog().error("Failed to cleanly shutdown submission service.  " +
-                                       "You may need to manually kill the process");
+                        "You may need to manually kill the process");
             }
-        }
-        catch (InterruptedException e1) {
+        } catch (InterruptedException e1) {
             getLog().error("Shutdown request failed due to an interruption.  You may need to kill this process");
         }
     }
@@ -202,8 +196,8 @@ public class DefaultSubmissionService implements ConanSubmissionService {
                 if (comparator.compare(task, executingTask) == 0) {
                     // tasks are equal, so this IS a duplicate
                     getLog().debug("Found task with duplicated parameters: " +
-                                           "task '" + task.getId() + "' [" + task.getName() + "] would duplicate " +
-                                           "task '" + executingTask.getId() + "' [" + executingTask.getName() + "]");
+                            "task '" + task.getId() + "' [" + task.getName() + "] would duplicate " +
+                            "task '" + executingTask.getId() + "' [" + executingTask.getName() + "]");
                     return executingTask;
                 }
             }
@@ -217,27 +211,26 @@ public class DefaultSubmissionService implements ConanSubmissionService {
     private class TaskParametersComparator implements Comparator<ConanTask> {
         public int compare(ConanTask task1, ConanTask task2) {
             getLog().debug("Comparing task ID '" + task1.getId() + "' [" + task1.getName() + "] with " +
-                                   "task '" + task2.getId() + "' [" + task2.getName() + "]");
+                    "task '" + task2.getId() + "' [" + task2.getName() + "]");
 
             if (task1.equals(task2)) {
                 getLog().debug("Task '" + task1.getId() + "' [" + task1.getName() + "] is equal to " +
-                                       "task '" + task2.getId() + "' [" + task2.getName() + "]");
+                        "task '" + task2.getId() + "' [" + task2.getName() + "]");
                 return 0;
-            }
-            else {
+            } else {
                 boolean allEqual = true;
                 int diffCount = 0;
 
                 // do pairwise check of parameters
                 getLog().debug("Comparing parameter values of task '" + task1.getId() + "' [" + task1.getName() + "] " +
-                                       "and task '" + task2.getId() + "' [" + task2.getName() + "]");
+                        "and task '" + task2.getId() + "' [" + task2.getName() + "]");
                 Map<ConanParameter, String> paramValues1 = task1.getParameterValues();
                 Map<ConanParameter, String> paramValues2 = task2.getParameterValues();
                 for (ConanParameter param : paramValues1.keySet()) {
                     if (paramValues2.containsKey(param)) {
                         // get the values for this key and check
                         getLog().debug("Compared tasks have parameter type " + param.getName() + " in common, " +
-                                               "checking values...");
+                                "checking values...");
                         String val1 = paramValues1.get(param);
                         String val2 = paramValues2.get(param);
 
@@ -247,8 +240,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
                             diffCount++;
                         }
                         allEqual = allEqual && val1.equals(val2);
-                    }
-                    else {
+                    } else {
                         allEqual = false;
                         diffCount++;
                     }
@@ -258,8 +250,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
                     // if all our parameters are equal, we must return 0
                     getLog().debug("All parameter values are equal, so these tasks duplicate each other");
                     return 0;
-                }
-                else {
+                } else {
                     // otherwise they're different, so to obey the contract we must return some sorted integer value
                     // return the number of different parameters -
                     // positive if task1 has more params than task2, or if they have the same number of params,
@@ -269,8 +260,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
                         result = task1.getParameterValues().size() < task2.getParameterValues().size()
                                 ? 0 - diffCount
                                 : diffCount;
-                    }
-                    else {
+                    } else {
                         // don't let result be zero
                         result = 1;
                     }

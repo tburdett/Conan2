@@ -8,6 +8,7 @@ import uk.ac.ebi.fgpt.conan.dao.ConanPipelineDAO;
 import uk.ac.ebi.fgpt.conan.dao.ConanTaskDAO;
 import uk.ac.ebi.fgpt.conan.factory.ConanTaskFactory;
 import uk.ac.ebi.fgpt.conan.model.*;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.service.exception.ConanPipelineLookupException;
 import uk.ac.ebi.fgpt.conan.service.exception.MissingRequiredParameterException;
 
@@ -89,10 +90,10 @@ public class DefaultTaskService implements ConanTaskService {
         // we've now looked up our pipeline, skipped all the processes before starting process,
         // and extract required parameters - so create the task from these inputs
         ConanTask<?> task = getConanTaskFactory().createTask(pipeline,
-                                                             startingProcessIndex,
-                                                             parameters,
-                                                             priority,
-                                                             conanUser);
+                startingProcessIndex,
+                parameters,
+                priority,
+                conanUser);
 
         // save this task, and return the result (this updates the reference if required)
         return getConanTaskDAO().saveTask(task);
@@ -240,25 +241,20 @@ public class DefaultTaskService implements ConanTaskService {
             if (toDate == null) {
                 if (fromDate == null) {
                     return getConanTaskDAO().searchCompletedTasks(name);
-                }
-                else {
+                } else {
                     return getConanTaskDAO().searchCompletedTasks(name, fromDate);
                 }
-            }
-            else {
+            } else {
                 return getConanTaskDAO().searchCompletedTasks(name, fromDate, toDate);
             }
-        }
-        else {
+        } else {
             if (toDate == null) {
                 if (fromDate == null) {
                     return getConanTaskDAO().searchCompletedTasks(name, conanUser.getId());
-                }
-                else {
+                } else {
                     return getConanTaskDAO().searchCompletedTasks(name, conanUser.getId(), fromDate);
                 }
-            }
-            else {
+            } else {
                 return getConanTaskDAO().searchCompletedTasks(name, conanUser.getId(), fromDate, toDate);
             }
         }
@@ -273,8 +269,7 @@ public class DefaultTaskService implements ConanTaskService {
                 throw new MissingRequiredParameterException(
                         "Required parameter '" + param.getName() + "' not supplied, " +
                                 "required for process '" + process.getName() + "'");
-            }
-            else {
+            } else {
                 if (!parameters.containsKey(param)) {
                     parameters.put(param, inputValues.get(param.getName()));
                 }
@@ -300,31 +295,25 @@ public class DefaultTaskService implements ConanTaskService {
                             if (val1 instanceof Comparable && val2 instanceof Comparable) {
                                 // if values are comparable, return comparison
                                 return ((Comparable) val1).compareTo(val2);
-                            }
-                            else if (val1 instanceof ConanProcess && val2 instanceof ConanProcess) {
+                            } else if (val1 instanceof ConanProcess && val2 instanceof ConanProcess) {
                                 // if values are processes, compare names
                                 return ((ConanProcess) val1).getName().compareTo(((ConanProcess) val2).getName());
-                            }
-                            else {
+                            } else {
                                 // otherwise, assume equal
                                 return 0;
                             }
-                        }
-                        catch (InvocationTargetException e) {
+                        } catch (InvocationTargetException e) {
                             getLog().error(
                                     "Could not get value for '" + orderBy + "' property on task " + task1.getName());
                         }
-                    }
-                    catch (InvocationTargetException e) {
+                    } catch (InvocationTargetException e) {
                         getLog().error(
                                 "Could not get value for '" + orderBy + "' property on task " + task2.getName());
                     }
-                }
-                catch (NoSuchMethodException e) {
+                } catch (NoSuchMethodException e) {
                     // warn, but don't reorder
                     getLog().warn("No such property '" + orderBy + "' to reorder on, using DAO default ordering");
-                }
-                catch (IllegalAccessException e) {
+                } catch (IllegalAccessException e) {
                     getLog().error("Could not compare tasks: ", e);
                 }
 

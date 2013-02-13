@@ -75,18 +75,17 @@ public class DefaultUserService implements ConanUserService {
         getLog().debug("Creating new user for " + username);
         if (permissions == ConanUser.Permissions.GUEST) {
             return new GuestUser(emailAddress);
-        }
-        else {
+        } else {
             // first, create a rest api key for our user
             String restApiKey = generateRestApiKey(emailAddress);
 
             // now, we need to make a new user with permissions
             ConanUserWithPermissions permissibleUser =
                     new ConanUserWithPermissions(username,
-                                                 firstName,
-                                                 surname,
-                                                 emailAddress,
-                                                 restApiKey);
+                            firstName,
+                            surname,
+                            emailAddress,
+                            restApiKey);
 
             getLog().debug("Generated new user! Details are:\n" +
                     "username: " + permissibleUser.getUserName() + "\n" +
@@ -142,21 +141,18 @@ public class DefaultUserService implements ConanUserService {
             // not in DB, is there a verification DAO set?
             if (getVerificationDAO() == null) {
                 throw new IllegalArgumentException("No user with the username '" + userName + "' found");
-            }
-            else {
+            } else {
                 // if so are they in it?
                 targetUsers = getVerificationDAO().getUserByUserName(userName);
 
                 if (targetUsers.isEmpty()) {
                     // not in verification dao either, this username is not a legal one
                     throw new IllegalArgumentException("No user with the username '" + userName + "' found");
-                }
-                else {
+                } else {
                     // if we got exactly 1 user from verification dao, we must store them in our DB
                     if (targetUsers.size() == 1) {
                         targetUser = storeNewUser(targetUsers.iterator().next());
-                    }
-                    else {
+                    } else {
                         // more than one user from verification dao, complain
                         throw new IllegalArgumentException("Cannot verify user, " +
                                 (targetUsers.size() == 0 ? "no " : "too many ") +
@@ -164,8 +160,7 @@ public class DefaultUserService implements ConanUserService {
                     }
                 }
             }
-        }
-        else {
+        } else {
             targetUser = targetUsers.iterator().next();
         }
 
@@ -194,8 +189,7 @@ public class DefaultUserService implements ConanUserService {
             // not in DB, is there a verification DAO set?
             if (getVerificationDAO() == null) {
                 targetUser = new GuestUser(userEmailAddress);
-            }
-            else {
+            } else {
                 // if so are they in it?
                 targetUsers = getVerificationDAO().getUserByEmail(userEmailAddress);
 
@@ -203,13 +197,11 @@ public class DefaultUserService implements ConanUserService {
                     // not in verification dao either, this username is not a legal one
                     getLog().debug("No users with email '" + userEmailAddress + "' found in verificationD");
                     targetUser = new GuestUser(userEmailAddress);
-                }
-                else {
+                } else {
                     // if we got exactly 1 user from verification dao, we must store them in our DB
                     if (targetUsers.size() == 1) {
                         targetUser = storeNewUser(targetUsers.iterator().next());
-                    }
-                    else {
+                    } else {
                         // more than one user from verification dao, complain
                         throw new IllegalArgumentException("Cannot verify user, " +
                                 (targetUsers.size() == 0 ? "no " : "too many ") +
@@ -217,8 +209,7 @@ public class DefaultUserService implements ConanUserService {
                     }
                 }
             }
-        }
-        else {
+        } else {
             // if there are several users with the same email, iterate over them...
             Iterator<ConanUser> it = targetUsers.iterator();
             targetUser = null;
@@ -250,18 +241,15 @@ public class DefaultUserService implements ConanUserService {
             ConanUser result = getTrustedDAO().getUserByRestApiKey(restApiKey);
             if (result != null) {
                 return result;
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException(
                         "No user with this REST API key (" + restApiKey + ") could be found");
             }
-        }
-        catch (EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException e) {
             // no user, special case
             getLog().warn("Invalid REST API key - no user found");
             throw new IllegalArgumentException("Invalid REST API key", e);
-        }
-        catch (IncorrectResultSizeDataAccessException e) {
+        } catch (IncorrectResultSizeDataAccessException e) {
             // already caught no user, so this must be >1 users with the same REST API key
             getLog().error(
                     "UserDAO returned an invalid result: REST API keys must be unique, " +
@@ -277,15 +265,14 @@ public class DefaultUserService implements ConanUserService {
         if (fetchedUser == null) {
             throw new IllegalArgumentException("The supplied user does not exist: " +
                     "no user with matching ID (" + existingUser.getId() + ") found");
-        }
-        else {
+        } else {
             // create a new user that is basically a copy of the old one
             ConanUserWithPermissions newUser = new ConanUserWithPermissions(fetchedUser.getUserName(),
-                                                                            fetchedUser.getFirstName(),
-                                                                            fetchedUser.getSurname(),
-                                                                            newEmail,
-                                                                            fetchedUser.getRestApiKey(),
-                                                                            fetchedUser.getPermissions());
+                    fetchedUser.getFirstName(),
+                    fetchedUser.getSurname(),
+                    newEmail,
+                    fetchedUser.getRestApiKey(),
+                    fetchedUser.getPermissions());
             // set new user id - as long as this equals the old ID, user will be updated
             newUser.setId(fetchedUser.getId());
             // now save
@@ -305,20 +292,19 @@ public class DefaultUserService implements ConanUserService {
                 // todo - backdoor for testing, to grant admin privileges to me
                 permissibleUser =
                         new ConanUserWithPermissions(user.getUserName(),
-                                                     user.getFirstName(),
-                                                     user.getSurname(),
-                                                     user.getEmail(),
-                                                     restApiKey,
-                                                     ConanUser.Permissions.ADMINISTRATOR);
-            }
-            else {
+                                user.getFirstName(),
+                                user.getSurname(),
+                                user.getEmail(),
+                                restApiKey,
+                                ConanUser.Permissions.ADMINISTRATOR);
+            } else {
                 permissibleUser =
                         new ConanUserWithPermissions(user.getUserName(),
-                                                     user.getFirstName(),
-                                                     user.getSurname(),
-                                                     user.getEmail(),
-                                                     restApiKey,
-                                                     user.getPermissions());
+                                user.getFirstName(),
+                                user.getSurname(),
+                                user.getEmail(),
+                                restApiKey,
+                                user.getPermissions());
             }
 
             getLog().debug("Generated new user! Details are:\n" +
@@ -329,8 +315,7 @@ public class DefaultUserService implements ConanUserService {
                     "permissions: " + permissibleUser.getPermissions());
 
             return getTrustedDAO().saveUser(permissibleUser);
-        }
-        else {
+        } else {
             getLog().warn("Attempting to store a guest user.  This operation is not supported");
             throw new UnsupportedOperationException("Cannot store Guest users");
         }
@@ -349,11 +334,9 @@ public class DefaultUserService implements ConanUserService {
             String restKey = getHexRepresentation(digest);
             getLog().debug("REST API key was generated: " + restKey);
             return restKey;
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("UTF-8 not supported!");
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("SHA-1 algorithm not available, required to generate REST api key");
         }
     }

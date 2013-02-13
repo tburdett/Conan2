@@ -15,6 +15,7 @@ import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
+
 import java.util.HashMap;
 
 
@@ -78,8 +79,7 @@ public abstract class AbstractRESTAPISubprocess {
 
 
             return requestResults;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 
         }
 
@@ -105,8 +105,7 @@ public abstract class AbstractRESTAPISubprocess {
                 HashMap<String, Object> logonResults =
                         parseRestApiResponse(responseString);
                 return (Boolean) logonResults.get("success");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 return false;
             }
@@ -126,8 +125,7 @@ public abstract class AbstractRESTAPISubprocess {
             String responseString = EntityUtils.toString(entity);
             System.out.println("Atlas REST API response: " + responseString);
             requestResults = parseRestApiResponse(responseString);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return requestResults;
@@ -168,8 +166,7 @@ public abstract class AbstractRESTAPISubprocess {
                     synchronized (this) {
                         try {
                             wait(interval * 1000);
-                        }
-                        catch (InterruptedException e) {
+                        } catch (InterruptedException e) {
                             // if interrupted, die
                             System.out.println("Interrupted exception causing thread to die");
                             stop();

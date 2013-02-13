@@ -42,8 +42,7 @@ public class LdapConanUserDAO implements ConanUserDAO {
         List results = ldapTemplate.search("", filter.encode(), new ConanUserMapper());
         if (results.size() == 1) {
             return (ConanUser) results.get(0);
-        }
-        else {
+        } else {
             getLog().warn("User ID '" + userID + "' does not match exactly one entry " +
                     "(actually " + results.size() + "), returning no details");
             return null;

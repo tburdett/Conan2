@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.conan.model;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 
 import java.io.Serializable;
 import java.util.List;
@@ -29,7 +30,8 @@ public interface ConanPipeline extends Serializable {
      *
      * @return the pipeline creator
      */
-    @JsonIgnore ConanUser getCreator();
+    @JsonIgnore
+    ConanUser getCreator();
 
     /**
      * Gets whether this pipeline is private or not.  Public pipelines can be used by all submitters, whereas private
@@ -38,14 +40,16 @@ public interface ConanPipeline extends Serializable {
      *
      * @return true if this pipeline is private, false otherwise
      */
-    @JsonIgnore boolean isPrivate();
+    @JsonIgnore
+    boolean isPrivate();
 
     /**
      * Gets a flag that indicates whether this pipeline should be used for daemon mode submissions.
      *
      * @return true if daemon mode inputs should be submitted to this pipeline, false otherwise
      */
-    @JsonIgnore boolean isDaemonized();
+    @JsonIgnore
+    boolean isDaemonized();
 
     /**
      * A list of processes that should be invoked (in order) during the execution of this pipeline.

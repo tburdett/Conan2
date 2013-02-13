@@ -19,7 +19,7 @@ package uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.tgac.rampart.conan.conanx.exec.process.monitor.AbstractFileProcessAdapter;
+import uk.ac.ebi.fgpt.conan.core.process.monitor.AbstractFileProcessAdapter;
 
 import java.io.File;
 import java.net.URI;
@@ -56,7 +56,7 @@ public class LSFFileProcessAdapter extends AbstractFileProcessAdapter {
 
     @Override
     protected void parseLine(String line, List<String> lines) {
-        // if the line indicates the LSF proc is complete, set flag
+        // if the line indicates the LSFScheduler proc is complete, set flag
         if (line.startsWith("Successfully completed")) {
             log.debug("Read completion content: " + line);
             this.setExitValue(0);
@@ -65,7 +65,7 @@ public class LSFFileProcessAdapter extends AbstractFileProcessAdapter {
             log.debug("Read completion content: " + line);
             if (line.split(" ").length > 4) {
                 String exitValStr = line.split(" ")[4].trim();
-                log.debug("Read exit value from LSF output file, value was " + exitValStr);
+                log.debug("Read exit value from LSFScheduler output file, value was " + exitValStr);
                 if (exitValStr.endsWith(".")) {
                     exitValStr = exitValStr.replace(".", "");
                     log.debug("Munged string to remove full stop is now " + exitValStr);

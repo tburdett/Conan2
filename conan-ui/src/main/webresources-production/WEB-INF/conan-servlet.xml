@@ -9,19 +9,19 @@
        http://www.springframework.org/schema/context/spring-context.xsd
        http://www.springframework.org/schema/mvc
        http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd"
-       >
+        >
 
     <!-- autowire this context only (just controllers, not services) based on annotations -->
-    <context:annotation-config />
+    <context:annotation-config/>
 
     <!-- scan for controllers in uk.ac.ebi.fgpt.conan.web.controllers and autowires them -->
-    <context:component-scan base-package="uk.ac.ebi.fgpt.conan.web.controller" />
+    <context:component-scan base-package="uk.ac.ebi.fgpt.conan.web.controller"/>
 
     <!-- drive MVC setup based on @Controller, @RequestMapping annotations etc -->
-    <mvc:annotation-driven />
+    <mvc:annotation-driven/>
 
     <!-- multipart file resolver to handle multipart requests for file uploads -->
     <bean id="multipartResolver"
-          class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
 
 </beans>

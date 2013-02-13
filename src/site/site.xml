@@ -5,25 +5,25 @@
         <!-- useful links -->
         <links>
             <item name="Conan"
-                  href="http://banana.ebi.ac.uk:14054/conan2/" />
+                  href="http://banana.ebi.ac.uk:14054/conan2/"/>
             <item name="Documentation"
-                  href="index.html" />
+                  href="index.html"/>
             <item name="Trac Wiki Documentation"
-                  href="http://bar.ebi.ac.uk:8080/trac/wiki/Conan2/" />
+                  href="http://bar.ebi.ac.uk:8080/trac/wiki/Conan2/"/>
         </links>
 
         <menu name="Conan 2 Documentation">
-            <item name="Introduction" href="index.html" />
-            <item name="Five Minute Getting Started Guide" href="5minute-guide.html" />
-            <item name="Usage" href="usage.html" />
-            <item name="Advanced Features" href="advanced-usage.html" />
-            <item name="Developer Documentation" href="developer-docs.html" />
+            <item name="Introduction" href="index.html"/>
+            <item name="Five Minute Getting Started Guide" href="5minute-guide.html"/>
+            <item name="Usage" href="usage.html"/>
+            <item name="Advanced Features" href="advanced-usage.html"/>
+            <item name="Developer Documentation" href="developer-docs.html"/>
         </menu>
 
         <menu>
-            <item name="Release Notes" href="release.html" />
+            <item name="Release Notes" href="release.html"/>
         </menu>
 
-        <menu ref="reports" />
+        <menu ref="reports"/>
     </body>
 </project>

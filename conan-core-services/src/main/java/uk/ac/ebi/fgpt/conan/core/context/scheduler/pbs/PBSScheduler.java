@@ -18,15 +18,10 @@
 package uk.ac.ebi.fgpt.conan.core.context.scheduler.pbs;
 
 import uk.ac.ebi.fgpt.conan.core.context.scheduler.AbstractScheduler;
-import uk.ac.ebi.fgpt.conan.model.context.ExitStatusType;
+import uk.ac.ebi.fgpt.conan.model.context.ExitStatus;
 import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
 import uk.ac.ebi.fgpt.conan.model.context.WaitCondition;
 import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
-import uk.ac.tgac.rampart.conan.conanx.exec.context.WaitCondition;
-import uk.ac.tgac.rampart.conan.conanx.exec.context.scheduler.AbstractScheduler;
-import uk.ac.tgac.rampart.conan.conanx.exec.context.scheduler.ExitStatusType;
-import uk.ac.tgac.rampart.conan.conanx.exec.context.scheduler.Scheduler;
-import uk.ac.tgac.rampart.conan.conanx.exec.process.monitor.ProcessAdapter;
 
 import java.io.File;
 
@@ -43,7 +38,7 @@ public class PBSScheduler extends AbstractScheduler {
     }
 
     @Override
-    public ProcessAdapter createTaskAdapter(File monitorFile, int monitorInterval) {
+    public ProcessAdapter createProcessAdapter(File monitorFile, int monitorInterval) {
         return null;
     }
 
@@ -63,7 +58,7 @@ public class PBSScheduler extends AbstractScheduler {
     }
 
     @Override
-    public WaitCondition createWaitCondition(ExitStatusType exitStatus, String condition) {
+    public WaitCondition createWaitCondition(ExitStatus.Type exitStatus, String condition) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

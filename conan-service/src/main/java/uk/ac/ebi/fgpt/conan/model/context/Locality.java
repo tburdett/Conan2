@@ -17,9 +17,8 @@
  **/
 package uk.ac.ebi.fgpt.conan.model.context;
 
+import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
-import uk.ac.tgac.rampart.conan.conanx.exec.context.WaitCondition;
-import uk.ac.tgac.rampart.conan.conanx.exec.process.monitor.ProcessAdapter;
 
 public interface Locality {
 
@@ -39,19 +38,21 @@ public interface Locality {
      * @return The exitCode from the proc that was executed
      * @throws InterruptedException
      * @throws uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException
+     *
      */
     int execute(String command)
             throws ProcessExecutionException, InterruptedException;
 
     /**
-     * Intended for executing Scheduled Tasks in the foreground.  A {@link uk.ac.tgac.rampart.conan.conanx.exec.process.monitor.ProcessAdapter} is used to monitor progress of
+     * Intended for executing Scheduled Tasks in the foreground.  A {@link ProcessAdapter} is used to monitor progress of
      * the proc.
      *
      * @param command        The command to execute.
-     * @param processAdapter The {@link uk.ac.tgac.rampart.conan.conanx.exec.process.monitor.ProcessAdapter} which should monitor Task progress
+     * @param processAdapter The {@link ProcessAdapter} which should monitor Task progress
      * @return The exitCode from the proc that was executed
      * @throws InterruptedException
      * @throws uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException
+     *
      */
     int monitoredExecute(String command, ProcessAdapter processAdapter)
             throws InterruptedException, ProcessExecutionException;
@@ -64,6 +65,7 @@ public interface Locality {
      * @param command The command that is to be executed in the background
      * @throws InterruptedException
      * @throws uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException
+     *
      */
     void dispatch(String command)
             throws ProcessExecutionException, InterruptedException;
@@ -75,6 +77,7 @@ public interface Locality {
      * @param waitCondition The waitCondition that needs to be satisfied before continueing.
      * @return The exit code produced after the wait condition has been satisfied.
      * @throws uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException
+     *
      * @throws InterruptedException
      * @throws java.io.IOException
      */
