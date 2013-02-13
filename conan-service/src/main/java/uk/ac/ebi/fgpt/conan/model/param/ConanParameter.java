@@ -1,15 +1,15 @@
-package uk.ac.ebi.fgpt.conan.model;
+package uk.ac.ebi.fgpt.conan.model.param;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.io.Serializable;
 
 /**
- * Am input parameter that must be supplied before a {@link ConanProcess} can be executed.  This is a simple interface
+ * Am input parameter that must be supplied before a {@link uk.ac.ebi.fgpt.conan.model.ConanProcess} can be executed.  This is a simple interface
  * that encapsulates the name and the description attached to a given parameter.
  * <p/>
  * It is not normally desirable to implement this interface yourself directly - you should generally subclass {@link
- * uk.ac.ebi.fgpt.conan.model.AbstractConanParameter} instead, as doing so will take care of parameter equality for you.
+ * AbstractConanParameter} instead, as doing so will take care of parameter equality for you.
  * If you <b>do</b> wish to implement this interface directly, you should ensure that you have a strategy for ensuring
  * equality between parameters, or else reusing parameters between {@link uk.ac.ebi.fgpt.conan.model.ConanProcess}
  * instances.  Chaining multiple processes whilst relying on native equality will not normally give desired results.
@@ -18,7 +18,7 @@ import java.io.Serializable;
  * @date 30-Jul-2010
  * @see uk.ac.ebi.fgpt.conan.model.ConanProcess
  * @see uk.ac.ebi.fgpt.conan.model.ConanPipeline
- * @see uk.ac.ebi.fgpt.conan.model.AbstractConanParameter
+ * @see AbstractConanParameter
  */
 @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
 public interface ConanParameter extends Serializable {

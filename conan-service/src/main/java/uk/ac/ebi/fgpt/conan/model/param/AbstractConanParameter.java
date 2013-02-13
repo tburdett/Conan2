@@ -1,4 +1,4 @@
-package uk.ac.ebi.fgpt.conan.model;
+package uk.ac.ebi.fgpt.conan.model.param;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.slf4j.Logger;
@@ -8,17 +8,17 @@ import org.springframework.util.StringUtils;
 import java.io.File;
 
 /**
- * An abstract implementation of a {@link uk.ac.ebi.fgpt.conan.model.ConanParameter} that takes the parameter name as
+ * An abstract implementation of a {@link ConanParameter} that takes the parameter name as
  * it's constructor.  You can optionally supply a description, although it is not required.
  * <p/>
  * It is recommended that you subclass this class rather than implement the {@link
- * uk.ac.ebi.fgpt.conan.model.ConanParameter} interface directly, because this class handles parameter equality between
+ * ConanParameter} interface directly, because this class handles parameter equality between
  * different processes.  The strategy for doing this is simple - parameters of the same class with the same name are
  * assumed to alway be equal.
  *
  * @author Tony Burdett
  * @date 19-Oct-2010
- * @see uk.ac.ebi.fgpt.conan.model.ConanParameter
+ * @see ConanParameter
  */
 @JsonSerialize(as = ConanParameter.class)
 public abstract class AbstractConanParameter implements ConanParameter {
