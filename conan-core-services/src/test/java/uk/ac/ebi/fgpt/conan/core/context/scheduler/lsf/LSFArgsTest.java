@@ -47,7 +47,7 @@ public class LSFArgsTest {
 
         String test = args.toString();
 
-        String correct = "-J Job1 -q production -P ProjectRampart";
+        String correct = "-JJob1 -qproduction -PProjectRampart";
 
         assertTrue(test.equals(correct));
     }
@@ -67,7 +67,7 @@ public class LSFArgsTest {
 
         String test = args.toString();
 
-        String correct = "-J Job1 -q production -n 8 -P ProjectRampart -a openmpi -w ended(Job0) -Rrusage[mem=60000]span[ptile=8]";
+        String correct = "-JJob1 -qproduction -n8 -PProjectRampart -aopenmpi -w ended(Job0) -Rrusage[mem=60000]span[ptile=8]";
 
         assertTrue(test.equals(correct));
     }

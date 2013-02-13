@@ -17,10 +17,35 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.context.locality;
 
+import org.junit.Test;
+import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
+
+import static org.junit.Assert.assertTrue;
+
 /**
  * User: maplesod
  * Date: 13/02/13
  * Time: 12:04
  */
 public class RemoteTest {
+
+    // Let's not test this one just yet.
+    //@Test
+    public void testRemoteSession() throws InterruptedException, ProcessExecutionException {
+
+        ConnectionDetails connectionDetails = new ConnectionDetails("norwich", 22, "maplesod", "PASSWORD");
+
+        Remote remote = new Remote(connectionDetails);
+
+        if (!remote.establishConnection())
+            throw new ProcessExecutionException(-1, "Couldn't connect");
+
+        int exitCode = remote.execute("ls ~");
+
+        if (!remote.disconnect()) {
+            throw new ProcessExecutionException(-1, "Couldn't disconnect");
+        }
+
+        assertTrue(exitCode == 0);
+    }
 }

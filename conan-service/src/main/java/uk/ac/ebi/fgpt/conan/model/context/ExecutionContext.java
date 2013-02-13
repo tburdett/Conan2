@@ -31,4 +31,8 @@ public interface ExecutionContext {
     Scheduler getScheduler();
 
     boolean isForegroundJob();
+
+    void setForegroundJob(boolean isForegroundJob);
+
+    ExecutionContext copy();
 }

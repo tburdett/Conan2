@@ -55,24 +55,34 @@ public class DefaultExecutionContext implements ExecutionContext {
         this.foregroundJob = copy.isForegroundJob();
     }
 
+    @Override
     public Locality getLocality() {
         return locality;
     }
 
+    @Override
     public boolean usingScheduler() {
         return this.scheduler != null;
     }
 
+    @Override
     public Scheduler getScheduler() {
         return this.scheduler;
     }
 
+    @Override
     public boolean isForegroundJob() {
         return foregroundJob;
     }
 
+    @Override
     public void setForegroundJob(boolean foregroundJob) {
         this.foregroundJob = foregroundJob;
+    }
+
+    @Override
+    public ExecutionContext copy() {
+        return new DefaultExecutionContext(this);
     }
 
     public void setLocality(Locality locality) {
