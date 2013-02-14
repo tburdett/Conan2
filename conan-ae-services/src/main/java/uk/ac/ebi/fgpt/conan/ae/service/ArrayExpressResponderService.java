@@ -84,7 +84,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
               return true;
             }
 
-            // respond to ae1 loads that have finished afterload
+            // respond to ae1 loads that have finished scoring
 /*            if (task.getPipeline().getName().equalsIgnoreCase("AE1 Loading") ||
                     task.getPipeline().getName().equalsIgnoreCase("AE1 Loading with insert")) {
                 getLog().debug(
@@ -97,8 +97,8 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
             // respond to AE2/AE1 combined experiment loads at various states
             if (task.getPipeline().getName().equalsIgnoreCase("Experiment Loading (Combined AE2/Atlas)")) {
                 getLog().debug(
-                        "Task ID '" + task.getId() + "' requires response if last process was 'afterloading'...");
-                if (task.getLastProcess().getName().equals("afterloading")) {
+                        "Task ID '" + task.getId() + "' requires response if last process was 'scoring'...");
+                if (task.getLastProcess().getName().equals("scoring")) {
                     return true;
                 }
             }
@@ -168,10 +168,10 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                 }
             }
 
-            // respond to ae1 loads that have finished afterload
+            // respond to ae1 loads that have finished scoring
             /*if (task.getPipeline().getName().equalsIgnoreCase("AE1 Loading") ||
                     task.getPipeline().getName().equalsIgnoreCase("AE1 Loading with insert")) {
-                // notify if we've done afterload, and it didn't fail
+                // notify if we've done scoring, and it didn't fail
                 if (task.getCurrentState() != ConanTask.State.FAILED &&
                         task.getLastProcess().getName().equals("AE1 Afterload")) {
                     List<SubmitterDetails> details =
@@ -184,11 +184,11 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                 }
             }*/
 
-            // respond to ae1 loads that have finished afterload
+            // respond to ae1 loads that have finished scoring
             if (task.getPipeline().getName().equalsIgnoreCase("Experiment Loading (Combined AE2/Atlas)")) {
-                // notify if we've done afterload, and it didn't fail
+                // notify if we've done scoring, and it didn't fail
                 if (task.getCurrentState() != ConanTask.State.FAILED &&
-                        task.getLastProcess().getName().equals("afterloading")) {
+                        task.getLastProcess().getName().equals("scoring")) {
                     List<SubmitterDetails> details =
                             getAE2SubmitterDetailsDAO().getSubmitterDetailsByAccession(
                                     task.getName(), SubmitterDetails.ObjectType.EXPERIMENT);
