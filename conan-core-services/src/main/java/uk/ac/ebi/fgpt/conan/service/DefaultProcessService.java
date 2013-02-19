@@ -1,5 +1,7 @@
 package uk.ac.ebi.fgpt.conan.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import uk.ac.ebi.fgpt.conan.dao.ConanProcessDAO;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
@@ -17,23 +19,25 @@ import java.util.Collection;
  * @author Tony Burdett
  * @date 25-Nov-2010
  */
+@Service(value="conanProcessService")
 public class DefaultProcessService implements ConanProcessService {
-    private ConanProcessDAO processDAO;
 
-    public ConanProcessDAO getProcessDAO() {
-        return processDAO;
+    private ConanProcessDAO conanProcessDAO;
+
+    public ConanProcessDAO getConanProcessDAO() {
+        return conanProcessDAO;
     }
 
-    public void setProcessDAO(ConanProcessDAO processDAO) {
-        this.processDAO = processDAO;
+    public void setConanProcessDAO(ConanProcessDAO conanProcessDAO) {
+        this.conanProcessDAO = conanProcessDAO;
     }
 
     public Collection<ConanProcess> getAllAvailableProcesses() {
-        return getProcessDAO().getProcesses();
+        return getConanProcessDAO().getProcesses();
     }
 
     public ConanProcess getProcess(String processName) {
-        return getProcessDAO().getProcess(processName);
+        return getConanProcessDAO().getProcess(processName);
     }
 
     @Override

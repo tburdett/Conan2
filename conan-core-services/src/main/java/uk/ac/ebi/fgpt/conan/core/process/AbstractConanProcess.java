@@ -19,15 +19,19 @@ package uk.ac.ebi.fgpt.conan.core.process;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import uk.ac.ebi.fgpt.conan.core.context.DefaultExecutionContext;
+import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
+import uk.ac.ebi.fgpt.conan.model.context.ExternalProcessConfiguration;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.param.ProcessArgs;
 import uk.ac.ebi.fgpt.conan.model.param.ProcessParams;
-import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
-import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.service.ConanProcessService;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,10 +42,15 @@ import java.util.Map;
  * Date: 12/02/13
  * Time: 18:48
  */
+@Component
+@Scope("prototype")
 public abstract class AbstractConanProcess implements ConanProcess {
 
     @Autowired
     protected ConanProcessService conanProcessService;
+
+    @Autowired
+    protected ExternalProcessConfiguration externalProcessConfiguration;
 
     private ProcessArgs processArgs;
     private ProcessParams processParams;
@@ -60,6 +69,37 @@ public abstract class AbstractConanProcess implements ConanProcess {
         this.executable = executable;
         this.preCommands = new ArrayList<String>();
         this.postCommands = new ArrayList<String>();
+    }
+
+    public ConanProcessService getConanProcessService() {
+        return conanProcessService;
+    }
+
+    public void setConanProcessService(ConanProcessService conanProcessService) {
+        this.conanProcessService = conanProcessService;
+    }
+
+    public ExternalProcessConfiguration getExternalProcessConfiguration() {
+        return externalProcessConfiguration;
+    }
+
+    public void setExternalProcessConfiguration(ExternalProcessConfiguration externalProcessConfiguration) {
+        this.externalProcessConfiguration = externalProcessConfiguration;
+    }
+
+    /**
+     * Do nothing unless the externalProcessConfiguration is wired in.  The intention is that an external process
+     * configuration file is present and the file contains an entry that matches the name of this class then that entry
+     * is added as a pre command to this process.
+     */
+    protected String getExternalPreProcess() {
+
+        if (this.externalProcessConfiguration != null) {
+
+            return this.externalProcessConfiguration.getCommand(this.getName());
+        }
+
+        return null;
     }
 
     public ProcessArgs getProcessArgs() {
@@ -118,6 +158,12 @@ public abstract class AbstractConanProcess implements ConanProcess {
     public String getFullCommand() {
 
         List<String> commands = new ArrayList<String>();
+
+        String externalPreProcess = getExternalPreProcess();
+
+        if (externalPreProcess != null && !externalPreProcess.isEmpty()) {
+            commands.add(externalPreProcess);
+        }
 
         if (this.preCommands != null && !this.preCommands.isEmpty()) {
             commands.add(this.getPreCommand());
