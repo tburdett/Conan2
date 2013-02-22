@@ -90,4 +90,8 @@ public class DefaultExecutionContext implements ExecutionContext {
         this.locality = locality;
     }
 
+    public void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
+    }
+
 }
