@@ -24,6 +24,8 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="conan-core-services" />
+    <orderEntry type="module" module-name="conan-demo-processes" />
+    <orderEntry type="module" module-name="conan-core-services" />
     <orderEntry type="module" module-name="conan-service" />
     <orderEntry type="library" name="Maven: net.sourceforge.fluxion:fluxion-spi:1.0-alpha" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: log4j:log4j:1.2.14" level="project" />

@@ -37,6 +37,10 @@ public class Remote implements Locality {
     private Session session;
     private Channel channel;
 
+    public Remote() {
+        this(null);
+    }
+
     public Remote(ConnectionDetails connectionDetails) {
         this.setConnectionDetails(connectionDetails);
     }

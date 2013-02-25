@@ -17,8 +17,30 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.context.locality;
 
-public enum LocalityType {
+import uk.ac.ebi.fgpt.conan.model.context.Locality;
 
-    LOCAL,
-    REMOTE
+public enum LocalityFactory {
+
+    LOCAL {
+        @Override
+        public Locality create() {
+            return new Local();
+        }
+    },
+    REMOTE {
+        @Override
+        public Locality create() {
+            return new Remote();
+        }
+    };
+
+    public abstract Locality create();
+
+    public static Locality createLocality() {
+        return LOCAL.create();
+    }
+
+    public static Locality createLocality(String locality) {
+        return LocalityFactory.valueOf(locality).create();
+    }
 }

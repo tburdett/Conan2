@@ -21,6 +21,7 @@ import uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf.LSFArgs;
 import uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf.LSFScheduler;
 import uk.ac.ebi.fgpt.conan.core.context.scheduler.pbs.PBSArgs;
 import uk.ac.ebi.fgpt.conan.core.context.scheduler.pbs.PBSScheduler;
+import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
 
 public enum SchedulerFactory {
 
@@ -50,4 +51,12 @@ public enum SchedulerFactory {
     public abstract AbstractScheduler create();
 
     public abstract AbstractSchedulerArgs createArgs();
+
+    public static Scheduler createScheduler() {
+        return LSF.create();
+    }
+
+    public static Scheduler createScheduler(String scheduler) {
+        return SchedulerFactory.valueOf(scheduler).create();
+    }
 }
