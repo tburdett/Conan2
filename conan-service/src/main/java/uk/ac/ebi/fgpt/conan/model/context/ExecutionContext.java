@@ -30,6 +30,8 @@ public interface ExecutionContext {
 
     Scheduler getScheduler();
 
+    ExternalProcessConfiguration getExternalProcessConfiguration();
+
     boolean isForegroundJob();
 
     void setForegroundJob(boolean isForegroundJob);

@@ -20,6 +20,7 @@ package uk.ac.ebi.fgpt.conan.core.context;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.fgpt.conan.core.context.locality.Local;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
+import uk.ac.ebi.fgpt.conan.model.context.ExternalProcessConfiguration;
 import uk.ac.ebi.fgpt.conan.model.context.Locality;
 import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
 
@@ -27,6 +28,7 @@ public class DefaultExecutionContext implements ExecutionContext {
 
     private Locality locality;
     private Scheduler scheduler;
+    private ExternalProcessConfiguration externalProcessConfiguration;
     private boolean foregroundJob;
 
     public DefaultExecutionContext() {
@@ -39,13 +41,14 @@ public class DefaultExecutionContext implements ExecutionContext {
 
     public DefaultExecutionContext(Scheduler scheduler, boolean foregroundJob) {
 
-        this(new Local(), scheduler, foregroundJob);
+        this(new Local(), scheduler, null, foregroundJob);
     }
 
-    public DefaultExecutionContext(Locality locality, Scheduler scheduler, boolean foregroundJob) {
+    public DefaultExecutionContext(Locality locality, Scheduler scheduler, ExternalProcessConfiguration externalProcessConfiguration, boolean foregroundJob) {
 
         this.locality = locality;
         this.scheduler = scheduler;
+        this.externalProcessConfiguration = externalProcessConfiguration;
         this.foregroundJob = foregroundJob;
     }
 
@@ -53,6 +56,7 @@ public class DefaultExecutionContext implements ExecutionContext {
 
         this.locality = copy.getLocality().copy();
         this.scheduler = copy.usingScheduler() ? copy.getScheduler().copy() : null;
+        this.externalProcessConfiguration = copy.getExternalProcessConfiguration(); //TODO deep copy this.
         this.foregroundJob = copy.isForegroundJob();
     }
 
@@ -82,6 +86,11 @@ public class DefaultExecutionContext implements ExecutionContext {
     }
 
     @Override
+    public ExternalProcessConfiguration getExternalProcessConfiguration() {
+        return externalProcessConfiguration;
+    }
+
+    @Override
     public ExecutionContext copy() {
         return new DefaultExecutionContext(this);
     }
@@ -94,4 +103,7 @@ public class DefaultExecutionContext implements ExecutionContext {
         this.scheduler = scheduler;
     }
 
+    public void setExternalProcessConfiguration(ExternalProcessConfiguration externalProcessConfiguration) {
+        this.externalProcessConfiguration = externalProcessConfiguration;
+    }
 }

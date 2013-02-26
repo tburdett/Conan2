@@ -49,8 +49,6 @@ public abstract class AbstractConanProcess implements ConanProcess {
     @Autowired
     protected ConanProcessService conanProcessService;
 
-    @Autowired
-    protected ExternalProcessConfiguration externalProcessConfiguration;
 
     private ProcessArgs processArgs;
     private ProcessParams processParams;
@@ -77,29 +75,6 @@ public abstract class AbstractConanProcess implements ConanProcess {
 
     public void setConanProcessService(ConanProcessService conanProcessService) {
         this.conanProcessService = conanProcessService;
-    }
-
-    public ExternalProcessConfiguration getExternalProcessConfiguration() {
-        return externalProcessConfiguration;
-    }
-
-    public void setExternalProcessConfiguration(ExternalProcessConfiguration externalProcessConfiguration) {
-        this.externalProcessConfiguration = externalProcessConfiguration;
-    }
-
-    /**
-     * Do nothing unless the externalProcessConfiguration is wired in.  The intention is that an external process
-     * configuration file is present and the file contains an entry that matches the name of this class then that entry
-     * is added as a pre command to this process.
-     */
-    protected String getExternalPreProcess() {
-
-        if (this.externalProcessConfiguration != null) {
-
-            return this.externalProcessConfiguration.getCommand(this.getName());
-        }
-
-        return null;
     }
 
     public ProcessArgs getProcessArgs() {
@@ -158,12 +133,6 @@ public abstract class AbstractConanProcess implements ConanProcess {
     public String getFullCommand() {
 
         List<String> commands = new ArrayList<String>();
-
-        String externalPreProcess = getExternalPreProcess();
-
-        if (externalPreProcess != null && !externalPreProcess.isEmpty()) {
-            commands.add(externalPreProcess);
-        }
 
         if (this.preCommands != null && !this.preCommands.isEmpty()) {
             commands.add(this.getPreCommand());
@@ -251,7 +220,8 @@ public abstract class AbstractConanProcess implements ConanProcess {
     public boolean execute(Map<ConanParameter, String> parameters, ExecutionContext executionContext)
             throws ProcessExecutionException, InterruptedException {
 
-        this.processArgs.setFromArgMap(parameters);
+        // Ignore for the time being... think the original way of setting arguments doesn't make sense.
+        //this.processArgs.setFromArgMap(parameters);
 
         return this.execute(executionContext);
     }

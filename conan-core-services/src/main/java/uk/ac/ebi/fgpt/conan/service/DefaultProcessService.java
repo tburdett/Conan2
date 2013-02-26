@@ -44,6 +44,14 @@ public class DefaultProcessService implements ConanProcessService {
     public int execute(ConanProcess process, ExecutionContext executionContext)
             throws InterruptedException, ProcessExecutionException {
 
+        if (executionContext.getExternalProcessConfiguration() != null) {
+            String extPreCommand = executionContext.getExternalProcessConfiguration().getCommand(process.getName());
+
+            if (extPreCommand != null && !extPreCommand.isEmpty()) {
+                process.addPreCommand(extPreCommand);
+            }
+        }
+
         return this.execute(process.getFullCommand(), executionContext);
     }
 

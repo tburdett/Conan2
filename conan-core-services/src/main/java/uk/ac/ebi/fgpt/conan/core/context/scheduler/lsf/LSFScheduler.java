@@ -24,6 +24,7 @@ import uk.ac.ebi.fgpt.conan.model.context.ExitStatus;
 import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
 import uk.ac.ebi.fgpt.conan.model.context.WaitCondition;
 import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
+import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 import uk.ac.ebi.fgpt.conan.util.StringJoiner;
 
 import java.io.File;
@@ -51,13 +52,15 @@ public class LSFScheduler extends AbstractScheduler {
     public String createCommand(String internalCommand) {
 
         // get email address to use as backup in case proc fails
-        //String backupEmail = ConanProperties.getProperty("lsf.backup.email");
+        String backupEmail = ConanProperties.getProperty("scheduler.backup.email");
 
         // Create command to execute
         StringJoiner sj = new StringJoiner(" ");
         sj.add(this.getSubmitCommand());
         sj.add(this.getArgs() != null, "", this.getArgs().toString());
-        //sj.add("-u " + backupEmail);
+        if (backupEmail != null && !backupEmail.isEmpty()) {
+            sj.add("-u " + backupEmail);
+        }
         sj.add("\"" + internalCommand + " 2>&1\"");
 
         String cmd = sj.toString();
