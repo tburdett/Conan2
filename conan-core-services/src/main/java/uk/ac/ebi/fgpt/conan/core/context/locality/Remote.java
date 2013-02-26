@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.model.context.Locality;
 import uk.ac.ebi.fgpt.conan.model.context.WaitCondition;
 import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
+import uk.ac.ebi.fgpt.conan.model.monitor.ProcessListener;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.io.*;
@@ -114,7 +115,7 @@ public class Remote implements Locality {
     }
 
     @Override
-    public int monitoredExecute(String command, ProcessAdapter processAdapter) {
+    public int monitoredExecute(String command, ProcessAdapter processAdapter, ProcessListener processListener) {
         throw new UnsupportedOperationException("Can't monitor progress on a remote session");
     }
 

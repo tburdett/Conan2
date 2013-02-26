@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.fgpt.conan.core.process.monitor.InvocationTrackingProcessListener;
 import uk.ac.ebi.fgpt.conan.dao.ConanProcessDAO;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
@@ -65,6 +66,11 @@ public class DefaultProcessService implements ConanProcessService {
 
         Locality locality = executionContext.getLocality();
 
+        if (locality == null) {
+            log.warn("No locality specified in execution context.  Will not execute command: " + command);
+            return 0;
+        }
+
         if (!locality.establishConnection()) {
             throw new ProcessExecutionException(-1, "Could not establish connection to the terminal.  Command " +
                     command + " will not be submitted.");
@@ -80,7 +86,7 @@ public class DefaultProcessService implements ConanProcessService {
 
             if (executionContext.isForegroundJob()) {
                 log.debug("Preparing to run scheduled job in foreground using monitors.");
-                exitCode = locality.monitoredExecute(commandToExecute, scheduler.createProcessAdapter());
+                exitCode = locality.monitoredExecute(commandToExecute, scheduler.createProcessAdapter(), new InvocationTrackingProcessListener());
             } else {
                 log.debug("Preparing to run scheduled job in background.");
                 locality.dispatch(commandToExecute);
@@ -90,7 +96,7 @@ public class DefaultProcessService implements ConanProcessService {
 
             if (executionContext.isForegroundJob()) {
                 log.debug("Running job in foreground.");
-                locality.execute(command);
+                exitCode = locality.execute(command);
             } else {
                 throw new UnsupportedOperationException("Can't dispatch simple commands yet");
             }
@@ -118,6 +124,6 @@ public class DefaultProcessService implements ConanProcessService {
 
         ProcessAdapter processAdapter = scheduler.createProcessAdapter();
 
-        return executionContext.getLocality().monitoredExecute(waitCommand, processAdapter);
+        return executionContext.getLocality().monitoredExecute(waitCommand, processAdapter, new InvocationTrackingProcessListener());
     }
 }

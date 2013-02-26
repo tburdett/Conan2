@@ -137,8 +137,13 @@ public class ConanProperties {
     public void loadProperties() {
         this.properties = new Properties();
         try {
-            properties.load(new BufferedInputStream(new FileInputStream(conanPropertiesFile)));
-            getLog().info("Loaded Conan properties from " + conanPropertiesFile.getAbsolutePath());
+            if (conanPropertiesFile == null || !conanPropertiesFile.exists()) {
+                log.warn("No conan properties file could be found.  Using default conan properties.");
+            }
+            else {
+                properties.load(new BufferedInputStream(new FileInputStream(conanPropertiesFile)));
+                getLog().info("Loaded Conan properties from " + conanPropertiesFile.getAbsolutePath());
+            }
         } catch (IOException e) {
             getLog().error("Could not read from file " + conanPropertiesFile.getAbsolutePath() + ": " +
                     "properties will not be loaded");

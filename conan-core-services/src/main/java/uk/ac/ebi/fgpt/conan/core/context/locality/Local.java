@@ -23,6 +23,7 @@ import uk.ac.ebi.fgpt.conan.core.process.monitor.InvocationTrackingProcessListen
 import uk.ac.ebi.fgpt.conan.model.context.Locality;
 import uk.ac.ebi.fgpt.conan.model.context.WaitCondition;
 import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
+import uk.ac.ebi.fgpt.conan.model.monitor.ProcessListener;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 import uk.ac.ebi.fgpt.conan.utils.CommandExecutionException;
 import uk.ac.ebi.fgpt.conan.utils.ProcessRunner;
@@ -79,7 +80,7 @@ public class Local implements Locality {
     }
 
     @Override
-    public int monitoredExecute(String command, ProcessAdapter processAdapter) throws InterruptedException, ProcessExecutionException {
+    public int monitoredExecute(String command, ProcessAdapter processAdapter, ProcessListener processListener) throws InterruptedException, ProcessExecutionException {
 
         //boolean dispatched = false;
         //boolean recoveryMode = processAdapter.inRecoveryMode();
@@ -99,7 +100,7 @@ public class Local implements Locality {
                 this.execute(command);
 
                 // Wait for the proc to complete by using the proc monitor
-                return this.waitFor(processAdapter);
+                return this.waitFor(processAdapter, processListener);
             //}
         } finally {
             // Remove the monitor, even if we are in recovery mode or there was an error.
@@ -170,17 +171,16 @@ public class Local implements Locality {
      * starting another job.  Once the job has completed the exit value is returned from this method, otherwise an exception
      * is thrown.
      *
-     * @param adapter The ProcessAdapter which monitors an output file, which contains details of the progress of the scheduled
-     *                job.
+     * @param processAdapter The ProcessAdapter which monitors process progress job.
+     * @param processListener The ProcessListener which maintains process state.
      * @return An exit value describing the completion status of the job.
      * @throws uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException
      *
      * @throws InterruptedException
      */
-    protected int waitFor(ProcessAdapter adapter) throws ProcessExecutionException, InterruptedException {
+    protected int waitFor(ProcessAdapter processAdapter, ProcessListener processListener) throws ProcessExecutionException, InterruptedException {
 
-        InvocationTrackingProcessListener listener = new InvocationTrackingProcessListener();
-        adapter.addTaskListener(listener);
+        processAdapter.addTaskListener(processListener);
 
         // proc exit value, initialise to -1
         int exitValue = -1;
@@ -188,15 +188,15 @@ public class Local implements Locality {
         // proc monitoring
         try {
             log.debug("Monitoring proc, waiting for completion");
-            exitValue = listener.waitFor();
+            exitValue = processListener.waitFor();
             log.debug("Process completed with exit value " + exitValue);
 
             if (exitValue == 0) {
                 return exitValue;
             } else {
                 ProcessExecutionException pex = new ProcessExecutionException(exitValue);
-                pex.setProcessOutput(adapter.getProcessOutput());
-                pex.setProcessExecutionHost(adapter.getProcessExecutionHost());
+                pex.setProcessOutput(processAdapter.getProcessOutput());
+                pex.setProcessExecutionHost(processAdapter.getProcessExecutionHost());
                 throw pex;
             }
         } finally {

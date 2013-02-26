@@ -18,6 +18,7 @@
 package uk.ac.ebi.fgpt.conan.model.context;
 
 import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
+import uk.ac.ebi.fgpt.conan.model.monitor.ProcessListener;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 public interface Locality {
@@ -49,12 +50,13 @@ public interface Locality {
      *
      * @param command        The command to execute.
      * @param processAdapter The {@link ProcessAdapter} which should monitor Task progress
+     * @param processListener The {@link ProcessListener} which should monitor Task completion
      * @return The exitCode from the proc that was executed
      * @throws InterruptedException
      * @throws uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException
      *
      */
-    int monitoredExecute(String command, ProcessAdapter processAdapter)
+    int monitoredExecute(String command, ProcessAdapter processAdapter, ProcessListener processListener)
             throws InterruptedException, ProcessExecutionException;
 
     /**
