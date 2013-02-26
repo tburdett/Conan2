@@ -117,7 +117,7 @@ public class Local implements Locality {
         String[] output;
 
         try {
-            log.debug("Issuing command: [" + command + "]");
+            log.info("Issuing command: [" + command + "]");
             ProcessRunner runner = new ProcessRunner();
             runner.redirectStderr(true);
             output = runner.runCommmand(command);
