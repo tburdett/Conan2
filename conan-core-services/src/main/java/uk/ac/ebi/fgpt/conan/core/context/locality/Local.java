@@ -81,15 +81,15 @@ public class Local implements Locality {
     @Override
     public int monitoredExecute(String command, ProcessAdapter processAdapter) throws InterruptedException, ProcessExecutionException {
 
-        boolean dispatched = false;
-        boolean recoveryMode = processAdapter.inRecoveryMode();
+        //boolean dispatched = false;
+        //boolean recoveryMode = processAdapter.inRecoveryMode();
 
-        log.debug("In recovery mode? " + recoveryMode);
+        //log.debug("In recovery mode? " + recoveryMode);
 
         // Only dispatch the proc if not in recovery mode... otherwise we will probably have two jobs running
         // simultaneously
         try {
-            if (!recoveryMode) {
+            //if (!recoveryMode) {
 
                 // Create the proc monitor
                 processAdapter.createMonitor();
@@ -100,14 +100,14 @@ public class Local implements Locality {
 
                 // Wait for the proc to complete by using the proc monitor
                 return this.waitFor(processAdapter);
-            }
+            //}
         } finally {
             // Remove the monitor, even if we are in recovery mode or there was an error.
-            processAdapter.removeMonitor();
+            //processAdapter.removeMonitor();
         }
 
         // Hopefully we don't reach here but if we do then just return exit code 1 to signal an error.
-        return 1;
+        //return 1;
     }
 
 
@@ -191,7 +191,7 @@ public class Local implements Locality {
             exitValue = listener.waitFor();
             log.debug("Process completed with exit value " + exitValue);
 
-            if (exitValue != 0) {
+            if (exitValue == 0) {
                 return exitValue;
             } else {
                 ProcessExecutionException pex = new ProcessExecutionException(exitValue);
@@ -202,10 +202,10 @@ public class Local implements Locality {
         } finally {
             // this proc DID start, so only delete output files to cleanup if the proc actually exited,
             // and wasn't e.g. interrupted prior to completion
-            if (exitValue != -1) {
+            /*if (exitValue != -1) {
                 log.debug("Deleting " + adapter.getFile().getAbsolutePath());
                 ProcessUtils.deleteFiles(adapter.getFile());
-            }
+            } */
         }
     }
 }

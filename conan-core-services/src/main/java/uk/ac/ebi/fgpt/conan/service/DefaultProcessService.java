@@ -1,5 +1,7 @@
 package uk.ac.ebi.fgpt.conan.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.fgpt.conan.dao.ConanProcessDAO;
@@ -21,6 +23,9 @@ import java.util.Collection;
  */
 @Service(value="conanProcessService")
 public class DefaultProcessService implements ConanProcessService {
+
+    private static Logger log = LoggerFactory.getLogger(DefaultProcessService.class);
+
 
     private ConanProcessDAO conanProcessDAO;
 
@@ -74,15 +79,17 @@ public class DefaultProcessService implements ConanProcessService {
             String commandToExecute = scheduler.createCommand(command);
 
             if (executionContext.isForegroundJob()) {
-
+                log.debug("Preparing to run scheduled job in foreground using monitors.");
                 exitCode = locality.monitoredExecute(commandToExecute, scheduler.createProcessAdapter());
             } else {
-                locality.dispatch(command);
+                log.debug("Preparing to run scheduled job in background.");
+                locality.dispatch(commandToExecute);
                 exitCode = 0; // Doesn't return an exit code, so if there were no exceptions assume everything went well
             }
         } else {
 
             if (executionContext.isForegroundJob()) {
+                log.debug("Running job in foreground.");
                 locality.execute(command);
             } else {
                 throw new UnsupportedOperationException("Can't dispatch simple commands yet");
