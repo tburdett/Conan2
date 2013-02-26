@@ -71,7 +71,7 @@ public class LSFWaitCondition implements WaitCondition {
 
     @Override
     public String getCommand() {
-        return "-w " + this.exitStatus.getCommand() + "(" + this.condition + ")";
+        return "-w \"" + this.exitStatus.getCommand() + "(" + this.condition + ")\"";
     }
 
     @Override
