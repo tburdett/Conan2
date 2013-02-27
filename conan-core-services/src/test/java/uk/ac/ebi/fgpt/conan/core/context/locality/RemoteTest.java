@@ -29,7 +29,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class RemoteTest {
 
-    // Let's not test this one just yet.
+    // Let's not test this one automatically just yet.
     //@Test
     public void testRemoteSession() throws InterruptedException, ProcessExecutionException {
 

@@ -48,7 +48,7 @@ public class LSFSchedulerTest {
     public void createWaitCommandTest() {
         String command = this.lsfScheduler.createWaitCommand(new LSFWaitCondition(LSFExitStatusType.DONE, "WAIT"));
 
-        assertTrue(command.equals("bsub -w \"done(WAIT)\""));
+        assertTrue(command.equals("bsub -w \"done(WAIT)\" \"sleep 1 2>&1\""));
     }
 
     @Test

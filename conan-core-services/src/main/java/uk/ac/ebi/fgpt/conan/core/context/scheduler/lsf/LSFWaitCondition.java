@@ -71,12 +71,12 @@ public class LSFWaitCondition implements WaitCondition {
 
     @Override
     public String getCommand() {
-        return "-w \"" + this.exitStatus.getCommand() + "(" + this.condition + ")\"";
+        return this.toString() + " \"sleep 10 2>&1\"";
     }
 
     @Override
     public String toString() {
-        return getCommand();
+        return "-w \"" + this.exitStatus.getCommand() + "(" + this.condition + ")\"";
     }
 
 }

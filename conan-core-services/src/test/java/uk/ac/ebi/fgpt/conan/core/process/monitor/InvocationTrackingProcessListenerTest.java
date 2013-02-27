@@ -74,7 +74,8 @@ public class InvocationTrackingProcessListenerTest {
 
         this.processListener.processComplete(processEvent);
 
-        Thread.sleep(10);
+        // Give the main thread a little time to register the update of the success flag
+        Thread.sleep(1);
 
         assertTrue(success);
     }

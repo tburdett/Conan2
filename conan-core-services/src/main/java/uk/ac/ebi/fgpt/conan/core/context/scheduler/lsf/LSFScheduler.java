@@ -71,11 +71,19 @@ public class LSFScheduler extends AbstractScheduler {
     @Override
     public String createWaitCommand(WaitCondition waitCondition) {
 
-        StringJoiner sb = new StringJoiner(" ");
-        sb.add(this.getSubmitCommand());
-        sb.add(waitCondition.getCommand());
+        // get email address to use as backup in case proc fails
+        String backupEmail = ConanProperties.getProperty("scheduler.backup.email");
 
-        return sb.toString();
+        StringJoiner sj = new StringJoiner(" ");
+        sj.add(this.getSubmitCommand());
+        if (backupEmail != null && !backupEmail.isEmpty()) {
+            sj.add("-u " + backupEmail);
+        }
+        sj.add("-oo", this.getArgs().getMonitorFile());
+        sj.add(waitCondition.toString());
+        sj.add("\"sleep 1 2>&1\"");
+
+        return sj.toString();
     }
 
     @Override
