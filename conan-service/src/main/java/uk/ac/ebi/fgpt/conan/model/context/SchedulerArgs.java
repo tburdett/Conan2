@@ -1,56 +1,91 @@
-/**
- * RAMPART - Robust Automatic MultiPle AssembleR Toolkit
- * Copyright (C) 2013  Daniel Mapleson - TGAC
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- **/
 package uk.ac.ebi.fgpt.conan.model.context;
 
 import java.io.File;
 
-/**
- * This is just a marker interface.  All we really need implemented is the toString method.
- *
- * @author maplesod
- */
-public interface SchedulerArgs {
+public abstract class SchedulerArgs {
 
-    SchedulerArgs copy();
+    private String jobName;
+    private String queueName;
+    private int threads;
+    private int memoryMB;
+    private WaitCondition waitCondition;
+    private File monitorFile;
+    private int monitorInterval;
 
-    int getMemoryMB();
+    protected SchedulerArgs() {
+        this.jobName = "";
+        this.queueName = "";
+        this.threads = 0;
+        this.memoryMB = 0;
+        this.monitorFile = null;
+        this.monitorInterval = 15;
+    }
 
-    void setMemoryMB(int memoryMB);
+    protected SchedulerArgs(SchedulerArgs args) {
+        this.jobName = args.getJobName();
+        this.queueName = args.getQueueName();
+        this.threads = args.getThreads();
+        this.memoryMB = args.getMemoryMB();
+        this.waitCondition = args.getWaitCondition();
+        this.monitorFile = args.getMonitorFile();
+        this.monitorInterval = args.getMonitorInterval();
+    }
 
-    int getThreads();
+    public String getJobName() {
+        return jobName;
+    }
 
-    void setThreads(int threads);
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
+    }
 
-    String getJobName();
+    public String getQueueName() {
+        return queueName;
+    }
 
-    void setJobName(String jobName);
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
+    }
 
-    String getQueueName();
+    public int getThreads() {
+        return threads;
+    }
 
-    void setQueueName(String queueName);
+    public void setThreads(int threads) {
+        this.threads = threads;
+    }
 
-    File getMonitorFile();
+    public int getMemoryMB() {
+        return memoryMB;
+    }
 
-    void setMonitorFile(File monitorFile);
+    public void setMemoryMB(int memoryMB) {
+        this.memoryMB = memoryMB;
+    }
 
-    boolean isBackgroundTask();
+    public WaitCondition getWaitCondition() {
+        return waitCondition;
+    }
 
-    void setBackgroundTask(boolean state);
+    public void setWaitCondition(WaitCondition waitCondition) {
+        this.waitCondition = waitCondition;
+    }
 
-    int getMonitorInterval();
+    public void setMonitorFile(File monitorFile) {
+        this.monitorFile = monitorFile;
+    }
+
+    public File getMonitorFile() {
+        return this.monitorFile;
+    }
+
+    public int getMonitorInterval() {
+        return monitorInterval;
+    }
+
+    public void setMonitorInterval(int monitorInterval) {
+        this.monitorInterval = monitorInterval;
+    }
+
+    public abstract SchedulerArgs copy();
 }

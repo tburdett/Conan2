@@ -30,7 +30,7 @@ public abstract class AbstractScheduler implements Scheduler {
     private String submitCommand;
     private SchedulerArgs args;
 
-    protected AbstractScheduler(String submitCommand, AbstractSchedulerArgs args) {
+    protected AbstractScheduler(String submitCommand, SchedulerArgs args) {
         this.submitCommand = submitCommand;
         this.args = args;
     }

@@ -24,8 +24,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="conan-core-services" />
-    <orderEntry type="module" module-name="conan-demo-processes" />
-    <orderEntry type="module" module-name="conan-core-services" />
     <orderEntry type="module" module-name="conan-service" />
     <orderEntry type="library" name="Maven: net.sourceforge.fluxion:fluxion-spi:1.0-alpha" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: log4j:log4j:1.2.14" level="project" />
@@ -51,6 +49,8 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-tx:3.0.3.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-jdbc:3.0.3.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: com.jcraft:jsch:0.1.49" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.6" level="project" />
+    <orderEntry type="library" name="Maven: org.mockito:mockito-all:1.8.4" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-webmvc:3.0.3.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-web:3.0.3.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: commons-fileupload:commons-fileupload:1.2.2" level="project" />
@@ -65,7 +65,6 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: javax.servlet:servlet-api:2.5" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: uk.ac.ebi.fgpt:jndi-file-factory:1.0" level="project" />
     <orderEntry type="module" module-name="conan-demo-processes" />
-    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.6" level="project" />
   </component>
 </module>
 

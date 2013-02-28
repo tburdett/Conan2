@@ -22,6 +22,7 @@ import uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf.LSFScheduler;
 import uk.ac.ebi.fgpt.conan.core.context.scheduler.pbs.PBSArgs;
 import uk.ac.ebi.fgpt.conan.core.context.scheduler.pbs.PBSScheduler;
 import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
+import uk.ac.ebi.fgpt.conan.model.context.SchedulerArgs;
 
 public enum SchedulerFactory {
 
@@ -32,7 +33,7 @@ public enum SchedulerFactory {
         }
 
         @Override
-        public AbstractSchedulerArgs createArgs() {
+        public SchedulerArgs createArgs() {
             return new LSFArgs();
         }
     },
@@ -43,14 +44,14 @@ public enum SchedulerFactory {
         }
 
         @Override
-        public AbstractSchedulerArgs createArgs() {
+        public SchedulerArgs createArgs() {
             return new PBSArgs();
         }
     };
 
     public abstract AbstractScheduler create();
 
-    public abstract AbstractSchedulerArgs createArgs();
+    public abstract SchedulerArgs createArgs();
 
     public static Scheduler createScheduler() {
         return LSF.create();

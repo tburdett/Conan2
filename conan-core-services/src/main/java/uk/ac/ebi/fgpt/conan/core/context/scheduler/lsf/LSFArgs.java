@@ -17,15 +17,13 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf;
 
-import uk.ac.ebi.fgpt.conan.core.context.scheduler.AbstractSchedulerArgs;
 import uk.ac.ebi.fgpt.conan.model.context.SchedulerArgs;
 import uk.ac.ebi.fgpt.conan.util.StringJoiner;
 
 
-public class LSFArgs extends AbstractSchedulerArgs {
+public class LSFArgs extends SchedulerArgs {
 
     private String projectName;
-    private LSFWaitCondition waitCondition;
     private boolean openmpi;
     private String extraLsfOptions;
 
@@ -33,7 +31,6 @@ public class LSFArgs extends AbstractSchedulerArgs {
     public LSFArgs() {
         super();
         this.projectName = "";
-        this.waitCondition = null;
         this.openmpi = false;
         this.extraLsfOptions = "";
     }
@@ -41,7 +38,6 @@ public class LSFArgs extends AbstractSchedulerArgs {
     public LSFArgs(LSFArgs args) {
         super(args);
         this.projectName = args.getProjectName();
-        this.waitCondition = args.getWaitCondition();
         this.openmpi = args.isOpenmpi();
         this.extraLsfOptions = args.getExtraLsfOptions();
     }
@@ -52,14 +48,6 @@ public class LSFArgs extends AbstractSchedulerArgs {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
-    }
-
-    public LSFWaitCondition getWaitCondition() {
-        return waitCondition;
-    }
-
-    public void setWaitCondition(LSFWaitCondition waitCondition) {
-        this.waitCondition = waitCondition;
     }
 
     public String getExtraLsfOptions() {
@@ -85,17 +73,15 @@ public class LSFArgs extends AbstractSchedulerArgs {
 
     protected String createSimpleOptions() {
 
-        final int threads = this.getThreads();
-
         StringJoiner joiner = new StringJoiner(" ");
 
         joiner.add("-J", this.getJobName());
         joiner.add("-q", this.getQueueName());
         joiner.add("-oo", this.getMonitorFile());
-        joiner.add(threads > 1, "-n", String.valueOf(threads));
+        joiner.add(this.getWaitCondition());
+        joiner.add(this.getThreads() > 1, "-n", String.valueOf(this.getThreads()));
         joiner.add("-P", this.projectName);
         joiner.add(this.openmpi, "-a", "openmpi");
-        joiner.add(this.waitCondition);
         joiner.add(this.extraLsfOptions);
 
         return joiner.toString();

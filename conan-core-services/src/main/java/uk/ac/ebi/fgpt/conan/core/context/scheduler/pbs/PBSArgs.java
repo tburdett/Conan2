@@ -17,10 +17,9 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.context.scheduler.pbs;
 
-import uk.ac.ebi.fgpt.conan.core.context.scheduler.AbstractSchedulerArgs;
 import uk.ac.ebi.fgpt.conan.model.context.SchedulerArgs;
 
-public class PBSArgs extends AbstractSchedulerArgs {
+public class PBSArgs extends SchedulerArgs {
 
     public PBSArgs() {
         super();
