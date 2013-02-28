@@ -33,7 +33,7 @@ public class FilePair {
     }
 
     public String toString() {
-        return this.file1.getPath() + " " + this.file2.getPath();
+        return this.file1.getAbsolutePath() + " " + this.file2.getAbsolutePath();
     }
 
 }
