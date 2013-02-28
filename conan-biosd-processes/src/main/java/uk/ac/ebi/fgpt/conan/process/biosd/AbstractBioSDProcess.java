@@ -22,26 +22,83 @@ public abstract class AbstractBioSDProcess implements ConanProcess {
     
 	protected final Collection<ConanParameter> parameters;
 	protected final SampleTabAccessionParameter accessionParameter;
-	
-    private Logger log = LoggerFactory.getLogger(getClass());
 
     //make sure this is kept in sync with uk.ac.ebi.fgpt.sampletab.utils.SampleTabUtils.getPathPrefix
-    public static String getPathPrefix(SampleTabAccessionParameter submissionId){
-		if (submissionId.getAccession().startsWith("GMS-")) return "imsr";
-		else if (submissionId.getAccession().startsWith("GAE-")) return "ae";
-        else if (submissionId.getAccession().startsWith("GPR-")) return "pride";
-        else if (submissionId.getAccession().startsWith("GVA-")) return "dgva";
-        else if (submissionId.getAccession().startsWith("GCR-")) return "coriell";
-        else if (submissionId.getAccession().startsWith("GEN-")) return "sra"; //ena sra
-        else if (submissionId.getAccession().startsWith("GEM-")) {
-            File targetfile = new File("GEM", submissionId.getAccession().substring(0,7));
-            return targetfile.getPath();
+    public static String getPathPrefix(SampleTabAccessionParameter submissionParameter) {
+        return getPathPrefixFile(submissionParameter).getPath();
+    }
+
+    //make sure this is kept in sync with uk.ac.ebi.fgpt.sampletab.utils.SampleTabUtils.getPathPrefix
+    public static File getPathPrefixFile(SampleTabAccessionParameter submissionParameter) {
+        String submissionID = submissionParameter.getAccession();
+        if (submissionID.startsWith("GMS-")) { 
+            return new File("imsr", submissionID);
+        } else if (submissionID.startsWith("GAE-")) {
+            //split by pipeline
+            String pipe = submissionID.split("-")[1];
+            String ident = submissionID.split("-")[2];
+            File targetfile = new File("ae", "GAE-"+pipe);
+            int i = 7;
+            int groupsize = 3;
+            while (i < ident.length()){
+                targetfile = new File(targetfile, submissionID);
+                i += groupsize;   
+            }
+            //return targetfile.getPath();
+            return new File("ae", submissionID);
         }
-        else if (submissionId.getAccession().startsWith("GSB-")) return "GSB"; //direct submission
-        else if (submissionId.getAccession().equals("GEN")) return "encode";
-        else if (submissionId.getAccession().equals("G1K")) return "g1k";
-        else if (submissionId.getAccession().equals("GHM")) return "hapmap";
-		else throw new IllegalArgumentException("Unable to get path prefix for "+submissionId.getAccession());
+        else if (submissionID.startsWith("GPR-")) {
+            return new File("pride", submissionID);
+        } else if (submissionID.startsWith("GVA-")) { 
+            return new File("dgva", submissionID);
+        } else if (submissionID.startsWith("GCR-")) { 
+            return new File("coriell", submissionID);
+        } else if (submissionID.startsWith("GEN-")) { 
+            return new File("sra", submissionID);
+        } else if (submissionID.startsWith("GEM-")) {
+            //EMBLbank
+            File targetfile = new File("GEM");
+            int i = 7;
+            int groupsize = 3;
+            while (i < submissionID.length()){
+                targetfile = new File(targetfile, submissionID.substring(0,i));
+                i += groupsize;   
+            }
+            return new File(targetfile, submissionID);
+        } else if (submissionID.startsWith("GNC-")) {
+            //NCBI biosamples
+            File targetfile = new File("GNC");
+            int i = 7;
+            int groupsize = 3;
+            while (i < submissionID.length()){
+                targetfile = new File(targetfile, submissionID.substring(0,i));
+                i += groupsize;   
+            }
+            return new File(targetfile, submissionID);
+        }  else if (submissionID.startsWith("GCM-")) {
+            //COSMIC
+            File targetfile = new File("GCM");
+            int i = 7;
+            int groupsize = 3;
+            while (i < submissionID.length()){
+                targetfile = new File(targetfile, submissionID.substring(0,i));
+                i += groupsize;   
+            }
+            return new File(targetfile, submissionID);
+        }  else if (submissionID.startsWith("GCG-")) {
+            //TCGA - The Cancer Genome Atlas
+            return new File("GCG", submissionID);
+        }  else if (submissionID.startsWith("GSB-")) {
+            return new File("GSB", submissionID);
+        } else if (submissionID.equals("GEN")) { 
+            return new File("encode", submissionID);
+        } else if (submissionID.equals("G1K")) { 
+            return new File("g1k", submissionID);
+        } else if (submissionID.startsWith("GHM")) { 
+            return new File("hapmap", submissionID);
+        } else {
+            throw new IllegalArgumentException("Unable to get path prefix for "+submissionID);
+        }
 	}
 	
 	public AbstractBioSDProcess() {
