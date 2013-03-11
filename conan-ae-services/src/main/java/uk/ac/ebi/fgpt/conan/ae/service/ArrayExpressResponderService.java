@@ -353,42 +353,33 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
         }
         if (!details.isEmpty()) {
             return "Dear ArrayExpress submitter,\n\n" +
-                    "Your " +
+                    "Good news! I have just successfully loaded your " +
                     (accession.startsWith("E") ? "experiment" : "array design") + " " +
-                    "submitted to ArrayExpress has " +
-                    "been loaded successfully " +
-                    (public_record ? "with the following details:\n\n" :
-                            "and will be kept private until the release date given below or until it is reported " +
-                                    "that the accession number has been published in a paper:\n\n") +
+                    " into ArrayExpress.\n\n" +
 
                     (accession.startsWith("E") ? "Experiment" : "Array design") + " " +
                     "name: " + name + "\n" +
                     "ArrayExpress accession: " + accession + "\n" +
                     "Specified release date: " + releaseDateString + "\n\n" +
-                    (public_record ? "" :
-                            "You will get a reminder email one month before the release " +
-                                    "date but you can change the release date at any time by emailing " +
-                                    "us at miamexpress@ebi.ac.uk with the " +
-                                    (accession.startsWith("E") ? "experiment" : "array design") + " " +
-                                    "accession and a " +
-                                    "revised release date. If the release date is within one month you " +
-                                    "will not be sent a reminder.\n\n") +
 
-                    (owners_created ? account_owners +
-                            "From http://www.ebi.ac.uk/arrayexpress/, go to the link \"Submitter/reviewer login\" " +
-                            "login using your account details and query for the accession " +
-                            "number of your experiment or array design.\n\n"
+                    (owners_created ? account_owners
                             : "Your " + (accession.startsWith("E") ? "experiment" : "array design")
-                                    + " is available under this link \"http://www.ebi.ac.uk/arrayexpress/"+(accession.startsWith("E") ? "experiments/" : "arrays/") + accession + "\".\n\n") +
+                            + " is available under this link \"http://www.ebi.ac.uk/arrayexpress/"+(accession.startsWith("E") ? "experiments/" : "arrays/") + accession + "\".\n\n") +
                     (reviewers_created ? account_reviewers : "") +
                     ((owners_created || reviewers_created) ?
                             "These user accounts will be activated on " + activationDate + " at " +
                                     "approximately 06:00 GMT.\n\n" : "") +
-                    "If you have any queries please contact the curation team\n" +
-                    "at (miamexpress@ebi.ac.uk). Please remember to update your " +
-                    "submission with publication details when\n" +
-                    "these are available by emailing to miamexpress@ebi.ac.uk.\n\n" +
-                    "Thank you for submitting to ArrayExpress.\n\n\n";
+                    "To learn how to see your private experiments/arrays please visit our help page,\nhttps://www.ebi.ac.uk/arrayexpress/help/how_to_search.html#Login.\n\n"
+                    +
+
+                    (public_record ? "" :
+                            "We will keep your data private until the release date or it is published in a paper.\n" +
+                            "This is in accordance to our data access policy, http://www.ebi.ac.uk/arrayexpress/help/data_availability.html\n" +
+                            "Where possible, a reminder email will be sent to you 7, 30, and 60 days before the release.\n\n ") +
+                    "If you have any queries please try our helpful FAQ,\nhttp://www.ebi.ac.uk/arrayexpress/help/FAQ.html or contact us directly by emailing us at miamexpress@ebi.ac.uk.\n\n" +
+                    "We would love to make your data to come up when people search for it. So please do remember to update us with " +
+                    "publication details when they are available. \n\n" +
+                    "Thank you for submitting to ArrayExpress, and good luck with your future manuscripts.\n\n";
         }
         else {
             return "Conan was fetching the submitter details for '" + taskName +
