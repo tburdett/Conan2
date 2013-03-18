@@ -322,11 +322,11 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
             if (!public_record){
               if (submitter.getUsername().startsWith("Reviewer")) {
                     if (account_reviewers.length() == 0) {
-                        account_reviewers = "We have also created an additional user account for a reviewer(s).  " +
-                                "Please provide this login to journals for reviewer access. " +
-                                "Do not provide your own login details.\n\n";
+                        account_reviewers = "We have also created an additional user account for reviewers.  " +
+                                "Please provide this reviewer login account to journals for reviewer access.\n" +
+                                "Remember, do not share your own submitter login account.\n\n";
                     }
-                    account_reviewers = account_reviewers + "Reviewer's user account:\n\n" +
+                    account_reviewers = account_reviewers + "Your reviewer account details are as follows:\n" +
                             "Username: " + submitter.getUsername() + "\n" +
                             "Password: " + submitter.getPassword() + "\n\n";
                     reviewers_created = true;
@@ -334,12 +334,10 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                 else {
                     if (!submitter.getUsername().equals("guest")) {
                         if (account_owners.length() == 0) {
-                            account_owners = "You can access your private data via a user account, " +
-                                    "which has been created for you.\n" +
-                                    "This is your ArrayExpress user account and should " +
-                                    "not be shared.\n\n";
+                            account_owners = "You can access your private data through your submitter user account, " +
+                                    "which has been created for you.\n\n";
                         }
-                        account_owners = account_owners + "Your user account details are as follows:\n\n" +
+                        account_owners = account_owners + "Your submitter account details are as follows:\n" +
                                 "Username: " + submitter.getUsername() + "\n" +
                                 "Password: " + submitter.getPassword() + "\n" +
                                 "E-mail address: " + submitter.getEmail() + "\n\n";
@@ -355,7 +353,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
             return "Dear ArrayExpress submitter,\n\n" +
                     "Good news! I have just successfully loaded your " +
                     (accession.startsWith("E") ? "experiment" : "array design") + " " +
-                    " into ArrayExpress.\n\n" +
+                    "into ArrayExpress.\n\n" +
 
                     (accession.startsWith("E") ? "Experiment" : "Array design") + " " +
                     "name: " + name + "\n" +
@@ -376,7 +374,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                             "We will keep your data private until the release date or it is published in a paper.\n" +
                             "This is in accordance to our data access policy, http://www.ebi.ac.uk/arrayexpress/help/data_availability.html\n" +
                             "Where possible, a reminder email will be sent to you 7, 30, and 60 days before the release.\n\n ") +
-                    "If you have any queries please try our helpful FAQ,\nhttp://www.ebi.ac.uk/arrayexpress/help/FAQ.html or contact us directly by emailing us at miamexpress@ebi.ac.uk.\n\n" +
+                    "If you have any queries please try our helpful FAQ, http://www.ebi.ac.uk/arrayexpress/help/FAQ.html\nor contact us directly by emailing us at miamexpress@ebi.ac.uk.\n\n" +
                     "We would love to make your data to come up when people search for it. So please do remember to update us with " +
                     "publication details when they are available. \n\n" +
                     "Thank you for submitting to ArrayExpress, and good luck with your future manuscripts.\n\n";
