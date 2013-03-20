@@ -368,9 +368,8 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                     ((owners_created || reviewers_created) ?
                             "These user accounts will be activated on " + activationDate + " at " +
                                     "approximately 06:00 GMT. Only after this time may you access your data.\n\n" : "") +
-                    "Details on viewing private data can be found here,\nhttps://www.ebi.ac.uk/arrayexpress/help/how_to_search.html#Login.\n\n"
+                    "Details on viewing private data can be found here,\nhttp://www.ebi.ac.uk/arrayexpress/help/how_to_search.html#Login.\n\n"
                     +
-
                     (public_record ? "" :
                             "We will keep your data private until the release date or it is published in a paper.\n" +
                             "This is in accordance to our data access policy, http://www.ebi.ac.uk/arrayexpress/help/data_availability.html.\n" +
