@@ -323,8 +323,9 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
               if (submitter.getUsername().startsWith("Reviewer")) {
                     if (account_reviewers.length() == 0) {
                         account_reviewers = "We have also created an additional user account for reviewers.  " +
-                                "Please provide this reviewer login account to journals for reviewer access.\n" +
-                                "Remember, do not share your own submitter login account.\n\n";
+                                "Please provide this reviewer account to journals for reviewer access.\n" +
+                                "Remember, do not share your own submitter login account. Otherwise " +
+                                "it will let other people have access to all your private ArrayExpress data at any time.\n\n";
                     }
                     account_reviewers = account_reviewers + "Your reviewer account details are as follows:\n" +
                             "Username: " + submitter.getUsername() + "\n" +
@@ -351,9 +352,9 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
         }
         if (!details.isEmpty()) {
             return "Dear ArrayExpress submitter,\n\n" +
-                    "Good news! I have just successfully loaded your " +
+                    "Good news! Your " +
                     (accession.startsWith("E") ? "experiment" : "array design") + " " +
-                    "into ArrayExpress.\n\n" +
+                    "has been loaded into ArrayExpress\n\n" +
 
                     (accession.startsWith("E") ? "Experiment" : "Array design") + " " +
                     "name: " + name + "\n" +
@@ -366,17 +367,17 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                     (reviewers_created ? account_reviewers : "") +
                     ((owners_created || reviewers_created) ?
                             "These user accounts will be activated on " + activationDate + " at " +
-                                    "approximately 06:00 GMT.\n\n" : "") +
-                    "To learn how to see your private experiments/arrays please visit our help page,\nhttps://www.ebi.ac.uk/arrayexpress/help/how_to_search.html#Login.\n\n"
+                                    "approximately 06:00 GMT. Only after this time may you access your data.\n\n" : "") +
+                    "Details on viewing private data can be found here,\nhttps://www.ebi.ac.uk/arrayexpress/help/how_to_search.html#Login.\n\n"
                     +
 
                     (public_record ? "" :
                             "We will keep your data private until the release date or it is published in a paper.\n" +
-                            "This is in accordance to our data access policy, http://www.ebi.ac.uk/arrayexpress/help/data_availability.html\n" +
-                            "Where possible, a reminder email will be sent to you 7, 30, and 60 days before the release.\n\n ") +
-                    "If you have any queries please try our helpful FAQ, http://www.ebi.ac.uk/arrayexpress/help/FAQ.html\nor contact us directly by emailing us at miamexpress@ebi.ac.uk.\n\n" +
-                    "We would love to make your data to come up when people search for it. So please do remember to update us with " +
-                    "publication details when they are available. \n\n" +
+                            "This is in accordance to our data access policy, http://www.ebi.ac.uk/arrayexpress/help/data_availability.html.\n" +
+                            "Where possible, a reminder email will be sent to you 7, 30, and 60 days before the release.\n\n") +
+                    "If you have any queries please try our helpful FAQ, http://www.ebi.ac.uk/arrayexpress/help/FAQ.html\n" +
+                    "or contact us directly by emailing miamexpress@ebi.ac.uk.\n\n" +
+                    "To increase the visibility of you data please supply us with publication details when they are available.\n\n" +
                     "Thank you for submitting to ArrayExpress, and good luck with your future manuscripts.\n\n";
         }
         else {
