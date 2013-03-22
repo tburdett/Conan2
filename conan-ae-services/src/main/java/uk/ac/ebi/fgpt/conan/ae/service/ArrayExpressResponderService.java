@@ -375,8 +375,10 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                             "This is in accordance to our data access policy, http://www.ebi.ac.uk/arrayexpress/help/data_availability.html.\n" +
                             "Where possible, a reminder email will be sent to you 7, 30, and 60 days before the release.\n\n") +
                     "If you have any queries please try our helpful FAQ, http://www.ebi.ac.uk/arrayexpress/help/FAQ.html\n" +
-                    "or contact us directly by emailing miamexpress@ebi.ac.uk.\n\n" +
-                    "To increase the visibility of you data please supply us with publication details when they are available.\n\n" +
+                    "or contact us directly by emailing mailto:arrayexpress@ebi.ac.uk.\n" +
+                    "The proper way to put your ArrayExpress accession number in your manuscript is explained in the FAQ,\n" +
+                    "https://www.ebi.ac.uk/arrayexpress/help/FAQ.html#cite\n\n" +
+                    "To increase the visibility of your data please email us with publication details when they are available.\n\n" +
                     "Thank you for submitting to ArrayExpress, and good luck with your future manuscripts.\n\n";
         }
         else {
