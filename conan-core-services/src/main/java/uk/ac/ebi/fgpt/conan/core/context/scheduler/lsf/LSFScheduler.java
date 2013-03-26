@@ -61,7 +61,7 @@ public class LSFScheduler extends AbstractScheduler {
         if (backupEmail != null && !backupEmail.isEmpty()) {
             sj.add("-u " + backupEmail);
         }
-        sj.add("\"" + internalCommand + " 2>&1\"");
+        sj.add("\"" + internalCommand + "\"");
 
         String cmd = sj.toString();
 
@@ -81,6 +81,7 @@ public class LSFScheduler extends AbstractScheduler {
         }
         sj.add("-oo", this.getArgs().getMonitorFile());
         sj.add(waitCondition.toString());
+        sj.add("-q", this.getArgs().getQueueName());
         sj.add("\"sleep 1 2>&1\"");
 
         return sj.toString();
@@ -100,6 +101,11 @@ public class LSFScheduler extends AbstractScheduler {
     public Scheduler copy() {
         //TODO Not too nice... shouldn't really use casting here but it will always give the right result.  To tidy up late.
         return new LSFScheduler(new LSFArgs((LSFArgs) this.getArgs()));
+    }
+
+    @Override
+    public String getName() {
+        return "LSF";
     }
 
 }

@@ -68,4 +68,9 @@ public class PBSScheduler extends AbstractScheduler {
         return new PBSScheduler(new PBSArgs((PBSArgs) this.getArgs()));
     }
 
+    @Override
+    public String getName() {
+        return "PBS";
+    }
+
 }

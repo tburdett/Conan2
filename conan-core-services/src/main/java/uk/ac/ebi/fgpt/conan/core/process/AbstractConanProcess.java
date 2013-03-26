@@ -138,7 +138,7 @@ public abstract class AbstractConanProcess implements ConanProcess {
             commands.add(this.getPreCommand());
         }
 
-        commands.add(this.getCommand());
+        commands.add(this.getCommand() + " 2>&1");
 
         if (this.postCommands != null && !this.postCommands.isEmpty()) {
             commands.add(this.getPostCommand());

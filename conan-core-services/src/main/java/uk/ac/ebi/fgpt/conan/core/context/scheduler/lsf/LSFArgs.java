@@ -24,22 +24,15 @@ import uk.ac.ebi.fgpt.conan.util.StringJoiner;
 public class LSFArgs extends SchedulerArgs {
 
     private String projectName;
-    private boolean openmpi;
-    private String extraLsfOptions;
-
 
     public LSFArgs() {
         super();
         this.projectName = "";
-        this.openmpi = false;
-        this.extraLsfOptions = "";
     }
 
     public LSFArgs(LSFArgs args) {
         super(args);
         this.projectName = args.getProjectName();
-        this.openmpi = args.isOpenmpi();
-        this.extraLsfOptions = args.getExtraLsfOptions();
     }
 
     public String getProjectName() {
@@ -48,22 +41,6 @@ public class LSFArgs extends SchedulerArgs {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
-    }
-
-    public String getExtraLsfOptions() {
-        return extraLsfOptions;
-    }
-
-    public void setExtraLsfOptions(String extraLsfOptions) {
-        this.extraLsfOptions = extraLsfOptions;
-    }
-
-    public boolean isOpenmpi() {
-        return openmpi;
-    }
-
-    public void setOpenmpi(boolean openmpi) {
-        this.openmpi = openmpi;
     }
 
     protected boolean validString(String str) {
@@ -81,8 +58,8 @@ public class LSFArgs extends SchedulerArgs {
         joiner.add(this.getWaitCondition());
         joiner.add(this.getThreads() > 1, "-n", String.valueOf(this.getThreads()));
         joiner.add("-P", this.projectName);
-        joiner.add(this.openmpi, "-a", "openmpi");
-        joiner.add(this.extraLsfOptions);
+        joiner.add(this.isOpenmpi(), "-a", "openmpi");
+        joiner.add(!this.getExtraArgs().startsWith("-R"), "", this.getExtraArgs());
 
         return joiner.toString();
     }
@@ -94,8 +71,9 @@ public class LSFArgs extends SchedulerArgs {
 
         String span = threads > 1 ? "span[ptile=" + threads + "]" : "";
         String rusage = mem > 0 ? "rusage[mem=" + mem + "]" : "";
+        String extra = this.getExtraArgs().startsWith("-R") ? this.getExtraArgs().substring(2).trim() : "";
 
-        return !span.isEmpty() || !rusage.isEmpty() ? "-R" + rusage + span : "";
+        return !span.isEmpty() || !rusage.isEmpty() || !extra.isEmpty() ? "-R" + rusage + span + extra : "";
     }
 
     @Override

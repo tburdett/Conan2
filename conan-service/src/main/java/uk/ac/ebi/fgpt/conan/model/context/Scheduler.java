@@ -106,4 +106,10 @@ public interface Scheduler {
      * @return
      */
     Scheduler copy();
+
+    /**
+     * The name of this scheduler
+     * @return
+     */
+    String getName();
 }

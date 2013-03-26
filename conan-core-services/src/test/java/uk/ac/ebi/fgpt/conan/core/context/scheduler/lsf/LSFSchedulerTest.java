@@ -38,7 +38,7 @@ public class LSFSchedulerTest {
 
     @Test
     public void createCommandTest() {
-        String command = this.lsfScheduler.createCommand("sleep 50");
+        String command = this.lsfScheduler.createCommand("sleep 50 2>&1");
 
         assertTrue(command.equals("bsub \"sleep 50 2>&1\""));
     }
