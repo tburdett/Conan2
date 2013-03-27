@@ -18,6 +18,7 @@
 package uk.ac.ebi.fgpt.conan.core.context.scheduler.pbs;
 
 import uk.ac.ebi.fgpt.conan.model.context.SchedulerArgs;
+import uk.ac.ebi.fgpt.conan.util.StringJoiner;
 
 public class PBSArgs extends SchedulerArgs {
 
@@ -29,11 +30,42 @@ public class PBSArgs extends SchedulerArgs {
         super(args);
     }
 
-    @Override
-    public String toString() {
-        return "PBSArgs";
+
+    protected String createSimpleOptions() {
+
+        StringJoiner joiner = new StringJoiner(" ");
+
+        joiner.add("-N", this.getJobName());
+        joiner.add(this.getWaitCondition());
+        joiner.add(this.getExtraArgs());
+
+        return joiner.toString();
     }
 
+    protected String createUsageString() {
+
+        StringJoiner joiner = new StringJoiner(":");
+
+        joiner.add(this.getThreads() > 0, "select=", Integer.toString(1));
+        joiner.add(this.getThreads() > 0, "ncpus=", Integer.toString(this.getThreads()));
+        joiner.add(this.getMemoryMB() > 0, "mem=", Integer.toString(this.getMemoryGB()) + "G");
+
+        return this.getThreads() > 0 || this.getMemoryMB() > 0 ? "-l " + joiner.toString() : "";
+    }
+
+    @Override
+    public String toString() {
+
+        String simpleOptions = createSimpleOptions();
+        String usage = createUsageString();
+
+        StringJoiner joiner = new StringJoiner(" ");
+
+        joiner.add(simpleOptions);
+        joiner.add(usage);
+
+        return joiner.toString();
+    }
     @Override
     public SchedulerArgs copy() {
 

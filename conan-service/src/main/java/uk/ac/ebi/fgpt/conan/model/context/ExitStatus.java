@@ -33,6 +33,7 @@ public interface ExitStatus {
     public enum Type {
 
         COMPLETED_SUCCESS,
-        COMPLETED_FAILED
+        COMPLETED_FAILED,
+        COMPLETED_ANY
     }
 }

@@ -65,6 +65,10 @@ public abstract class SchedulerArgs {
         return memoryMB;
     }
 
+    public int getMemoryGB() {
+        return (int)(memoryMB / 1000);
+    }
+
     public void setMemoryMB(int memoryMB) {
         this.memoryMB = memoryMB;
     }

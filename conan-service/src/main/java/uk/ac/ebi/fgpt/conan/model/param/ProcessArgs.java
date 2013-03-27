@@ -23,6 +23,8 @@ import java.util.Map;
 
 public interface ProcessArgs {
 
+    void parse(String args);
+
     Map<ConanParameter, String> getArgMap();
 
     void setFromArgMap(Map<ConanParameter, String> pvp);

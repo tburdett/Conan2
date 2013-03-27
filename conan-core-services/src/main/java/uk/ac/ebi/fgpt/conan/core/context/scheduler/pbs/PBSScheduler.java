@@ -18,10 +18,14 @@
 package uk.ac.ebi.fgpt.conan.core.context.scheduler.pbs;
 
 import uk.ac.ebi.fgpt.conan.core.context.scheduler.AbstractScheduler;
+import uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf.LSFExitStatusType;
+import uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf.LSFWaitCondition;
 import uk.ac.ebi.fgpt.conan.model.context.ExitStatus;
 import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
 import uk.ac.ebi.fgpt.conan.model.context.WaitCondition;
 import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
+import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
+import uk.ac.ebi.fgpt.conan.util.StringJoiner;
 
 import java.io.File;
 
@@ -44,12 +48,38 @@ public class PBSScheduler extends AbstractScheduler {
 
     @Override
     public String createCommand(String internalCommand) {
-        return internalCommand;
+
+        // Create command to execute
+        String commandPart = "echo \"cd $PWD; " + internalCommand + "\"";
+
+        // create PBS part
+        StringJoiner pbsPartJoiner = new StringJoiner(" ");
+        pbsPartJoiner.add(this.getSubmitCommand());
+        pbsPartJoiner.add(this.getArgs() != null, "", this.getArgs().toString());
+
+        String pbsPart = pbsPartJoiner.toString();
+
+        return commandPart + " | " + pbsPart;
     }
 
     @Override
     public String createWaitCommand(WaitCondition waitCondition) {
-        return null;
+
+        // Create command to execute
+        String commandPart = "echo \"sleep 1 2>&1\"";
+
+        /*StringJoiner sj = new StringJoiner(" ");
+        sj.add(this.getSubmitCommand());
+        sj.add("-oo", this.getArgs().getMonitorFile());
+        sj.add(waitCondition.toString());
+        sj.add("-q", this.getArgs().getQueueName());
+        sj.add("\"sleep 1 2>&1\"");
+
+        return sj.toString();*/
+
+        String pbsPart = "";
+
+        return commandPart + " | " + pbsPart;
     }
 
     @Override
@@ -59,7 +89,7 @@ public class PBSScheduler extends AbstractScheduler {
 
     @Override
     public WaitCondition createWaitCondition(ExitStatus.Type exitStatus, String condition) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return new PBSWaitCondition(PBSExitStatusType.select(exitStatus), condition);
     }
 
     @Override
