@@ -16,18 +16,33 @@
     <url>http://www.ebi.ac.uk/arrayexpress</url>
 
     <dependencies>
+
         <!-- conan services -->
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>conan-core-services</artifactId>
-            <version>3.0-SNAPSHOT</version>
+            <version>${conan-version}</version>
         </dependency>
+
+
+        <!-- Spring -->
 
         <!-- spring webmvc framework -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>3.0.3.RELEASE</version>
+            <version>${springframework-version}</version>
+        </dependency>
+        <!-- spring security for authentication -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>${springframework-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>${springframework-version}</version>
         </dependency>
 
         <!-- webmvc fileupload dependencies -->
@@ -42,17 +57,7 @@
             <version>1.3.2</version>
         </dependency>
 
-        <!-- spring security for authentication -->
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-web</artifactId>
-            <version>3.0.3.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-config</artifactId>
-            <version>3.0.3.RELEASE</version>
-        </dependency>
+
 
         <!-- url rewriting -->
         <dependency>
@@ -65,13 +70,13 @@
         <dependency> <!-- log4j binding: all logging captured via slf4j sinks to log4j -->
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.6.0</version>
+            <version>${slf4j-version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency> <!-- log4j itself (note the runtime scope) -->
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.14</version>
+            <version>1.2.16</version>
             <scope>runtime</scope>
         </dependency>
 

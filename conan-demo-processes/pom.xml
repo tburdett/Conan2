@@ -18,7 +18,7 @@
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>conan-core-services</artifactId>
-            <version>3.0-SNAPSHOT</version>
+            <version>${conan-version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
