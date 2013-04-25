@@ -14,7 +14,6 @@
     <pipeline name="Experiment Loading (Combined AE2/Atlas)" creator="natalja" daemonized="true">
         <processes>
             <process name="validation" />
-            <process name="eligibility" />
             <process name="afterloading" />
             <process name="experiment loading" />
             <process name="scoring" />
