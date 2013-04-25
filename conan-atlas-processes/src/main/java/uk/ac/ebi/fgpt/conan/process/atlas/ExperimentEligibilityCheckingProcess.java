@@ -35,7 +35,9 @@ import java.util.*;
  * @author Natalja Kurbatova
  * @date 15/02/11
  */
-@ServiceProvider
+
+//@ServiceProvider
+
 public class ExperimentEligibilityCheckingProcess implements ConanProcess {
     private final Collection<ConanParameter> parameters;
     private final AccessionParameter accessionParameter;
@@ -1101,7 +1103,7 @@ public class ExperimentEligibilityCheckingProcess implements ConanProcess {
      * @return the name of this process
      */
     public String getName() {
-        return "atlas eligibility";
+        return "old java atlas eligibility";
     }
 
     /**
