@@ -69,7 +69,7 @@ public class PerlExperimentEligibilityCheckingProcess extends AbstractLSFProcess
                 // path to relevant file
                 String filePath = accession.getFile().getAbsolutePath();
                 // return command string
-                return mainCommand + "-i " + filePath;
+                return mainCommand + " -i " + filePath;
             }
             else {
                 throw new IllegalArgumentException("Cannot run atlas eligibility checks for Arrays");
