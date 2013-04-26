@@ -1,9 +1,8 @@
 package uk.ac.ebi.fgpt.conan.process.atlas;
 
 import net.sourceforge.fluxion.spi.ServiceProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
+import uk.ac.ebi.fgpt.conan.lsf.AbstractLSFProcess;
 import uk.ac.ebi.fgpt.conan.lsf.LSFProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 
@@ -21,11 +20,9 @@ import java.util.Map;
  */
 
 @ServiceProvider
-public class PerlExperimentEligibilityCheckingProcess extends AbstractAE2LSFProcess {
+public class PerlExperimentEligibilityCheckingProcess extends AbstractLSFProcess {
     private final Collection<ConanParameter> parameters;
     private final AccessionParameter accessionParameter;
-
-    private Logger log = LoggerFactory.getLogger(getClass());
 
     public PerlExperimentEligibilityCheckingProcess() {
         parameters = new ArrayList<ConanParameter>();
@@ -33,11 +30,6 @@ public class PerlExperimentEligibilityCheckingProcess extends AbstractAE2LSFProc
         parameters.add(accessionParameter);
 //        setQueueName("production");
     }
-
-    protected Logger getLog() {
-        return log;
-    }
-
 
     public String getName() {
         return "atlas eligibility";
@@ -61,22 +53,26 @@ public class PerlExperimentEligibilityCheckingProcess extends AbstractAE2LSFProc
             throw new IllegalArgumentException("Accession cannot be null");
         }
         else {
-            // main command to execute perl script
-            
-            /* Writing back to productio Subs Tracking database, will implement later
-             *  String mainCommand = "cd " + accession.getFile().getParentFile().getAbsolutePath() + "; " +
-             *         "perl /ebi/microarray/home/fgpt/sw/lib/perl/Red_Hat/check_atlas_eligiblity.pl -w -a " +
-             *       accession.getAccession();
-             */
-            
-            String mainCommand = "cd " + accession.getFile().getParentFile().getAbsolutePath() + "; " +
-                    "perl /ebi/microarray/home/fgpt/sw/lib/perl/Red_Hat/check_atlas_eligiblity.pl";
-
-            // path to relevant file
-            String filePath = accession.getFile().getAbsolutePath();
-            // return command string
             if (accession.isExperiment()) {
+
+                // main command to execute perl script
+            
+                /* Writing back to productio Subs Tracking database, will implement later
+                *  String mainCommand = "cd " + accession.getFile().getParentFile().getAbsolutePath() + "; " +
+                *         "perl /ebi/microarray/home/fgpt/sw/lib/perl/Red_Hat/check_atlas_eligiblity.pl -w -a " +
+                *       accession.getAccession();
+                */
+            
+                String mainCommand = "cd " + accession.getFile().getParentFile().getAbsolutePath() + "; " +
+                        "perl /ebi/microarray/home/fgpt/sw/lib/perl/Red_Hat/check_atlas_eligiblity.pl";
+
+                // path to relevant file
+                String filePath = accession.getFile().getAbsolutePath();
+                // return command string
                 return mainCommand + "-i " + filePath;
+            }
+            else {
+                throw new IllegalArgumentException("Cannot run atlas eligibility checks for Arrays");
             }
         }
     }
