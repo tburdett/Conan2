@@ -59,12 +59,12 @@ public class PerlExperimentEligibilityCheckingProcess extends AbstractLSFProcess
             
                 /* Writing back to productio Subs Tracking database, will implement later
                 *  String mainCommand = "cd " + accession.getFile().getParentFile().getAbsolutePath() + "; " +
-                *         "perl /ebi/microarray/home/fgpt/sw/lib/perl/Red_Hat/check_atlas_eligiblity.pl -w -a " +
+                *         "perl /ebi/microarray/home/fgpt/sw/lib/perl/Red_Hat/check_atlas_eligibility.pl -w -a " +
                 *       accession.getAccession();
                 */
             
                 String mainCommand = "cd " + accession.getFile().getParentFile().getAbsolutePath() + "; " +
-                        "perl /ebi/microarray/home/fgpt/sw/lib/perl/Red_Hat/check_atlas_eligiblity.pl";
+                        "perl /ebi/microarray/home/fgpt/sw/lib/perl/Red_Hat/check_atlas_eligibility.pl";
 
                 // path to relevant file
                 String filePath = accession.getFile().getAbsolutePath();
