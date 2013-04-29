@@ -59,7 +59,7 @@ public class PerlExperimentEligibilityCheckingProcess extends AbstractLSFProcess
             
                 // Writing back to production Subs Tracking database
                  String mainCommand = "cd " + accession.getFile().getParentFile().getAbsolutePath() + "; " +
-                        "perl /ebi/microarray/home/fgpt/sw/lib/perl/Red_Hat/check_atlas_eligibility.pl -w -a " +
+                        "perl /ebi/microarray/home/fgpt/sw/lib/perl/FGPT_RH_prod/check_atlas_eligibility.pl -w -a " +
                       accession.getAccession();
                 
                 // Testing script without writing anything back to production submissions tracking database
