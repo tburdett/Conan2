@@ -64,7 +64,7 @@ public class PerlExperimentEligibilityCheckingProcess extends AbstractLSFProcess
                 */
             
                 String mainCommand = "cd " + accession.getFile().getParentFile().getAbsolutePath() + "; " +
-                        "perl /ebi/microarray/home/fgpt/sw/lib/perl/FGPT_RH_prod/check_atlas_eligiblity.pl";
+                        "perl /ebi/microarray/home/fgpt/sw/lib/perl/FGPT_RH_prod/check_atlas_eligibility.pl";
 
                 // path to relevant file
                 String filePath = accession.getFile().getAbsolutePath();
