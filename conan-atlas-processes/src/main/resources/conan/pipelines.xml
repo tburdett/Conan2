@@ -23,6 +23,7 @@
             <process name="atlas eligibility" />
             <process name="atlas loading" />
             <process name="atlas update" />
+            <process name="ae2.bam.gen.trigger" displayName="Trigger Bam Generation" />
         </processes>
     </pipeline>
 
