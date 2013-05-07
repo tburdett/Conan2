@@ -354,7 +354,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
             return "Dear ArrayExpress submitter,\n\n" +
                     "Good news! Your " +
                     (accession.startsWith("E") ? "experiment" : "array design") + " " +
-                    "has been loaded into ArrayExpress\n\n" +
+                    "has been loaded into ArrayExpress.\n\n" +
 
                     (accession.startsWith("E") ? "Experiment" : "Array design") + " " +
                     "name: " + name + "\n" +
@@ -368,16 +368,16 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                     ((owners_created || reviewers_created) ?
                             "These user accounts will be activated on " + activationDate + " at " +
                                     "approximately 06:00 GMT. Only after this time may you access your data.\n\n" : "") +
-                    "Details on viewing private data can be found here,\nhttp://www.ebi.ac.uk/arrayexpress/help/how_to_search.html#Login.\n\n"
+                    "Details on viewing private data can be found here,\nhttp://www.ebi.ac.uk/arrayexpress/help/how_to_search.html#Login\n\n"
                     +
                     (public_record ? "" :
                             "We will keep your data private until the release date or it is published in a paper.\n" +
-                            "This is in accordance to our data access policy, http://www.ebi.ac.uk/arrayexpress/help/data_availability.html.\n" +
+                            "This is in accordance to our data access policy, http://www.ebi.ac.uk/arrayexpress/help/data_availability.html\n" +
                             "Where possible, a reminder email will be sent to you 7, 30, and 60 days before the release.\n\n") +
                     "If you have any queries please try our helpful FAQ, http://www.ebi.ac.uk/arrayexpress/help/FAQ.html\n" +
-                    "or contact us directly by emailing arrayexpress@ebi.ac.uk.\n" +
+                    "or contact us directly by emailing arrayexpress@ebi.ac.uk\n" +
                     "Information on citing your ArrayExpress accession number can be found here,\n" +
-                    "https://www.ebi.ac.uk/arrayexpress/help/FAQ.html#cite\n\n" +
+                    "https://www.ebi.ac.uk/arrayexpress/help/FAQ.html#cite\n" +
                     "To increase the visibility of your data please email us with publication details when they are available.\n\n" +
                     "Thank you for submitting to ArrayExpress.\n\n";
         }
