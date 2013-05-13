@@ -1,31 +1,34 @@
-/**
- * RAMPART - Robust Automatic MultiPle AssembleR Toolkit
- * Copyright (C) 2013  Daniel Mapleson - TGAC
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- **/
-package uk.ac.ebi.fgpt.conan.model.param;
 
-import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
+package uk.ac.ebi.fgpt.conan.model.param;
 
 import java.util.Map;
 
+
+/**
+ * Interface for Conan Process Arguments.  Enables conversion of a generic "Argument" class (essentially a class that
+ * contains class variables for a ConanProcess) into different forms which are useful for Conan and the underlying
+ * process.
+ *
+ * @author Dan Mapleson
+ */
 public interface ProcessArgs {
 
+    /**
+     * Parses a string containing the process arguments into this argument object.
+     * @param args The arguments in string form to parse
+     */
     void parse(String args);
 
+    /**
+     * Converts this arguments class into a Map of ConanParameters to String values, which can then be used for processing in
+     * the Conan Engine.
+     * @return Map of conan parameters to string values
+     */
     Map<ConanParameter, String> getArgMap();
 
+    /**
+     * Converts a Map of ConanParameters to String values into this object
+     * @param pvp
+     */
     void setFromArgMap(Map<ConanParameter, String> pvp);
 }

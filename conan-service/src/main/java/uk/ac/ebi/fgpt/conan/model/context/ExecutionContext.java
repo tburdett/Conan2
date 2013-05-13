@@ -1,40 +1,54 @@
-/**
- * RAMPART - Robust Automatic MultiPle AssembleR Toolkit
- * Copyright (C) 2013  Daniel Mapleson - TGAC
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- **/
+
 package uk.ac.ebi.fgpt.conan.model.context;
 
 /**
- * User: maplesod
- * Date: 13/02/13
- * Time: 09:19
+ * Interface for an Execution Context, which defines where and how a ConanTask or ConanProcess is executed.
+ *
+ * @author Dan Mapleson
  */
 public interface ExecutionContext {
 
+    /**
+     * Defines where to execute
+     * @return
+     */
     Locality getLocality();
 
+    /**
+     * Whether or not this execution context defines a scheduler
+     * @return
+     */
     boolean usingScheduler();
 
+    /**
+     * Retrieves the scheduler to use if present
+     * @return
+     */
     Scheduler getScheduler();
 
+    /**
+     * Retrieves the ExternalProcessConfiguration object if defined. If present this can be used to automatically add
+     * "pre-commands" to the ConanProcess
+     * @return
+     */
     ExternalProcessConfiguration getExternalProcessConfiguration();
 
+    /**
+     * Should return true if this ConanProcess should be executed in the foreground.  i.e. we should wait until the job is
+     * complete before continueing
+     * @return
+     */
     boolean isForegroundJob();
 
+    /**
+     * Defines whether or not this job should be executed in the foreground or not.
+     * @param isForegroundJob
+     */
     void setForegroundJob(boolean isForegroundJob);
 
+    /**
+     * Makes a deep-copy of this ExecutionContext
+     * @return
+     */
     ExecutionContext copy();
 }

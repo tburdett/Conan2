@@ -17,7 +17,6 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.context;
 
-import org.springframework.stereotype.Component;
 import uk.ac.ebi.fgpt.conan.core.context.locality.Local;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.context.ExternalProcessConfiguration;

@@ -4,10 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import uk.ac.ebi.fgpt.conan.dao.ConanDaemonInputsDAO;
-import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanTask;
 import uk.ac.ebi.fgpt.conan.model.ConanUser;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.service.exception.SubmissionException;
 
 import java.util.*;

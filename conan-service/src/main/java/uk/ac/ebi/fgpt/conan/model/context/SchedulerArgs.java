@@ -2,6 +2,11 @@ package uk.ac.ebi.fgpt.conan.model.context;
 
 import java.io.File;
 
+/**
+ * This abstract class defines properties that should be common to all Schedulers
+ *
+ * @author Dan Mapleson
+ */
 public abstract class SchedulerArgs {
 
     private String jobName;

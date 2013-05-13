@@ -24,14 +24,12 @@ import org.springframework.stereotype.Component;
 import uk.ac.ebi.fgpt.conan.core.context.DefaultExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
-import uk.ac.ebi.fgpt.conan.model.context.ExternalProcessConfiguration;
 import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.param.ProcessArgs;
 import uk.ac.ebi.fgpt.conan.model.param.ProcessParams;
 import uk.ac.ebi.fgpt.conan.service.ConanProcessService;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

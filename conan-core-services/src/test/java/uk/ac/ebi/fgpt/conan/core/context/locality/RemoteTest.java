@@ -17,7 +17,6 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.context.locality;
 
-import org.junit.Test;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import static org.junit.Assert.assertTrue;

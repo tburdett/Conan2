@@ -17,7 +17,6 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.context.scheduler.pbs;
 
-import uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf.LSFExitStatusType;
 import uk.ac.ebi.fgpt.conan.model.context.ExitStatus;
 
 /**

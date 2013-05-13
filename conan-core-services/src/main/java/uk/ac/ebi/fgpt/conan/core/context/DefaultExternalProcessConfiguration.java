@@ -19,8 +19,6 @@ package uk.ac.ebi.fgpt.conan.core.context;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import uk.ac.ebi.fgpt.conan.model.context.ExternalProcessConfiguration;
 
 import java.io.File;

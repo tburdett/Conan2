@@ -10,7 +10,10 @@ import uk.ac.ebi.fgpt.conan.core.process.DefaultProcessRun;
 import uk.ac.ebi.fgpt.conan.core.task.AbstractConanTask;
 import uk.ac.ebi.fgpt.conan.core.task.ConanTaskListener;
 import uk.ac.ebi.fgpt.conan.core.task.DatabaseRecoveredConanTask;
-import uk.ac.ebi.fgpt.conan.model.*;
+import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
+import uk.ac.ebi.fgpt.conan.model.ConanProcessRun;
+import uk.ac.ebi.fgpt.conan.model.ConanTask;
+import uk.ac.ebi.fgpt.conan.model.ConanUser;
 import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 
 import javax.sql.DataSource;

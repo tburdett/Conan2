@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import uk.ac.ebi.fgpt.conan.core.context.locality.Local;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.context.Locality;

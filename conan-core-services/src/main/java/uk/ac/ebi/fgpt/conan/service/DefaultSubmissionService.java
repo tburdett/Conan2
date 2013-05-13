@@ -3,9 +3,9 @@ package uk.ac.ebi.fgpt.conan.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
-import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanTask;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.service.exception.SubmissionException;
 
 import java.util.*;

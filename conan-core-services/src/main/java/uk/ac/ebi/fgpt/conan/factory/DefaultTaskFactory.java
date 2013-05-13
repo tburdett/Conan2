@@ -5,10 +5,10 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.core.task.AbstractConanTask;
 import uk.ac.ebi.fgpt.conan.core.task.ConanTaskListener;
 import uk.ac.ebi.fgpt.conan.core.task.UserCreatedConanTask;
-import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanTask;
 import uk.ac.ebi.fgpt.conan.model.ConanUser;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 
 import java.util.HashSet;
 import java.util.Map;

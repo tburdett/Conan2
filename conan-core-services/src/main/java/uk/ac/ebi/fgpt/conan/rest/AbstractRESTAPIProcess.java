@@ -14,8 +14,8 @@ import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.io.BufferedWriter;

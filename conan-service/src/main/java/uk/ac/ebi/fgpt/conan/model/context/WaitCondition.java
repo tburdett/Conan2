@@ -1,38 +1,49 @@
-/**
- * RAMPART - Robust Automatic MultiPle AssembleR Toolkit
- * Copyright (C) 2013  Daniel Mapleson - TGAC
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- **/
+
 package uk.ac.ebi.fgpt.conan.model.context;
 
 /**
- * User: maplesod
- * Date: 10/01/13
- * Time: 17:38
+ * Interface for a WaitCondition (a command which will wait for another scheduled process to complete before executing)
+ *
+ * NOTE: This interface may make more sense as an abstract class.
+ *
+ * @author Dan Mapleson
  */
 public interface WaitCondition {
 
+    /**
+     * Create an ExitStatus object based on the Type of ExitStatus
+     * @param exitStatusType
+     * @return
+     */
     ExitStatus createExitStatus(ExitStatus.Type exitStatusType);
 
+    /**
+     * Retrieves the ExitStatus from this WaitCondition
+     * @return
+     */
     ExitStatus getExitStatus();
 
+    /**
+     * Sets the exit status for this WaitCondition
+     * @param exitStatus
+     */
     void setExitStatus(ExitStatus exitStatus);
 
+    /**
+     * Retrieves the WaitCondition
+     * @return
+     */
     String getCondition();
 
+    /**
+     * Sets the condition
+     * @param condition
+     */
     void setCondition(String condition);
 
+    /**
+     * Retrieves the command defined by the ExitStatus and WaitCondition
+     * @return
+     */
     String getCommand();
 }

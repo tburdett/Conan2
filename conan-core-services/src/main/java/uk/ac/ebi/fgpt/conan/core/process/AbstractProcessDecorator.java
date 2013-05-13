@@ -1,8 +1,8 @@
 package uk.ac.ebi.fgpt.conan.core.process;
 
-import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.util.Collection;

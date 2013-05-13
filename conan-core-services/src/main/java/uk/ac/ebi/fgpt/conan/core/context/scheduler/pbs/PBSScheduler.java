@@ -18,13 +18,10 @@
 package uk.ac.ebi.fgpt.conan.core.context.scheduler.pbs;
 
 import uk.ac.ebi.fgpt.conan.core.context.scheduler.AbstractScheduler;
-import uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf.LSFExitStatusType;
-import uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf.LSFWaitCondition;
 import uk.ac.ebi.fgpt.conan.model.context.ExitStatus;
 import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
 import uk.ac.ebi.fgpt.conan.model.context.WaitCondition;
 import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
-import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 import uk.ac.ebi.fgpt.conan.util.StringJoiner;
 
 import java.io.File;

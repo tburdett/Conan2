@@ -26,7 +26,6 @@ import uk.ac.ebi.fgpt.conan.model.monitor.ProcessEvent;
 import uk.ac.ebi.fgpt.conan.model.monitor.ProcessListener;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 /**
