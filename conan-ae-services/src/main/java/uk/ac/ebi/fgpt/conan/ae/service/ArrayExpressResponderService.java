@@ -55,18 +55,8 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
         getLog().debug("Checking if a response is required to task ID '" + task.getId() + "' for current state");
         // has the current task failed?
         if (task.getCurrentState() == ConanTask.State.FAILED) {
-//
-//            // not respond to atlas eligibility that have failed
-//            if (task.getLastProcess().getName().equals("atlas eligibility")){
-//              task.abort();
-//              getLog().debug("Failed atlas eligibility process. Task is completed.");
-//              return true;
-//            }
-//            else
               // we always notify of fails
               return true;
-
-
         }
         else {
             // first, check pipelines that issue notifications
@@ -84,16 +74,6 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
               return true;
             }
 
-            // respond to ae1 loads that have finished scoring
-/*            if (task.getPipeline().getName().equalsIgnoreCase("AE1 Loading") ||
-                    task.getPipeline().getName().equalsIgnoreCase("AE1 Loading with insert")) {
-                getLog().debug(
-                        "Task ID '" + task.getId() + "' requires response if last process was 'AE1 Afterload'...");
-                if (task.getLastProcess().getName().equals("AE1 Afterload")) {
-                    return true;
-                }
-            }*/
-
             // respond to AE2/AE1 combined experiment loads at various states
             if (task.getPipeline().getName().equalsIgnoreCase("Experiment Loading (Combined AE2/Atlas)")) {
                 getLog().debug(
@@ -102,8 +82,6 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                     return true;
                 }
             }
-
-            // anything else, we don't respond to
         }
 
         // no checks passed, so return false
@@ -167,22 +145,6 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
                                                   details); //getDefaultContent(task.getName(), process.getName());
                 }
             }
-
-            // respond to ae1 loads that have finished scoring
-            /*if (task.getPipeline().getName().equalsIgnoreCase("AE1 Loading") ||
-                    task.getPipeline().getName().equalsIgnoreCase("AE1 Loading with insert")) {
-                // notify if we've done scoring, and it didn't fail
-                if (task.getCurrentState() != ConanTask.State.FAILED &&
-                        task.getLastProcess().getName().equals("AE1 Afterload")) {
-                    List<SubmitterDetails> details =
-                            getAE1SubmitterDetailsDAO().getSubmitterDetailsByAccession(
-                                    task.getName(), SubmitterDetails.ObjectType.UNKNOWN);
-                    getLog().debug("Generating confirmation response for '" + task.getName() + "', " +
-                                           "state = " + task.getCurrentState() + ", last process = " +
-                                           task.getLastProcess().getName());
-                    return getConfirmationContent(task.getName(), details);
-                }
-            }*/
 
             // respond to ae1 loads that have finished scoring
             if (task.getPipeline().getName().equalsIgnoreCase("Experiment Loading (Combined AE2/Atlas)")) {

@@ -17,13 +17,13 @@
             <process name="afterloading" />
             <process name="experiment loading" />
             <process name="scoring" />
-            <process name="validation" displayName="afterload validation"/>
+            <process name="validation" displayName="afterload validation" />
             <process name="QM calculation" />
             <process name="MAGE-TAB Export" />
+            <process name="ae2.bam.gen.trigger" displayName="Trigger Bam Generation" />
             <process name="atlas eligibility" />
             <process name="atlas loading" />
             <process name="atlas update" />
-            <process name="ae2.bam.gen.trigger" displayName="Trigger Bam Generation" />
         </processes>
     </pipeline>
 

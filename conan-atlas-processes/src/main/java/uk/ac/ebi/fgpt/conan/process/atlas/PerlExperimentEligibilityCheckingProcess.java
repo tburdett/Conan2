@@ -5,6 +5,7 @@ import uk.ac.ebi.fgpt.conan.ae.AccessionParameter;
 import uk.ac.ebi.fgpt.conan.lsf.AbstractLSFProcess;
 import uk.ac.ebi.fgpt.conan.lsf.LSFProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
+import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,7 +29,6 @@ public class PerlExperimentEligibilityCheckingProcess extends AbstractLSFProcess
         parameters = new ArrayList<ConanParameter>();
         accessionParameter = new AccessionParameter();
         parameters.add(accessionParameter);
-//        setQueueName("production");
     }
 
     public String getName() {
@@ -95,6 +95,18 @@ public class PerlExperimentEligibilityCheckingProcess extends AbstractLSFProcess
 
             // lsf output file
             return new File(outputDir, "atlas_eligibility.lsfoutput.txt").getAbsolutePath();
+        }
+    }
+
+    @Override
+    public boolean execute(Map<ConanParameter, String> parameters)
+            throws IllegalArgumentException, ProcessExecutionException, InterruptedException {
+        try {
+            return super.execute(parameters);
+        }
+        catch (ProcessExecutionException e) {
+            e.setExceptionCausesAbort();
+            throw e;
         }
     }
 }
