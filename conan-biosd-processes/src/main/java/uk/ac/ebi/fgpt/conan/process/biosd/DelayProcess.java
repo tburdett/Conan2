@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import net.sourceforge.fluxion.spi.ServiceProvider;
+
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
+@ServiceProvider
 public class DelayProcess implements ConanProcess {
 
     protected final Collection<ConanParameter> parameters;
