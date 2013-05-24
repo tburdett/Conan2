@@ -8,6 +8,7 @@ import net.sourceforge.fluxion.spi.ServiceProvider;
 
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
+import uk.ac.ebi.fgpt.conan.process.biosd.model.SampleTabAccessionParameter;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 @ServiceProvider
@@ -18,6 +19,8 @@ public class DelayProcess implements ConanProcess {
     public DelayProcess() {
 
         parameters = new ArrayList<ConanParameter>();
+        //need at least one parameter otherwise it will reject all as duplicates
+        parameters.add(new SampleTabAccessionParameter());
     }
     
     public boolean execute(Map<ConanParameter, String> parameters) throws ProcessExecutionException,
