@@ -94,4 +94,10 @@
             <process name="makenonpublic" displayName="make non-public in AGE db" />
         </processes>
     </pipeline>
+    
+    <pipeline name="Test performance" creator="faulcon">
+        <processes>
+            <process name="delay" displayName="do nothing for 60 seconds" />
+        </processes>
+    </pipeline>
 </conan-pipelines>
