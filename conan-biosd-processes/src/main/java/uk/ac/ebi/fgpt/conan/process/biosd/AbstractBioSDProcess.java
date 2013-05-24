@@ -6,12 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import uk.ac.ebi.fgpt.conan.lsf.AbstractLSFProcess;
 import uk.ac.ebi.fgpt.conan.lsf.LSFProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
@@ -40,7 +35,7 @@ public abstract class AbstractBioSDProcess implements ConanProcess {
             File targetfile = new File("ae", "GAE-"+pipe);
             int i = 7;
             int groupsize = 3;
-            while (i < ident.length()){
+            while (i < ident.length()) {
                 targetfile = new File(targetfile, submissionID);
                 i += groupsize;   
             }
