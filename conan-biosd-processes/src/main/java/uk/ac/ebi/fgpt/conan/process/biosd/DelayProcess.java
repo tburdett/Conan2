@@ -27,7 +27,7 @@ public class DelayProcess implements ConanProcess {
     }
 
     public String getName() {
-        return "Delay";
+        return "delay";
     }
 
     public Collection<ConanParameter> getParameters() {
