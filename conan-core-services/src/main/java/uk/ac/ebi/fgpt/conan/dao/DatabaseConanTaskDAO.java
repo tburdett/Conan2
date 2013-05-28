@@ -578,6 +578,7 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
     protected void addConanTaskChildren(List<ConanTask<? extends ConanPipeline>> tasks,
                                         TaskType type) {
         getLog().debug("Fetching associated data for " + tasks.size() + " tasks - this will be batched if possible");
+        long starttime = System.currentTimeMillis();
 
         // map tasks to task ids
         Map<String, DatabaseRecoveredConanTask> tasksByID = new HashMap<String, DatabaseRecoveredConanTask>();
@@ -591,7 +592,8 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         // add processes in batches
         addProcessesToTasks(tasksByID, type);
 
-        getLog().debug("All associated task data fetched, tasks should now be fully populated");
+        long endtime = System.currentTimeMillis();
+        getLog().debug("All associated task data fetched in "+(endtime-starttime)/1000+"s, tasks should now be fully populated");
     }
 
     protected void addParametersToTasks(Map<String, DatabaseRecoveredConanTask> tasksByID, TaskType type) {
