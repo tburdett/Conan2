@@ -109,14 +109,18 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
 	protected String getEmailSubject(ConanTask task, ConanProcess process) {
 
 		String hostName;
+        String hostAddress;
 		try {
 			InetAddress host = InetAddress.getLocalHost();
 			hostName = host.getHostName();
+            hostAddress=host.getHostAddress();
+
 		} catch (UnknownHostException e) {
 			hostName = "unknown";
+            hostAddress = "unknown";
 		}
 
-		String response = "[conan2: Host " + hostName + "]";
+		String response = "[conan2: Host " + hostAddress + "]";
 
 		// String response = "[conan2]";
 		if (task.getCurrentState() == ConanTask.State.FAILED
