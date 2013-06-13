@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.net.InetAddress;
 
+
 /**
  * An implementation of {@link uk.ac.ebi.fgpt.conan.service.AbstractEmailResponderService} that generates email content
  * based on a number of arrayexpress recognised process types.
@@ -92,7 +93,7 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
 
     protected String getEmailSubject(ConanTask task, ConanProcess process) {
         
-    	String host = java.net.InetAddress.getLocalHost();
+    	InetAddress host = InetAddress.getLocalHost();
         String hostName=host.getHostName();
         
         String response = "[conan2: Host "+hostName+"]";
