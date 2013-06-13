@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.net.InetAddress;
 
 /**
  * An implementation of {@link uk.ac.ebi.fgpt.conan.service.AbstractEmailResponderService} that generates email content
@@ -90,7 +91,14 @@ public class ArrayExpressResponderService extends AbstractEmailResponderService 
     }
 
     protected String getEmailSubject(ConanTask task, ConanProcess process) {
-        String response = "[conan2]";
+        
+    	String host = java.net.InetAddress.getLocalHost()
+        String hostName=host.getHostName();
+        
+        String response = "[conan2: Host "+hostName+"]";
+    	
+    	
+    	//String response = "[conan2]";
         if (task.getCurrentState() == ConanTask.State.FAILED || task.getCurrentState() == ConanTask.State.ABORTED) {
             response = response + "[failure] Conan has a problem with task '" + task.getName() + "' - " +
                     task.getStatusMessage();
