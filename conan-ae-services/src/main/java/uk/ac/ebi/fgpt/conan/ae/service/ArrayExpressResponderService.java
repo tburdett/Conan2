@@ -110,28 +110,10 @@ public boolean respondsTo(ConanTask task) {
 
 protected String getEmailSubject(ConanTask task, ConanProcess process) {
 
-//String hostName;
-//String hostAddress;
-//String contextPath;
-String port;
+String conanInstance;
+conanInstance= System.getProperty("conan.home");
 
-//try {
-    port= System.getProperty("https.proxyPort");
-   // InetAddress host = InetAddress.getLocalHost();
-    //	hostName = host.getHostName();
- //   hostAddress=host.getHostAddress();
-
-//    HttpServletRequest request = (HttpServletRequest) req;
-//   contextPath = request.getContextPath();
-
-//} catch (UnknownHostException e) {
-    //hostName = "unknown";
-    //hostAddress = "unknown";
-   // contextPath = "unknown";
- //   port= "unknown";
-//}
-
-String response = "[conan2: Host " + port + "]";
+String response = "[conan2: Host " + conanInstance + "]";
 
 // String response = "[conan2]";
 if (task.getCurrentState() == ConanTask.State.FAILED
