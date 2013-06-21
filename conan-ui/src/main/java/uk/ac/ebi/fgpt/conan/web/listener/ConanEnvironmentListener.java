@@ -16,7 +16,8 @@ public class ConanEnvironmentListener implements ServletContextListener {
 
 
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-        String conanPath= servletContextEvent.getServletContext().getContextPath();
+        String conanPath= servletContextEvent.getServletContext().getServletContextName();
+   //   String conanPath= servletContextEvent.getServletContext().getContextPath();
         System.setProperty("conan.home", conanPath);
     }
      public void contextDestroyed(ServletContextEvent servletContextEvent) {
