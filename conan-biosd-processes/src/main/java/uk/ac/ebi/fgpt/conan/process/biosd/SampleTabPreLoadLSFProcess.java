@@ -70,7 +70,7 @@ public class SampleTabPreLoadLSFProcess extends AbstractBioSDLSFProcess {
 
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() 
-				+ " --input " + sampletabFile.getAbsolutePath() 
+				+ sampletabFile.getAbsolutePath() 
 				+ " --output sampletab.toload.txt" 
 				+ " --hostname " + ConanProperties.getProperty("biosamples.accession.hostname")
 				+ " --port " + ConanProperties.getProperty("biosamples.accession.port")

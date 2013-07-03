@@ -68,7 +68,7 @@ public class SampleTabAccessionerLSFProcess extends AbstractBioSDLSFProcess {
         
 		// main command to execute script
 		String mainCommand = script.getAbsolutePath() 
-				+ " --input " + sampletabpreFile.getAbsolutePath() 
+				+ sampletabpreFile.getAbsolutePath() 
 				+ " --output sampletab.txt"
 				+ " --hostname " + ConanProperties.getProperty("biosamples.accession.hostname")
 				+ " --port " + ConanProperties.getProperty("biosamples.accession.port")
