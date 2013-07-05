@@ -70,20 +70,6 @@
             <version>3.0.3.RELEASE</version>
         </dependency>
 
-        <!-- database drivers, should be provided by the tomcat where this webapp is deployed -->
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc5</artifactId>
-            <version>11.1.0.7.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>3.1.14</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- logging, database connection dependencies for tests -->
         <dependency>
             <groupId>commons-dbcp</groupId>
