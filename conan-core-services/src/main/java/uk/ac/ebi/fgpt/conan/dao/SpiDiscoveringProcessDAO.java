@@ -88,8 +88,7 @@ public class SpiDiscoveringProcessDAO implements ConanProcessDAO {
                 ConanProcess p = processIterator.next();
                 if (!processMap.containsKey(p.getName())) {
                     processMap.put(p.getName(), p);
-                }
-                else {
+                } else {
                     if (processMap.get(p.getName()) != p) {
                         String msg = "Multiple different Conan processes with the same process name " +
                                 "('" + p.getName() + "') are present on the classpath.  Process names must be unique.";

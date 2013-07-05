@@ -3,7 +3,6 @@ package uk.ac.ebi.fgpt.conan.web.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.fgpt.conan.model.ConanUser;
@@ -41,12 +40,16 @@ public class UserController {
     }
 
     @RequestMapping(value = "/{userID}", method = RequestMethod.GET)
-    public @ResponseBody ConanUser getUser(@PathVariable String userID) {
+    public
+    @ResponseBody
+    ConanUser getUser(@PathVariable String userID) {
         return getUserService().getUser(userID);
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public @ResponseBody Collection<ConanUser> getUsers() {
+    public
+    @ResponseBody
+    Collection<ConanUser> getUsers() {
         return getUserService().getUsers();
     }
 
@@ -61,13 +64,14 @@ public class UserController {
      * @return a simple bean wrapping the user's rest api key
      */
     @RequestMapping(value = "/email-query", method = RequestMethod.GET)
-    public @ResponseBody ConanUser getUserByEmail(@RequestParam(value = "email") String email) {
+    public
+    @ResponseBody
+    ConanUser getUserByEmail(@RequestParam(value = "email") String email) {
         getLog().debug("Attempting to acquire user with email " + email);
         try {
             String decodedEmail = URLDecoder.decode(email, "UTF-8");
             return getUserService().getUserByEmail(decodedEmail);
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("UTF-8 encoding should be supported, but wasn't.  JVM configuration error?", e);
         }
     }
@@ -82,19 +86,22 @@ public class UserController {
      * @return the user with this key, or null if there is none
      */
     @RequestMapping(value = "/restApiKey-query", method = RequestMethod.GET)
-    public @ResponseBody ConanUser getUserByRestApiKey(@RequestParam(value = "restApiKey") String restApiKey) {
+    public
+    @ResponseBody
+    ConanUser getUserByRestApiKey(@RequestParam(value = "restApiKey") String restApiKey) {
         getLog().debug("Attempting to acquire user with rest api key " + restApiKey);
         try {
             return getUserService().getUserByRestApiKey(restApiKey);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             getLog().debug("No such user for REST API key " + restApiKey);
             return null;
         }
     }
 
     @RequestMapping(value = "/{userID}/restApiKey", method = RequestMethod.GET)
-    public @ResponseBody RestApiKeyResponseBean getRestApiKeyForUser(@PathVariable String userID) {
+    public
+    @ResponseBody
+    RestApiKeyResponseBean getRestApiKeyForUser(@PathVariable String userID) {
         getLog().debug("Requesting REST API key for user " + userID);
         ConanUser user = getUserService().getUser(userID);
         getLog().debug("Got user " + user.getEmail());

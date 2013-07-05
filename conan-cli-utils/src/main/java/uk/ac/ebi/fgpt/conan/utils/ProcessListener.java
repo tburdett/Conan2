@@ -1,78 +1,78 @@
 package uk.ac.ebi.fgpt.conan.utils;
 
-import java.util.List;
-import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ProcessListener {
-  private List<String> progressMessages = new ArrayList<String>();
-  private List<String> errorMessages = new ArrayList<String>();
-  private boolean finished;
-  private boolean started;
+    private List<String> progressMessages = new ArrayList<String>();
+    private List<String> errorMessages = new ArrayList<String>();
+    private boolean finished;
+    private boolean started;
 
-  private LineBreak lineBreak = LineBreak.STANDARD;
+    private LineBreak lineBreak = LineBreak.STANDARD;
 
-  public ProcessListener() {
-  }
-
-  public String getProgressMessage() {
-    StringBuffer sb = new StringBuffer();
-    for(String progressMessage : progressMessages) {
-      sb.append(progressMessage);
+    public ProcessListener() {
     }
-    return sb.toString();
-  }
 
-  public void setProgressMessage(String s) {
-    progressMessages = Collections.emptyList();
-    progressMessages.add(s);
-  }
+    public String getProgressMessage() {
+        StringBuffer sb = new StringBuffer();
+        for (String progressMessage : progressMessages) {
+            sb.append(progressMessage);
+        }
+        return sb.toString();
+    }
 
-  public void appendProgressMessage(String s) {
-    progressMessages.add(s);
-  }
+    public void setProgressMessage(String s) {
+        progressMessages = Collections.emptyList();
+        progressMessages.add(s);
+    }
 
-  public void appendProgressMessageLine(String s) {
-    appendProgressMessage(s + lineBreak.getBreak());
-  }
+    public void appendProgressMessage(String s) {
+        progressMessages.add(s);
+    }
 
-  public void setErrorMessage(String s) {
-    errorMessages = Collections.emptyList();
-    errorMessages.add(s);
-  }
+    public void appendProgressMessageLine(String s) {
+        appendProgressMessage(s + lineBreak.getBreak());
+    }
 
-  public void appendErrorMessage(String s) {
-    errorMessages.add(s);
-  }
+    public void setErrorMessage(String s) {
+        errorMessages = Collections.emptyList();
+        errorMessages.add(s);
+    }
 
-  public void appendErrorMessageLine(String s) {
-    appendErrorMessage(s + lineBreak.getBreak());
-  }
+    public void appendErrorMessage(String s) {
+        errorMessages.add(s);
+    }
 
-  public boolean isStarted() {
-    return started;
-  }
+    public void appendErrorMessageLine(String s) {
+        appendErrorMessage(s + lineBreak.getBreak());
+    }
 
-  public void setStarted(boolean s) {
-    started = s;
-  }
+    public boolean isStarted() {
+        return started;
+    }
 
-  public boolean isFinished() {
-    return finished;
-  }
+    public void setStarted(boolean s) {
+        started = s;
+    }
 
-  public void setFinished(boolean f) {
-    finished = f;
-  }
+    public boolean isFinished() {
+        return finished;
+    }
 
-  public void setLineBreak(LineBreak l) {
-    lineBreak = l;
-  }
+    public void setFinished(boolean f) {
+        finished = f;
+    }
 
-  public void reset() {
-    started = false;
-    finished = false;
-    progressMessages = Collections.emptyList();
-    errorMessages = Collections.emptyList();
-  }
+    public void setLineBreak(LineBreak l) {
+        lineBreak = l;
+    }
+
+    public void reset() {
+        started = false;
+        finished = false;
+        progressMessages = Collections.emptyList();
+        errorMessages = Collections.emptyList();
+    }
 }

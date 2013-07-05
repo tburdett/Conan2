@@ -157,12 +157,10 @@ public class InMemoryConanTaskDAO implements ConanTaskDAO {
             public int compare(ConanTask<? extends ConanPipeline> task1, ConanTask<? extends ConanPipeline> task2) {
                 if (task1.getCreationDate().before(task2.getCreationDate())) {
                     return -1;
-                }
-                else {
+                } else {
                     if (task1.getCreationDate().after(task2.getCreationDate())) {
                         return -1;
-                    }
-                    else {
+                    } else {
                         return 0;
                     }
                 }

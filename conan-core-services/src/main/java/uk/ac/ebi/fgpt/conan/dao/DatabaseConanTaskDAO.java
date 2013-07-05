@@ -10,7 +10,11 @@ import uk.ac.ebi.fgpt.conan.core.process.DefaultProcessRun;
 import uk.ac.ebi.fgpt.conan.core.task.AbstractConanTask;
 import uk.ac.ebi.fgpt.conan.core.task.ConanTaskListener;
 import uk.ac.ebi.fgpt.conan.core.task.DatabaseRecoveredConanTask;
-import uk.ac.ebi.fgpt.conan.model.*;
+import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
+import uk.ac.ebi.fgpt.conan.model.ConanProcessRun;
+import uk.ac.ebi.fgpt.conan.model.ConanTask;
+import uk.ac.ebi.fgpt.conan.model.ConanUser;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -201,8 +205,8 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
     public ConanTask<? extends ConanPipeline> getTask(String taskID) {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
         ConanTask<? extends ConanPipeline> taskDB = getJdbcTemplate().queryForObject(TASK_SELECT_BY_ID,
-                                                                                     new Object[]{taskID},
-                                                                                     new ConanTaskMapper());
+                new Object[]{taskID},
+                new ConanTaskMapper());
 
         //additional sets
         List<ConanTask<? extends ConanPipeline>> singleList =
@@ -231,50 +235,50 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         if (conanTask.getId() == null) {
             int taskID = getJdbcTemplate().queryForInt(SEQUENCE_SELECT);
             getJdbcTemplate().update(TASK_INSERT,
-                                     taskID,
-                                     conanTask.getName(),
-                                     javaDateToSQLDate(conanTask.getStartDate()),
-                                     javaDateToSQLDate(conanTask.getCompletionDate()),
-                                     conanTask.getSubmitter().getId(),
-                                     conanTask.getPipeline().getName(),
-                                     conanTask.getPriority().toString(),
-                                     firstExecutedIndex,
-                                     conanTask.getCurrentState().toString(),
-                                     conanTask.getStatusMessage(),
-                                     currentExecutedIndex,
-                                     javaDateToSQLDate(conanTask.getCreationDate()));
+                    taskID,
+                    conanTask.getName(),
+                    javaDateToSQLDate(conanTask.getStartDate()),
+                    javaDateToSQLDate(conanTask.getCompletionDate()),
+                    conanTask.getSubmitter().getId(),
+                    conanTask.getPipeline().getName(),
+                    conanTask.getPriority().toString(),
+                    firstExecutedIndex,
+                    conanTask.getCurrentState().toString(),
+                    conanTask.getStatusMessage(),
+                    currentExecutedIndex,
+                    javaDateToSQLDate(conanTask.getCreationDate()));
             conanTask.setId(Integer.toString(taskID));
             //save parameters
             Map<ConanParameter, String> params = conanTask.getParameterValues();
             for (ConanParameter conanParameter : params.keySet()) {
                 getJdbcTemplate().update(PARAMETER_INSERT,
-                                         conanParameter.getName(),
-                                         params.get(conanParameter),
-                                         taskID);
+                        conanParameter.getName(),
+                        params.get(conanParameter),
+                        taskID);
             }
 
         }
         else {
             getJdbcTemplate().update(TASK_UPDATE,
-                                     conanTask.getName(),
-                                     javaDateToSQLDate(conanTask.getStartDate()),
-                                     javaDateToSQLDate(conanTask.getCompletionDate()),
-                                     conanTask.getSubmitter().getId(),
-                                     conanTask.getPipeline().getName(),
-                                     conanTask.getPriority().toString(),
-                                     firstExecutedIndex,
-                                     conanTask.getCurrentState().toString(),
-                                     conanTask.getStatusMessage(),
-                                     currentExecutedIndex,
-                                     javaDateToSQLDate(conanTask.getCreationDate()),
-                                     conanTask.getId());
+                    conanTask.getName(),
+                    javaDateToSQLDate(conanTask.getStartDate()),
+                    javaDateToSQLDate(conanTask.getCompletionDate()),
+                    conanTask.getSubmitter().getId(),
+                    conanTask.getPipeline().getName(),
+                    conanTask.getPriority().toString(),
+                    firstExecutedIndex,
+                    conanTask.getCurrentState().toString(),
+                    conanTask.getStatusMessage(),
+                    currentExecutedIndex,
+                    javaDateToSQLDate(conanTask.getCreationDate()),
+                    conanTask.getId());
             //delete and save parameters
             getJdbcTemplate().update(PARAMETER_DELETE,
-                                     conanTask.getId());
+                    conanTask.getId());
             Map<ConanParameter, String> params = conanTask.getParameterValues();
             for (ConanParameter conanParameter : params.keySet()) {
                 getJdbcTemplate().update(PARAMETER_INSERT,
-                                         conanParameter.getName(), params.get(conanParameter), conanTask.getId());
+                        conanParameter.getName(), params.get(conanParameter), conanTask.getId());
             }
 
         }
@@ -306,18 +310,18 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         }
 
         getJdbcTemplate().update(TASK_UPDATE,
-                                 conanTask.getName(),
-                                 javaDateToSQLDate(conanTask.getStartDate()),
-                                 javaDateToSQLDate(conanTask.getCompletionDate()),
-                                 conanTask.getSubmitter().getId(),
-                                 conanTask.getPipeline().getName(),
-                                 conanTask.getPriority().toString(),
-                                 firstExecutedIndex,
-                                 conanTask.getCurrentState().toString(),
-                                 conanTask.getStatusMessage(),
-                                 currentExecutedIndex,
-                                 javaDateToSQLDate(conanTask.getCreationDate()),
-                                 conanTask.getId());
+                conanTask.getName(),
+                javaDateToSQLDate(conanTask.getStartDate()),
+                javaDateToSQLDate(conanTask.getCompletionDate()),
+                conanTask.getSubmitter().getId(),
+                conanTask.getPipeline().getName(),
+                conanTask.getPriority().toString(),
+                firstExecutedIndex,
+                conanTask.getCurrentState().toString(),
+                conanTask.getStatusMessage(),
+                currentExecutedIndex,
+                javaDateToSQLDate(conanTask.getCreationDate()),
+                conanTask.getId());
 
         return conanTask;
     }
@@ -381,9 +385,9 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
 
         List<ConanTask<? extends ConanPipeline>> conanTasks =
                 getJdbcTemplate().query(TASK_SELECT_BY_DATE,
-                                        new ConanTaskMapper(),
-                                        startingFrom + maxRecords,
-                                        startingFrom);
+                        new ConanTaskMapper(),
+                        startingFrom + maxRecords,
+                        startingFrom);
 
         //additional sets
         addConanTaskChildren(conanTasks);
@@ -395,10 +399,10 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
 
         List<ConanTask<? extends ConanPipeline>> conanTasks =
                 getJdbcTemplate().query(TASK_SELECT_BY_PARAM,
-                                        new ConanTaskMapper(),
-                                        startingFrom + maxRecords,
-                                        startingFrom,
-                                        orderBy);
+                        new ConanTaskMapper(),
+                        startingFrom + maxRecords,
+                        startingFrom,
+                        orderBy);
 
         //additional sets
         addConanTaskChildren(conanTasks);
@@ -468,9 +472,9 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
         List<ConanTask<? extends ConanPipeline>> conanTasks =
                 getJdbcTemplate().query(TASK_SELECT_COMPLETED_PAGED,
-                                        new ConanTaskMapper(),
-                                        startingFrom + maxRecords,
-                                        startingFrom);
+                        new ConanTaskMapper(),
+                        startingFrom + maxRecords,
+                        startingFrom);
 
         //additional sets
         addConanTaskChildren(conanTasks, TaskType.COMPLETED);
@@ -480,26 +484,26 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasksSummary(int maxRecords, int startingFrom) {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
         return getJdbcTemplate().query(TASK_SELECT_COMPLETED_PAGED,
-                                       new ConanTaskMapper(),
-                                       startingFrom + maxRecords,
-                                       startingFrom);
+                new ConanTaskMapper(),
+                startingFrom + maxRecords,
+                startingFrom);
     }
 
     public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name) {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
         getLog().debug("Searching completed tasks by task name {" + name + "}");
         return getJdbcTemplate().query(TASK_SEARCH_NAME,
-                                       new ConanTaskMapper(),
-                                       "%" + name + "%");
+                new ConanTaskMapper(),
+                "%" + name + "%");
     }
 
     public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, String userID) {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
         getLog().debug("Searching completed tasks by task name and user id {" + name + ", " + userID + "}");
         return getJdbcTemplate().query(TASK_SEARCH_NAME_USER,
-                                       new ConanTaskMapper(),
-                                       "%" + name + "%",
-                                       userID);
+                new ConanTaskMapper(),
+                "%" + name + "%",
+                userID);
     }
 
     public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, Date fromDate) {
@@ -507,9 +511,9 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         getLog().debug(
                 "Searching completed tasks by task name and from date {" + name + ", " + fromDate.toString() + "}");
         return getJdbcTemplate().query(TASK_SEARCH_NAME_FROM_DATE,
-                                       new ConanTaskMapper(),
-                                       "%" + name + "%",
-                                       new java.sql.Date(fromDate.getTime()));
+                new ConanTaskMapper(),
+                "%" + name + "%",
+                new java.sql.Date(fromDate.getTime()));
     }
 
     public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name, Date fromDate, Date toDate) {
@@ -518,18 +522,17 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
             getLog().debug(
                     "Searching completed tasks by task name and to date {" + name + ", " + toDate.toString() + "}");
             return getJdbcTemplate().query(TASK_SEARCH_NAME_TO_DATE,
-                                           new ConanTaskMapper(),
-                                           "%" + name + "%",
-                                           new java.sql.Date(toDate.getTime()));
-        }
-        else {
+                    new ConanTaskMapper(),
+                    "%" + name + "%",
+                    new java.sql.Date(toDate.getTime()));
+        } else {
             getLog().debug("Searching completed tasks by task name, from date and to date {" + name + ", " +
-                                   fromDate.toString() + "," + toDate.toString() + "}");
+                    fromDate.toString() + "," + toDate.toString() + "}");
             return getJdbcTemplate().query(TASK_SEARCH_NAME_FROM_TO_DATE,
-                                           new ConanTaskMapper(),
-                                           "%" + name + "%",
-                                           new java.sql.Date(fromDate.getTime()),
-                                           new java.sql.Date(toDate.getTime()));
+                    new ConanTaskMapper(),
+                    "%" + name + "%",
+                    new java.sql.Date(fromDate.getTime()),
+                    new java.sql.Date(toDate.getTime()));
         }
     }
 
@@ -538,12 +541,12 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
                                                                          Date fromDate) {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
         getLog().debug("Searching completed tasks by task name, user ID and from date {" + name + ", " +
-                               userID + "," + fromDate.toString() + "}");
+                userID + "," + fromDate.toString() + "}");
         return getJdbcTemplate().query(TASK_SEARCH_NAME_USER_FROM_DATE,
-                                       new ConanTaskMapper(),
-                                       userID,
-                                       "%" + name + "%",
-                                       new java.sql.Date(fromDate.getTime()));
+                new ConanTaskMapper(),
+                userID,
+                "%" + name + "%",
+                new java.sql.Date(fromDate.getTime()));
     }
 
     public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name,
@@ -553,22 +556,21 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
         if (fromDate == null) {
             getLog().debug("Searching completed tasks by task name, user ID and to date {" + name + ", " +
-                                   userID + "," + toDate.toString() + "}");
+                    userID + "," + toDate.toString() + "}");
             return getJdbcTemplate().query(TASK_SEARCH_NAME_USER_TO_DATE,
-                                           new ConanTaskMapper(),
-                                           "%" + name + "%",
-                                           userID,
-                                           new java.sql.Date(toDate.getTime()));
-        }
-        else {
+                    new ConanTaskMapper(),
+                    "%" + name + "%",
+                    userID,
+                    new java.sql.Date(toDate.getTime()));
+        } else {
             getLog().debug("Searching completed tasks by task name, user ID, from date and to date {" + name + ", " +
-                                   userID + ", " + fromDate.toString() + "," + toDate.toString() + "}");
+                    userID + ", " + fromDate.toString() + "," + toDate.toString() + "}");
             return getJdbcTemplate().query(TASK_SEARCH_NAME_USER_FROM_TO_DATE,
-                                           new ConanTaskMapper(),
-                                           "%" + name + "%",
-                                           userID,
-                                           new java.sql.Date(fromDate.getTime()),
-                                           new java.sql.Date(toDate.getTime()));
+                    new ConanTaskMapper(),
+                    "%" + name + "%",
+                    userID,
+                    new java.sql.Date(fromDate.getTime()),
+                    new java.sql.Date(toDate.getTime()));
         }
     }
 
@@ -706,8 +708,8 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
             if (conanPipeline == null) {
                 // never set a null, update to private "unrecognised pipeline"
                 conanPipeline = new DefaultConanPipeline("Unknown pipeline '" + resultSet.getString(6) + "'",
-                                                         submitter,
-                                                         true);
+                        submitter,
+                        true);
             }
 
             DatabaseRecoveredConanTask<ConanPipeline> task = new DatabaseRecoveredConanTask<ConanPipeline>();
@@ -761,9 +763,9 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
 
             // build the process
             DefaultProcessRun process = new DefaultProcessRun(resultSet.getString(2),
-                                                              sqlDateToJavaDate(resultSet.getString(3)),
-                                                              sqlDateToJavaDate(resultSet.getString(4)),
-                                                              submitter);
+                    sqlDateToJavaDate(resultSet.getString(3)),
+                    sqlDateToJavaDate(resultSet.getString(4)),
+                    submitter);
             process.setId(resultSet.getString(1));
             process.setExitValue(resultSet.getInt(6));
 

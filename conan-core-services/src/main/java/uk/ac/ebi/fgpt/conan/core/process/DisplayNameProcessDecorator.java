@@ -18,7 +18,8 @@ public class DisplayNameProcessDecorator extends AbstractProcessDecorator {
         this.displayName = displayName;
     }
 
-    @Override public String getName() {
+    @Override
+    public String getName() {
         return displayName;
     }
 }

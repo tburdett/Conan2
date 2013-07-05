@@ -2,6 +2,8 @@ package uk.ac.ebi.fgpt.conan.model;
 
 import net.sourceforge.fluxion.spi.Spi;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.io.Serializable;
@@ -21,15 +23,65 @@ import java.util.Map;
  * Note that because <code>Process</code>es are always programmatically instantiated (for example, using a {@link
  * java.util.ServiceLoader}), all processes should have a default constructor.
  *
- * @author Tony Burdett
+ * @author Tony Burdett + Dan Mapleson
  * @date 28-Jul-2010
  * @see uk.ac.ebi.fgpt.conan.model.ConanPipeline
- * @see uk.ac.ebi.fgpt.conan.model.ConanParameter
+ * @see uk.ac.ebi.fgpt.conan.model.param.ConanParameter
  * @see uk.ac.ebi.fgpt.conan.model.ConanTask
  */
 @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
 @Spi
 public interface ConanProcess extends Serializable {
+
+
+    /**
+     * Get the command to execute for this <code>ConanProcess</code>
+     *
+     * @return The command to execute
+     */
+    String getCommand();
+
+    /**
+     * Get the command to execute including and pre and post commands as a single compound command to execute
+     *
+     * @return The full compound command to execute for this <code>ConanProcess</code>
+     */
+    String getFullCommand();
+
+    /**
+     * Add an additional command to execute before running the main proc.  The order in which the command is added is
+     * down to the implementation.
+     *
+     * @param preCommand The command to execute before running this proc.
+     */
+    void addPreCommand(String preCommand);
+
+    /**
+     * Add an additional command to execute after running the main proc.  The order in which the command is added is
+     * down to the implementation.
+     *
+     * @param postCommand The command to execute after running this proc.
+     */
+    void addPostCommand(String postCommand);
+
+    /**
+     * Executes this process within a defined {@link uk.ac.ebi.fgpt.conan.model.context.ExecutionContext}.  Assumes the process arguments have all been
+     * set
+     *
+     * @param executionContext The execution context within which to execute this <code>ConanProcess</code>
+     * @return Whether this <code>ConanProcess</code> executed successfully or not.
+     */
+    boolean execute(ExecutionContext executionContext) throws ProcessExecutionException, InterruptedException;
+
+    /**
+     * Executes this process within a defined {@link ExecutionContext}, provides the process with arguments.
+     *
+     * @param executionContext The execution context within which to execute this <code>ConanProcess</code>
+     * @return Whether this <code>ConanProcess</code> executed successfully or not.
+     */
+    boolean execute(Map<ConanParameter, String> params, ExecutionContext executionContext)
+            throws ProcessExecutionException, InterruptedException;
+
     /**
      * Executes this process with the supplied parameters.  The thread in which a <code>ConanProcess</code> is running
      * can legitimately be interrupted with a shutdown request to the Conan system.  <code>ConanProcess</code>es should

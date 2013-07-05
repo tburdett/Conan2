@@ -96,12 +96,10 @@ public class XMLLoadingPipelineDAO implements ConanPipelineDAO {
             if (conanPipeline.getCreator().equals(conanUser)) {
                 // matching user, ok to return
                 return conanPipeline;
-            }
-            else {
+            } else {
                 return null;
             }
-        }
-        else {
+        } else {
             // ok to return
             return conanPipeline;
         }
@@ -142,12 +140,10 @@ public class XMLLoadingPipelineDAO implements ConanPipelineDAO {
                     // parse XML to get all known pipelines
                     if (XML_VALIDATION) {
                         conanPipelines.addAll(parser.parseAndValidatePipelineXML(pipelineXML));
-                    }
-                    else {
+                    } else {
                         conanPipelines.addAll(parser.parsePipelineXML(pipelineXML));
                     }
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     // this is a configuration error, so throw a runtime exception
                     String msg = "Failed to parse " + pipelineResources;
                     getLog().error(msg);
@@ -155,8 +151,7 @@ public class XMLLoadingPipelineDAO implements ConanPipelineDAO {
                     throw new ServiceConfigurationError(msg, e);
                 }
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             String msg = "Could not access conan/pipelines.xml resources";
             getLog().error(msg);
             getLog().debug("IOException follows", e);
@@ -168,8 +163,7 @@ public class XMLLoadingPipelineDAO implements ConanPipelineDAO {
         for (ConanPipeline p : conanPipelines) {
             if (!pipelineNames.contains(p.getName())) {
                 pipelineNames.add(p.getName());
-            }
-            else {
+            } else {
                 String msg = "Multiple Conan pipelines with the same pipeline name ('" + p.getName() + "') " +
                         "are declared in conan/pipelines.xml.  Pipeline names must be unique.";
                 getLog().error(msg);

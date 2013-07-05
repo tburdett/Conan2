@@ -14,6 +14,10 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <conan-version>2.0.6-SNAPSHOT</conan-version>
+        <java-version>1.6</java-version>
+        <slf4j-version>1.6.1</slf4j-version>
+        <springframework-version>3.1.3.RELEASE</springframework-version>
     </properties>
 
     <build>
@@ -22,8 +26,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
+                    <source>${java-version}</source>
+                    <target>${java-version}</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -99,7 +103,7 @@
                 <role>developer</role>
             </roles>
             <timezone>0</timezone>
-            <properties />
+            <properties/>
         </developer>
         <developer>
             <id>natalja</id>
@@ -111,15 +115,66 @@
                 <role>developer</role>
             </roles>
             <timezone>0</timezone>
-            <properties />
+            <properties/>
+        </developer>
+        <developer>
+            <id>faulcon</id>
+            <name>Adam Faulconbridge</name>
+            <email>faulcon@ebi.ac.uk</email>
+            <organization>EBI</organization>
+            <organizationUrl>http://www.ebi.ac.uk</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+            <properties/>
+        </developer>
+        <developer>
+            <id>emma</id>
+            <name>Emma Hastings</name>
+            <email>emma@ebi.ac.uk</email>
+            <organization>EBI</organization>
+            <organizationUrl>http://www.ebi.ac.uk</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+            <properties/>
+        </developer>
+        <developer>
+            <id>maplesod</id>
+            <name>Daniel Mapleson</name>
+            <email>maplesod@tgac.ac.uk</email>
+            <organization>TGAC</organization>
+            <organizationUrl>http://www.tgac.ac.uk</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+            <properties/>
+        </developer>
+        <developer>
+            <id>froggleston</id>
+            <name>Rob Davey</name>
+            <email>davey@tgac.ac.uk</email>
+            <organization>TGAC</organization>
+            <organizationUrl>http://www.tgac.ac.uk</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+            <properties/>
         </developer>
     </developers>
 
     <dependencies>
+
+        <!-- Logging -->
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.6.0</version>
+            <version>${slf4j-version}</version>
         </dependency>
 
         <!-- ensures all commons-logging output is redirect to slf4j -->
@@ -129,12 +184,22 @@
             <version>1.6.0</version>
         </dependency>
 
+        <!-- Unit Testing -->
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.6</version>
+            <version>4.8.1</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.8.4</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <profiles>
@@ -149,34 +214,18 @@
                 <repository>
                     <id>hasbanana-repo</id>
                     <name>hasBanana repository</name>
-		    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/maven/repo</url>
+                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/maven/repo</url>
                 </repository>
                 <snapshotRepository>
                     <id>hasbanana-repo</id>
                     <name>hasBanana repository</name>
-		    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/maven/repo</url>
+                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/maven/repo</url>
                 </snapshotRepository>
                 <site>
                     <id>hasbanana-repo</id>
                     <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/conan2/documentation/</url>
                 </site>
             </distributionManagement>
-
-            <dependencies>
-                <!-- logging for tests -->
-                <dependency>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                    <version>1.6.0</version>
-                    <scope>test</scope>
-                </dependency>
-                <dependency>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                    <version>1.2.14</version>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
 
             <modules>
                 <module>conan-service</module>

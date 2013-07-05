@@ -1,10 +1,10 @@
 package uk.ac.ebi.fgpt.conan.core.task;
 
 import org.springframework.util.Assert;
-import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanProcessRun;
 import uk.ac.ebi.fgpt.conan.model.ConanUser;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 
 import java.util.*;
 

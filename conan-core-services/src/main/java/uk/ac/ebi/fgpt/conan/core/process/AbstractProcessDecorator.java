@@ -1,7 +1,8 @@
 package uk.ac.ebi.fgpt.conan.core.process;
 
-import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
+import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.util.Collection;
@@ -22,16 +23,51 @@ public abstract class AbstractProcessDecorator implements ConanProcess {
         this.process = process;
     }
 
+
+    @Override
+    public String getName() {
+        return process.getName();
+    }
+
+    @Override
+    public Collection<ConanParameter> getParameters() {
+        return process.getParameters();
+    }
+
+    @Override
+    public String getCommand() {
+        return process.getCommand();
+    }
+
+    @Override
+    public String getFullCommand() {
+        return process.getFullCommand();
+    }
+
+    @Override
+    public void addPreCommand(String preCommand) {
+        this.process.addPreCommand(preCommand);
+    }
+
+    @Override
+    public void addPostCommand(String postCommand) {
+        this.process.addPostCommand(postCommand);
+    }
+
+    @Override
     public boolean execute(Map<ConanParameter, String> parameters)
             throws ProcessExecutionException, IllegalArgumentException, InterruptedException {
         return process.execute(parameters);
     }
 
-    public String getName() {
-        return process.getName();
+    @Override
+    public boolean execute(ExecutionContext executionContext) throws ProcessExecutionException, InterruptedException {
+        return process.execute(executionContext);
     }
 
-    public Collection<ConanParameter> getParameters() {
-        return process.getParameters();
+    @Override
+    public boolean execute(Map<ConanParameter, String> parameters, ExecutionContext executionContext) throws ProcessExecutionException, InterruptedException {
+        return process.execute(parameters, executionContext);
     }
+
 }

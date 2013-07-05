@@ -1,6 +1,6 @@
 package uk.ac.ebi.fgpt.conan.process.demo;
 
-import uk.ac.ebi.fgpt.conan.model.AbstractConanParameter;
+import uk.ac.ebi.fgpt.conan.model.param.AbstractConanParameter;
 
 /**
  * A demonstration conan parameter for the demo process

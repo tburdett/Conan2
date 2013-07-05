@@ -35,7 +35,7 @@ function authenticate(options) {
  * @param restApiKey
  */
 function verifyRestApiKey(restApiKey, options) {
-    $.getJSON('api/users/restApiKey-query?restApiKey=' + restApiKey, function(json) {
+    $.getJSON('api/users/restApiKey-query?restApiKey=' + restApiKey, function (json) {
         if (json == undefined) {
             // the restApiKey we found in a cookie is not verified or out of date, so request a new key
             options.error();
@@ -61,7 +61,7 @@ function obtainRestApiKey(userJson, options) {
         loginGuest(options.success);
     }
     else {
-        $.getJSON('api/users/' + userJson.id + '/restApiKey', function(json) {
+        $.getJSON('api/users/' + userJson.id + '/restApiKey', function (json) {
             if (json.restApiKey == undefined || json.restApiKey == "") {
                 loginGuest(options.success);
             }
@@ -75,9 +75,9 @@ function obtainRestApiKey(userJson, options) {
 function loginGuest(callback) {
     // show the guest greeting at the top
     $("#conan-user-greeting").html(
-            "Hello guest! " +
-                    "<a href=\"#\" onclick=\"removeCookie(\'conanRestApiKey\'); window.location.reload();\">" +
-                    "Log in</a> with a different email for more options");
+        "Hello guest! " +
+            "<a href=\"#\" onclick=\"removeCookie(\'conanRestApiKey\'); window.location.reload();\">" +
+            "Log in</a> with a different email for more options");
 
     // also, as the user has guest privileges, hide admin link
     $("#conan-admin-link").css({"display": "none"});
@@ -89,10 +89,10 @@ function loginGuest(callback) {
 function loginUser(userJson, restApiKey, callback) {
     // display the users name at the top
     $("#conan-user-greeting").html(
-            "Hello " + userJson.firstName + " " + userJson.surname + "! " +
-                    "Log out " +
-                    "<a href=\"#\" onclick=\"removeCookie(\'conanRestApiKey\'); window.location.reload();\">" +
-                    "here!</a>");
+        "Hello " + userJson.firstName + " " + userJson.surname + "! " +
+            "Log out " +
+            "<a href=\"#\" onclick=\"removeCookie(\'conanRestApiKey\'); window.location.reload();\">" +
+            "here!</a>");
 
     // set rest api cookie
     var expires = new Date();
@@ -133,8 +133,8 @@ function getCookie(cookieName) {
 
 function setCookie(cookieName, cookieValue, expires) {
     document.cookie =
-            cookieName + "=" + cookieValue + ";" +
-                    "expires=" + expires + ";";
+        cookieName + "=" + cookieValue + ";" +
+            "expires=" + expires + ";";
 }
 
 /**

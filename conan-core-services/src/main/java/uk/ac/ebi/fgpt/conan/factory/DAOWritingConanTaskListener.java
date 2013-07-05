@@ -90,8 +90,7 @@ public class DAOWritingConanTaskListener implements ConanTaskListener {
             if (responder.respondsTo(event.getTask())) {
                 if (event.getCurrentProcessException() == null) {
                     responder.generateResponse(event.getTask());
-                }
-                else {
+                } else {
                     responder.generateResponse(event.getTask(), event.getCurrentProcessException());
                 }
             }

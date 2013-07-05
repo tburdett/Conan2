@@ -83,8 +83,7 @@ public abstract class AbstractRESTAPISubprocess {
         try {
             requestResults = mapper.readValue(response, typeRef);
             return requestResults;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 
         }
 
@@ -110,8 +109,7 @@ public abstract class AbstractRESTAPISubprocess {
                 HashMap<String, Object> logonResults =
                         parseRestApiResponse(responseString);
                 return (Boolean) logonResults.get("success");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 return false;
             }
@@ -131,8 +129,7 @@ public abstract class AbstractRESTAPISubprocess {
             String responseString = EntityUtils.toString(entity);
             getLog().debug("Atlas REST API response: " + responseString);
             requestResults = parseRestApiResponse(responseString);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return requestResults;
@@ -173,8 +170,7 @@ public abstract class AbstractRESTAPISubprocess {
                     synchronized (this) {
                         try {
                             wait(interval * 1000);
-                        }
-                        catch (InterruptedException e) {
+                        } catch (InterruptedException e) {
                             // if interrupted, die
                             getLog().debug("Interrupted exception causing thread to die");
                             stop();

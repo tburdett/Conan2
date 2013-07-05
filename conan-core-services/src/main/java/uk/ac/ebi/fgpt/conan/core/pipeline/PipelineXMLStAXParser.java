@@ -58,13 +58,11 @@ public class PipelineXMLStAXParser extends AbstractPipelineXMLParser {
                 int event = reader.next();
                 if (event == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(PIPELINE_ELEMENT)) {
                     conanPipelines.add(readPipeline(reader));
-                }
-                else {
+                } else {
                     // skip
                 }
             }
-        }
-        catch (XMLStreamException e) {
+        } catch (XMLStreamException e) {
             throw new IOException("Unable to read from " + pipelineXMLResource, e);
         }
 
@@ -118,8 +116,7 @@ public class PipelineXMLStAXParser extends AbstractPipelineXMLParser {
             getLog().error("An unknown user '" + usernameStr + "' was named as the creator of " +
                     "the pipeline '" + name + "'.  This pipeline will not be loaded.");
             return null;
-        }
-        else {
+        } else {
             if (conanUsers.size() > 1) {
                 getLog().error(
                         "The username '" + usernameStr + "' is ambiguous, there are " + conanUsers.size() + " " +
@@ -140,8 +137,7 @@ public class PipelineXMLStAXParser extends AbstractPipelineXMLParser {
             int event = reader.next();
             if (event == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(PROCESSES_ELEMENT)) {
                 conanPipeline.setProcesses(readProcesses(reader));
-            }
-            else {
+            } else {
                 // skip
             }
         }
@@ -174,8 +170,7 @@ public class PipelineXMLStAXParser extends AbstractPipelineXMLParser {
         ConanProcess p = getProcessDAO().getProcess(processName);
         if (p != null) {
             return p;
-        }
-        else {
+        } else {
             String msg = "pipelines.xml references a process (" + processName + ") that was not loaded";
             getLog().error(msg);
             throw new ServiceConfigurationError(msg);

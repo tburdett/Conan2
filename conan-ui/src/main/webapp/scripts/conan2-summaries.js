@@ -3,9 +3,9 @@
  * details retrieved and the json rendered to give a nice summary view.
  */
 function displayTaskSummary() {
-    $(document).ready(function() {
+    $(document).ready(function () {
         var taskID = getTaskIdFromAddress();
-        $.getJSON('../api/tasks/' + taskID, function(json) {
+        $.getJSON('../api/tasks/' + taskID, function (json) {
             generateSummary(json);
         })
     });
@@ -17,26 +17,26 @@ function generateSummary(json) {
 
     // create datatable
     $("#conan-processes-table").dataTable({
-                                              "aaSorting": [
-                                                  [ 1, "desc" ]
-                                              ],
-                                              "bFilter": false,
-                                              "bPaginate": false,
-                                              "bStateSave": true,
-                                              "bSort": true,
-                                              "bInfo": false,
-                                              "bAutoWidth": true
-                                          });
+        "aaSorting": [
+            [ 1, "desc" ]
+        ],
+        "bFilter": false,
+        "bPaginate": false,
+        "bStateSave": true,
+        "bSort": true,
+        "bInfo": false,
+        "bAutoWidth": true
+    });
 
     // add button hover states
     $(".ui-button").hover(
-                         function() {
-                             $(this).addClass('ui-state-hover');
-                         },
-                         function() {
-                             $(this).removeClass('ui-state-hover');
-                         }
-            );
+        function () {
+            $(this).addClass('ui-state-hover');
+        },
+        function () {
+            $(this).removeClass('ui-state-hover');
+        }
+    );
 
     // set task metadata
     $("#task-name").html(json.name);
@@ -66,14 +66,14 @@ function generateSummary(json) {
 
     // set parameters supplied
     $("#parameters-list").html("");
-    $.each(json.parameterValues, function(key, value) {
+    $.each(json.parameterValues, function (key, value) {
         $("#parameters-list").append("<li>" + key + ": " + value + "</li>");
     });
 
     // set process runs
     $("#task-status").html(json.currentState);
     var table = $("#conan-processes-table").dataTable();
-    $.each(json.conanProcessRuns, function(index, value) {
+    $.each(json.conanProcessRuns, function (index, value) {
         var startDate = new Date(value.startDate);
         var startStr = startDate.toLocaleTimeString() + ", " + startDate.toDateString();
         var endStr;
@@ -110,10 +110,10 @@ function generateSummary(json) {
     $("#task-report-names").html("");
     $.getJSON('../api/reports/names?taskID=' + json.id, function (json) {
         // set parameters supplied
-        $.each(json.reportNames, function(index, value) {
+        $.each(json.reportNames, function (index, value) {
             $("#task-report-names").append("<li><a href='javascript:void(0);' onclick='requestReportContent(\"" +
-                                                   value + "\")'>" + value +
-                                                   "</a></li>");
+                value + "\")'>" + value +
+                "</a></li>");
         });
     });
 }
@@ -127,7 +127,7 @@ function requestReportContent(reportName) {
 
 function renderReportContent(json) {
     $("#task-report-content").html("");
-    $.each(json.reportContent, function(key, value) {
+    $.each(json.reportContent, function (key, value) {
         $("#task-report-content").append(value + "\n");
     });
 }

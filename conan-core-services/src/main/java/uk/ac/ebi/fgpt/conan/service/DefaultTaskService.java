@@ -7,7 +7,11 @@ import org.springframework.util.StringUtils;
 import uk.ac.ebi.fgpt.conan.dao.ConanPipelineDAO;
 import uk.ac.ebi.fgpt.conan.dao.ConanTaskDAO;
 import uk.ac.ebi.fgpt.conan.factory.ConanTaskFactory;
-import uk.ac.ebi.fgpt.conan.model.*;
+import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
+import uk.ac.ebi.fgpt.conan.model.ConanProcess;
+import uk.ac.ebi.fgpt.conan.model.ConanTask;
+import uk.ac.ebi.fgpt.conan.model.ConanUser;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.service.exception.ConanPipelineLookupException;
 import uk.ac.ebi.fgpt.conan.service.exception.MissingRequiredParameterException;
 
@@ -102,10 +106,10 @@ public class DefaultTaskService implements ConanTaskService {
         // we've now looked up our pipeline, skipped all the processes before starting process,
         // and extract required parameters - so create the task from these inputs
         ConanTask<?> task = getConanTaskFactory().createTask(pipeline,
-                                                             startingProcessIndex,
-                                                             parameters,
-                                                             priority,
-                                                             conanUser);
+                startingProcessIndex,
+                parameters,
+                priority,
+                conanUser);
 
         // save this task, and return the result (this updates the reference if required)
         return getConanTaskDAO().saveTask(task);

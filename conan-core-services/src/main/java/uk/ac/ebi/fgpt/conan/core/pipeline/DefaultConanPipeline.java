@@ -2,10 +2,10 @@ package uk.ac.ebi.fgpt.conan.core.pipeline;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanUser;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,7 @@ public class DefaultConanPipeline implements ConanPipeline {
                 getLog().trace("Next parameter for process " + getName() + " = " + parameter.getName());
                 if (!allRequiredParameters.contains(parameter)) {
                     getLog().trace("'" + parameter.getName() + "' is a required parameter for pipelines containing " +
-                                           "'" + getName() + "'");
+                            "'" + getName() + "'");
                     allRequiredParameters.add(parameter);
                 }
             }

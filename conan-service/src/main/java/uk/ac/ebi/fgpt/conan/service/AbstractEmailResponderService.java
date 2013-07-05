@@ -65,8 +65,7 @@ public abstract class AbstractEmailResponderService implements ConanResponderSer
                             "\tTo: " + msg.getTo()[0] + "\n" +
                             "\tSubject: " + msg.getSubject());
             getMailSender().send(msg);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             // simply log it and go on...
             getLog().error("Failed to send message \"" + msg.getSubject() + "\"!", e);
         }
@@ -113,8 +112,7 @@ public abstract class AbstractEmailResponderService implements ConanResponderSer
                             "\tTo: " + msg.getTo()[0] + "\n" +
                             "\tSubject: " + msg.getSubject());
             getMailSender().send(msg);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             // simply log it and go on...
             getLog().error("Failed to send message \"" + msg.getSubject() + "\"!", e);
         }
@@ -146,8 +144,7 @@ public abstract class AbstractEmailResponderService implements ConanResponderSer
                                 "\tTo: " + msg.getTo()[0] + "\n" +
                                 "\tSubject: " + msg.getSubject());
                 getMailSender().send(msg);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 // simply log it and go on...
                 getLog().error("Failed to send message \"" + msg.getSubject() + "\"!", e);
             }
@@ -180,14 +177,12 @@ public abstract class AbstractEmailResponderService implements ConanResponderSer
                                     "\tTo: " + msg.getTo()[0] + "\n" +
                                     "\tSubject: " + msg.getSubject());
                     getMailSender().send(msg);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     // simply log it and go on...
                     getLog().error("Failed to send message \"" + msg.getSubject() + "\"!", e);
                 }
                 getLog().debug("Response sent!");
-            }
-            else {
+            } else {
                 getLog().warn("The submitter of task '" + task.getId() + "' " +
                         "(" + task.getSubmitter().getUserName() + ") has no email address.  " +
                         "The current notification, '" + subject + "' will be lost.");

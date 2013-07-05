@@ -94,10 +94,10 @@ public class SubmissionController {
                 // generate task
                 ConanTask<? extends ConanPipeline> conanTask =
                         getTaskService().createNewTask(submissionRequest.getPipelineName(),
-                                                       submissionRequest.getStartingProcessIndex(),
-                                                       submissionRequest.getInputParameters(),
-                                                       priority,
-                                                       conanUser);
+                                submissionRequest.getStartingProcessIndex(),
+                                submissionRequest.getInputParameters(),
+                                priority,
+                                conanUser);
 
                 // and submit the newly generated task
                 getSubmissionService().submitTask(conanTask);
@@ -154,10 +154,10 @@ public class SubmissionController {
                 try {
                     ConanTask<? extends ConanPipeline> conanTask =
                             getTaskService().createNewTask(submissionRequest.getPipelineName(),
-                                                           submissionRequest.getStartingProcessIndex(),
-                                                           submissionRequest.getInputParameters(),
-                                                           priority,
-                                                           conanUser);
+                                    submissionRequest.getStartingProcessIndex(),
+                                    submissionRequest.getInputParameters(),
+                                    priority,
+                                    conanUser);
 
                     // and submit the newly generated task
                     getSubmissionService().submitTask(conanTask);
@@ -166,11 +166,10 @@ public class SubmissionController {
                             "Your submission was accepted - task '" + conanTask.getName() +
                                     "' has been added to the queue";
                     submissionResponses.add(new SubmissionResponseBean(true,
-                                                                       msg,
-                                                                       conanTask.getId(),
-                                                                       conanTask.getName()));
-                }
-                catch (SubmissionException e) {
+                            msg,
+                            conanTask.getId(),
+                            conanTask.getName()));
+                } catch (SubmissionException e) {
                     String msg = "Your submission was rejected - " + e.getMessage();
                     submissionResponses.add(new SubmissionResponseBean(false, msg, null, null));
                 }
@@ -220,16 +219,16 @@ public class SubmissionController {
                 }
                 else if (task.getCurrentState().compareTo(ConanTask.State.RUNNING) < 0) {
                     return new SubmissionResponseBean(false,
-                                                      "Task '" + task.getName() + "' is already paused",
-                                                      taskID,
-                                                      task.getName());
+                            "Task '" + task.getName() + "' is already paused",
+                            taskID,
+                            task.getName());
                 }
                 else {
                     return new SubmissionResponseBean(false,
-                                                      "Task '" + task.getName() +
-                                                              "' cannot be paused because it has finished",
-                                                      taskID,
-                                                      task.getName());
+                            "Task '" + task.getName() +
+                                    "' cannot be paused because it has finished",
+                            taskID,
+                            task.getName());
                 }
             }
             else {
@@ -238,10 +237,10 @@ public class SubmissionController {
         }
         else {
             return new SubmissionResponseBean(false,
-                                              "You cannot pause task '" + task.getName() + "', " +
-                                                      "because you do not have permission",
-                                              taskID,
-                                              task.getName());
+                    "You cannot pause task '" + task.getName() + "', " +
+                            "because you do not have permission",
+                    taskID,
+                    task.getName());
         }
     }
 
@@ -286,10 +285,10 @@ public class SubmissionController {
                 }
                 else {
                     return new SubmissionResponseBean(false,
-                                                      "Task '" + task.getName() + "' cannot be resumed because " +
-                                                              "it is not paused",
-                                                      taskID,
-                                                      task.getName());
+                            "Task '" + task.getName() + "' cannot be resumed because " +
+                                    "it is not paused",
+                            taskID,
+                            task.getName());
                 }
             }
             else {
@@ -298,10 +297,10 @@ public class SubmissionController {
         }
         else {
             return new SubmissionResponseBean(false,
-                                              "You cannot resume task '" + task.getName() + "', " +
-                                                      "because you do not have permission",
-                                              taskID,
-                                              task.getName());
+                    "You cannot resume task '" + task.getName() + "', " +
+                            "because you do not have permission",
+                    taskID,
+                    task.getName());
         }
     }
 
@@ -345,10 +344,10 @@ public class SubmissionController {
                 }
                 else {
                     return new SubmissionResponseBean(false,
-                                                      "Task '" + task.getName() + "' cannot be retried because " +
-                                                              "it is not paused",
-                                                      taskID,
-                                                      task.getName());
+                            "Task '" + task.getName() + "' cannot be retried because " +
+                                    "it is not paused",
+                            taskID,
+                            task.getName());
                 }
             }
             else {
@@ -357,9 +356,9 @@ public class SubmissionController {
         }
         else {
             return new SubmissionResponseBean(false,
-                                              "You cannot retry this task, because you do not have permission",
-                                              taskID,
-                                              task.getName());
+                    "You cannot retry this task, because you do not have permission",
+                    taskID,
+                    task.getName());
         }
     }
 
@@ -407,10 +406,10 @@ public class SubmissionController {
                 }
                 else {
                     return new SubmissionResponseBean(false,
-                                                      "Task '" + task.getName() + "' cannot be restarted " +
-                                                              "because it is not paused",
-                                                      taskID,
-                                                      task.getName());
+                            "Task '" + task.getName() + "' cannot be restarted " +
+                                    "because it is not paused",
+                            taskID,
+                            task.getName());
                 }
             }
             else {
@@ -419,10 +418,10 @@ public class SubmissionController {
         }
         else {
             return new SubmissionResponseBean(false,
-                                              "You cannot restart task '" + task.getName() + "', " +
-                                                      "because you do not have permission",
-                                              taskID,
-                                              task.getName());
+                    "You cannot restart task '" + task.getName() + "', " +
+                            "because you do not have permission",
+                    taskID,
+                    task.getName());
         }
     }
 
@@ -475,10 +474,10 @@ public class SubmissionController {
         }
         else {
             return new SubmissionResponseBean(false,
-                                              "You cannot stop this task '" + task.getName() + "', " +
-                                                      "because you do not have permission",
-                                              taskID,
-                                              task.getName());
+                    "You cannot stop this task '" + task.getName() + "', " +
+                            "because you do not have permission",
+                    taskID,
+                    task.getName());
         }
     }
 }

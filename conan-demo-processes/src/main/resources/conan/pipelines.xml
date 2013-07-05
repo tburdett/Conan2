@@ -13,24 +13,24 @@
     <!-- Demo processes -->
     <pipeline name="demo" creator="tburdett">
         <processes>
-            <process name="demo process" />
-            <process name="demo process (5 parameters)" />
+            <process name="demo process"/>
+            <process name="demo process (5 parameters)"/>
         </processes>
     </pipeline>
 
     <pipeline name="demo 2" creator="tburdett">
         <processes>
-            <process name="demo process" />
-            <process name="demo process" displayName="step 2" />
-            <process name="demo process" displayName="step 3" />
-            <process name="demo process" displayName="step 4" />
-            <process name="demo process" displayName="step 5" />
+            <process name="demo process"/>
+            <process name="demo process" displayName="step 2"/>
+            <process name="demo process" displayName="step 3"/>
+            <process name="demo process" displayName="step 4"/>
+            <process name="demo process" displayName="step 5"/>
         </processes>
     </pipeline>
 
     <pipeline name="daemon demo" creator="tburdett" daemonized="true">
         <processes>
-            <process name="daemon demo process" />
+            <process name="daemon demo process"/>
         </processes>
     </pipeline>
 

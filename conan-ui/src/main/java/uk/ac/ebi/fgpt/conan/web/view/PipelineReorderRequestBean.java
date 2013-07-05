@@ -42,7 +42,8 @@ public class PipelineReorderRequestBean {
         this.restApiKey = restApiKey;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "PipelineReorderRequestBean: " +
                 "requestedPipelineOrder=" + requestedPipelineOrder + ", " +
                 "restApiKey='" + restApiKey + "'";

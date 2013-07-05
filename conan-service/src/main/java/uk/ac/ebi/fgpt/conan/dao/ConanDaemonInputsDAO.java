@@ -1,6 +1,6 @@
 package uk.ac.ebi.fgpt.conan.dao;
 
-import uk.ac.ebi.fgpt.conan.model.ConanParameter;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 
 import java.util.List;
 

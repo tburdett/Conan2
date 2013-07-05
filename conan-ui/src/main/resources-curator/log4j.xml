@@ -4,31 +4,31 @@
 
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p [%t] %C{2} (%F:%L) - %m%n" />
+            <param name="ConversionPattern" value="%d %-5p [%t] %C{2} (%F:%L) - %m%n"/>
         </layout>
     </appender>
 
     <appender name="conan-log" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="DatePattern" value="'.'yyyy-MM-dd" />
-        <param name="File" value="/ebi/microarray/home/arrayexpress/ae2_curator/logs/conan/conan.log" />
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <param name="File" value="/ebi/microarray/home/arrayexpress/ae2_curator/logs/conan/conan.log"/>
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p [%t] %C{2} (%F:%L) - %m%n" />
+            <param name="ConversionPattern" value="%d %-5p [%t] %C{2} (%F:%L) - %m%n"/>
         </layout>
     </appender>
 
     <logger name="uk.ac.ebi.fgpt.conan.service" additivity="false">
-        <level value="DEBUG" />
-        <appender-ref ref="conan-log" />
+        <level value="DEBUG"/>
+        <appender-ref ref="conan-log"/>
     </logger>
 
     <logger name="org.springframework" additivity="false">
-        <level value="WARN" />
-        <appender-ref ref="console" />
+        <level value="WARN"/>
+        <appender-ref ref="console"/>
     </logger>
 
     <root>
         <priority value="INFO" />
-        <appender-ref ref="conan-log" />
+        <appender-ref ref="conan-log"/>
     </root>
 
 </log4j:configuration>

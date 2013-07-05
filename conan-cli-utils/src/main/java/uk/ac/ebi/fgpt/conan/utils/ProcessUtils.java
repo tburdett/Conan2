@@ -36,8 +36,7 @@ public class ProcessUtils {
             boolean fCreated = true;
             try {
                 file.createNewFile();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 fCreated = false;
             }
 
@@ -104,7 +103,7 @@ public class ProcessUtils {
         String[] output = runner.runCommmand(command);
         if (output.length > 0) {
             log.debug("Response from command [" + command + "]: " +
-                              output.length + " lines, first line was " + output[0]);
+                    output.length + " lines, first line was " + output[0]);
         }
         return output;
     }

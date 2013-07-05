@@ -115,8 +115,8 @@ public class BatchController {
                 Map<String, String> paramValueMap = new HashMap<String, String>();
                 paramValueMap.put(pipelineParamName, paramValue);
                 SubmissionRequestBean request = new SubmissionRequestBean(ConanTask.Priority.LOW.toString(),
-                                                                          pipeline,
-                                                                          paramValueMap);
+                        pipeline,
+                        paramValueMap);
                 request.setStartingProcessIndex(startingProcessIndex);
                 request.setRestApiKey(restApiKey);
                 submissions.add(request);
@@ -224,8 +224,8 @@ public class BatchController {
                     Map<String, String> paramValueMap = new HashMap<String, String>();
                     paramValueMap.put(pipelineParamName, paramValue);
                     SubmissionRequestBean request = new SubmissionRequestBean(ConanTask.Priority.LOW.toString(),
-                                                                              pipeline,
-                                                                              paramValueMap);
+                            pipeline,
+                            paramValueMap);
                     request.setStartingProcessIndex(startingProcessIndex);
                     request.setRestApiKey(restApiKey);
                     submissions.add(request);

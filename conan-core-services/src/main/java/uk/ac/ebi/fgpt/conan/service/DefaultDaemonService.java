@@ -4,10 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import uk.ac.ebi.fgpt.conan.dao.ConanDaemonInputsDAO;
-import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanTask;
 import uk.ac.ebi.fgpt.conan.model.ConanUser;
+import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.service.exception.SubmissionException;
 
 import java.util.*;
@@ -105,11 +105,10 @@ public class DefaultDaemonService implements ConanDaemonService {
     public boolean addPipeline(ConanPipeline conanPipeline) {
         if (conanPipeline.getAllRequiredParameters().size() != 1) {
             getLog().error("Pipeline '" + conanPipeline.getName() + "' requires " +
-                                   conanPipeline.getAllRequiredParameters().size() + " parameters.  " +
-                                   "Only single-parameter pipelines can be daemonized - this pipeline will not be added");
+                    conanPipeline.getAllRequiredParameters().size() + " parameters.  " +
+                    "Only single-parameter pipelines can be daemonized - this pipeline will not be added");
             return false;
-        }
-        else {
+        } else {
             return daemonizedPipelines.add(conanPipeline);
         }
     }
@@ -134,8 +133,7 @@ public class DefaultDaemonService implements ConanDaemonService {
         try {
             shutdown();
             return true;
-        }
-        finally {
+        } finally {
             // always replace the existing daemon with a new one
             daemonThread = new Thread(new Daemon());
         }
@@ -144,17 +142,16 @@ public class DefaultDaemonService implements ConanDaemonService {
     public ConanUser getDaemonUser() {
         try {
             return getUserService().getUserByUserName("conan-daemon");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             getLog().warn("No 'daemon' user found - a new user will be created for daemon mode");
             // daemon user has no first name or surname, and conan-daemon@ebi.ac.uk is not a real email
             // we add the email to ensure that a rest api key can be generated,
             // but it will be set to an empty value straight away
             ConanUser daemon = getUserService().createNewUser("conan-daemon",
-                                                              "",
-                                                              "Daemon",
-                                                              "conan-daemon@ebi.ac.uk",
-                                                              ConanUser.Permissions.SUBMITTER);
+                    "",
+                    "Daemon",
+                    "conan-daemon@ebi.ac.uk",
+                    ConanUser.Permissions.SUBMITTER);
             return getUserService().updateUserEmail(daemon, "");
         }
     }
@@ -174,20 +171,20 @@ public class DefaultDaemonService implements ConanDaemonService {
             ConanParameter requiredInputType = parameters.get(0);
             // check DAOs for implementations that return this type
             getLog().debug("Polling DAOs for new daemon mode inputs to pipeline '" + pipeline.getName() + "', " +
-                                   "requires parameters of type '" + requiredInputType.getClass().getSimpleName() +
-                                   "'");
+                    "requires parameters of type '" + requiredInputType.getClass().getSimpleName() +
+                    "'");
             int i = 0;
             for (ConanDaemonInputsDAO dao : inputDAOs) {
                 getLog().debug("Next DAO is '" + dao.getClass().getSimpleName() + "', " +
-                                       "returns parameters of type '" + dao.getParameterType().getSimpleName() + "'");
+                        "returns parameters of type '" + dao.getParameterType().getSimpleName() + "'");
                 if (dao.getParameterType().equals(requiredInputType.getClass())) {
                     getLog().debug("Matched " + dao.getParameterType().getSimpleName() + " " +
-                                           "to " + requiredInputType.getClass().getSimpleName() + ", " +
-                                           "using DAO to obtain daemon mode inputs");
+                            "to " + requiredInputType.getClass().getSimpleName() + ", " +
+                            "using DAO to obtain daemon mode inputs");
                     // got a dao that returns the right type of param, so get available input values
                     List<String> inputValues = dao.getParameterValues();
                     getLog().debug("There are " + inputValues.size() + " " + requiredInputType.getName() + "s " +
-                                           "available for submission to daemon mode.");
+                            "available for submission to daemon mode.");
                     for (String inputValue : inputValues) {
                         // create a new task for each
                         if (i < MAXIMUM_SUBMISSION_BATCH_SIZE) {
@@ -195,39 +192,34 @@ public class DefaultDaemonService implements ConanDaemonService {
                             inputMap.put(requiredInputType.getName(), inputValue);
                             try {
                                 tasks.add(getTaskService().createNewTask(pipeline.getName(),
-                                                                         0,
-                                                                         inputMap,
-                                                                         ConanTask.Priority.LOW,
-                                                                         daemonUser));
+                                        0,
+                                        inputMap,
+                                        ConanTask.Priority.LOW,
+                                        daemonUser));
                                 i++;
-                            }
-                            catch (IllegalArgumentException e) {
+                            } catch (IllegalArgumentException e) {
                                 getLog().warn(
                                         "Could not create task: an illegal pipeline or set of inputs was supplied", e);
                             }
-                        }
-                        else {
+                        } else {
                             getLog().warn("Batch size for daemon mode exceeded.  " +
-                                                  "No more than " + MAXIMUM_SUBMISSION_BATCH_SIZE +
-                                                  " can be submitted in one go.  " +
-                                                  "Remaining jobs will be added at the next daemon mode iteration");
+                                    "No more than " + MAXIMUM_SUBMISSION_BATCH_SIZE +
+                                    " can be submitted in one go.  " +
+                                    "Remaining jobs will be added at the next daemon mode iteration");
                             break;
                         }
                     }
-                }
-                else {
+                } else {
                     getLog().debug("Cannot match " + dao.getParameterType().getSimpleName() + " " +
-                                           "to " + requiredInputType.getClass().getSimpleName());
+                            "to " + requiredInputType.getClass().getSimpleName());
                 }
             }
-        }
-        else {
+        } else {
             if (daemonUser == null) {
                 getLog().warn("Daemon User not found, no submissions can be created");
-            }
-            else {
+            } else {
                 getLog().warn("Daemon user does not have permissions to create new tasks " +
-                                      "(" + daemonUser.getPermissions() + ")");
+                        "(" + daemonUser.getPermissions() + ")");
             }
         }
 
@@ -238,10 +230,9 @@ public class DefaultDaemonService implements ConanDaemonService {
         for (ConanTask task : submittableTasks) {
             try {
                 getSubmissionService().submitTask(task);
-            }
-            catch (SubmissionException e) {
+            } catch (SubmissionException e) {
                 getLog().warn("Task ID '" + task.getId() + "' could not be submitted by daemon mode, " +
-                                      "and will be skipped [" + e.getMessage() + "]");
+                        "and will be skipped [" + e.getMessage() + "]");
             }
         }
     }
@@ -255,8 +246,7 @@ public class DefaultDaemonService implements ConanDaemonService {
                     try {
                         Collection<ConanTask> submittableTasks = createNewSubmittableTasks(pipeline);
                         submitNewTasks(submittableTasks);
-                    }
-                    catch (RuntimeException e) {
+                    } catch (RuntimeException e) {
                         getLog().error("A runtime exception occurred in the Daemon thread, daemon mode will exit", e);
                         stop();
                     }
@@ -267,8 +257,7 @@ public class DefaultDaemonService implements ConanDaemonService {
                     synchronized (this) {
                         try {
                             wait(POLL_EVERY_N_SECONDS * 1000);
-                        }
-                        catch (InterruptedException e) {
+                        } catch (InterruptedException e) {
                             // if wait is interrupted, disable
                             enabled = false;
                         }

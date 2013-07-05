@@ -59,34 +59,34 @@ public class ReportController {
     }
 
     @RequestMapping(value = "/names", method = RequestMethod.GET)
-    public @ResponseBody ReportNamesBean getReportNames(@RequestParam String taskID) {
+    public
+    @ResponseBody
+    ReportNamesBean getReportNames(@RequestParam String taskID) {
         ConanTask<? extends ConanPipeline> task = getTaskService().getTask(taskID);
         if (getReportService() == null) {
             return new ReportNamesBean(task.getName(), Collections.<String>emptyList());
-        }
-        else {
+        } else {
             List<String> reportNames = getReportService().getAllReportNames(task);
             return new ReportNamesBean(task.getName(), reportNames);
         }
     }
 
     @RequestMapping(value = "/contents", method = RequestMethod.GET)
-    public @ResponseBody ReportContentBean getReportContents(@RequestParam String reportName) {
+    public
+    @ResponseBody
+    ReportContentBean getReportContents(@RequestParam String reportName) {
         try {
             if (getReportService() == null) {
                 return new ReportContentBean(reportName, Collections.<Integer, String>emptyMap());
-            }
-            else {
+            } else {
                 Map<Integer, String> reportContent = getReportService().getReport(reportName);
                 return new ReportContentBean(reportName, reportContent);
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Map<Integer, String> response = new HashMap<Integer, String>();
             if (e.getMessage() == null) {
                 response.put(1, "Unable to read report file, I/O issues reading from " + reportName);
-            }
-            else {
+            } else {
                 response.put(1, "Unable to read report file: " + e.getMessage());
             }
             return new ReportContentBean(reportName, response);

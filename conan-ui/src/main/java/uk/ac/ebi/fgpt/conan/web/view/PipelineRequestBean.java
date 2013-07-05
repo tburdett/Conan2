@@ -72,7 +72,8 @@ public class PipelineRequestBean {
         return isPrivate;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "PipelineRequest: " +
                 "name='" + name + "', " +
                 "processes={" + processDescriptions + "}, " +

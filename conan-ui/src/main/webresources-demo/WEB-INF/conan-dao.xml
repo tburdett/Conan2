@@ -10,29 +10,29 @@
 
     <!-- Conan Pipeline DAO, used in several places to fetch loaded pipelines -->
     <bean name="conanPipelineDAO" class="uk.ac.ebi.fgpt.conan.dao.XMLLoadingPipelineDAO">
-        <property name="processDAO" ref="conanProcessDAO" />
-        <property name="userDAO" ref="conanUserDAO" />
+        <property name="processDAO" ref="conanProcessDAO"/>
+        <property name="userDAO" ref="conanUserDAO"/>
     </bean>
 
     <!-- Conan Process DAO, used by Pipeline DAO to fetch available processes -->
     <bean name="conanProcessDAO" class="uk.ac.ebi.fgpt.conan.dao.SpiDiscoveringProcessDAO">
-        <property name="conanProperties" ref="conanProperties" />
+        <property name="conanProperties" ref="conanProperties"/>
     </bean>
 
     <!-- Conan User DAOs - database and LDAP versions -->
-    <bean name="conanUserDAO" class="uk.ac.ebi.fgpt.conan.mock.dao.DummyUserDAO" />
+    <bean name="conanUserDAO" class="uk.ac.ebi.fgpt.conan.mock.dao.DummyUserDAO"/>
 
-    <bean name="conanTaskDAO" class="uk.ac.ebi.fgpt.conan.mock.dao.DummyTaskDAO" init-method="init" />
+    <bean name="conanTaskDAO" class="uk.ac.ebi.fgpt.conan.mock.dao.DummyTaskDAO" init-method="init"/>
 
     <!-- Conan properties, initialized from the properties file and wraps a singleton -->
     <bean name="conanProperties"
           class="uk.ac.ebi.fgpt.conan.properties.ConanProperties"
           factory-method="getConanProperties">
-        <property name="propertiesFile" ref="conanPropertiesFile" />
+        <property name="propertiesFile" ref="conanPropertiesFile"/>
     </bean>
 
     <jee:jndi-lookup id="conanPropertiesFile"
                      jndi-name="/file/CONAN_PROPERTIES"
-                     resource-ref="true" />
+                     resource-ref="true"/>
 
 </beans>
