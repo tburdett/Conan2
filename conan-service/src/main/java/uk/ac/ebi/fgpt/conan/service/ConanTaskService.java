@@ -9,9 +9,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A service that can be used to generate or retrieve tasks from user supplied input parameters.  Generally, given a
- * pipeline name and a set of parameters, a task can be generated using a TaskFactory.  This service basically acts as a
- * facade over the task creation functionality to provide a simple interface to UI controllers.
+ * A service that can be used to generate or retrieve tasks from user supplied input parameters.  It is the
+ * responsibility of this task service to ensure that tasks are retrieved from memory or from a datasource as
+ * appropriate to ensure that it is not possible to obtain multiple duplicate copies of the same task, each with
+ * different state.  This typically means that pending or completed tasks can be acquired from a DAO, but that running
+ * tasks (with states that might be highly changeable) should be recovered directly to avoid changing the state of the
+ * task in the database and leaving a "dirty" task still executing.
+ * <p/>
+ * Generally, given a pipeline name and a set of parameters, a task can be generated using a TaskFactory.  This service
+ * basically acts as a facade over the task creation functionality to provide a simple interface to UI controllers.
  *
  * @author Tony Burdett
  * @date 30-Jul-2010

@@ -252,13 +252,13 @@ th.ui-button-text-icons .ui-button-text {
     float: right;
 }
 
-.paging_full_numbers span.paginate_button {
+.paging_full_numbers span a.paginate_button {
     text-decoration: underline;
     margin: 0 3px;
     padding: 2px 5px;
 }
 
-.paging_full_numbers span.paginate_active {
+.paging_full_numbers span a.paginate_active {
     font-weight: bold;
     margin: 0 3px;
     padding: 2px 5px;
@@ -268,14 +268,7 @@ th.ui-button-text-icons .ui-button-text {
     cursor: pointer;
 }
 
-.paginate_disabled_previous {
-    cursor: default;
-    opacity: .5;
-    -moz-opacity: .5;
-    filter: alpha(opacity = 50);
-}
-
-.paginate_disabled_next {
+.paginate_button_disabled {
     cursor: default;
     opacity: .5;
     -moz-opacity: .5;
@@ -351,6 +344,14 @@ th.ui-button-text-icons .ui-button-text {
 
 .ae2_curator h2, .ae2_curator h3, .ae2_curator h4 {
     background: #ffe6f5 !important;
+}
+
+.biosd_test {
+    background: #e7fdf5 !important;
+}
+
+.biosd_test h2, .biosd_test h3, .biosd_test h4 {
+    background: #e7fdf5 !important;
 }
 
 

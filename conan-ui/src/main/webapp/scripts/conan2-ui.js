@@ -48,8 +48,8 @@ function initUI() {
         configureUI();
         // authenticate users
         authenticate({
-                         error: requestUser,
-                         success: requestPipelines
+                         error:requestUser,
+                         success:requestPipelines
                      })
     });
 }
@@ -70,63 +70,64 @@ function configureUI() {
 
     // bind ajaxForm plugin to batch form
     var options = {
-        target:         '#batch_fileupload_response',
-        beforeSubmit:   attachAdditionalBatchData,
-        success:        displayBatchSubmitDialog,
-        resetForm:      true,
-        clearForm:      true
+        target:'#batch_fileupload_response',
+        beforeSubmit:attachAdditionalBatchData,
+        success:displayBatchSubmitDialog,
+        error:displayBatchSubmitErrorDialog,
+        resetForm:true,
+        clearForm:true
     };
     $("#conan-submissions-batch-parameter-form").ajaxForm(options);
 
     // create datatables
     $("#conan-queue-table").dataTable({
-                                          "aaSorting": [
+                                          "aaSorting":[
                                               [ 4, "desc" ]
                                           ],
-                                          "bPaginate": false,
-                                          "bStateSave": true,
-                                          "bSort": true,
-                                          "bInfo": false,
-                                          "fnDrawCallback": redrawPendingTableLater,
-                                          "sScrollY": "200px"
+                                          "bPaginate":false,
+                                          "bStateSave":true,
+                                          "bSort":true,
+                                          "bInfo":false,
+                                          "fnDrawCallback":redrawPendingTableLater,
+                                          "sScrollY":"200px"
                                       });
     $("#conan-progress-table").dataTable({
-                                             "aaSorting": [
+                                             "aaSorting":[
                                                  [ 4, "asc" ]
                                              ],
 
-                                             "bPaginate": false,
-                                             "bStateSave": true,
-                                             "bSort": true,
-                                             "bInfo": false,
-                                             "fnDrawCallback": redrawRunningTableLater,
-                                             "sScrollY": "200px"
+                                             "bPaginate":false,
+                                             "bStateSave":true,
+                                             "bSort":true,
+                                             "bInfo":false,
+                                             "fnDrawCallback":redrawRunningTableLater,
+                                             "sScrollY":"200px"
                                          });
     $("#conan-history-table").dataTable({
-                                            "aaSorting": [
+                                            "aaSorting":[
                                                 [ 3, "desc" ]
                                             ],
-                                            "bFilter": false,
-                                            "bPaginate": true,
-                                            "bLengthChange": false,
-                                            "bStateSave": true,
-                                            "bSort": true,
-                                            "bInfo": true,
-                                            "fnDrawCallback": redrawCompletedTableLater,
-                                            "sPaginationType": "full_numbers"
+                                            "bFilter":false,
+                                            "bPaginate":true,
+                                            "bLengthChange":false,
+                                            "bStateSave":true,
+                                            "bSort":true,
+                                            "bInfo":true,
+                                            "fnDrawCallback":redrawCompletedTableLater,
+                                            "sPaginationType":"full_numbers"
                                         });
 
     // add extra classes to search boxes
-    $(".dataTables_filter > input").addClass("ui-widget ui-widget-content");
+    $(".dataTables_filter input").addClass("ui-widget ui-widget-content");
 
     // add search icon after this
-    $(".dataTables_filter > input").after("<span class=\"ui-icon ui-icon-search\"></span>");
+    $(".dataTables_filter input").after("<span class=\"ui-icon ui-icon-search\"></span>");
 
     // add extra classes to calendar boxes
-    $(".dataTables_calendar > input").addClass("ui-widget ui-widget-content");
+    $(".dataTables_calendar input").addClass("ui-widget ui-widget-content");
 
     // add calendar icon to calendar boxes
-    $(".dataTables_calendar > input").after("<span class=\"ui-icon ui-icon-calendar\"></span>");
+    $(".dataTables_calendar input").after("<span class=\"ui-icon ui-icon-calendar\"></span>");
 
     // add datepickers
     $("#conan-date-from-search").datepicker();
@@ -135,15 +136,18 @@ function configureUI() {
     $("#conan-date-to-search").datepicker("option", "dateFormat", "dd/mm/yy");
 
     // add icons to relevant buttons
-    $(".first").prepend("<div style=\"float: left; margin-right: 0.3em;\" class=\"ui-icon ui-icon-seek-start\"></div>");
-    $(".first").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
-    $(".previous")
+    $("#conan-history-table_first").prepend("<div style=\"float: left; margin-right: 0.3em;\" class=\"ui-icon ui-icon-seek-start\"></div>");
+    $("#conan-history-table_first").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
+    $("#conan-history-table_previous")
             .prepend("<div style=\"float: left; margin-right: 0.3em;\" class=\"ui-icon ui-icon-seek-prev\"></div>");
-    $(".previous").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
-    $(".next").prepend("<div style=\"float: right; margin-left: 0.3em;\" class=\"ui-icon ui-icon-seek-next\"></div>");
-    $(".next").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
-    $(".last").prepend("<div style=\"float: right; margin-left: 0.3em;\" class=\"ui-icon ui-icon-seek-end\"></div>");
-    $(".last").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
+    $("#conan-history-table_previous").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
+    $("#conan-history-table_next").prepend("<div style=\"float: right; margin-left: 0.3em;\" class=\"ui-icon ui-icon-seek-next\"></div>");
+    $("#conan-history-table_next").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
+    $("#conan-history-table_last").prepend("<div style=\"float: right; margin-left: 0.3em;\" class=\"ui-icon ui-icon-seek-end\"></div>");
+    $("#conan-history-table_last").addClass("ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary");
+
+    // remove 'next' class as it collides with a class from ebi basicstyles.css and causes horrid button twitch
+    $("#conan-history-table_next").removeClass("next");
 
     // add button hover states
     $(".ui-button").hover(
@@ -163,49 +167,55 @@ function configureUI() {
 
     // create dialogs
     $("#conan-submission-dialog").dialog({
-                                             autoOpen: false,
-                                             modal: true,
-                                             buttons: {
-                                                 "Submit": function() {
+                                             autoOpen:false,
+                                             modal:true,
+                                             buttons:{
+                                                 "Submit":function() {
                                                      requestNewSubmission();
                                                      $(this).dialog("close");
                                                  },
-                                                 Cancel: function() {
+                                                 Cancel:function() {
                                                      $(this).dialog("close");
                                                  }
                                              }
                                          });
+    // partially init kill dialog, need to add buttons at 'runtime' so as to set correct callbacks
+    $("#conan-kill-dialog").dialog({
+                                       autoOpen:false,
+                                       modal:true,
+                                       dialogClass:'alert'
+                                   });
     $("#conan-multi-submission-dialog").dialog({
-                                                   autoOpen: false,
-                                                   modal: true,
-                                                   buttons: {
-                                                       "Submit": function() {
+                                                   autoOpen:false,
+                                                   modal:true,
+                                                   buttons:{
+                                                       "Submit":function() {
                                                            requestNewMultiSubmission();
                                                            $(this).dialog("close");
                                                        },
-                                                       Cancel: function() {
+                                                       Cancel:function() {
                                                            $(this).dialog("close");
                                                        }
                                                    }
                                                });
     $("#conan-batch-submission-dialog").dialog({
-                                                   autoOpen: false,
-                                                   modal: true,
-                                                   buttons: {
-                                                       "Submit": function() {
+                                                   autoOpen:false,
+                                                   modal:true,
+                                                   buttons:{
+                                                       "Submit":function() {
                                                            requestNewBatchSubmission();
                                                            $(this).dialog("close");
                                                        },
-                                                       Cancel: function() {
+                                                       Cancel:function() {
                                                            $(this).dialog("close");
                                                        }
                                                    }
                                                });
     $("#conan-batch-stop-dialog").dialog({
-                                             autoOpen: false,
-                                             modal: true,
-                                             buttons: {
-                                                 "Submit": function() {
+                                             autoOpen:false,
+                                             modal:true,
+                                             buttons:{
+                                                 "Submit":function() {
                                                      $("input[id^=select_task_]").each(function() {
                                                          if ($(this).is(':checked')) {
                                                              requestTaskAbort($(this).val(), true);
@@ -214,29 +224,29 @@ function configureUI() {
                                                      });
                                                      $(this).dialog("close");
                                                  },
-                                                 Cancel: function() {
+                                                 Cancel:function() {
                                                      $(this).dialog("close");
                                                  }
                                              }
                                          });
     $("#conan-interaction-dialog").dialog({
-                                              autoOpen: false
+                                              autoOpen:false
                                           });
     $("#conan-info-message").dialog({
-                                        autoOpen: false,
-                                        modal: true,
-                                        buttons: {
-                                            Ok: function() {
+                                        autoOpen:false,
+                                        modal:true,
+                                        buttons:{
+                                            Ok:function() {
                                                 $(this).dialog("close");
                                             }
                                         }
                                     });
     $("#conan-alert-message").dialog({
-                                         autoOpen: false,
-                                         modal: true,
-                                         dialogClass: 'alert',
-                                         buttons: {
-                                             Ok: function() {
+                                         autoOpen:false,
+                                         modal:true,
+                                         dialogClass:'alert',
+                                         buttons:{
+                                             Ok:function() {
                                                  $(this).dialog("close");
                                              }
                                          }
@@ -297,7 +307,7 @@ function initCarouselCallbackFunction(carousel, state) {
     // add our button icon
     $(".jcarousel-next-vertical")
             .html("<span class=\"ui-icon ui-icon-triangle-1-s\" style=\"margin-left: auto; margin-right: auto\"></span>");
-    // and add hover states
+    // add hover states
     $(".jcarousel-next-vertical").hover(
             function() {
                 $(this).addClass('ui-state-hover');
@@ -306,6 +316,8 @@ function initCarouselCallbackFunction(carousel, state) {
                 $(this).removeClass('ui-state-hover');
             }
     );
+    // finally, add overflow hidden to the container
+    $(".jcarousel-clip").css("overflow", "hidden");
 }
 
 /*
@@ -328,10 +340,10 @@ function requestUser() {
 
     if (email == undefined || email == "") {
         // we can't get any user details, make sure we're showing login form
-        $("#conan-submissions-submitarea-loading").css({"display": "none"});
-        $("#conan-submissions-submitarea-content").css({"display": "block"});
-        $("#conan-submissions-submitarea-login-overlay").css({"display": "block"});
-        $("#conan-submissions-submitarea-guest-overlay").css({"display": "none"});
+        $("#conan-submissions-submitarea-loading").css({"display":"none"});
+        $("#conan-submissions-submitarea-content").css({"display":"block"});
+        $("#conan-submissions-submitarea-login-overlay").css({"display":"block"});
+        $("#conan-submissions-submitarea-guest-overlay").css({"display":"none"});
 
         // and show the guest greeting at the top
         $("#conan-user-greeting").html("Hello guest! " +
@@ -340,19 +352,19 @@ function requestUser() {
     }
     else {
         // user email address has been obtained, so remove login panel and display the loading one
-        $("#conan-submissions-submitarea-loading").css({"display": "block"});
-        $("#conan-submissions-submitarea-content").css({"display": "none"});
-        $("#conan-submissions-submitarea-login-overlay").css({"display": "none"});
-        $("#conan-submissions-submitarea-guest-overlay").css({"display": "none"});
+        $("#conan-submissions-submitarea-loading").css({"display":"block"});
+        $("#conan-submissions-submitarea-content").css({"display":"none"});
+        $("#conan-submissions-submitarea-login-overlay").css({"display":"none"});
+        $("#conan-submissions-submitarea-guest-overlay").css({"display":"none"});
 
         // we've got an email, can we get a rest api key?
         var emailStr = encodeURIComponent(email)
         // send email with ajax request, but register error handler to detect failure to communicate with server
         $.ajax({
-                   url: 'api/users/email-query?email=' + emailStr,
-                   dataType: 'json',
-                   success: loginCallback,
-                   error: serverCommunicationFail
+                   url:'api/users/email-query?email=' + emailStr,
+                   dataType:'json',
+                   success:loginCallback,
+                   error:serverCommunicationFail
                });
     }
 }
@@ -362,7 +374,7 @@ function requestUser() {
  * @param userJson
  */
 function loginCallback(userJson) {
-    obtainRestApiKey(userJson, {error: requestUser, success: requestPipelines});
+    obtainRestApiKey(userJson, {error:requestUser, success:requestPipelines});
 }
 
 /**
@@ -371,14 +383,14 @@ function loginCallback(userJson) {
 function serverCommunicationFail() {
     // couldn't find the server, so all ajax content will be empty.  To stop it looking ugly and show whats wrong,
     // show an error instead of empty pipeline dropdowns
-    $("#conan-submissions-submitarea-loading").css({"display": "none"});
-    $("#conan-submissions-submitarea-content").css({"display": "block"});
-    $("#conan-submissions-submitarea-login-overlay").css({"display": "none"});
-    $("#conan-submissions-submitarea-guest-overlay").css({"display": "none"});
+    $("#conan-submissions-submitarea-loading").css({"display":"none"});
+    $("#conan-submissions-submitarea-content").css({"display":"block"});
+    $("#conan-submissions-submitarea-login-overlay").css({"display":"none"});
+    $("#conan-submissions-submitarea-guest-overlay").css({"display":"none"});
 
     // hide pipelines, show error
-    $("#conan-submissions-submitarea-content-pipelines").css({"display": "none"});
-    $("#conan-submissions-submitarea-content-error").css({"display": "block"});
+    $("#conan-submissions-submitarea-content-pipelines").css({"display":"none"});
+    $("#conan-submissions-submitarea-content-error").css({"display":"block"});
 }
 
 /**
@@ -498,9 +510,9 @@ function clearSearchedTasks() {
 function requestUsers() {
     submitterMap = new Object();
     $.ajax({
-               url: 'api/users',
-               dataType: 'json',
-               success: function(json) {
+               url:'api/users',
+               dataType:'json',
+               success:function(json) {
                    // create a list of userNames to provide to autocomplete
                    var userNames = new Array();
 
@@ -514,10 +526,10 @@ function requestUsers() {
 
                    // now also populate the autocomplete
                    $("#conan-user-search").autocomplete({
-                                                            source: userNames
+                                                            source:userNames
                                                         });
                },
-               error: function() {
+               error:function() {
                    alert("Failed to retrieve users from the server - autocomplete on Submitter search will not work");
                }
            });
@@ -569,12 +581,12 @@ function requestNewSubmission() {
 
     // got required vars, now form json post request
     $.ajax({
-               type:           'POST',
-               url:            'api/submissions',
-               contentType:    'application/json',
-               data:           jsonString,
-               processData:    false,
-               success:        function(response) {
+               type:'POST',
+               url:'api/submissions',
+               contentType:'application/json',
+               data:jsonString,
+               processData:false,
+               success:function(response) {
                    if (response.operationSuccessful) {
                        // trigger ajax updates of task info
                        requestTasksInProgressInfoUpdates();
@@ -593,7 +605,7 @@ function requestNewSubmission() {
                        $("#conan-alert-message").dialog("open");
                    }
                },
-               error:          function(request, status, error) {
+               error:function(request, status, error) {
                    // inform user by showing the dialog
                    $("#conan-alert-message-text").html(error + "<br/>")
                    $("#conan-alert-message").dialog("open");
@@ -610,12 +622,12 @@ function requestNewMultiSubmission() {
     // got required vars, now form json post request
     var json = "{\"submissionRequests\":" + JSON.stringify(generatedBatch.requests) + "}";
     $.ajax({
-               type:           'POST',
-               url:            'api/submissions/batch',
-               contentType:    'application/json',
-               data:           json,
-               processData:    false,
-               success:        function(response) {
+               type:'POST',
+               url:'api/submissions/batch',
+               contentType:'application/json',
+               data:json,
+               processData:false,
+               success:function(response) {
                    // trigger ajax updates of task info
                    requestTasksInProgressInfoUpdates();
 
@@ -627,7 +639,7 @@ function requestNewMultiSubmission() {
                    // and set the focus back to the first parameter input
                    $("textarea:text:visible:first").focus();
                },
-               error:          function(request, status, error) {
+               error:function(request, status, error) {
                    // inform user by showing the dialog
                    $("#conan-alert-message-text").html(error + "<br/>")
                    $("#conan-alert-message").dialog("open");
@@ -644,16 +656,16 @@ function requestNewBatchSubmission() {
     // got required vars, now form json post request
     var json = "{\"submissionRequests\":" + JSON.stringify(generatedBatch.requests) + "}";
     $.ajax({
-               type:           'POST',
-               url:            'api/submissions/batch',
-               contentType:    'application/json',
-               data:           json,
-               processData:    false,
-               success:        function(response) {
+               type:'POST',
+               url:'api/submissions/batch',
+               contentType:'application/json',
+               data:json,
+               processData:false,
+               success:function(response) {
                    // trigger ajax updates of task info
                    requestTasksInProgressInfoUpdates();
                },
-               error:          function(request, status, error) {
+               error:function(request, status, error) {
                    // inform user by showing the dialog
                    $("#conan-alert-message-text").html(error + "<br/>")
                    $("#conan-alert-message").dialog("open");
@@ -702,11 +714,11 @@ function requestTaskInteraction(taskID, taskName) {
 function requestTaskResume(taskID) {
     // send a PUT request to api/submissions/{taskID}?resume
     $.ajax({
-               type:           'PUT',
-               url:            'api/submissions/' + taskID + '?resume&restApiKey=' + restApiKey,
-               contentType:    'application/json',
-               processData:    false,
-               success:        function(response) {
+               type:'PUT',
+               url:'api/submissions/' + taskID + '?resume&restApiKey=' + restApiKey,
+               contentType:'application/json',
+               processData:false,
+               success:function(response) {
                    // trigger ajax updates of task info
                    requestTasksInProgressInfoUpdates();
                }
@@ -721,11 +733,11 @@ function requestTaskResume(taskID) {
 function requestTaskRetry(taskID) {
     // send a PUT request to api/submissions/{taskID}?retry
     $.ajax({
-               type:           'PUT',
-               url:            'api/submissions/' + taskID + '?retry&restApiKey=' + restApiKey,
-               contentType:    'application/json',
-               processData:    false,
-               success:        function(response) {
+               type:'PUT',
+               url:'api/submissions/' + taskID + '?retry&restApiKey=' + restApiKey,
+               contentType:'application/json',
+               processData:false,
+               success:function(response) {
                    // trigger ajax updates of task info
                    requestTasksInProgressInfoUpdates(restApiKey);
                }
@@ -740,11 +752,11 @@ function requestTaskRetry(taskID) {
 function requestTaskRestart(taskID) {
     // send a PUT request to api/submissions/{taskID}?restart
     $.ajax({
-               type:           'PUT',
-               url:            'api/submissions/' + taskID + '?restart&restApiKey=' + restApiKey,
-               contentType:    'application/json',
-               processData:    false,
-               success:        function(response) {
+               type:'PUT',
+               url:'api/submissions/' + taskID + '?restart&restApiKey=' + restApiKey,
+               contentType:'application/json',
+               processData:false,
+               success:function(response) {
                    // trigger ajax updates of task info
                    requestTasksInProgressInfoUpdates(restApiKey);
                }
@@ -759,13 +771,13 @@ function requestTaskRestart(taskID) {
 function requestTaskPause(taskID) {
     // send a PUT request to api/submissions/{taskID}?pause
     $.ajax({
-               type:           'PUT',
-               url:            'api/submissions/' + taskID + '?pause&restApiKey=' + restApiKey,
-               contentType:    'application/json',
-               processData:    false,
-               success:        function(response) {
+               type:'PUT',
+               url:'api/submissions/' + taskID + '?pause&restApiKey=' + restApiKey,
+               contentType:'application/json',
+               processData:false,
+               success:function(response) {
                    // inform user by showing the dialog
-                   $("#conan-info-message-text").html(response.statusMessage + "<br/>")
+                   $("#conan-info-message-text").html(response.statusMessage + "<br/>");
                    $("#conan-info-message").dialog("open");
 
                    // trigger ajax updates of task info
@@ -774,20 +786,34 @@ function requestTaskPause(taskID) {
            });
 }
 
+function requestTaskStop(taskID, suppressRefresh) {
+    // set up the rest of the kill dialog (add buttons for taskID callback)
+    $("#conan-kill-dialog").dialog("option", "buttons", {
+        "Kill this job":function() {
+            requestTaskAbort(taskID, suppressRefresh);
+            $(this).dialog("close");
+        },
+        Cancel:function() {
+            $(this).dialog("close");
+        }
+    });
+    // and open the dialog
+    $("#conan-kill-dialog").dialog("open");
+}
+
 /**
- * Requests that the given task aborts (and never completes).  The task must be paused first, before it can
- * be aborted.
+ * Requests that the given task aborts (and never completes).
  *
  * @param taskID the id of the task
  */
 function requestTaskAbort(taskID, suppressRefresh) {
     // send a PUT request to api/submissions/{taskID}?abort
     $.ajax({
-               type:           'PUT',
-               url:            'api/submissions/' + taskID + '?stop&restApiKey=' + restApiKey,
-               contentType:    'application/json',
-               processData:    false,
-               success:        function(response) {
+               type:'PUT',
+               url:'api/submissions/' + taskID + '?stop&restApiKey=' + restApiKey,
+               contentType:'application/json',
+               processData:false,
+               success:function(response) {
                    if (suppressRefresh == undefined || !suppressRefresh) {
                        // trigger ajax updates of task info
                        requestTasksInProgressInfoUpdates(restApiKey);
@@ -810,17 +836,17 @@ function requestTaskAbort(taskID, suppressRefresh) {
 function displayPipelineOptions() {
     // we've now got our pipelines, so hide any login forms and display content
     // display content panel and hide login overlays etc
-    $("#conan-submissions-submitarea-loading").css({"display": "none"});
-    $("#conan-submissions-submitarea-content").css({"display": "block"});
-    $("#conan-submissions-submitarea-login-overlay").css({"display": "none"});
-    $("#conan-submissions-submitarea-guest-overlay").css({"display": "none"});
+    $("#conan-submissions-submitarea-loading").css({"display":"none"});
+    $("#conan-submissions-submitarea-content").css({"display":"block"});
+    $("#conan-submissions-submitarea-login-overlay").css({"display":"none"});
+    $("#conan-submissions-submitarea-guest-overlay").css({"display":"none"});
 
     // if restApiKey is null, this user is a guest, so hide submissions panel
     if (restApiKey == undefined) {
-        $("#conan-submissions-submitarea-guest-overlay").css({"display": "block"});
+        $("#conan-submissions-submitarea-guest-overlay").css({"display":"block"});
     }
     else {
-        $("#conan-submissions-submitarea-guest-overlay").css({"display": "none"});
+        $("#conan-submissions-submitarea-guest-overlay").css({"display":"none"});
 
         // replace the current contents of conan-submissions-pipeline-select
         $("#conan-submissions-pipeline-select").empty();
@@ -921,10 +947,9 @@ function displayParameterOptionsInJCarousel() {
     $("#conan-submissions-parameters").removeClass("conan-submission-parameters-container");
     // and build the carousel
     $("#conan-carousel-or-single-parameters").jcarousel({
-                                                            vertical: true,
-                                                            size: 0,
-                                                            scroll: 1,
-                                                            initCallback: initCarouselCallbackFunction
+                                                            vertical:true,
+                                                            scroll:1,
+                                                            initCallback:initCarouselCallbackFunction
                                                         });
 }
 
@@ -999,10 +1024,10 @@ function displayMultiSubmitDialog() {
 
     // got required vars, now form post request
     $.post("api/generate-request/multi", {
-               pipeline: pipelineValue,
-               startingProcessIndex: selectedProcess,
-               multiParams: text,
-               restApiKey: restApiKey },
+               pipeline:pipelineValue,
+               startingProcessIndex:selectedProcess,
+               multiParams:text,
+               restApiKey:restApiKey },
            function(json) {
                // update dialog to show the number of submissions in this batch
                generatedBatch = json;
@@ -1021,7 +1046,7 @@ function displayMultiSubmitDialog() {
 function displayBatchSubmitDialog(responseText) {
     // extract json text from response
     var jsonText = $("#batch_fileupload_response").text();
-    var json = jQuery.parseJSON(jsonText);
+    var json = $.parseJSON(jsonText);
     // set generated batch
     generatedBatch = json;
     var requestCount = json.requests.length;
@@ -1046,6 +1071,15 @@ function displayBatchStopDialog() {
     }
 }
 
+function displayBatchSubmitErrorDialog(a, b, c) {
+    // batch submission file upload failed - inform user by showing the dialog
+    var errorMessage = "Batch file upload failed: this can sometimes happen due to a problem " +
+            "communicating with the server.  Please retry your submission.  If this problem repeatedly occurs, " +
+            "please inform the system administrator.<br/>[" + c + "]<br/>";
+    $("#conan-alert-message-text").html(errorMessage);
+    $("#conan-alert-message").dialog("open");
+}
+
 /**
  * Displays context help for the current range of options selected
  */
@@ -1066,12 +1100,12 @@ function displayPendingTasks() {
 
     // more than 200 tasks pending?
     if (pendingTasks.length > 200) {
-        $("#hidden-task-info").css({"display": "inline"});
+        $("#hidden-task-info").css({"display":"inline"});
         $("#hidden-task-count").html(pendingTasks.length - 200);
         $("#total-task-count").html(pendingTasks.length);
     }
     else {
-        $("#hidden-task-info").css({"display": "none"});
+        $("#hidden-task-info").css({"display":"none"});
     }
 
     // re-add all our pending tasks
@@ -1200,8 +1234,13 @@ function displayRunningTasks() {
 
         var progressCol;
         if (restApiKey != undefined) {
-            // logged in users see a pause button
+            // logged in users see a stop button and a pause button
             progressCol = runningTask.currentProcess.name +
+                    "<span style=\"float: right; margin-right: 0.3em;\"" +
+                    "class=\"ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary stop-button clickable\"" +
+                    "onclick=\"requestTaskStop(\'" + runningTask.id + "\');\" title=\"Forcibly kill this task\">" +
+                    "<span class=\"ui-icon ui-icon-stop\"></span>" +
+                    "</span>" +
                     "<span style=\"float: right; margin-right: 0.3em;\"" +
                     "class=\"ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-secondary pause-button clickable\"" +
                     "onclick=\"requestTaskPause(\'" + runningTask.id + "\');\" title=\"Pause this task\">" +
@@ -1242,6 +1281,15 @@ function displayRunningTasks() {
     //    table.fnDraw(false);
     table.fnStandingRedraw();
 
+    // hover states for stop buttons
+    $(".stop-button").hover(
+            function() {
+                $(this).addClass('ui-state-hover');
+            },
+            function() {
+                $(this).removeClass('ui-state-hover');
+            }
+    );
     // hover states for pause buttons
     $(".pause-button").hover(
             function() {
@@ -1524,9 +1572,9 @@ function uncheckAllTasksForRemoval() {
 /**
  * Expands the multibox for multiple submissions
  */
-var expandMultiParams = function () {
+var expandMultiParams = function() {
     // expand the height
-    $(".conan-parameters textarea").css({"height": "150px"});
+    $(".conan-parameters textarea").css({"height":"150px"});
     // change the span to collapse instead of expand
     $("#expand-collapse").removeClass("ui-icon-plusthick");
     $("#expand-collapse").addClass("ui-icon-minusthick");
@@ -1537,9 +1585,9 @@ var expandMultiParams = function () {
 /**
  * Collapses the multibox for multiple submissions
  */
-var collapseMultiParams = function () {
+var collapseMultiParams = function() {
     // expand the height
-    $(".conan-parameters textarea").css({"height": "19px"});
+    $(".conan-parameters textarea").css({"height":"19px"});
     // change the span to expand instead of collapse
     $("#expand-collapse").removeClass("ui-icon-minusthick");
     $("#expand-collapse").addClass("ui-icon-plusthick");

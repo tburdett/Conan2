@@ -178,7 +178,7 @@ public class DummyTaskDAO implements ConanTaskDAO {
         for (ConanTask<? extends ConanPipeline> task : getAllTasks()) {
             if (task.getCurrentState() == ConanTask.State.COMPLETED ||
                     task.getCurrentState() == ConanTask.State.ABORTED) {
-                // todo - remove this hack which filters out everything older than 72 hours old, replace with sane paging strategy
+                // TODO - remove this hack which filters out everything older than 72 hours old, replace with sane paging strategy
                 int seventytwoHours = 60 * 60 * 72 * 1000;
                 Date pastDate = new Date(System.currentTimeMillis() - seventytwoHours);
                 if (task.getCompletionDate().after(pastDate)) {
@@ -201,10 +201,31 @@ public class DummyTaskDAO implements ConanTaskDAO {
                 results.add(task);
             }
         }
-        return results.subList(startingFrom, startingFrom + maxRecords);
+        if ((startingFrom + maxRecords) > results.size()) {
+            return results;
+        }
+        else {
+            return results.subList(startingFrom, startingFrom + maxRecords);
+        }
     }
 
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasksSummary(int maxRecords, int startingFrom) {
         return getCompletedTasks(maxRecords, startingFrom);
+    }
+
+    public List<ConanTask<? extends ConanPipeline>> getIncompleteTasks() {
+        List<ConanTask<? extends ConanPipeline>> results = new ArrayList<ConanTask<? extends ConanPipeline>>();
+        for (ConanTask<? extends ConanPipeline> task : getAllTasks()) {
+            if (task.getCurrentState() != ConanTask.State.COMPLETED &&
+                    task.getCurrentState() != ConanTask.State.ABORTED) {
+                // TODO - remove this hack which filters out everything older than 72 hours old, replace with sane paging strategy
+                int seventytwoHours = 60 * 60 * 72 * 1000;
+                Date pastDate = new Date(System.currentTimeMillis() - seventytwoHours);
+                if (task.getCompletionDate().after(pastDate)) {
+                    results.add(task);
+                }
+            }
+        }
+        return results;
     }
 }

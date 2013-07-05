@@ -18,11 +18,12 @@
     <meta http-equiv="Window-target" content="_top"/>
     <meta name="no-email-collection" content="http://www.unspam.com/noemailcollection/"/>
 
-    <script type="text/javascript" src="scripts/jquery-1.6.2.min.js"></script>
-    <script type="text/javascript" src="scripts/jquery-ui-1.8.16.custom.min.js"></script>
-    <script type="text/javascript" src="scripts/jquery-jcarousel-0.2.7.min.js"></script>
-    <script type="text/javascript" src="scripts/jquery-dataTables-1.7.3.min.js"></script>
-    <script type="text/javascript" src="scripts/jquery-form-2.4.5.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+
+    <script type="text/javascript" src="https://raw.github.com/jsor/jcarousel/0.2.8/lib/jquery.jcarousel.min.js"></script>
+    <script type="text/javascript" src="http://datatables.net/download/build/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="http://malsup.github.com/jquery.form.js"></script>
 
     <script type="text/javascript" src="scripts/conan2-core.js"></script>
     <script type="text/javascript" src="scripts/conan2-ui.js"></script>
@@ -232,7 +233,7 @@
                                     <button id="conan-submissions-batch-button"
                                             type="submit"
                                             class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
-                                        <span class="ui-button-text" style="font-weight: bold;">Go!></span>
+                                        <span class="ui-button-text" style="font-weight: bold;">Go!</span>
                                     </button>
                                 </div>
                             </form>
@@ -571,6 +572,13 @@
     </p>
 </div>
 
+<div id="conan-kill-dialog" title="Kill running job?" style="display: none;">
+    <p class="ui-state-error ui-corner-all">
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
+        <span id="conan-kill-dialog-message">This job will be aborted and cannot be restarted.  Are you sure?</span><br/>
+    </p>
+</div>
+
 <div id="conan-multi-submission-dialog" title="Create new multiple submission?" style="display: none;">
     <p class="ui-state-highlight ui-corner-all">
         <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 20px 0;"></span>
@@ -621,6 +629,7 @@
 
 <!-- hidden div for disguising file upload: post response loads to an iframe here -->
 <div id="batch_fileupload_response" style="display:none;"></div>
+<iframe id="batch_fileupload_response_iframe" style="display: none;"></iframe>
 
 <img src="http://www.ebi.ac.uk/inc/images/spacer.gif" alt="spacer" height="50px"/>
 </div>

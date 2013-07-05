@@ -3,7 +3,6 @@ package uk.ac.ebi.fgpt.conan.web.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
@@ -190,7 +189,8 @@ public class SubmissionController {
 
     /**
      * Pauses a currently executing task, defined by the given task ID.  Pause operations take effect at the end of the
-     * current process - processes are never killed, as this is considered to be potentially unsafe.  Instead, the given
+     * current process - processes are never killed, as this is considered to be potentially unsafe.  Instead, the
+     * given
      * task is identified as paused and will stop execution after it's current process has completed.  This task will
      * then be flagged for user attention.
      *
@@ -369,7 +369,8 @@ public class SubmissionController {
      *
      * @param taskID     the ID of the task to restart
      * @param restApiKey the key of the user requesting this action
-     * @return true if this operation succeeds, false if the task could not be restarted (for example, because it is not
+     * @return true if this operation succeeds, false if the task could not be restarted (for example, because it is
+     *         not
      *         paused)
      * @throws IllegalArgumentException if there was no task with the given ID
      */
@@ -443,7 +444,7 @@ public class SubmissionController {
         ConanUser conanUser = getUserService().getUserByRestApiKey(restApiKey);
 
         // retrieve the task
-        ConanTask task = getTaskService().getTask(taskID);
+        ConanTask<? extends ConanPipeline> task = getTaskService().getTask(taskID);
 
         // check user permissions, and update task if sufficient
         if (conanUser.getPermissions().compareTo(ConanUser.Permissions.SUBMITTER) > -1) {
@@ -458,9 +459,12 @@ public class SubmissionController {
                     return new SubmissionResponseBean(true, msg, taskID, task.getName());
                 }
                 else {
-                    return new SubmissionResponseBean(false,
-                                                      "Task '" + task.getName() + "' cannot be stopped because " +
-                                                              "it is not paused",
+                    // task not paused, so force interruption
+                    getSubmissionService().interruptTask(task);
+                    return new SubmissionResponseBean(true,
+                                                      "Task '" + task.getName() +
+                                                              "' has been sent a stop request and " +
+                                                              "will halt as soon as possible",
                                                       taskID,
                                                       task.getName());
                 }

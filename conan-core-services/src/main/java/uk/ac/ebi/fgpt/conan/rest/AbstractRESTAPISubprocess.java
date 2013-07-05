@@ -14,7 +14,10 @@ import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
+
 import java.util.HashMap;
 
 
@@ -33,6 +36,12 @@ public abstract class AbstractRESTAPISubprocess {
     // Create local HTTP context
     private HttpContext localContext = new BasicHttpContext();
 
+    private Logger log = LoggerFactory.getLogger(getClass());
+
+    protected Logger getLog() {
+        return log;
+    }
+
     public enum RESTAPIEvents {
         WITHOUT_MONITORING, NO_LOGIN;
     }
@@ -41,7 +50,7 @@ public abstract class AbstractRESTAPISubprocess {
             throws IllegalArgumentException, ProcessExecutionException,
             InterruptedException {
         String result = "empty";
-        System.out.println("Executing REST API process with parameters: " + parameter);
+        getLog().debug("Executing REST API process with parameters: " + parameter);
         HashMap<String, Object> response;
         //have to login to work with REST API
         if (LogIn()) {
@@ -66,17 +75,13 @@ public abstract class AbstractRESTAPISubprocess {
 
         ObjectMapper mapper = new ObjectMapper(jsonFactory);
 
-        TypeReference<HashMap<String, Object>> typeRef
-                = new TypeReference<HashMap<String, Object>>() {
+        TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {
         };
 
         HashMap<String, Object> requestResults = new HashMap<String, Object>();
 
         try {
-            requestResults
-                    = mapper.readValue(response, typeRef);
-
-
+            requestResults = mapper.readValue(response, typeRef);
             return requestResults;
         }
         catch (Exception e) {
@@ -119,12 +124,12 @@ public abstract class AbstractRESTAPISubprocess {
         try {
 
             HttpGet httpget = new HttpGet(requestString);
-            System.out.println("Atlas REST API request: " + requestString);
+            getLog().debug("Atlas REST API request: " + requestString);
             // Pass local context as a parameter
             HttpResponse response = httpclient.execute(httpget, localContext);
             HttpEntity entity = response.getEntity();
             String responseString = EntityUtils.toString(entity);
-            System.out.println("Atlas REST API response: " + responseString);
+            getLog().debug("Atlas REST API response: " + responseString);
             requestResults = parseRestApiResponse(responseString);
         }
         catch (Exception e) {
@@ -150,7 +155,7 @@ public abstract class AbstractRESTAPISubprocess {
         }
 
         public void run() {
-            System.out.println("Polling " + restApiStatusURL + " for status");
+            getLog().debug("Polling " + restApiStatusURL + " for status");
             while (running) {
                 // make request to restApiStatusURL
                 // parse response to determine if complete yet
@@ -171,13 +176,13 @@ public abstract class AbstractRESTAPISubprocess {
                         }
                         catch (InterruptedException e) {
                             // if interrupted, die
-                            System.out.println("Interrupted exception causing thread to die");
+                            getLog().debug("Interrupted exception causing thread to die");
                             stop();
                         }
                     }
                 }
             }
-            System.out.println("Stopping polling of " + restApiStatusURL);
+            getLog().debug("Stopping polling of " + restApiStatusURL);
         }
 
         public void stop() {
@@ -197,7 +202,7 @@ public abstract class AbstractRESTAPISubprocess {
                     wait();
                 }
             }
-            System.out.println("Process completed: status message = " + getMessage(response));
+            getLog().debug("Process completed: status message = " + getMessage(response));
             return response;
         }
 

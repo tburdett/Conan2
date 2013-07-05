@@ -29,6 +29,8 @@ import java.util.*;
  * @date 13-Oct-2010
  */
 public class DefaultTaskService implements ConanTaskService {
+    private ConanSubmissionService conanSubmissionService;
+
     private ConanPipelineDAO conanPipelineDAO;
 
     private ConanTaskFactory conanTaskFactory;
@@ -40,11 +42,21 @@ public class DefaultTaskService implements ConanTaskService {
         return log;
     }
 
+    public ConanSubmissionService getConanSubmissionService() {
+        return conanSubmissionService;
+    }
+
+    public void setConanSubmissionService(ConanSubmissionService conanSubmissionService) {
+        Assert.notNull(conanSubmissionService, "A ConanSubmissionService must be supplied");
+        this.conanSubmissionService = conanSubmissionService;
+    }
+
     public ConanPipelineDAO getConanPipelineDAO() {
         return conanPipelineDAO;
     }
 
     public void setConanPipelineDAO(ConanPipelineDAO conanPipelineDAO) {
+        Assert.notNull(conanPipelineDAO, "A ConanPipelineDAO must be supplied");
         this.conanPipelineDAO = conanPipelineDAO;
     }
 
@@ -53,6 +65,7 @@ public class DefaultTaskService implements ConanTaskService {
     }
 
     public void setConanTaskFactory(ConanTaskFactory conanTaskFactory) {
+        Assert.notNull(conanTaskFactory, "A ConanTaskFactory must be supplied");
         this.conanTaskFactory = conanTaskFactory;
     }
 
@@ -99,6 +112,14 @@ public class DefaultTaskService implements ConanTaskService {
     }
 
     public ConanTask<? extends ConanPipeline> getTask(String taskID) {
+        for (ConanTask<? extends ConanPipeline> nextExecutingTask : getConanSubmissionService().getExecutingTasks()) {
+            if (nextExecutingTask.getId().equals(taskID)) {
+                getLog().debug("Task ID '" + taskID + "' is currently executing " +
+                                       "and was retrieved from submission service");
+                return nextExecutingTask;
+            }
+        }
+        // if we got to here, the task is not currently executing so fetch from DAO
         return getConanTaskDAO().getTask(taskID);
     }
 
@@ -106,6 +127,7 @@ public class DefaultTaskService implements ConanTaskService {
         long start = System.currentTimeMillis();
         getLog().trace("Retrieving all tasks...");
         List<ConanTask<? extends ConanPipeline>> result = getConanTaskDAO().getAllTasks();
+        replaceAnyExecutingTasks(result);
         long end = System.currentTimeMillis();
         double time = ((double) (end - start)) / 1000;
         getLog().trace("Fetched and mapped all tasks in " + time + "s.");
@@ -116,6 +138,7 @@ public class DefaultTaskService implements ConanTaskService {
         long start = System.currentTimeMillis();
         getLog().trace("Retrieving all tasks...");
         List<ConanTask<? extends ConanPipeline>> result = getConanTaskDAO().getAllTasksSummary();
+        replaceAnyExecutingTasks(result);
         long end = System.currentTimeMillis();
         double time = ((double) (end - start)) / 1000;
         getLog().trace("Fetched and mapped all tasks in " + time + "s.");
@@ -123,17 +146,33 @@ public class DefaultTaskService implements ConanTaskService {
     }
 
     public List<ConanTask<? extends ConanPipeline>> getTasks(int maxRecords, int startingFrom) {
-        return getConanTaskDAO().getAllTasks(maxRecords, startingFrom);
+        long start = System.currentTimeMillis();
+        getLog().trace("Retrieving all tasks...");
+        List<ConanTask<? extends ConanPipeline>> result = getConanTaskDAO().getAllTasks(maxRecords, startingFrom);
+        replaceAnyExecutingTasks(result);
+        long end = System.currentTimeMillis();
+        double time = ((double) (end - start)) / 1000;
+        getLog().trace("Fetched tasks in " + time + "s.");
+        return result;
     }
 
     public List<ConanTask<? extends ConanPipeline>> getTasks(int maxRecords, int startingFrom, String orderBy) {
-        return getConanTaskDAO().getAllTasks(maxRecords, startingFrom, orderBy);
+        long start = System.currentTimeMillis();
+        getLog().trace("Retrieving all tasks...");
+        List<ConanTask<? extends ConanPipeline>> result = getConanTaskDAO().getAllTasks(maxRecords, startingFrom,
+                                                                                        orderBy);
+        replaceAnyExecutingTasks(result);
+        long end = System.currentTimeMillis();
+        double time = ((double) (end - start)) / 1000;
+        getLog().trace("Fetched tasks in " + time + "s.");
+        return result;
     }
 
     public List<ConanTask<? extends ConanPipeline>> getPendingTasks() {
         long start = System.currentTimeMillis();
         getLog().trace("Retrieving pending tasks...");
         List<ConanTask<? extends ConanPipeline>> result = getConanTaskDAO().getPendingTasks();
+        replaceAnyExecutingTasks(result);
         long end = System.currentTimeMillis();
         double time = ((double) (end - start)) / 1000;
         getLog().trace("Fetched and mapped all pending tasks in " + time + "s.");
@@ -144,6 +183,7 @@ public class DefaultTaskService implements ConanTaskService {
         long start = System.currentTimeMillis();
         getLog().trace("Retrieving pending tasks...");
         List<ConanTask<? extends ConanPipeline>> result = getConanTaskDAO().getPendingTasksSummary();
+        replaceAnyExecutingTasks(result);
         long end = System.currentTimeMillis();
         double time = ((double) (end - start)) / 1000;
         getLog().trace("Fetched and mapped all pending tasks in " + time + "s.");
@@ -153,11 +193,13 @@ public class DefaultTaskService implements ConanTaskService {
     public List<ConanTask<? extends ConanPipeline>> getPendingTasks(int maxRecords, int startingFrom) {
         // return sublist based on maxRecords, startingFrom
         List<ConanTask<? extends ConanPipeline>> tasks = getConanTaskDAO().getPendingTasks();
+        replaceAnyExecutingTasks(tasks);
         return tasks.subList(startingFrom, startingFrom + maxRecords);
     }
 
     public List<ConanTask<? extends ConanPipeline>> getPendingTasks(int maxRecords, int startingFrom, String orderBy) {
         List<ConanTask<? extends ConanPipeline>> tasks = getConanTaskDAO().getPendingTasks();
+        replaceAnyExecutingTasks(tasks);
         reorderTasks(tasks, orderBy);
         return tasks.subList(startingFrom, startingFrom + maxRecords);
     }
@@ -166,6 +208,7 @@ public class DefaultTaskService implements ConanTaskService {
         long start = System.currentTimeMillis();
         getLog().trace("Retrieving running tasks...");
         List<ConanTask<? extends ConanPipeline>> result = getConanTaskDAO().getRunningTasks();
+        replaceAnyExecutingTasks(result);
         long end = System.currentTimeMillis();
         double time = ((double) (end - start)) / 1000;
         getLog().trace("Fetched and mapped all running tasks in " + time + "s.");
@@ -176,6 +219,7 @@ public class DefaultTaskService implements ConanTaskService {
         long start = System.currentTimeMillis();
         getLog().trace("Retrieving running tasks...");
         List<ConanTask<? extends ConanPipeline>> result = getConanTaskDAO().getRunningTasksSummary();
+        replaceAnyExecutingTasks(result);
         long end = System.currentTimeMillis();
         double time = ((double) (end - start)) / 1000;
         getLog().trace("Fetched and mapped all running tasks in " + time + "s.");
@@ -185,11 +229,13 @@ public class DefaultTaskService implements ConanTaskService {
     public List<ConanTask<? extends ConanPipeline>> getRunningTasks(int maxRecords, int startingFrom) {
         // return sublist based on maxRecords, startingFrom
         List<ConanTask<? extends ConanPipeline>> tasks = getConanTaskDAO().getRunningTasks();
+        replaceAnyExecutingTasks(tasks);
         return tasks.subList(startingFrom, startingFrom + maxRecords);
     }
 
     public List<ConanTask<? extends ConanPipeline>> getRunningTasks(int maxRecords, int startingFrom, String orderBy) {
         List<ConanTask<? extends ConanPipeline>> tasks = getConanTaskDAO().getRunningTasks();
+        replaceAnyExecutingTasks(tasks);
         reorderTasks(tasks, orderBy);
         return tasks.subList(startingFrom, startingFrom + maxRecords);
     }
@@ -198,6 +244,7 @@ public class DefaultTaskService implements ConanTaskService {
         long start = System.currentTimeMillis();
         getLog().trace("Retrieving completed tasks...");
         List<ConanTask<? extends ConanPipeline>> result = getConanTaskDAO().getCompletedTasks();
+        replaceAnyExecutingTasks(result);
         long end = System.currentTimeMillis();
         double time = ((double) (end - start)) / 1000;
         getLog().trace("Fetched and mapped all completed tasks in " + time + "s.");
@@ -217,6 +264,7 @@ public class DefaultTaskService implements ConanTaskService {
         long start = System.currentTimeMillis();
         getLog().trace("Retrieving completed tasks...");
         List<ConanTask<? extends ConanPipeline>> result = getConanTaskDAO().getCompletedTasksSummary(100, 0);
+        replaceAnyExecutingTasks(result);
         long end = System.currentTimeMillis();
         double time = ((double) (end - start)) / 1000;
         getLog().trace("Fetched and mapped all completed tasks in " + time + "s.");
@@ -224,7 +272,14 @@ public class DefaultTaskService implements ConanTaskService {
     }
 
     public List<ConanTask<? extends ConanPipeline>> getCompletedTasks(int maxRecords, int startingFrom) {
-        return getConanTaskDAO().getCompletedTasks(maxRecords, startingFrom);
+        long start = System.currentTimeMillis();
+        getLog().trace("Retrieving completed tasks...");
+        List<ConanTask<? extends ConanPipeline>> result = getConanTaskDAO().getCompletedTasks(maxRecords, startingFrom);
+        replaceAnyExecutingTasks(result);
+        long end = System.currentTimeMillis();
+        double time = ((double) (end - start)) / 1000;
+        getLog().trace("Fetched and mapped all completed tasks in " + time + "s.");
+        return result;
     }
 
     public List<ConanTask<? extends ConanPipeline>> searchCompletedTasks(String name,
@@ -236,32 +291,40 @@ public class DefaultTaskService implements ConanTaskService {
             name = "";
         }
 
+        long start = System.currentTimeMillis();
+        getLog().trace("Searching completed tasks...");
+        List<ConanTask<? extends ConanPipeline>> result;
         if (conanUser == null) {
             if (toDate == null) {
                 if (fromDate == null) {
-                    return getConanTaskDAO().searchCompletedTasks(name);
+                    result = getConanTaskDAO().searchCompletedTasks(name);
                 }
                 else {
-                    return getConanTaskDAO().searchCompletedTasks(name, fromDate);
+                    result = getConanTaskDAO().searchCompletedTasks(name, fromDate);
                 }
             }
             else {
-                return getConanTaskDAO().searchCompletedTasks(name, fromDate, toDate);
+                result = getConanTaskDAO().searchCompletedTasks(name, fromDate, toDate);
             }
         }
         else {
             if (toDate == null) {
                 if (fromDate == null) {
-                    return getConanTaskDAO().searchCompletedTasks(name, conanUser.getId());
+                    result = getConanTaskDAO().searchCompletedTasks(name, conanUser.getId());
                 }
                 else {
-                    return getConanTaskDAO().searchCompletedTasks(name, conanUser.getId(), fromDate);
+                    result = getConanTaskDAO().searchCompletedTasks(name, conanUser.getId(), fromDate);
                 }
             }
             else {
-                return getConanTaskDAO().searchCompletedTasks(name, conanUser.getId(), fromDate, toDate);
+                result = getConanTaskDAO().searchCompletedTasks(name, conanUser.getId(), fromDate, toDate);
             }
         }
+        replaceAnyExecutingTasks(result);
+        long end = System.currentTimeMillis();
+        double time = ((double) (end - start)) / 1000;
+        getLog().trace("Searched and retrieved all completed tasks in " + time + "s.");
+        return result;
     }
 
     public void extractConanParameters(Map<ConanParameter, String> parameters,
@@ -278,6 +341,19 @@ public class DefaultTaskService implements ConanTaskService {
                 if (!parameters.containsKey(param)) {
                     parameters.put(param, inputValues.get(param.getName()));
                 }
+            }
+        }
+    }
+
+    private void replaceAnyExecutingTasks(List<ConanTask<? extends ConanPipeline>> retrievedTasks) {
+        Set<ConanTask<? extends ConanPipeline>> executingTasks = getConanSubmissionService().getExecutingTasks();
+        for (ConanTask executingTask : executingTasks) {
+            if (retrievedTasks.contains(executingTask)) {
+                // we need to replace the retrieved task (which may be stale as it was recovered from the DAO)
+                // with the reference to the in-memory object
+                int index = retrievedTasks.indexOf(executingTask);
+                retrievedTasks.remove(index);
+                retrievedTasks.add(index, executingTask);
             }
         }
     }

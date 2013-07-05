@@ -3,16 +3,14 @@ package uk.ac.ebi.fgpt.conan.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
+import uk.ac.ebi.fgpt.conan.dao.ConanTaskDAO;
 import uk.ac.ebi.fgpt.conan.model.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanTask;
 import uk.ac.ebi.fgpt.conan.service.exception.SubmissionException;
 
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * A default implementation of a {@link ConanSubmissionService} that queues jobs in an {@link ExecutorService} for
@@ -30,39 +28,46 @@ public class DefaultSubmissionService implements ConanSubmissionService {
     private final ExecutorService taskExecutor;
     private final int coolingOffPeriod;
 
-    private ConanTaskService conanTaskService;
+    private final ConcurrentMap<String, Future<Boolean>> executingFutures;
+
+    private ConanTaskDAO conanTaskDAO;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
     public DefaultSubmissionService(int numberOfParallelJobs, int coolingOffPeriod) {
         this.taskExecutor = Executors.newFixedThreadPool(numberOfParallelJobs);
         this.coolingOffPeriod = coolingOffPeriod;
+        this.executingFutures = new ConcurrentHashMap<String, Future<Boolean>>();
     }
 
     protected Logger getLog() {
         return log;
     }
 
-    public ConanTaskService getTaskService() {
-        return conanTaskService;
+    public ConanTaskDAO getConanTaskDAO() {
+        return conanTaskDAO;
     }
 
-    public void setTaskService(ConanTaskService conanTaskService) {
-        Assert.notNull(conanTaskService, "A ConanTaskService must be supplied");
-        this.conanTaskService = conanTaskService;
+    public void setConanTaskDAO(ConanTaskDAO conanTaskDAO) {
+        Assert.notNull(conanTaskDAO, "A ConanTaskDAO must be supplied");
+        this.conanTaskDAO = conanTaskDAO;
     }
 
-    public void submitTask(final ConanTask<? extends ConanPipeline> conanTask) throws SubmissionException {
-        log.debug("Task submission received! Task ID = " + conanTask.getId());
+    public void submitTask(ConanTask<? extends ConanPipeline> conanTask) throws SubmissionException {
+        // grab task id, executor service always grabs latest version of conanTask from task service
+        // rather than retaining a (possibly out of date) reference
+        final String taskID = conanTask.getId();
+        log.debug("Task submission received! Task ID = " + taskID);
 
         ConanTask duplicate = checkForDuplication(conanTask);
         if (duplicate == null) {
             // wrap task in a callable and submit
-            taskExecutor.submit(new Callable<Boolean>() {
+            Future<Boolean> f = taskExecutor.submit(new Callable<Boolean>() {
                 public Boolean call() throws Exception {
+                    ConanTask<? extends ConanPipeline> executingTask = null;
                     try {
                         // all tasks go into a holding pattern for a while before executing
-                        Date creationDate = conanTask.getCreationDate();
+                        Date creationDate = getConanTaskDAO().getTask(taskID).getCreationDate();
                         Date allowedStartDate = new Date(System.currentTimeMillis() - (coolingOffPeriod * 1000));
                         while (creationDate.after(allowedStartDate)) {
                             synchronized (this) {
@@ -72,14 +77,21 @@ public class DefaultSubmissionService implements ConanSubmissionService {
                         }
 
                         // now we've waited for the prescribed cooling off period, execute
-                        return conanTask.execute();
+                        executingTask = getConanTaskDAO().getTask(taskID);
+                        return executingTask.execute();
                     }
                     catch (Exception e) {
-                        getLog().error("There was a problem executing task '" + conanTask.getId() + "'", e);
+                        getLog().error("There was a problem executing task '" + taskID + "'", e);
                         throw e;
+                    }
+                    finally {
+                        if (executingTask != null && executingFutures.containsKey(executingTask.getId())) {
+                            executingFutures.remove(executingTask.getId());
+                        }
                     }
                 }
             });
+            executingFutures.put(conanTask.getId(), f);
 
             // flag the fact that this task was submitted, if it hasn't been restarted
             if (!conanTask.isSubmitted()) {
@@ -110,24 +122,46 @@ public class DefaultSubmissionService implements ConanSubmissionService {
         submitTask(conanTask);
     }
 
+    public void interruptTask(final ConanTask<? extends ConanPipeline> conanTask) {
+        Future<Boolean> f = executingFutures.get(conanTask.getId());
+        if (f != null) {
+            getLog().debug("Forcing interruption of Task ID = " + conanTask.getId());
+            f.cancel(true);
+            getLog().debug("Cancelled Task ID = " + conanTask.getId() + " successfully");
+        }
+        else {
+            getLog().debug("Failed to interrupt Task ID = " + conanTask.getId() + ": not currently executing");
+        }
+    }
+
+    public Set<ConanTask<? extends ConanPipeline>> getExecutingTasks() {
+        // retrieve all tasks by ID from the executingFutures keySet
+        Set<ConanTask<? extends ConanPipeline>> executingTasks = new HashSet<ConanTask<? extends ConanPipeline>>();
+        for (String taskID : executingFutures.keySet()) {
+            executingTasks.add(getConanTaskDAO().getTask(taskID));
+        }
+        // retrieve the snapshot of the currently executing tasks
+        return Collections.unmodifiableSet(executingTasks);
+    }
+
     /**
      * On startup, this submission service recovers any pre-existing and running tasks and immediately resubmits them
      * with {@link #resubmitTask(uk.ac.ebi.fgpt.conan.model.ConanTask)}.  This allows any tasks that were running at the
      * previous shutdown (or failure) to be recovered wherever possible.
      */
     public void init() {
-        Assert.notNull(getTaskService(), "A ConanTaskDAO must be provided");
+        Assert.notNull(getConanTaskDAO(), "A ConanTaskDAO must be provided");
 
         long start = System.currentTimeMillis();
         getLog().debug("Startup of " + getClass().getSimpleName() + " triggered, recovering running tasks");
         List<ConanTask<? extends ConanPipeline>> recoveredTasks = new ArrayList<ConanTask<? extends ConanPipeline>>();
         // add any pending tasks that were submitted and never started (i.e. not those that are paused or failed)
-        for (ConanTask pendingTask : getTaskService().getPendingTasks()) {
+        for (ConanTask pendingTask : getConanTaskDAO().getPendingTasks()) {
             if (pendingTask.getCurrentState() == ConanTask.State.SUBMITTED) {
                 recoveredTasks.add(pendingTask);
             }
         }
-        recoveredTasks.addAll(getTaskService().getRunningTasks());
+        recoveredTasks.addAll(getConanTaskDAO().getRunningTasks());
         for (ConanTask<? extends ConanPipeline> recoveredTask : recoveredTasks) {
             // todo - AE1 hack to prevent resubmission, remove this before full release!
             if (recoveredTask.getCurrentProcess() != null &&
@@ -195,7 +229,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
         // comparator that checks for tasks that are equal or have all the same params
         TaskParametersComparator comparator = new TaskParametersComparator();
 
-        for (ConanTask executingTask : getTaskService().getRunningTasks()) {
+        for (ConanTask executingTask : getConanTaskDAO().getIncompleteTasks()) {
             // don't compare tasks if they have the same ID
             if (!task.getId().equals(executingTask.getId())) {
                 // compare all parameters of executing task to our new task
@@ -233,24 +267,39 @@ public class DefaultSubmissionService implements ConanSubmissionService {
                                        "and task '" + task2.getId() + "' [" + task2.getName() + "]");
                 Map<ConanParameter, String> paramValues1 = task1.getParameterValues();
                 Map<ConanParameter, String> paramValues2 = task2.getParameterValues();
-                for (ConanParameter param : paramValues1.keySet()) {
-                    if (paramValues2.containsKey(param)) {
-                        // get the values for this key and check
-                        getLog().debug("Compared tasks have parameter type " + param.getName() + " in common, " +
-                                               "checking values...");
-                        String val1 = paramValues1.get(param);
-                        String val2 = paramValues2.get(param);
+                if (paramValues1 != null) {
+                    for (ConanParameter param : paramValues1.keySet()) {
+                        if (paramValues2 != null) {
+                            if (paramValues2.containsKey(param)) {
+                                // get the values for this key and check
+                                getLog().debug(
+                                        "Compared tasks have parameter type " + param.getName() + " in common, " +
+                                                "checking values...");
+                                String val1 = paramValues1.get(param);
+                                String val2 = paramValues2.get(param);
 
-                        // if values are equal, all vals are still equal
-                        getLog().debug("Comparing values '" + val1 + "' and '" + val2 + "'");
-                        if (!val1.equals(val2)) {
-                            diffCount++;
+                                // if values are equal, all vals are still equal
+                                getLog().debug("Comparing values '" + val1 + "' and '" + val2 + "'");
+                                if (!val1.equals(val2)) {
+                                    diffCount++;
+                                }
+                                allEqual = allEqual && val1.equals(val2);
+                            }
+                            else {
+                                allEqual = false;
+                                diffCount++;
+                            }
                         }
-                        allEqual = allEqual && val1.equals(val2);
+                        else {
+                            // paramValues1 is not null, but paramValues2 is - not all equal
+                            allEqual = false;
+                        }
                     }
-                    else {
+                }
+                else {
+                    // null paramValues1, if paramValues2 is not also null, allEqual = false
+                    if (paramValues2 != null) {
                         allEqual = false;
-                        diffCount++;
                     }
                 }
 

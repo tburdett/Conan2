@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>conan2</artifactId>
         <groupId>uk.ac.ebi.fgpt</groupId>
-        <version>2.1-SNAPSHOT</version>
+        <version>2.0.6-SNAPSHOT</version>
     </parent>
     <groupId>uk.ac.ebi.fgpt</groupId>
     <artifactId>conan-ui</artifactId>
-    <version>2.1-SNAPSHOT</version>
+    <version>2.0.6-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>Conan 2: Web Application UI</name>
     <url>http://www.ebi.ac.uk/arrayexpress</url>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>conan-core-services</artifactId>
-            <version>2.1-SNAPSHOT</version>
+            <version>2.0.6-SNAPSHOT</version>
         </dependency>
 
         <!-- spring webmvc framework -->
@@ -92,18 +92,7 @@
 
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>hasbanana-repo</id>
-            <url>http://www.hasbanana.com/maven/repo</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <profiles>
-
         <!-- profile for a standalone conan demo -->
         <profile>
             <id>demo</id>
@@ -124,6 +113,14 @@
                         <configuration>
                             <webResources>
                                 <resource>
+                                    <directory>src/main/webapp/WEB-INF</directory>
+                                    <excludes>
+                                        <exclude>conan-dao.xml</exclude>
+                                        <exclude>conan-service.xml</exclude>
+                                        <exclude>conan-servlet.xml</exclude>
+                                    </excludes>
+                                </resource>
+                                <resource>
                                     <directory>src/main/webresources-demo</directory>
                                 </resource>
                             </webResources>
@@ -137,7 +134,7 @@
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>conan-demo-processes</artifactId>
-                    <version>1.0</version>
+                    <version>2.0.6-SNAPSHOT</version>
                 </dependency>
             </dependencies>
         </profile>

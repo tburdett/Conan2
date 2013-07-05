@@ -45,12 +45,23 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+
+    <!-- Define Listeners -->
+
     <!-- listener to load context at startup -->
     <listener>
         <listener-class>
             org.springframework.web.context.ContextLoaderListener
         </listener-class>
     </listener>
+
+    <!-- Checks additional environmental variables at startup -->
+    <listener>
+        <listener-class>
+            uk.ac.ebi.fgpt.conan.web.listener.ConanEnvironmentListener
+        </listener-class>
+    </listener>
+
 
     <!-- database resources from JNDI -->
     <resource-ref>

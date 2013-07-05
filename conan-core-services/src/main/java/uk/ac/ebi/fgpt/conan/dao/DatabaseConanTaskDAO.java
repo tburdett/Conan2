@@ -49,6 +49,8 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
             "where STATE = 'RUNNING'";
     public static final String TASK_SELECT_COMPLETED = TASK_SELECT + " " +
             "where (STATE = 'COMPLETED' or STATE = 'ABORTED')";
+    public static final String TASK_SELECT_INCOMPLETE = TASK_SELECT + " " +
+            "where (STATE != 'COMPLETED' and STATE != 'ABORTED')";
     public static final String TASK_SELECT_COMPLETED_PAGED =
             "select ID, NAME, START_DATE, END_DATE, USER_ID, PIPELINE_NAME, PRIORITY, FIRST_PROCESS_INDEX, STATE, STATUS_MESSAGE, CURRENT_EXECUTED_INDEX, CREATION_DATE " +
                     "from (" + TASK_SELECT + " where (STATE = 'COMPLETED' or STATE = 'ABORTED') order by END_DATE desc) " +
@@ -97,12 +99,16 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
             "select p.ID, p.NAME, p.START_DATE, p.END_DATE, p.USER_ID, p.EXIT_CODE, p.TASK_ID " +
                     "from CONAN_PROCESSES p, CONAN_TASKS t " +
                     "where p.TASK_ID = t.ID and (t.STATE = 'COMPLETED' or t.STATE = 'ABORTED')";
+    public static final String PROCESS_SELECT_FOR_OTHER_TASKS =
+        "select p.ID, p.NAME, p.START_DATE, p.END_DATE, p.USER_ID, p.EXIT_CODE, p.TASK_ID " +
+                "from CONAN_PROCESSES p, CONAN_TASKS t " +
+                "where p.TASK_ID = t.ID and t.STATE != 'COMPLETED' and t.STATE != 'ABORTED' and t.STATE != 'RUNNING' and t.STATE = 'CREATED' and t.STATE = 'SUBMITTED' and t.STATE = 'RECOVERED' and t.STATE = 'PAUSED' and t.STATE = 'FAILED'";
     public static final String PROCESS_INSERT =
             "insert into CONAN_PROCESSES (" +
-                    "ID, NAME, START_DATE, END_DATE, USER_ID, EXIT_CODE, TASK_ID) " +
-                    "values (?, ?, ?, ?, ?, ?, ?)";
+                    "ID, NAME, START_DATE, END_DATE, USER_ID, EXIT_CODE, TASK_ID, ERROR_MESSAGE) " +
+                    "values (?, ?, ?, ?, ?, ?, ?, ?)";
     public static final String PROCESS_UPDATE =
-            "update CONAN_PROCESSES set NAME = ?, START_DATE = ?, END_DATE = ?, USER_ID = ?, EXIT_CODE = ?, TASK_ID = ? " +
+            "update CONAN_PROCESSES set NAME = ?, START_DATE = ?, END_DATE = ?, USER_ID = ?, EXIT_CODE = ?, TASK_ID = ?, ERROR_MESSAGE = ? " +
                     "where ID = ?";
 
     public static final String PARAMETER_SELECT =
@@ -124,6 +130,10 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
             "select p.ID, p.PARAMETER_NAME, p.PARAMETER_VALUE, p.TASK_ID " +
                     "from CONAN_PARAMETERS p, CONAN_TASKS t " +
                     "where p.TASK_ID = t.ID and (t.STATE = 'COMPLETED' or t.STATE = 'ABORTED')";
+    public static final String PARAMETER_SELECT_FOR_OTHER_TASKS =
+        "select p.ID, p.PARAMETER_NAME, p.PARAMETER_VALUE, p.TASK_ID " +
+                "from CONAN_PARAMETERS p, CONAN_TASKS t " +
+                "where p.TASK_ID = t.ID and t.STATE != 'COMPLETED' and t.STATE != 'ABORTED' and t.STATE != 'RUNNING' and t.STATE = 'CREATED' and t.STATE = 'SUBMITTED' and t.STATE = 'RECOVERED' and t.STATE = 'PAUSED' and t.STATE = 'FAILED'";
     public static final String PARAMETER_INSERT =
             "insert into CONAN_PARAMETERS (" +
                     "PARAMETER_NAME, PARAMETER_VALUE, TASK_ID) " +
@@ -331,7 +341,8 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
                                      javaDateToSQLDate(conanProcessRun.getEndDate()),
                                      conanProcessRun.getUser().getId(),
                                      conanProcessRun.getExitValue(),
-                                     conanTaskID);
+                                     conanTaskID,
+                                     conanProcessRun.getErrorMessage());
 
             conanProcessRun.setId(Integer.toString(processRunID));
         }
@@ -343,6 +354,7 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
                                      conanProcessRun.getUser().getId(),
                                      conanProcessRun.getExitValue(),
                                      conanTaskID,
+                                     conanProcessRun.getErrorMessage(),
                                      conanProcessRun.getId());
         }
 
@@ -430,6 +442,20 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
 
         //additional sets
         addConanTaskChildren(conanTasks, TaskType.COMPLETED);
+        return conanTasks;
+    }
+    
+
+
+    public List<ConanTask<? extends ConanPipeline>> getIncompleteTasks() {
+        Assert.notNull(getJdbcTemplate(), getClass().getSimpleName() + " must have a valid JdbcTemplate set");
+        List<ConanTask<? extends ConanPipeline>> conanTasks =
+                getJdbcTemplate().query(TASK_SELECT_INCOMPLETE, new ConanTaskMapper());
+
+        //additional sets
+        addConanTaskChildren(conanTasks, TaskType.RUNNING);
+        addConanTaskChildren(conanTasks, TaskType.PENDING);
+        addConanTaskChildren(conanTasks, TaskType.OTHER);
         return conanTasks;
     }
 
@@ -560,6 +586,7 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
     protected void addConanTaskChildren(List<ConanTask<? extends ConanPipeline>> tasks,
                                         TaskType type) {
         getLog().debug("Fetching associated data for " + tasks.size() + " tasks - this will be batched if possible");
+        long starttime = System.currentTimeMillis();
 
         // map tasks to task ids
         Map<String, DatabaseRecoveredConanTask> tasksByID = new HashMap<String, DatabaseRecoveredConanTask>();
@@ -573,7 +600,8 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         // add processes in batches
         addProcessesToTasks(tasksByID, type);
 
-        getLog().debug("All associated task data fetched, tasks should now be fully populated");
+        long endtime = System.currentTimeMillis();
+        getLog().debug("All associated task data fetched in "+(endtime-starttime)/1000+"s, tasks should now be fully populated");
     }
 
     protected void addParametersToTasks(Map<String, DatabaseRecoveredConanTask> tasksByID, TaskType type) {
@@ -596,6 +624,8 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
                     getJdbcTemplate().query(PARAMETER_SELECT_FOR_COMPLETED_TASKS, parameterMapper);
                     break;
                 case OTHER:
+                    getJdbcTemplate().query(PARAMETER_SELECT_FOR_OTHER_TASKS, parameterMapper);
+                    break;
                 default:
                     getJdbcTemplate().query(PARAMETER_SELECT, parameterMapper);
             }
@@ -622,6 +652,8 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
                     getJdbcTemplate().query(PROCESS_SELECT_FOR_COMPLETED_TASKS, processMapper);
                     break;
                 case OTHER:
+                    getJdbcTemplate().query(PROCESS_SELECT_FOR_OTHER_TASKS, processMapper);
+                    break;
                 default:
                     getJdbcTemplate().query(PROCESS_SELECT, processMapper);
             }

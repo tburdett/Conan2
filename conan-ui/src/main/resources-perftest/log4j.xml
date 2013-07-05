@@ -16,7 +16,12 @@
         </layout>
     </appender>
 
-    <logger name="uk.ac.ebi.fgpt.conan" additivity="false">
+    <logger name="uk.ac.ebi.fgpt.conan.service" additivity="false">
+        <level value="DEBUG" />
+        <appender-ref ref="conan-log" />
+    </logger>
+
+    <logger name="uk.ac.ebi.fgpt.conan.process" additivity="false">
         <level value="DEBUG" />
         <appender-ref ref="conan-log" />
     </logger>
@@ -28,7 +33,7 @@
 
     <root>
         <priority value="INFO" />
-        <appender-ref ref="console" />
+        <appender-ref ref="conan-log" />
     </root>
 
 </log4j:configuration>
