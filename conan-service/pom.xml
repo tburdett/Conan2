@@ -42,7 +42,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
-            <version>3.0.3.RELEASE</version>
+            <version>${springframework-version}</version>
         </dependency>
 
         <!-- for email support-->
