@@ -36,6 +36,7 @@ public class PBSArgs extends SchedulerArgs {
         StringJoiner joiner = new StringJoiner(" ");
 
         joiner.add("-N", this.getJobName());
+        joiner.add("-q", this.getQueueName());
         joiner.add(this.getWaitCondition());
         joiner.add(this.getExtraArgs());
 
