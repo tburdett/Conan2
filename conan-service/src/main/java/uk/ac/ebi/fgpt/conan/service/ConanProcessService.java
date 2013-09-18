@@ -2,7 +2,7 @@ package uk.ac.ebi.fgpt.conan.service;
 
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
-import uk.ac.ebi.fgpt.conan.model.context.WaitCondition;
+import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.util.Collection;
@@ -43,7 +43,7 @@ public interface ConanProcessService {
      * @throws InterruptedException      Thrown if the executed proc was interrupted during the job
      * @throws uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException Thrown if there were any problems initialising the job or with the job output
      */
-    int execute(ConanProcess conanProcess, ExecutionContext executionContext)
+    ExecutionResult execute(ConanProcess conanProcess, ExecutionContext executionContext)
             throws InterruptedException, ProcessExecutionException;
 
     /**
@@ -58,20 +58,20 @@ public interface ConanProcessService {
      * @throws InterruptedException      Thrown if the executed proc was interrupted during the job
      * @throws ProcessExecutionException Thrown if there were any problems initialising the job or with the job output
      */
-    int execute(String command, ExecutionContext executionContext)
+    ExecutionResult execute(String command, ExecutionContext executionContext)
             throws InterruptedException, ProcessExecutionException;
 
     /**
      * If a proc or command (or set of processes or commands) was executed in the background, then this method can be
      * called to wait for it (them) to complete.
      *
-     * @param waitCondition    The {@link WaitCondition} describing which job(s) to wait for.
+     * @param waitCondition    The wait/dependency condition describing which job(s) to wait for.
      * @param executionContext The {@link ExecutionContext} within which the job(s) to wait for is(are) running.
-     * @return The exit code for the job, returned after the job(s) has(have) completed.
+     * @return The results returned from the job, returned after the job(s) has(have) completed.
      * @throws InterruptedException      Thrown if the wait condition was interrupted before the jobs completed
      * @throws ProcessExecutionException Thrown if there were any problems initialising the wait condition or with the
      *                                   result of waiting for the job(s) to complete
      */
-    int waitFor(WaitCondition waitCondition, ExecutionContext executionContext)
+    ExecutionResult waitFor(String waitCondition, ExecutionContext executionContext)
             throws InterruptedException, ProcessExecutionException;
 }

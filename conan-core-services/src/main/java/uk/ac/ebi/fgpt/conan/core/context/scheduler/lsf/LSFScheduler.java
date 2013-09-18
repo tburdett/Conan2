@@ -22,12 +22,12 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.core.context.scheduler.AbstractScheduler;
 import uk.ac.ebi.fgpt.conan.model.context.ExitStatus;
 import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
-import uk.ac.ebi.fgpt.conan.model.context.WaitCondition;
 import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
 import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 import uk.ac.ebi.fgpt.conan.util.StringJoiner;
 
 import java.io.File;
+import java.util.List;
 
 public class LSFScheduler extends AbstractScheduler {
 
@@ -49,7 +49,7 @@ public class LSFScheduler extends AbstractScheduler {
     }
 
     @Override
-    public String createCommand(String internalCommand) {
+    public String createCommand(String internalCommand, boolean isForegroundJob) {
 
         // get email address to use as backup in case proc fails
         String backupEmail = ConanProperties.getProperty("scheduler.backup.email");
@@ -69,7 +69,7 @@ public class LSFScheduler extends AbstractScheduler {
     }
 
     @Override
-    public String createWaitCommand(WaitCondition waitCondition) {
+    public String createWaitCommand(String waitCondition) {
 
         // get email address to use as backup in case proc fails
         String backupEmail = ConanProperties.getProperty("scheduler.backup.email");
@@ -80,7 +80,7 @@ public class LSFScheduler extends AbstractScheduler {
             sj.add("-u " + backupEmail);
         }
         sj.add("-oo", this.getArgs().getMonitorFile());
-        sj.add(waitCondition.toString());
+        sj.add("-w " + waitCondition);
         sj.add("-q", this.getArgs().getQueueName());
         sj.add("\"sleep 1 2>&1\"");
 
@@ -93,8 +93,22 @@ public class LSFScheduler extends AbstractScheduler {
     }
 
     @Override
-    public WaitCondition createWaitCondition(ExitStatus.Type exitStatus, String condition) {
-        return new LSFWaitCondition(LSFExitStatusType.select(exitStatus), condition);
+    public String createWaitCondition(ExitStatus.Type exitStatus, String condition) {
+        return "\"" + LSFExitStatus.select(exitStatus).getCommand() + "(" + condition + ")\"";
+    }
+
+    @Override
+    public String createWaitCondition(ExitStatus.Type exitStatus, List<Integer> jobIds) {
+
+        StringJoiner condition = new StringJoiner(" && ");
+
+        String status = LSFExitStatus.select(exitStatus).getCommand();
+
+        for(Integer jobId : jobIds) {
+            condition.add(status + "(" + jobId.toString() + ")");
+        }
+
+        return "\"" + condition.toString() + "\"";
     }
 
     @Override
@@ -106,6 +120,29 @@ public class LSFScheduler extends AbstractScheduler {
     @Override
     public String getName() {
         return "LSF";
+    }
+
+    @Override
+    public boolean usesFileMonitor() {
+        return true;
+    }
+
+    @Override
+    public boolean generatesJobIdFromOutput() {
+        return true;
+    }
+
+    @Override
+    public int extractJobIdFromOutput(String line) {
+
+        String[] parts = line.split(" ");
+
+        if (parts.length != 8)
+            throw new IllegalArgumentException("Unexpected line returned from bsub: " + line);
+
+        String trimmed = parts[1].substring(1, parts[1].length() - 1);
+
+        return Integer.parseInt(trimmed);
     }
 
 }

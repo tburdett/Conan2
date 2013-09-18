@@ -3,14 +3,12 @@ package uk.ac.ebi.fgpt.conan.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.fgpt.conan.core.process.monitor.InvocationTrackingProcessListener;
 import uk.ac.ebi.fgpt.conan.dao.ConanProcessDAO;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
+import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
 import uk.ac.ebi.fgpt.conan.model.context.Locality;
 import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
-import uk.ac.ebi.fgpt.conan.model.context.WaitCondition;
-import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.util.Collection;
@@ -46,7 +44,7 @@ public class DefaultProcessService implements ConanProcessService {
     }
 
     @Override
-    public int execute(ConanProcess process, ExecutionContext executionContext)
+    public ExecutionResult execute(ConanProcess process, ExecutionContext executionContext)
             throws InterruptedException, ProcessExecutionException {
 
         if (executionContext.getExternalProcessConfiguration() != null) {
@@ -61,13 +59,13 @@ public class DefaultProcessService implements ConanProcessService {
     }
 
     @Override
-    public int execute(String command, ExecutionContext executionContext) throws InterruptedException, ProcessExecutionException {
+    public ExecutionResult execute(String command, ExecutionContext executionContext) throws InterruptedException, ProcessExecutionException {
 
         Locality locality = executionContext.getLocality();
 
         if (locality == null) {
             log.warn("No locality specified in execution context.  Will not execute command: " + command);
-            return 0;
+            return null;
         }
 
         if (!locality.establishConnection()) {
@@ -75,27 +73,26 @@ public class DefaultProcessService implements ConanProcessService {
                     command + " will not be submitted.");
         }
 
-        int exitCode = -1;
+        ExecutionResult result = null;
 
         if (executionContext.usingScheduler()) {
 
             Scheduler scheduler = executionContext.getScheduler();
 
-            String commandToExecute = scheduler.createCommand(command);
+            String commandToExecute = scheduler.createCommand(command, executionContext.isForegroundJob());
 
             if (executionContext.isForegroundJob()) {
-                log.debug("Preparing to run scheduled job in foreground using monitors.");
-                exitCode = locality.monitoredExecute(commandToExecute, scheduler.createProcessAdapter(), new InvocationTrackingProcessListener());
+                log.debug("Preparing to run scheduled job in foreground.");
+                result = locality.monitoredExecute(commandToExecute, scheduler);
             } else {
                 log.debug("Preparing to run scheduled job in background.");
-                locality.dispatch(commandToExecute);
-                exitCode = 0; // Doesn't return an exit code, so if there were no exceptions assume everything went well
+                result = locality.dispatch(commandToExecute, scheduler);
             }
         } else {
 
             if (executionContext.isForegroundJob()) {
                 log.debug("Running job in foreground.");
-                exitCode = locality.execute(command);
+                result = locality.execute(command, null);
             } else {
                 throw new UnsupportedOperationException("Can't dispatch simple commands yet");
             }
@@ -106,12 +103,12 @@ public class DefaultProcessService implements ConanProcessService {
             throw new ProcessExecutionException(-1, "Command was submitted but could not disconnect the terminal session.  Future jobs may not work.");
         }
 
-        return exitCode;
+        return result;
     }
 
 
     @Override
-    public int waitFor(WaitCondition waitCondition, ExecutionContext executionContext) throws InterruptedException, ProcessExecutionException {
+    public ExecutionResult waitFor(String waitCondition, ExecutionContext executionContext) throws InterruptedException, ProcessExecutionException {
 
         if (!executionContext.usingScheduler()) {
             throw new UnsupportedOperationException("Can't wait for non-scheduled tasks yet");
@@ -121,8 +118,6 @@ public class DefaultProcessService implements ConanProcessService {
 
         String waitCommand = scheduler.createWaitCommand(waitCondition);
 
-        ProcessAdapter processAdapter = scheduler.createProcessAdapter();
-
-        return executionContext.getLocality().monitoredExecute(waitCommand, processAdapter, new InvocationTrackingProcessListener());
+        return executionContext.getLocality().monitoredExecute(waitCommand, scheduler);
     }
 }

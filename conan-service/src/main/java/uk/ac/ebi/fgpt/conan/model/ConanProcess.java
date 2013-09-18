@@ -129,4 +129,12 @@ public interface ConanProcess extends Serializable {
      * @return the parameter names required to generate a task
      */
     Collection<ConanParameter> getParameters();
+
+
+    /**
+     * Returns the job id for this process, if allocated by a scheduler, otherwise returns -1
+     * @return
+     */
+    int getJobId();
+
 }

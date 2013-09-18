@@ -23,24 +23,12 @@ import uk.ac.ebi.fgpt.conan.util.StringJoiner;
 
 public class LSFArgs extends SchedulerArgs {
 
-    private String projectName;
-
     public LSFArgs() {
         super();
-        this.projectName = "";
     }
 
     public LSFArgs(LSFArgs args) {
         super(args);
-        this.projectName = args.getProjectName();
-    }
-
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
     }
 
     protected boolean validString(String str) {
@@ -55,9 +43,9 @@ public class LSFArgs extends SchedulerArgs {
         joiner.add("-J", this.getJobName());
         joiner.add("-q", this.getQueueName());
         joiner.add("-oo", this.getMonitorFile());
-        joiner.add(this.getWaitCondition());
+        joiner.add("-w ", this.getWaitCondition());
         joiner.add(this.getThreads() > 1, "-n", String.valueOf(this.getThreads()));
-        joiner.add("-P", this.projectName);
+        joiner.add("-P", this.getProjectName());
         joiner.add(this.isOpenmpi(), "-a", "openmpi");
         joiner.add(!this.getExtraArgs().startsWith("-R"), "", this.getExtraArgs());
 

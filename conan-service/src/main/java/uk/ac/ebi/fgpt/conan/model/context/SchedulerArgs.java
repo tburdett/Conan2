@@ -11,17 +11,19 @@ public abstract class SchedulerArgs {
 
     private String jobName;
     private String queueName;
+    private String projectName;
     private int threads;
     private int memoryMB;
     private String extraArgs;
     private boolean openmpi;
-    private WaitCondition waitCondition;
+    private String waitCondition;
     private File monitorFile;
     private int monitorInterval;
 
     protected SchedulerArgs() {
         this.jobName = "";
         this.queueName = "";
+        this.projectName = "";
         this.threads = 0;
         this.memoryMB = 0;
         this.extraArgs = "";
@@ -33,6 +35,7 @@ public abstract class SchedulerArgs {
     protected SchedulerArgs(SchedulerArgs args) {
         this.jobName = args.getJobName();
         this.queueName = args.getQueueName();
+        this.projectName = args.getProjectName();
         this.threads = args.getThreads();
         this.memoryMB = args.getMemoryMB();
         this.extraArgs = args.getExtraArgs();
@@ -56,6 +59,14 @@ public abstract class SchedulerArgs {
 
     public void setQueueName(String queueName) {
         this.queueName = queueName;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 
     public int getThreads() {
@@ -94,11 +105,11 @@ public abstract class SchedulerArgs {
         this.openmpi = openmpi;
     }
 
-    public WaitCondition getWaitCondition() {
+    public String getWaitCondition() {
         return waitCondition;
     }
 
-    public void setWaitCondition(WaitCondition waitCondition) {
+    public void setWaitCondition(String waitCondition) {
         this.waitCondition = waitCondition;
     }
 

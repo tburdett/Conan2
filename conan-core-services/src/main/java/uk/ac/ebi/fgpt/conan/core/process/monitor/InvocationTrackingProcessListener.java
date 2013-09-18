@@ -65,7 +65,7 @@ public class InvocationTrackingProcessListener implements ProcessListener {
     @Override
     public void processError(ProcessEvent evt) {
         // something went wrong
-        log.debug("File was deleted by an proc proc");
+        log.debug("File was deleted by an proc");
         exitValue = 1;
         complete = true;
         synchronized (this) {

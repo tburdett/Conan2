@@ -4,6 +4,7 @@ package uk.ac.ebi.fgpt.conan.model.context;
 import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
 
 import java.io.File;
+import java.util.List;
 
 
 public interface Scheduler {
@@ -36,17 +37,17 @@ public interface Scheduler {
      * @param command The command describing the proc to execute on this scheduler.
      * @return A command that should be used to execute the provided command on this scheduler.
      */
-    String createCommand(String command);
+    String createCommand(String command, boolean isForegroundJob);
 
     /**
      * Creates a command that can execute the specified wait condition on this architecture.  Typically this is used to
      * generate a command that can be executed as a stand alone proc, which will not complete until the wait condition
      * has been fulfilled.
      *
-     * @param waitCondition The wait condition to convert into an architecture specific command.
-     * @return An architecture specific wait command.
+     * @param waitCondition The wait/dependency condition to convert into an scheduler specific command.
+     * @return A scheduler specific wait command.
      */
-    String createWaitCommand(WaitCondition waitCondition);
+    String createWaitCommand(String waitCondition);
 
     /**
      * Generates a job kill command for this scheduler, using the supplied job identifier
@@ -75,13 +76,22 @@ public interface Scheduler {
 
 
     /**
-     * Creates a wait condition for this architecture
+     * Creates a wait condition for this architecture, using a job name pattern
      *
      * @param exitStatus The type of exit status to wait for
      * @param condition  The condition to wait for
      * @return A new wait condition object suitable for this architecture
      */
-    WaitCondition createWaitCondition(ExitStatus.Type exitStatus, String condition);
+    String createWaitCondition(ExitStatus.Type exitStatus, String condition);
+
+    /**
+     * Creates a wait condition for this architecture, using a list of job ids
+     *
+     * @param exitStatus The type of exit status to wait for
+     * @param jobIds  The list of job ids to wait for
+     * @return A new wait condition object suitable for this architecture
+     */
+    String createWaitCondition(ExitStatus.Type exitStatus, List<Integer> jobIds);
 
 
     /**
@@ -96,4 +106,25 @@ public interface Scheduler {
      * @return
      */
     String getName();
+
+    /**
+     * Used to mark whether or not this scheduler monitors processes running in the foreground through an external log
+     * file.
+     * @return
+     */
+    boolean usesFileMonitor();
+
+
+    /**
+     * Used to mark whether or not this scheduler generates a job id from the standard output
+     * @return
+     */
+    boolean generatesJobIdFromOutput();
+
+    /**
+     * Parses an output line to get the job id
+     * @param line
+     * @return
+     */
+    int extractJobIdFromOutput(String line);
 }

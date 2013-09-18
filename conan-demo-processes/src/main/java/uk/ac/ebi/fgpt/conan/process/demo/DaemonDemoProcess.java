@@ -86,4 +86,9 @@ public class DaemonDemoProcess implements ConanProcess {
     public Collection<ConanParameter> getParameters() {
         return params;
     }
+
+    @Override
+    public int getJobId() {
+        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

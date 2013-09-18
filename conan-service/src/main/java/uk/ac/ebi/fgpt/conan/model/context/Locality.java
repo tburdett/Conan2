@@ -1,8 +1,6 @@
 
 package uk.ac.ebi.fgpt.conan.model.context;
 
-import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
-import uk.ac.ebi.fgpt.conan.model.monitor.ProcessListener;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 public interface Locality {
@@ -20,27 +18,26 @@ public interface Locality {
      * the command.
      *
      * @param command The command that is to be executed in the foreground
+     * @param scheduler      The {@link Scheduler} which may have its own custom way of monitoring the tasks progress
      * @return The exitCode from the proc that was executed
      * @throws InterruptedException
      * @throws uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException
      *
      */
-    int execute(String command)
+    ExecutionResult execute(String command, Scheduler scheduler)
             throws ProcessExecutionException, InterruptedException;
 
     /**
-     * Intended for executing Scheduled Tasks in the foreground.  A {@link ProcessAdapter} is used to monitor progress of
-     * the proc.
+     * Intended for executing Scheduled Tasks in the foreground.
      *
      * @param command        The command to execute.
-     * @param processAdapter The {@link ProcessAdapter} which should monitor Task progress
-     * @param processListener The {@link ProcessListener} which should monitor Task completion
+     * @param scheduler      The {@link Scheduler} which may have its own custom way of monitoring the tasks progress
      * @return The exitCode from the proc that was executed
      * @throws InterruptedException
      * @throws uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException
      *
      */
-    int monitoredExecute(String command, ProcessAdapter processAdapter, ProcessListener processListener)
+    ExecutionResult monitoredExecute(String command, Scheduler scheduler)
             throws InterruptedException, ProcessExecutionException;
 
     /**
@@ -49,25 +46,12 @@ public interface Locality {
      * the user wants to execute multiple command in parallel.
      *
      * @param command The command that is to be executed in the background
+     * @param scheduler      The {@link Scheduler} which may have its own custom way of monitoring the tasks progress
      * @throws InterruptedException
      * @throws uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException
      *
      */
-    void dispatch(String command)
-            throws ProcessExecutionException, InterruptedException;
-
-    /**
-     * If a proc was dispatched and is executing in the background, then the user may want to wait for that proc,
-     * or processes, to complete before continueing.
-     *
-     * @param waitCondition The waitCondition that needs to be satisfied before continueing.
-     * @return The exit code produced after the wait condition has been satisfied.
-     * @throws uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException
-     *
-     * @throws InterruptedException
-     * @throws java.io.IOException
-     */
-    int waitFor(WaitCondition waitCondition)
+    ExecutionResult dispatch(String command, Scheduler scheduler)
             throws ProcessExecutionException, InterruptedException;
 
     /**
@@ -84,4 +68,10 @@ public interface Locality {
      * @return A deep copy of this locality
      */
     Locality copy();
+
+    /**
+     * Returns the name for this locality
+     * @return
+     */
+    String getName();
 }

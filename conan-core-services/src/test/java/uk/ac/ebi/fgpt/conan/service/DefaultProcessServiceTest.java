@@ -22,17 +22,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import uk.ac.ebi.fgpt.conan.core.context.DefaultExecutionResult;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
+import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
 import uk.ac.ebi.fgpt.conan.model.context.Locality;
 import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
-import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
-import uk.ac.ebi.fgpt.conan.model.monitor.ProcessListener;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -44,16 +43,16 @@ import static org.mockito.Mockito.when;
 public class DefaultProcessServiceTest {
 
     @Mock
-    ExecutionContext ec;
+    private ExecutionContext ec;
 
     @Mock
-    Locality locality;
+    private Locality locality;
 
     @Mock
-    Scheduler scheduler;
+    private Scheduler scheduler;
 
     @Mock
-    ConanProcess conanProcess;
+    private ConanProcess conanProcess;
 
     private ConanProcessService conanProcessService;
 
@@ -61,13 +60,14 @@ public class DefaultProcessServiceTest {
     public void setup() throws InterruptedException, ProcessExecutionException {
         this.conanProcessService = new DefaultProcessService();
 
+        when(scheduler.createCommand(anyString(), anyBoolean())).thenReturn("bsub \"sleep 10\"");
+        when(scheduler.createProcessAdapter()).thenReturn(null);
+
         when(locality.establishConnection()).thenReturn(true);
         when(locality.disconnect()).thenReturn(true);
-        when(locality.execute(anyString())).thenReturn(0);
-        when(locality.monitoredExecute(anyString(), (ProcessAdapter)anyObject(), (ProcessListener)anyObject())).thenReturn(0);
-
-        when(scheduler.createCommand(anyString())).thenReturn("bsub \"sleep 10\"");
-        when(scheduler.createProcessAdapter()).thenReturn(null);
+        when(locality.execute(anyString(), (Scheduler)anyObject())).thenReturn(new DefaultExecutionResult(0, null, -1));
+        when(locality.monitoredExecute(anyString(), (Scheduler)anyObject())).thenReturn(new DefaultExecutionResult(0, null, -1));
+        when(locality.dispatch(anyString(), (Scheduler)anyObject())).thenReturn(new DefaultExecutionResult(0, null, -1));
 
         when(ec.getLocality()).thenReturn(locality);
         when(ec.getScheduler()).thenReturn(scheduler);
@@ -79,9 +79,9 @@ public class DefaultProcessServiceTest {
         when(ec.usingScheduler()).thenReturn(false);
         when(ec.isForegroundJob()).thenReturn(true);
 
-        int exitCode = this.conanProcessService.execute("sleep 10", ec);
+        ExecutionResult result = this.conanProcessService.execute("sleep 10", ec);
 
-        assertTrue(exitCode == 0);
+        assertTrue(result.getExitCode() == 0);
     }
 
     @Test
@@ -90,9 +90,9 @@ public class DefaultProcessServiceTest {
         when(ec.usingScheduler()).thenReturn(true);
         when(ec.isForegroundJob()).thenReturn(true);
 
-        int exitCode = this.conanProcessService.execute("sleep 10", ec);
+        ExecutionResult result = this.conanProcessService.execute("sleep 10", ec);
 
-        assertTrue(exitCode == 0);
+        assertTrue(result.getExitCode() == 0);
     }
 
     @Test
@@ -101,9 +101,9 @@ public class DefaultProcessServiceTest {
         when(ec.usingScheduler()).thenReturn(true);
         when(ec.isForegroundJob()).thenReturn(false);
 
-        int exitCode = this.conanProcessService.execute("sleep 10", ec);
+        ExecutionResult result = this.conanProcessService.execute("sleep 10", ec);
 
-        assertTrue(exitCode == 0);
+        assertTrue(result.getExitCode() == 0);
     }
 
 
@@ -116,8 +116,8 @@ public class DefaultProcessServiceTest {
 
         when(conanProcess.getFullCommand()).thenReturn("sleep 10");
 
-        int exitCode = this.conanProcessService.execute(conanProcess, ec);
+        ExecutionResult result = this.conanProcessService.execute(conanProcess, ec);
 
-        assertTrue(exitCode == 0);
+        assertTrue(result.getExitCode() == 0);
     }
 }

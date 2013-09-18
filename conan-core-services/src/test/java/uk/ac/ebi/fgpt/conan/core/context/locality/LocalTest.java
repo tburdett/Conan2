@@ -22,8 +22,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
-import uk.ac.ebi.fgpt.conan.model.monitor.ProcessListener;
+import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
+import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 import uk.ac.ebi.fgpt.conan.utils.CommandExecutionException;
 
@@ -44,10 +44,8 @@ public class LocalTest {
     private static final String CMD = "sleep 0";
 
     @Mock
-    ProcessAdapter processAdapter;
+    private Scheduler scheduler;
 
-    @Mock
-    ProcessListener processListener;
 
     @Before
     public void setup() {
@@ -58,23 +56,23 @@ public class LocalTest {
     @Test
     public void executeTest() throws InterruptedException, ProcessExecutionException, CommandExecutionException, IOException {
 
-        int exitCode = this.local.execute(CMD);
+        ExecutionResult executionResult = this.local.execute(CMD, scheduler);
 
-        assertTrue(exitCode == 0);
+        assertTrue(executionResult.getExitCode() == 0);
     }
 
     @Test
     public void monitoredExecuteTest() throws InterruptedException, ProcessExecutionException, CommandExecutionException, IOException {
 
-        int exitCode = this.local.monitoredExecute(CMD, processAdapter, processListener);
+        ExecutionResult executionResult = this.local.monitoredExecute(CMD, scheduler);
 
-        assertTrue(exitCode == 0);
+        assertTrue(executionResult.getExitCode() == 0);
     }
 
     @Test
     public void dispatchTest() throws InterruptedException, ProcessExecutionException, CommandExecutionException, IOException {
 
-        this.local.dispatch(CMD);
+        this.local.dispatch(CMD, scheduler);
     }
 
 }

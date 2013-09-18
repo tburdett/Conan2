@@ -70,4 +70,9 @@ public abstract class AbstractProcessDecorator implements ConanProcess {
         return process.execute(parameters, executionContext);
     }
 
+    @Override
+    public int getJobId() {
+        return process.getJobId();
+    }
+
 }

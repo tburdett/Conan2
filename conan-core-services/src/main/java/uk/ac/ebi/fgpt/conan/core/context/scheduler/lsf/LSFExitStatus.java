@@ -21,40 +21,55 @@ import uk.ac.ebi.fgpt.conan.model.context.ExitStatus;
 
 /**
  * User: maplesod
- * Date: 11/01/13
- * Time: 14:22
+ * Date: 10/01/13
+ * Time: 17:41
  */
-public class LSFExitStatus implements ExitStatus {
+public enum LSFExitStatus implements ExitStatus {
 
-    private LSFExitStatusType command;
+    ENDED {
+        @Override
+        public ExitStatus.Type getExitStatus() {
+            return ExitStatus.Type.COMPLETED_FAILED;
+        }
 
-    public LSFExitStatus() {
-        this(LSFExitStatusType.DONE);
-    }
+        @Override
+        public String getCommand() {
+            return "ended";
+        }
 
-    public LSFExitStatus(LSFExitStatusType command) {
-        this.command = command;
-    }
 
-    @Override
-    public ExitStatus.Type getExitStatus() {
-        return this.command.getExitStatus();
-    }
+    },
+    DONE {
+        @Override
+        public ExitStatus.Type getExitStatus() {
+            return ExitStatus.Type.COMPLETED_SUCCESS;
+        }
 
-    @Override
-    public String getCommand() {
-        return this.command.getCommand();
+        public String getCommand() {
+            return "done";
+        }
+    };
+
+    public static LSFExitStatus select(ExitStatus.Type type) {
+        if (type == ExitStatus.Type.COMPLETED_SUCCESS)
+            return DONE;
+        else if (type == ExitStatus.Type.COMPLETED_FAILED) {
+            return ENDED;
+        }
+
+        return ENDED;
     }
 
     @Override
     public ExitStatus create(ExitStatus.Type exitStatusType) {
 
-        for (LSFExitStatusType type : LSFExitStatusType.values()) {
+        for (LSFExitStatus type : LSFExitStatus.values()) {
             if (type.getExitStatus() == exitStatusType) {
-                return new LSFExitStatus(type);
+                return type;
             }
         }
 
         return null;
     }
 }
+

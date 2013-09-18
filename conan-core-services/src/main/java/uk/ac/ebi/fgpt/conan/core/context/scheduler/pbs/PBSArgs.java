@@ -20,7 +20,12 @@ package uk.ac.ebi.fgpt.conan.core.context.scheduler.pbs;
 import uk.ac.ebi.fgpt.conan.model.context.SchedulerArgs;
 import uk.ac.ebi.fgpt.conan.util.StringJoiner;
 
+import java.io.File;
+
 public class PBSArgs extends SchedulerArgs {
+
+    public static final String BLOCK_OPTION = "block=true";
+
 
     public PBSArgs() {
         super();
@@ -31,19 +36,49 @@ public class PBSArgs extends SchedulerArgs {
     }
 
 
+    protected static String compressJobName(String jobName) {
+
+        if (jobName.length() <= 15) {
+            return jobName;
+        }
+
+        return Integer.toString(jobName.hashCode());
+    }
+
+
     protected String createSimpleOptions() {
 
         StringJoiner joiner = new StringJoiner(" ");
 
-        joiner.add("-N", this.getJobName());
+        joiner.add("-N", compressJobName(this.getJobName()));
         joiner.add("-q", this.getQueueName());
-        joiner.add(this.getWaitCondition());
+        joiner.add("-P", this.getProjectName());
+        if (this.getMonitorFile() != null) {
+            joiner.add("-o", new File(this.getMonitorFile().getParentFile(), this.getMonitorFile().getName() + ".stdout"));
+            joiner.add("-e", new File(this.getMonitorFile().getParentFile(), this.getMonitorFile().getName() + ".stderr"));
+        }
         joiner.add(this.getExtraArgs());
 
-        return joiner.toString();
+        // -V retains the users environment variables
+        return "-V " + joiner.toString();
     }
 
-    protected String createUsageString() {
+    protected String createAdditionalOptions(boolean isForegroundJob) {
+
+        if (isForegroundJob || (this.getWaitCondition() != null && !this.getWaitCondition().isEmpty())) {
+
+            StringJoiner additionalOptions = new StringJoiner(",");
+
+            additionalOptions.add(isForegroundJob, "", "block=true");
+            additionalOptions.add(this.getWaitCondition());
+
+            return "-W " + additionalOptions.toString();
+        }
+
+        return "";
+    }
+
+    protected String createResourceString() {
 
         StringJoiner joiner = new StringJoiner(":");
 
@@ -57,16 +92,24 @@ public class PBSArgs extends SchedulerArgs {
     @Override
     public String toString() {
 
+        return this.toString(true);
+    }
+
+    public String toString(boolean isForegroundJob) {
+
         String simpleOptions = createSimpleOptions();
-        String usage = createUsageString();
+        String additionalOptions = createAdditionalOptions(isForegroundJob);
+        String resources = createResourceString();
 
         StringJoiner joiner = new StringJoiner(" ");
 
         joiner.add(simpleOptions);
-        joiner.add(usage);
+        joiner.add(additionalOptions);
+        joiner.add(resources);
 
-        return joiner.toString();
+        return joiner.toString().trim();
     }
+
     @Override
     public SchedulerArgs copy() {
 

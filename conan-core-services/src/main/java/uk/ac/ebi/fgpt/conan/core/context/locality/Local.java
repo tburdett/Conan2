@@ -19,8 +19,11 @@ package uk.ac.ebi.fgpt.conan.core.context.locality;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.conan.core.context.DefaultExecutionResult;
+import uk.ac.ebi.fgpt.conan.core.process.monitor.InvocationTrackingProcessListener;
+import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
 import uk.ac.ebi.fgpt.conan.model.context.Locality;
-import uk.ac.ebi.fgpt.conan.model.context.WaitCondition;
+import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
 import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
 import uk.ac.ebi.fgpt.conan.model.monitor.ProcessListener;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
@@ -78,7 +81,15 @@ public class Local implements Locality {
     }
 
     @Override
-    public int monitoredExecute(String command, ProcessAdapter processAdapter, ProcessListener processListener) throws InterruptedException, ProcessExecutionException {
+    public String getName() {
+        return "LOCAL";
+    }
+
+    @Override
+    public ExecutionResult monitoredExecute(String command, Scheduler scheduler) throws InterruptedException, ProcessExecutionException {
+
+        // TODO, this is a mess... needs rethinking at some point.
+
 
         //boolean dispatched = false;
         //boolean recoveryMode = processAdapter.inRecoveryMode();
@@ -90,15 +101,26 @@ public class Local implements Locality {
         try {
             //if (!recoveryMode) {
 
-                // Create the proc monitor
-                processAdapter.createMonitor();
+                // Create the proc monitor if scheduler requires it
+                ProcessAdapter processAdapter = null;
+                if (scheduler.usesFileMonitor()) {
+                    processAdapter = scheduler.createProcessAdapter();
+                    processAdapter.createMonitor();
+                }
 
                 // Execute the proc (this is a scheduled proc so it should run in the background, managed by the scheduler,
                 // therefore we call the normal foreground execute method)
-                this.execute(command);
+                ExecutionResult result = this.execute(command, scheduler);
+
+                if (result.getExitCode() != 0) {
+                    throw new ProcessExecutionException(result.getExitCode(), "Process returned non-zero exit code: " + result.getExitCode());
+                }
 
                 // Wait for the proc to complete by using the proc monitor
-                return this.waitFor(processAdapter, processListener);
+                if (scheduler.usesFileMonitor())
+                    result = this.waitFor(processAdapter, new InvocationTrackingProcessListener());
+
+                return result;
             //}
         } finally {
             // Remove the monitor, even if we are in recovery mode or there was an error.
@@ -111,7 +133,7 @@ public class Local implements Locality {
 
 
     @Override
-    public int execute(String command) throws ProcessExecutionException, InterruptedException {
+    public ExecutionResult execute(String command, Scheduler scheduler) throws ProcessExecutionException, InterruptedException {
 
         String[] output;
 
@@ -122,11 +144,11 @@ public class Local implements Locality {
             output = runner.runCommmand(command);
             if (output.length > 0) {
                 log.debug("Response from command [" + command + "]: " +
-                        output.length + " lines, first line was " + output[0]);
+                        output.length + " lines, first line was: " + output[0]);
             }
         } catch (CommandExecutionException e) {
 
-            String message = "Failed to execute job (exited with exit code " + e.getExitCode() + ")";
+            String message = "Failed to execute job (exited with exit code: " + e.getExitCode() + ")";
 
             log.error(message, e);
             ProcessExecutionException pex = new ProcessExecutionException(
@@ -145,21 +167,19 @@ public class Local implements Locality {
             throw new ProcessExecutionException(1, message, e);
         }
 
-        return 0;
+        int jobId = scheduler != null && scheduler.generatesJobIdFromOutput() ? scheduler.extractJobIdFromOutput(output[0]) : -1;
+
+        log.debug("Job ID detected: " + jobId);
+
+        return new DefaultExecutionResult(0, output, jobId);
     }
 
     @Override
-    public void dispatch(String command) throws ProcessExecutionException, InterruptedException {
+    public ExecutionResult dispatch(String command, Scheduler scheduler) throws ProcessExecutionException, InterruptedException {
 
         // Actually for the moment we assume that this is only called for scheduled tasks.  Doesn't make much sense
         // as implemented right now for tasks running on the local host.
-        this.execute(command);
-    }
-
-
-    @Override
-    public int waitFor(WaitCondition waitCondition) throws ProcessExecutionException, InterruptedException {
-        throw new UnsupportedOperationException("Can't wait for tasks in this fashion yet");
+        return this.execute(command, scheduler);
     }
 
     /**
@@ -176,7 +196,7 @@ public class Local implements Locality {
      *
      * @throws InterruptedException
      */
-    protected int waitFor(ProcessAdapter processAdapter, ProcessListener processListener) throws ProcessExecutionException, InterruptedException {
+    protected ExecutionResult waitFor(ProcessAdapter processAdapter, ProcessListener processListener) throws ProcessExecutionException, InterruptedException {
 
         processAdapter.addTaskListener(processListener);
 
@@ -190,7 +210,7 @@ public class Local implements Locality {
             log.debug("Process completed with exit value " + exitValue);
 
             if (exitValue == 0) {
-                return exitValue;
+                return new DefaultExecutionResult(exitValue, new String[]{});
             } else {
                 ProcessExecutionException pex = new ProcessExecutionException(exitValue);
                 pex.setProcessOutput(processAdapter.getProcessOutput());

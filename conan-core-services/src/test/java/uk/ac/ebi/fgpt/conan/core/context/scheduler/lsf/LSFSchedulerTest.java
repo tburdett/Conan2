@@ -38,7 +38,7 @@ public class LSFSchedulerTest {
 
     @Test
     public void createCommandTest() {
-        String command = this.lsfScheduler.createCommand("sleep 50 2>&1");
+        String command = this.lsfScheduler.createCommand("sleep 50 2>&1", true);
 
         assertTrue(command.equals("bsub \"sleep 50 2>&1\""));
     }
@@ -46,7 +46,9 @@ public class LSFSchedulerTest {
 
     @Test
     public void createWaitCommandTest() {
-        String command = this.lsfScheduler.createWaitCommand(new LSFWaitCondition(LSFExitStatusType.DONE, "WAIT"));
+        String command = this.lsfScheduler.createWaitCommand(
+                this.lsfScheduler.createWaitCondition(LSFExitStatus.DONE.getExitStatus(), "WAIT")
+        );
 
         assertTrue(command.equals("bsub -w \"done(WAIT)\" \"sleep 1 2>&1\""));
     }
@@ -56,5 +58,15 @@ public class LSFSchedulerTest {
         String command = this.lsfScheduler.createKillCommand("KILL");
 
         assertTrue(command.equals("bkill KILL"));
+    }
+
+    @Test
+    public void testJobIdExtraction() {
+
+        String testLine = "Job <133704> is submitted to default queue <normal>.";
+
+        int jobId = this.lsfScheduler.extractJobIdFromOutput(testLine);
+
+        assertTrue(jobId == 133704);
     }
 }

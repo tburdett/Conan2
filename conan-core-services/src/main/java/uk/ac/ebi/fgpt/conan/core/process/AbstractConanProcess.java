@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import uk.ac.ebi.fgpt.conan.core.context.DefaultExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
+import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
 import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.model.param.ProcessArgs;
 import uk.ac.ebi.fgpt.conan.model.param.ProcessParams;
@@ -55,6 +56,8 @@ public abstract class AbstractConanProcess implements ConanProcess {
     private List<String> postCommands;
     private String executable;
 
+    private int jobId;
+
     protected AbstractConanProcess() {
         this("", null, null);
     }
@@ -65,6 +68,7 @@ public abstract class AbstractConanProcess implements ConanProcess {
         this.executable = executable;
         this.preCommands = new ArrayList<String>();
         this.postCommands = new ArrayList<String>();
+        this.jobId = -1;
     }
 
     public ConanProcessService getConanProcessService() {
@@ -203,9 +207,11 @@ public abstract class AbstractConanProcess implements ConanProcess {
     @Override
     public boolean execute(ExecutionContext executionContext) throws ProcessExecutionException, InterruptedException {
 
-        int exitCode = this.conanProcessService.execute(this, executionContext);
+        ExecutionResult result = this.conanProcessService.execute(this, executionContext);
 
-        return exitCode == 0;
+        this.jobId = result.getJobId();
+
+        return result.getExitCode() == 0;
     }
 
     @Override
@@ -222,6 +228,11 @@ public abstract class AbstractConanProcess implements ConanProcess {
         //this.processArgs.setFromArgMap(parameters);
 
         return this.execute(executionContext);
+    }
+
+    @Override
+    public int getJobId() {
+        return this.jobId;
     }
 
 }

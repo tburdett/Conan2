@@ -22,36 +22,64 @@ import uk.ac.ebi.fgpt.conan.model.context.ExitStatus;
 /**
  * User: maplesod
  * Date: 27/03/13
- * Time: 10:41
+ * Time: 10:43
  */
-public class PBSExitStatus implements ExitStatus {
+public enum PBSExitStatus implements ExitStatus {
 
-    private PBSExitStatusType command;
+    AFTER_ANY {
+        @Override
+        public ExitStatus.Type getExitStatus() {
+            return ExitStatus.Type.COMPLETED_ANY;
+        }
 
-    public PBSExitStatus() {
-        this(PBSExitStatusType.AFTER_ANY);
-    }
+        @Override
+        public String getCommand() {
+            return "afterany";
+        }
+    },
+    AFTER_NOT_OK {
+        @Override
+        public ExitStatus.Type getExitStatus() {
+            return ExitStatus.Type.COMPLETED_FAILED;
+        }
 
-    public PBSExitStatus(PBSExitStatusType command) {
-        this.command = command;
-    }
+        @Override
+        public String getCommand() {
+            return "afternotok";
+        }
+    },
+    AFTER_OK {
+        @Override
+        public ExitStatus.Type getExitStatus() {
+            return ExitStatus.Type.COMPLETED_SUCCESS;
+        }
 
-    @Override
-    public ExitStatus.Type getExitStatus() {
-        return this.command.getExitStatus();
-    }
+        public String getCommand() {
+            return "afterok";
+        }
+    };
 
-    @Override
-    public String getCommand() {
-        return this.command.getCommand();
+    public static PBSExitStatus select(ExitStatus.Type type) {
+
+        if (type == ExitStatus.Type.COMPLETED_SUCCESS) {
+            return AFTER_OK;
+        }
+        else if (type == ExitStatus.Type.COMPLETED_FAILED) {
+            return AFTER_NOT_OK;
+        }
+        else if (type == ExitStatus.Type.COMPLETED_ANY) {
+            return AFTER_ANY;
+        }
+
+        return AFTER_ANY;
     }
 
     @Override
     public ExitStatus create(ExitStatus.Type exitStatusType) {
 
-        for (PBSExitStatusType type : PBSExitStatusType.values()) {
+        for (PBSExitStatus type : PBSExitStatus.values()) {
             if (type.getExitStatus() == exitStatusType) {
-                return new PBSExitStatus(type);
+                return type;
             }
         }
 

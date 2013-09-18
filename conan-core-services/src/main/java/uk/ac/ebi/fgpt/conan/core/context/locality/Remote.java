@@ -20,10 +20,10 @@ package uk.ac.ebi.fgpt.conan.core.context.locality;
 import com.jcraft.jsch.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.conan.core.context.DefaultExecutionResult;
+import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
 import uk.ac.ebi.fgpt.conan.model.context.Locality;
-import uk.ac.ebi.fgpt.conan.model.context.WaitCondition;
-import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
-import uk.ac.ebi.fgpt.conan.model.monitor.ProcessListener;
+import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.io.*;
@@ -115,12 +115,17 @@ public class Remote implements Locality {
     }
 
     @Override
-    public int monitoredExecute(String command, ProcessAdapter processAdapter, ProcessListener processListener) {
+    public String getName() {
+        return "REMOTE";
+    }
+
+    @Override
+    public ExecutionResult monitoredExecute(String command, Scheduler scheduler) {
         throw new UnsupportedOperationException("Can't monitor progress on a remote session");
     }
 
     @Override
-    public int execute(String command) throws ProcessExecutionException, InterruptedException {
+    public ExecutionResult execute(String command, Scheduler scheduler) throws ProcessExecutionException, InterruptedException {
 
         String[] output;
         int exitCode;
@@ -144,7 +149,7 @@ public class Remote implements Locality {
             throw new ProcessExecutionException(-1, ioe);
         }
 
-        return exitCode;
+        return new DefaultExecutionResult(exitCode, output);
     }
 
 
@@ -157,7 +162,7 @@ public class Remote implements Locality {
      * @throws InterruptedException
      */
     @Override
-    public void dispatch(String command)
+    public ExecutionResult dispatch(String command, Scheduler scheduler)
             throws ProcessExecutionException, InterruptedException {
 
         throw new UnsupportedOperationException("Can't dispatch tasks on a remote session");
@@ -197,13 +202,6 @@ public class Remote implements Locality {
         }
 
 
-    }
-
-
-    @Override
-    public int waitFor(WaitCondition waitCondition) throws ProcessExecutionException, InterruptedException {
-
-        throw new UnsupportedOperationException("Can't wait for dispatched jobs from a remote locality yet");
     }
 
 }
