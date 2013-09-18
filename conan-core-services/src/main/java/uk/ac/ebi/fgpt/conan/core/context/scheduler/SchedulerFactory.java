@@ -19,6 +19,8 @@ package uk.ac.ebi.fgpt.conan.core.context.scheduler;
 
 import uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf.LSFArgs;
 import uk.ac.ebi.fgpt.conan.core.context.scheduler.lsf.LSFScheduler;
+import uk.ac.ebi.fgpt.conan.core.context.scheduler.oge.OGEArgs;
+import uk.ac.ebi.fgpt.conan.core.context.scheduler.oge.OGEScheduler;
 import uk.ac.ebi.fgpt.conan.core.context.scheduler.pbs.PBSArgs;
 import uk.ac.ebi.fgpt.conan.core.context.scheduler.pbs.PBSScheduler;
 import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
@@ -46,6 +48,17 @@ public enum SchedulerFactory {
         @Override
         public SchedulerArgs createArgs() {
             return new PBSArgs();
+        }
+    },
+    OGE {
+        @Override
+        public AbstractScheduler create() {
+            return new OGEScheduler();
+        }
+
+        @Override
+        public SchedulerArgs createArgs() {
+            return new OGEArgs();
         }
     };
 
