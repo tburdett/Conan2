@@ -169,7 +169,8 @@ public class Local implements Locality {
 
         int jobId = scheduler != null && scheduler.generatesJobIdFromOutput() ? scheduler.extractJobIdFromOutput(output[0]) : -1;
 
-        log.debug("Job ID detected: " + jobId);
+        if (jobId != -1)
+            log.debug("Job ID detected: " + jobId);
 
         return new DefaultExecutionResult(0, output, jobId);
     }

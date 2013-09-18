@@ -137,7 +137,7 @@ public class LSFScheduler extends AbstractScheduler {
 
         String[] parts = line.split(" ");
 
-        if (parts.length != 8)
+        if (parts.length < 7)
             throw new IllegalArgumentException("Unexpected line returned from bsub: " + line);
 
         String trimmed = parts[1].substring(1, parts[1].length() - 1);
