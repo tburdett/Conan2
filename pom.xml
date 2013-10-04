@@ -161,6 +161,25 @@
         </developer>
     </developers>
 
+    <!-- Maven repository deploy -->
+    <distributionManagement>
+        <downloadUrl>https://repos.tgac.ac.uk/maven/repo</downloadUrl>
+        <repository>
+            <id>tgac-repo</id>
+            <name>TGAC repository</name>
+            <url>scp://repos.tgac.ac.uk/storage/html/maven/repo</url>
+        </repository>
+    </distributionManagement>
+
+    <!-- TGAC Maven Repo -->
+    <repositories>
+        <repository>
+            <id>tgac-repo</id>
+            <name>TGAC Maven Repository</name>
+            <url>https://repos.tgac.ac.uk/maven/repo</url>
+        </repository>
+    </repositories>
+
     <dependencies>
 
         <!-- Logging -->
@@ -175,7 +194,13 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.6.0</version>
+            <version>1.6.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Unit Testing -->
@@ -196,69 +221,10 @@
 
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>demo</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-
-            <!-- Maven repository deploy -->
-            <distributionManagement>
-                <repository>
-                    <id>hasbanana-repo</id>
-                    <name>hasBanana repository</name>
-                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/maven/repo</url>
-                </repository>
-                <snapshotRepository>
-                    <id>hasbanana-repo</id>
-                    <name>hasBanana repository</name>
-                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/maven/repo</url>
-                </snapshotRepository>
-                <site>
-                    <id>hasbanana-repo</id>
-                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/conan2/documentation/</url>
-                </site>
-            </distributionManagement>
-
-            <modules>
-                <module>conan-service</module>
-                <module>conan-ui</module>
-                <module>conan-cli-utils</module>
-                <module>conan-core-services</module>
-                <module>conan-demo-processes</module>
-            </modules>
-
-        </profile>
-
-        <profile>
-            <id>jndi-file-factory</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>jndi-file-factory</module>
-            </modules>
-
-            <!-- Maven repository deploy -->
-            <distributionManagement>
-                <repository>
-                    <id>hasbanana-repo</id>
-                    <name>hasBanana repository</name>
-                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/maven/repo</url>
-                </repository>
-                <snapshotRepository>
-                    <id>hasbanana-repo</id>
-                    <name>hasBanana repository</name>
-                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/maven/repo</url>
-                </snapshotRepository>
-                <site>
-                    <id>hasbanana-repo</id>
-                    <url>scp://www.hasbanana.com/var/www/vhosts/hasbanana.com/httpdocs/conan2/documentation/</url>
-                </site>
-            </distributionManagement>
-
-        </profile>
-    </profiles>
+    <modules>
+        <module>conan-service</module>
+        <module>conan-cli-utils</module>
+        <module>conan-core-services</module>
+    </modules>
 
 </project>

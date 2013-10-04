@@ -1,6 +1,6 @@
 package uk.ac.ebi.fgpt.conan.model;
 
-import net.sourceforge.fluxion.spi.Spi;
+//import net.sourceforge.fluxion.spi.Spi;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
@@ -17,7 +17,7 @@ import java.util.Map;
  * Processes can either be created programmatically or generated automatically from metadata, where available. This
  * interface follows the Java Service Provider Interface specification allowing implementations of Process to be
  * dynamically discovered.  See the <a href="http://download.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html">Java
- * documentation</a> for more details on this.  Implementing classes should be annotated with an {@link
+ * documentation</a> for more details on this.  Implementing classes should be annotated with an {
  * net.sourceforge.fluxion.spi.ServiceProvider} annotation to enable them for discovery.
  * <p/>
  * Note that because <code>Process</code>es are always programmatically instantiated (for example, using a {@link
@@ -30,7 +30,7 @@ import java.util.Map;
  * @see uk.ac.ebi.fgpt.conan.model.ConanTask
  */
 @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
-@Spi
+//@Spi
 public interface ConanProcess extends Serializable {
 
 
