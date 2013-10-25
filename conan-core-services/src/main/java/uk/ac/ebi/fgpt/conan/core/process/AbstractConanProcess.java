@@ -18,6 +18,8 @@
 package uk.ac.ebi.fgpt.conan.core.process;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -44,6 +46,9 @@ import java.util.Map;
 @Component
 @Scope("prototype")
 public abstract class AbstractConanProcess implements ConanProcess {
+
+    private static Logger log = LoggerFactory.getLogger(AbstractConanProcess.class);
+
 
     @Autowired
     protected ConanProcessService conanProcessService;

@@ -1,6 +1,7 @@
 
 package uk.ac.ebi.fgpt.conan.model.param;
 
+import java.io.IOException;
 import java.util.Map;
 
 
@@ -17,7 +18,7 @@ public interface ProcessArgs {
      * Parses a string containing the process arguments into this argument object.
      * @param args The arguments in string form to parse
      */
-    void parse(String args);
+    void parse(String args) throws IOException;
 
     /**
      * Converts this arguments class into a Map of ConanParameters to String values, which can then be used for processing in

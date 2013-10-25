@@ -17,6 +17,7 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.context.locality;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.core.context.DefaultExecutionResult;
@@ -142,10 +143,7 @@ public class Local implements Locality {
             ProcessRunner runner = new ProcessRunner();
             runner.redirectStderr(true);
             output = runner.runCommmand(command);
-            if (output.length > 0) {
-                log.debug("Response from command [" + command + "]: " +
-                        output.length + " lines, first line was: " + output[0]);
-            }
+
         } catch (CommandExecutionException e) {
 
             String message = "Failed to execute job (exited with exit code: " + e.getExitCode() + ")";
@@ -171,6 +169,18 @@ public class Local implements Locality {
 
         if (jobId != -1)
             log.debug("Job ID detected: " + jobId);
+
+        if (log.isDebugEnabled()) {
+            if (scheduler == null) {
+                log.debug(StringUtils.join(output, "\n"));
+            }
+            else {
+                if (output.length > 0) {
+                    log.debug("Response from command [" + command + "]: " +
+                            output.length + " lines, first line was: " + output[0]);
+                }
+            }
+        }
 
         return new DefaultExecutionResult(0, output, jobId);
     }
