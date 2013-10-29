@@ -30,6 +30,9 @@ public interface ProcessArgs {
     /**
      * Converts a Map of ConanParameters to String values into this object
      * @param pvp
+     * @throws IOException May throw an IOException if there was any trouble reading or writing data to disk.  Most processes
+     * are unlikely to attempt to write to disk but if the process tries to load its settings from a configuration file
+     * it is possible errors could occur here.
      */
-    void setFromArgMap(Map<ConanParameter, String> pvp);
+    void setFromArgMap(Map<ConanParameter, String> pvp) throws IOException;
 }
