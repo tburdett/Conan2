@@ -70,8 +70,8 @@ public interface Locality {
     Locality copy();
 
     /**
-     * Returns the name for this locality
+     * Returns the description for this locality
      * @return
      */
-    String getName();
+    String getDescription();
 }

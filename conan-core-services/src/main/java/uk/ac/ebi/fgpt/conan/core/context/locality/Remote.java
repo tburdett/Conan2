@@ -115,8 +115,8 @@ public class Remote implements Locality {
     }
 
     @Override
-    public String getName() {
-        return "REMOTE";
+    public String getDescription() {
+        return this.connectionDetails != null ? this.connectionDetails.getHost() : "unspecified remote host";
     }
 
     @Override
@@ -149,7 +149,7 @@ public class Remote implements Locality {
             throw new ProcessExecutionException(-1, ioe);
         }
 
-        return new DefaultExecutionResult(exitCode, output);
+        return new DefaultExecutionResult(exitCode, output, null);
     }
 
 

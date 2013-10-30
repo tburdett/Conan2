@@ -1,6 +1,8 @@
 
 package uk.ac.ebi.fgpt.conan.model.context;
 
+import java.io.File;
+
 /**
  * Interface for an Execution Context, which defines where and how a ConanTask or ConanProcess is executed.
  *
@@ -45,6 +47,18 @@ public interface ExecutionContext {
      * @param isForegroundJob
      */
     void setForegroundJob(boolean isForegroundJob);
+
+    /**
+     * Retreives the monitor file for this execution context
+     * @return
+     */
+    File getMonitorFile();
+
+    /**
+     * Sets the monitor file for this execution context.
+     * @param monitorFile
+     */
+    void setMonitorFile(File monitorFile);
 
     /**
      * Makes a deep-copy of this ExecutionContext

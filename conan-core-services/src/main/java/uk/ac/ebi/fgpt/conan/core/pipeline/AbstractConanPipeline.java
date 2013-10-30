@@ -39,19 +39,17 @@ public abstract class AbstractConanPipeline implements ConanPipeline {
         this.isPrivate = isPrivate;
         this.isDaemonized = isDaemonized;
         this.conanProcessService = conanProcessService;
-
-        init();
+        this.processList = new ArrayList<>();
     }
+
     public ConanProcessService getConanProcessService() {
         return conanProcessService;
     }
 
     public void setConanProcessService(ConanProcessService conanProcessService) throws IOException {
-        this.conanProcessService = conanProcessService;
-        this.init();
-    }
 
-    private void init() {
+        this.conanProcessService = conanProcessService;
+
         for(AbstractConanProcess process : this.processList) {
             process.setConanProcessService(this.conanProcessService);
         }
@@ -62,6 +60,8 @@ public abstract class AbstractConanPipeline implements ConanPipeline {
     }
 
     public void addProcess(AbstractConanProcess process) {
+
+        process.setConanProcessService(this.conanProcessService);
         this.processList.add(process);
     }
 

@@ -23,12 +23,15 @@ import uk.ac.ebi.fgpt.conan.model.context.ExternalProcessConfiguration;
 import uk.ac.ebi.fgpt.conan.model.context.Locality;
 import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
 
+import java.io.File;
+
 public class DefaultExecutionContext implements ExecutionContext {
 
     private Locality locality;
     private Scheduler scheduler;
     private ExternalProcessConfiguration externalProcessConfiguration;
     private boolean foregroundJob;
+    private File monitorFile;
 
     public DefaultExecutionContext() {
         this(true);
@@ -40,23 +43,36 @@ public class DefaultExecutionContext implements ExecutionContext {
 
     public DefaultExecutionContext(Scheduler scheduler, boolean foregroundJob) {
 
-        this(new Local(), scheduler, null, foregroundJob);
+        this(new Local(), scheduler, null, foregroundJob, null);
     }
 
     public DefaultExecutionContext(Locality locality, Scheduler scheduler, ExternalProcessConfiguration externalProcessConfiguration, boolean foregroundJob) {
+
+        this(locality, scheduler, externalProcessConfiguration, foregroundJob, null);
+    }
+
+    public DefaultExecutionContext(Locality locality, Scheduler scheduler, ExternalProcessConfiguration externalProcessConfiguration, boolean foregroundJob, File monitorFile) {
 
         this.locality = locality;
         this.scheduler = scheduler;
         this.externalProcessConfiguration = externalProcessConfiguration;
         this.foregroundJob = foregroundJob;
+        this.monitorFile = monitorFile;
+
+        if (scheduler != null) {
+            this.scheduler.getArgs().setMonitorFile(monitorFile);
+        }
     }
 
     public DefaultExecutionContext(DefaultExecutionContext copy) {
 
-        this.locality = copy.getLocality().copy();
-        this.scheduler = copy.usingScheduler() ? copy.getScheduler().copy() : null;
-        this.externalProcessConfiguration = copy.getExternalProcessConfiguration(); //TODO deep copy this.
-        this.foregroundJob = copy.isForegroundJob();
+        this(
+                copy.locality != null ? copy.locality.copy() : null,
+                copy.scheduler != null ? copy.scheduler.copy() : null,
+                copy.getExternalProcessConfiguration(), //TODO deep copy this.
+                copy.isForegroundJob(),
+                copy.monitorFile != null ? new File(copy.monitorFile.getAbsolutePath()) : null
+        );
     }
 
     @Override
@@ -104,5 +120,19 @@ public class DefaultExecutionContext implements ExecutionContext {
 
     public void setExternalProcessConfiguration(ExternalProcessConfiguration externalProcessConfiguration) {
         this.externalProcessConfiguration = externalProcessConfiguration;
+    }
+
+    @Override
+    public File getMonitorFile() {
+        return monitorFile;
+    }
+
+    @Override
+    public void setMonitorFile(File monitorFile) {
+        this.monitorFile = monitorFile;
+
+        if (scheduler != null) {
+            this.scheduler.getArgs().setMonitorFile(monitorFile);
+        }
     }
 }

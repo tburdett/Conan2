@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.conan.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -82,22 +83,32 @@ public class DefaultProcessService implements ConanProcessService {
             String commandToExecute = scheduler.createCommand(command, executionContext.isForegroundJob());
 
             if (executionContext.isForegroundJob()) {
-                log.debug("Preparing to run scheduled job in foreground.");
+                log.info("Running scheduled command in foreground [" + commandToExecute + "].");
                 result = locality.monitoredExecute(commandToExecute, scheduler);
-            } else {
-                log.debug("Preparing to run scheduled job in background.");
-                result = locality.dispatch(commandToExecute, scheduler);
+                String details = result.getOutputFile() != null && result.getOutputFile().exists() ?
+                        "Output from this command can be found at: \"" + result.getOutputFile().getAbsolutePath() + "\"" :
+                        "Output: \n" + StringUtils.join(result.getOutput(), "\n") + "\n";
+
+                log.info("Finished executing command [" + command + "].   " + details);
             }
-        } else {
+            else {
+                log.info("Running scheduled command in background [" + commandToExecute + "].");
+                result = locality.dispatch(commandToExecute, scheduler);
+                log.info("Successfully dispatched command [" + command + "].  Output:\n" +
+                        StringUtils.join(result.getOutput(), "\n") + "\n");
+            }
+        }
+        else {
 
             if (executionContext.isForegroundJob()) {
-                log.debug("Running job in foreground.");
+                log.info("Running command in foreground [" + command + "].");
                 result = locality.execute(command, null);
+                log.info("Finished executing command [" + command + "].   Output: \n" +
+                        StringUtils.join(result.getOutput(), "\n"));
             } else {
                 throw new UnsupportedOperationException("Can't dispatch simple commands yet");
             }
         }
-
 
         if (!locality.disconnect()) {
             throw new ProcessExecutionException(-1, "Command was submitted but could not disconnect the terminal session.  Future jobs may not work.");

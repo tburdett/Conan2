@@ -1,10 +1,10 @@
 package uk.ac.ebi.fgpt.conan.util;
 
 import org.apache.commons.cli.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.core.context.DefaultExecutionContext;
 import uk.ac.ebi.fgpt.conan.core.context.DefaultExternalProcessConfiguration;
 import uk.ac.ebi.fgpt.conan.core.context.locality.Local;
@@ -29,7 +29,6 @@ import java.io.PrintWriter;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -101,11 +100,9 @@ public abstract class AbstractConanCLI {
 
         this.verbose = false;
         this.help = false;
-
-        init();
     }
 
-    protected void parse(CommandLine commandLine) throws IOException {
+    public void parse(CommandLine commandLine) throws ParseException {
 
         this.environmentConfig = commandLine.hasOption(OPT_ENV_CONFIG) ?
                 new File(commandLine.getOptionValue(OPT_ENV_CONFIG)) :
@@ -126,11 +123,17 @@ public abstract class AbstractConanCLI {
         this.verbose = commandLine.hasOption(OPT_VERBOSE);
         this.help = commandLine.hasOption(OPT_HELP);
 
-        init();
+        // Sets any extra variables in the child class.
+        this.parseExtra(commandLine);
+
+        log.debug("Parsed command line.");
     }
 
-
-    private void init() throws IOException {
+    /**
+     * This initialises the conan application by retrieving the conan properties and setting up the logging system.
+     * @throws IOException
+     */
+    public void init() throws IOException {
 
         // If logging file exists use settings from that, otherwise use basic settings.
         if (this.logConfig.exists()) {
@@ -222,24 +225,26 @@ public abstract class AbstractConanCLI {
                 LocalityFactory.createLocality(ConanProperties.getProperty("executionContext.locality")) :
                 new Local();
 
-        String localityName = locality == null ? "" : locality.toString();
-        log.debug("ENV: Locality: " + localityName);
+        log.info("Execution Context: Locality: \"" + locality.getDescription() + "\"");
 
         Scheduler scheduler = ConanProperties.containsKey("executionContext.scheduler") ?
                 SchedulerFactory.createScheduler(ConanProperties.getProperty("executionContext.scheduler")) :
                 null;
 
-        String schedulerName = scheduler == null ? "" : scheduler.getName();
-        log.debug("ENV: Scheduler: " + schedulerName);
+        String schedulerName = scheduler == null ? "Unscheduled" : scheduler.getName();
+        log.info("Execution Context: Scheduler Name: \"" + schedulerName + "\"");
 
         if (scheduler != null && ConanProperties.containsKey("executionContext.scheduler.queue")) {
-            scheduler.getArgs().setQueueName(ConanProperties.getProperty("executionContext.scheduler.queue"));
+            String queueName = ConanProperties.getProperty("executionContext.scheduler.queue");
+            scheduler.getArgs().setQueueName(queueName);
+            log.info("Execution Context: Scheduler Queue: \"" + queueName + "\"");
         }
 
         if (scheduler != null && ConanProperties.containsKey("executionContext.scheduler.extraArgs")) {
-            scheduler.getArgs().setExtraArgs(ConanProperties.getProperty("executionContext.scheduler.extraArgs"));
+            String extraArgs = ConanProperties.getProperty("executionContext.scheduler.extraArgs");
+            scheduler.getArgs().setExtraArgs(extraArgs);
+            log.info("Execution Context: Scheduler Args: \"" + extraArgs + "\"");
         }
-
 
         return new DefaultExecutionContext(locality, scheduler, externalProcessConfiguration, true);
     }
@@ -325,6 +330,12 @@ public abstract class AbstractConanCLI {
     protected abstract List<Option> createExtraOptions();
 
     /**
+     * This calls the sub class and sets any additional variables from the command line.
+     * @param commandLine
+     */
+    protected abstract void parseExtra(CommandLine commandLine) throws ParseException;
+
+    /**
      * Create the argument map that describes the values for the conan parameters used in this pipeline
      * @return
      */
@@ -354,7 +365,7 @@ public abstract class AbstractConanCLI {
 
             // Create the pipeline from the child class
             ConanPipeline conanPipeline = this.createPipeline();
-            log.info(this.appName + ": Created pipeline");
+            log.debug("Created pipeline: " + conanPipeline.getName());
 
             // Creates the argument map containing the settings for this pipeline
             Map<ConanParameter, String> argMap = this.createArgMap();
@@ -362,7 +373,7 @@ public abstract class AbstractConanCLI {
             // Execute the pipeline
             // Build execution context from configuration files
             ExecutionContext executionContext = this.buildExecutionContext();
-            log.info(this.appName + ": Built execution context");
+            log.debug("Created execution context");
 
             // Create the RAMPART task
             ConanTask conanTask = new DefaultTaskFactory().createTask(
@@ -374,17 +385,17 @@ public abstract class AbstractConanCLI {
 
             conanTask.setId(this.appName);
             conanTask.submit();
-            log.info(this.appName + ": Incorporated pipeline into conan task: " + conanTask.getId());
+            log.debug("Incorporated pipeline '" + conanPipeline.getName() + "' into task '" + conanTask.getId() + "'");
 
             // Ensure the output directory exists before we start
             if (!this.getOutputDir().exists()) {
                 this.getOutputDir().mkdirs();
-                log.info(this.appName + ": Created output directory: " + this.getOutputDir().getAbsolutePath());
+                log.info("Created output directory: \"" + this.getOutputDir().getAbsolutePath() + "\"");
             }
 
-            log.info(this.appName + ": About to start executing task: " + conanTask.getId());
+            log.info("Executing task: '" + conanTask.getId() + "'");
             conanTask.execute(executionContext);
-            log.info(this.appName + ": Finished executing task: " + conanTask.getId());
+            log.info("Finished executing task: '" + conanTask.getId() + "'");
         }
     }
 }

@@ -65,9 +65,9 @@ public class DefaultProcessServiceTest {
 
         when(locality.establishConnection()).thenReturn(true);
         when(locality.disconnect()).thenReturn(true);
-        when(locality.execute(anyString(), (Scheduler)anyObject())).thenReturn(new DefaultExecutionResult(0, null, -1));
-        when(locality.monitoredExecute(anyString(), (Scheduler)anyObject())).thenReturn(new DefaultExecutionResult(0, null, -1));
-        when(locality.dispatch(anyString(), (Scheduler)anyObject())).thenReturn(new DefaultExecutionResult(0, null, -1));
+        when(locality.execute(anyString(), (Scheduler)anyObject())).thenReturn(new DefaultExecutionResult(0, null, null, -1));
+        when(locality.monitoredExecute(anyString(), (Scheduler)anyObject())).thenReturn(new DefaultExecutionResult(0, null, null, -1));
+        when(locality.dispatch(anyString(), (Scheduler)anyObject())).thenReturn(new DefaultExecutionResult(0, null, null, -1));
 
         when(ec.getLocality()).thenReturn(locality);
         when(ec.getScheduler()).thenReturn(scheduler);

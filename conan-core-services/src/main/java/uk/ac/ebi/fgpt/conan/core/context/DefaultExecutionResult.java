@@ -2,6 +2,8 @@ package uk.ac.ebi.fgpt.conan.core.context;
 
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
 
+import java.io.File;
+
 /**
  * Created with IntelliJ IDEA.
  * User: maplesod
@@ -13,39 +15,38 @@ public class DefaultExecutionResult implements ExecutionResult {
 
     private int exitCode;
     private String[] output;
+    private File outputFile;
     private int jobId;
 
-    public DefaultExecutionResult(int exitCode, String[] output) {
-        this.exitCode = exitCode;
-        this.output = output;
+    public DefaultExecutionResult(int exitCode, String[] output, File outputFile) {
+        this(exitCode, output, null, -1);
     }
 
-    public DefaultExecutionResult(int exitCode, String[] output, int jobId) {
+    public DefaultExecutionResult(int exitCode, String[] output, File outputFile, int jobId) {
         this.exitCode = exitCode;
         this.output = output;
+        this.outputFile = outputFile;
         this.jobId = jobId;
     }
 
-    @Override
     public int getExitCode() {
         return this.exitCode;
     }
 
-    @Override
     public String[] getOutput() {
         return this.output;
     }
 
-    @Override
+    public File getOutputFile() {
+        return this.outputFile;
+    }
+
     public int getJobId() {
         return this.jobId;
     }
 
-    @Override
     public String getFirstOutputLine() {
         return output.length > 0 ? output[0] : null;
     }
-
-
 
 }

@@ -64,13 +64,9 @@ public class ProcessRunner {
             process = new ProcessBuilder("/bin/sh", "-c", command).start();
         }
 
-        // create the process
-        log.debug("Executing native runtime process [" + command + "]");
-
         // create reading threads
         new Thread() {
             public void run() {
-                log.debug("Monitoring stdout for native runtime process...");
 
                 BufferedReader reader =
                         new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -85,12 +81,12 @@ public class ProcessRunner {
                         }
                     }
                 } catch (IOException e) {
-                    log.debug("Encountered an error reading from process stdout,");
+                    log.warn("Encountered an error reading from process stdout");
                     unrecoverableException = true;
                 }
 
-                log.debug("Finished monitoring stdout of runtime process, read " +
-                        output.size() + " lines");
+                log.debug("Finished monitoring stdout of runtime process.  Read " +
+                        output.size() + " lines.");
 
                 updateStdout(output.toArray(new String[output.size()]));
                 stdoutStreamFinished();
@@ -99,7 +95,6 @@ public class ProcessRunner {
 
         new Thread() {
             public void run() {
-                log.debug("Monitoring stderr for native runtime process...");
 
                 BufferedReader reader =
                         new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -114,10 +109,11 @@ public class ProcessRunner {
                         }
                     }
                 } catch (IOException e) {
+                    log.warn("Encountered an error reading from process stderr.");
                     unrecoverableException = true;
                 }
-                log.debug("Finished monitoring stderr of runtime process, read " +
-                        errors.size() + " lines");
+                log.debug("Finished monitoring stderr of runtime process.  Read " +
+                        errors.size() + " lines.");
 
                 updateStderr(errors.toArray(new String[errors.size()]));
                 stderrStreamFinished();
@@ -139,8 +135,8 @@ public class ProcessRunner {
                 if (exitCode > 0) {
                     if (redirect) {
                         log.debug(
-                                "Return code was " + process.exitValue() + " for " + command +
-                                        ", throwing an exception and redirecting stdout");
+                                "Return code was '" + process.exitValue() + "' for [" + command +
+                                        "]. Throwing an exception and redirecting stdout.");
                         ArrayList<String> result = new ArrayList<String>();
                         result.addAll(Arrays.asList(stdout));
                         result.addAll(Arrays.asList(stderr));
@@ -148,14 +144,14 @@ public class ProcessRunner {
                                 result.toArray(new String[result.size()]));
                     } else {
                         log.debug(
-                                "Return code was " + process.exitValue() + " for " + command +
-                                        ", throwing an exception");
+                                "Return code was '" + process.exitValue() + "' for [" + command +
+                                        "].  Throwing an exception.");
                         throw new CommandExecutionException(exitCode, stderr);
                     }
                 } else {
                     if (redirect) {
-                        log.debug("Return code was " + process.exitValue() + " for " +
-                                command + ", redirecting stderr");
+                        log.debug("Return code was '" + process.exitValue() + "' for [" +
+                                command + "].  Redirecting stderr.");
                         ArrayList<String> result = new ArrayList<String>();
                         result.addAll(Arrays.asList(stdout));
                         if (stderr.length > 0) {
@@ -169,8 +165,8 @@ public class ProcessRunner {
 
                         return result.toArray(new String[result.size()]);
                     } else {
-                        log.debug("Return code was " + process.exitValue() + " for " +
-                                command + ", returning stdout");
+                        log.debug("Return code was '" + process.exitValue() + "' for [" +
+                                command + "].  Returning stdout.");
                         ArrayList<String> result = new ArrayList<String>();
                         result.addAll(Arrays.asList(stdout));
                         return result.toArray(new String[result.size()]);
@@ -178,7 +174,7 @@ public class ProcessRunner {
                 }
             } else {
                 throw new IOException("Unrecoverable error whilst processing " +
-                        "an external process (" + command + ")");
+                        "an external process: \"" + command + "\"");
             }
         } finally {
             // make sure the process is properly cleaned up
@@ -215,7 +211,7 @@ public class ProcessRunner {
      *         the process had to be aborted.
      */
     private synchronized boolean isComplete() {
-        log.debug("Checking completion of the process...");
+        log.debug("Checking completion of the process.  Monitoring stdout and stderr...");
         while (!(stdoutFinished && stderrFinished)) {
             // not finished yet, so wait for notification
             try {
@@ -228,10 +224,10 @@ public class ProcessRunner {
         // now finished, return true
         if (unrecoverableException) {
             unrecoverableException = false;
-            log.debug("Process completed with unrecoverable exception");
+            log.debug("Process completed with unrecoverable exception.");
             return false;
         } else {
-            log.debug("Process completed normally");
+            log.debug("Process completed normally.");
             return true;
         }
     }

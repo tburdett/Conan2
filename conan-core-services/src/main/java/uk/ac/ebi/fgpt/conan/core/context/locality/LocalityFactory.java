@@ -30,7 +30,9 @@ public enum LocalityFactory {
     REMOTE {
         @Override
         public Locality create() {
-            return new Remote();
+
+            throw new UnsupportedOperationException("Haven't finished implementing remote execution yet.");
+            //return new Remote();
         }
     };
 

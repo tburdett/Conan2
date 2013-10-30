@@ -17,7 +17,6 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.context.locality;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.core.context.DefaultExecutionResult;
@@ -56,7 +55,6 @@ public class Local implements Locality {
      */
     @Override
     public boolean establishConnection() {
-
         return true;
     }
 
@@ -67,7 +65,6 @@ public class Local implements Locality {
      */
     @Override
     public boolean disconnect() {
-
         return true;
     }
 
@@ -82,15 +79,14 @@ public class Local implements Locality {
     }
 
     @Override
-    public String getName() {
-        return "LOCAL";
+    public String getDescription() {
+        return "localhost";
     }
 
     @Override
     public ExecutionResult monitoredExecute(String command, Scheduler scheduler) throws InterruptedException, ProcessExecutionException {
 
         // TODO, this is a mess... needs rethinking at some point.
-
 
         //boolean dispatched = false;
         //boolean recoveryMode = processAdapter.inRecoveryMode();
@@ -118,8 +114,11 @@ public class Local implements Locality {
                 }
 
                 // Wait for the proc to complete by using the proc monitor
-                if (scheduler.usesFileMonitor())
+                if (scheduler.usesFileMonitor()) {
+
+                    // Override result with info from the wait command.
                     result = this.waitFor(processAdapter, new InvocationTrackingProcessListener());
+                }
 
                 return result;
             //}
@@ -139,7 +138,6 @@ public class Local implements Locality {
         String[] output;
 
         try {
-            log.info("Issuing command: [" + command + "]");
             ProcessRunner runner = new ProcessRunner();
             runner.redirectStderr(true);
             output = runner.runCommmand(command);
@@ -155,7 +153,7 @@ public class Local implements Locality {
             try {
                 pex.setProcessExecutionHost(InetAddress.getLocalHost().getHostName());
             } catch (UnknownHostException e1) {
-                log.debug("Unknown host", e1);
+                log.warn("Unknown host", e1);
             }
             throw pex;
         } catch (IOException e) {
@@ -170,19 +168,7 @@ public class Local implements Locality {
         if (jobId != -1)
             log.debug("Job ID detected: " + jobId);
 
-        if (log.isDebugEnabled()) {
-            if (scheduler == null) {
-                log.debug(StringUtils.join(output, "\n"));
-            }
-            else {
-                if (output.length > 0) {
-                    log.debug("Response from command [" + command + "]: " +
-                            output.length + " lines, first line was: " + output[0]);
-                }
-            }
-        }
-
-        return new DefaultExecutionResult(0, output, jobId);
+        return new DefaultExecutionResult(0, output, null, jobId);
     }
 
     @Override
@@ -216,12 +202,12 @@ public class Local implements Locality {
 
         // proc monitoring
         try {
-            log.debug("Monitoring proc, waiting for completion");
+            log.debug("Monitoring proc, waiting for completion...");
             exitValue = processListener.waitFor();
-            log.debug("Process completed with exit value " + exitValue);
+            log.debug("Process completed with exit value: " + exitValue);
 
             if (exitValue == 0) {
-                return new DefaultExecutionResult(exitValue, new String[]{});
+                return new DefaultExecutionResult(exitValue, new String[]{}, processAdapter.getFile());
             } else {
                 ProcessExecutionException pex = new ProcessExecutionException(exitValue);
                 pex.setProcessOutput(processAdapter.getProcessOutput());
