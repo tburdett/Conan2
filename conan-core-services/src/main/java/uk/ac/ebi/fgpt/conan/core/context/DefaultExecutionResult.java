@@ -1,8 +1,11 @@
 package uk.ac.ebi.fgpt.conan.core.context;
 
+import org.apache.commons.io.FileUtils;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Created with IntelliJ IDEA.
@@ -49,4 +52,8 @@ public class DefaultExecutionResult implements ExecutionResult {
         return output.length > 0 ? output[0] : null;
     }
 
+    public void writeOutputToFile(File outputFile) throws IOException {
+        FileUtils.writeLines(outputFile, Arrays.asList(this.output));
+        this.outputFile = outputFile;
+    }
 }

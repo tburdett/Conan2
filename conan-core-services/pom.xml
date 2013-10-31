@@ -89,6 +89,12 @@
             <version>3.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+
 
         <!-- spring ldap dependency, for core ldap server authentication -->
         <dependency>

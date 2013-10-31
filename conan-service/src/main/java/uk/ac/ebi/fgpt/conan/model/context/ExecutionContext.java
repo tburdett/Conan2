@@ -36,17 +36,23 @@ public interface ExecutionContext {
     ExternalProcessConfiguration getExternalProcessConfiguration();
 
     /**
+     * It's common that you will which to vary the jobname, foreground job and monitor file throughout the pipeline for
+     * different processes.  This method enables you to set the variable context, while retaining the common context such
+     * as the locality, scheduling system and external process configuration.
+     * @param jobName        The job name for the current process to execute
+     * @param foregroundJob  Whether to run the process in the foreground or background
+     * @param monitorFile    A location that output from the process can be stored.  Can be used by some schedulers (such
+     *                       as LSF) to track the job's progress.
+     */
+    void setContext(String jobName, boolean foregroundJob, File monitorFile);
+
+
+    /**
      * Should return true if this ConanProcess should be executed in the foreground.  i.e. we should wait until the job is
      * complete before continueing
      * @return
      */
     boolean isForegroundJob();
-
-    /**
-     * Defines whether or not this job should be executed in the foreground or not.
-     * @param isForegroundJob
-     */
-    void setForegroundJob(boolean isForegroundJob);
 
     /**
      * Retreives the monitor file for this execution context
@@ -55,10 +61,10 @@ public interface ExecutionContext {
     File getMonitorFile();
 
     /**
-     * Sets the monitor file for this execution context.
-     * @param monitorFile
+     * Retreives the job name for this execution context
+     * @return
      */
-    void setMonitorFile(File monitorFile);
+    String getJobName();
 
     /**
      * Makes a deep-copy of this ExecutionContext

@@ -4,15 +4,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.fgpt.conan.core.context.DefaultExecutionContext;
+import uk.ac.ebi.fgpt.conan.core.context.locality.Local;
 import uk.ac.ebi.fgpt.conan.dao.ConanProcessDAO;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
-import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
-import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
-import uk.ac.ebi.fgpt.conan.model.context.Locality;
-import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
+import uk.ac.ebi.fgpt.conan.model.context.*;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Simple implementation of a process service that delegates lookup calls to a process DAO.
@@ -89,7 +91,7 @@ public class DefaultProcessService implements ConanProcessService {
                         "Output from this command can be found at: \"" + result.getOutputFile().getAbsolutePath() + "\"" :
                         "Output: \n" + StringUtils.join(result.getOutput(), "\n") + "\n";
 
-                log.info("Finished executing command [" + command + "].   " + details);
+                log.info("Finished executing command [" + command + "].  " + details);
             }
             else {
                 log.info("Running scheduled command in background [" + commandToExecute + "].");
@@ -103,10 +105,24 @@ public class DefaultProcessService implements ConanProcessService {
             if (executionContext.isForegroundJob()) {
                 log.info("Running command in foreground [" + command + "].");
                 result = locality.execute(command, null);
-                log.info("Finished executing command [" + command + "].   Output: \n" +
-                        StringUtils.join(result.getOutput(), "\n"));
-            } else {
-                throw new UnsupportedOperationException("Can't dispatch simple commands yet");
+
+                if (executionContext.getMonitorFile() != null) {
+                    try {
+                        result.writeOutputToFile(executionContext.getMonitorFile());
+                    }
+                    catch(IOException e) {
+                        throw new ProcessExecutionException(-1, e);
+                    }
+                }
+
+                String details = result.getOutputFile() != null && result.getOutputFile().exists() ?
+                        "Output from this command can be found at: \"" + result.getOutputFile().getAbsolutePath() + "\"" :
+                        "Output: \n" + StringUtils.join(result.getOutput(), "\n") + "\n";
+
+                log.info("Finished executing command [" + command + "].  " + details);
+            }
+            else {
+                throw new UnsupportedOperationException("Can't dispatch unscheduled commands yet");
             }
         }
 
@@ -130,5 +146,51 @@ public class DefaultProcessService implements ConanProcessService {
         String waitCommand = scheduler.createWaitCommand(waitCondition);
 
         return executionContext.getLocality().monitoredExecute(waitCommand, scheduler);
+    }
+
+    @Override
+    public String makeLinkCommand(File inputFile, File outputFile) {
+
+        return "ln -s -f " + inputFile.getAbsolutePath() + " " + outputFile.getAbsolutePath();
+    }
+
+    @Override
+    public void createLocalSymbolicLink(File inputFile, File outputFile)
+            throws ProcessExecutionException, InterruptedException {
+
+        this.execute(makeLinkCommand(inputFile, outputFile), new DefaultExecutionContext(new Local(), null, null));
+    }
+
+
+    @Override
+    public void executeScheduledWait(List<Integer> jobIds, String waitCondition, ExitStatus.Type exitStatusType,
+                                     ExecutionContext executionContext)
+            throws ProcessExecutionException, InterruptedException {
+
+        if (!executionContext.usingScheduler())
+            throw new UnsupportedOperationException("Cannot dispatch a scheduled wait job without using a scheduler");
+
+        Scheduler scheduler = executionContext.getScheduler();
+
+        String condition = scheduler.generatesJobIdFromOutput() ?
+                scheduler.createWaitCondition(exitStatusType, jobIds) :
+                scheduler.createWaitCondition(exitStatusType, waitCondition);
+
+        this.waitFor(condition, executionContext);
+    }
+
+    @Override
+    public boolean isLocalProcessOperational(ConanProcess conanProcess) {
+
+        throw new UnsupportedOperationException("Not implemented yet");
+
+        //TODO This still requires some changes to ConanX.
+        // What I'd like to do here is just do a "which" command on the exe of the process and see if we get output.
+        // If so then this process is probably operational
+
+        //this.conanProcessService.execute("which " + conanProcessExe + " > " + tempDir + "/process_test/" + conanProcessExe,
+        // new DefaultExecutionContext(new Local(), null, null));
+
+        //return true;
     }
 }

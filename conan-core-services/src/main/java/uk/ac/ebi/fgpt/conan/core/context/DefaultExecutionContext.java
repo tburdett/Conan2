@@ -32,36 +32,21 @@ public class DefaultExecutionContext implements ExecutionContext {
     private ExternalProcessConfiguration externalProcessConfiguration;
     private boolean foregroundJob;
     private File monitorFile;
+    private String jobName;
 
     public DefaultExecutionContext() {
-        this(true);
+        this(new Local(), null, null);
     }
 
-    public DefaultExecutionContext(boolean foregroundJob) {
-        this(null, foregroundJob);
-    }
-
-    public DefaultExecutionContext(Scheduler scheduler, boolean foregroundJob) {
-
-        this(new Local(), scheduler, null, foregroundJob, null);
-    }
-
-    public DefaultExecutionContext(Locality locality, Scheduler scheduler, ExternalProcessConfiguration externalProcessConfiguration, boolean foregroundJob) {
-
-        this(locality, scheduler, externalProcessConfiguration, foregroundJob, null);
-    }
-
-    public DefaultExecutionContext(Locality locality, Scheduler scheduler, ExternalProcessConfiguration externalProcessConfiguration, boolean foregroundJob, File monitorFile) {
+    public DefaultExecutionContext(Locality locality, Scheduler scheduler, ExternalProcessConfiguration externalProcessConfiguration) {
 
         this.locality = locality;
         this.scheduler = scheduler;
         this.externalProcessConfiguration = externalProcessConfiguration;
-        this.foregroundJob = foregroundJob;
-        this.monitorFile = monitorFile;
 
-        if (scheduler != null) {
-            this.scheduler.getArgs().setMonitorFile(monitorFile);
-        }
+        this.jobName = "";
+        this.monitorFile = null;
+        this.foregroundJob = true;
     }
 
     public DefaultExecutionContext(DefaultExecutionContext copy) {
@@ -69,10 +54,22 @@ public class DefaultExecutionContext implements ExecutionContext {
         this(
                 copy.locality != null ? copy.locality.copy() : null,
                 copy.scheduler != null ? copy.scheduler.copy() : null,
-                copy.getExternalProcessConfiguration(), //TODO deep copy this.
-                copy.isForegroundJob(),
+                copy.getExternalProcessConfiguration() //TODO deep copy this.
+        );
+
+        this.setContext(
+                copy.jobName,
+                copy.foregroundJob,
                 copy.monitorFile != null ? new File(copy.monitorFile.getAbsolutePath()) : null
         );
+    }
+
+    @Override
+    public void setContext(String jobName, boolean foregroundJob, File monitorFile) {
+
+        this.setJobName(jobName);
+        this.foregroundJob = foregroundJob;
+        this.setMonitorFile(monitorFile);
     }
 
     @Override
@@ -95,7 +92,18 @@ public class DefaultExecutionContext implements ExecutionContext {
         return foregroundJob;
     }
 
-    @Override
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
+
+        if (scheduler != null) {
+            this.scheduler.getArgs().setJobName(jobName);
+        }
+    }
+
     public void setForegroundJob(boolean foregroundJob) {
         this.foregroundJob = foregroundJob;
     }
@@ -127,7 +135,6 @@ public class DefaultExecutionContext implements ExecutionContext {
         return monitorFile;
     }
 
-    @Override
     public void setMonitorFile(File monitorFile) {
         this.monitorFile = monitorFile;
 

@@ -1,6 +1,7 @@
 package uk.ac.ebi.fgpt.conan.model.context;
 
 import java.io.File;
+import java.io.IOException;
 
 
 public interface ExecutionResult {
@@ -14,4 +15,6 @@ public interface ExecutionResult {
     int getJobId();
 
     String getFirstOutputLine();
+
+    void writeOutputToFile(File outputFile) throws IOException;
 }

@@ -3,10 +3,12 @@ package uk.ac.ebi.fgpt.conan.service;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
+import uk.ac.ebi.fgpt.conan.model.context.ExitStatus;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A service that can be used to explore or execute the available processes in the Conan framework.  Within Conan, there are
@@ -14,7 +16,7 @@ import java.util.Collection;
  * <p/>
  * This interface is used to define the ways known processes can be retrieved or executed
  *
- * @author Tony Burdett
+ * @author Tony Burdett (extended and modified by Daniel Mapleson)
  * @date 11-Oct-2010
  */
 public interface ConanProcessService {
@@ -75,4 +77,44 @@ public interface ConanProcessService {
      */
     ExecutionResult waitFor(String waitCondition, ExecutionContext executionContext)
             throws InterruptedException, ProcessExecutionException;
+
+
+    /**
+     * Sometimes it's handy to create a compound symbolic link command.  This method had help to do that.
+     * @param inputFile The file to link against
+     * @param outputFile The location of the link
+     * @return The command that should be executed to create the symbolic link
+     */
+    String makeLinkCommand(File inputFile, File outputFile);
+
+    /**
+     * Creates a symbolic link on the local file system, from the specified input file to the specified output file.
+     * Auto creates a basic execution context for this.
+     * @param inputFile The file to link against
+     * @param outputFile The location of the link
+     * @throws ProcessExecutionException
+     * @throws InterruptedException
+     */
+    void createLocalSymbolicLink(File inputFile, File outputFile)
+            throws ProcessExecutionException, InterruptedException;
+
+    /**
+     * Executes a scheduled wait command that waits for a list of other jobs to complete before finishing.
+     * @param jobIds The list of jobs to wait for.
+     * @param waitCondition The wait condition (also defines the list of jobs to wait for).
+     * @param exitStatusType Whether jobs must finish successfully or just need to finish
+     * @param executionContext How to execute the wait job (must contain a scheduler).
+     * @throws ProcessExecutionException
+     * @throws InterruptedException
+     */
+    void executeScheduledWait(List<Integer> jobIds, String waitCondition, ExitStatus.Type exitStatusType, ExecutionContext executionContext)
+            throws ProcessExecutionException, InterruptedException;
+
+
+    /**
+     * Returns true if this process is currently operational.  False otherwise.
+     * @param conanProcess The process to check the status of.
+     * @return
+     */
+    boolean isLocalProcessOperational(ConanProcess conanProcess);
 }
