@@ -55,6 +55,7 @@ public class DefaultProcessService implements ConanProcessService {
 
             if (extPreCommand != null && !extPreCommand.isEmpty()) {
                 process.addPreCommand(extPreCommand);
+                log.debug("Added precommand \"" + extPreCommand + "\" from external process configuration file to process \"" + process.getName() + "\"");
             }
         }
 
