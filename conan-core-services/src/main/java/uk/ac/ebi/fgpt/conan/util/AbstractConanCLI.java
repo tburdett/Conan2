@@ -123,10 +123,15 @@ public abstract class AbstractConanCLI {
         this.verbose = commandLine.hasOption(OPT_VERBOSE);
         this.help = commandLine.hasOption(OPT_HELP);
 
-        // Sets any extra variables in the child class.
-        this.parseExtra(commandLine);
+        // Only bother to parse other options if help is not set.  User may have some positional requirements on their
+        // arguments, which might prevent help from running.
+        if (!this.help) {
 
-        log.debug("Parsed command line.");
+            // Sets any extra variables in the child class.
+            this.parseExtra(commandLine);
+
+            log.debug("Parsed command line.");
+        }
     }
 
     /**
@@ -305,7 +310,7 @@ public abstract class AbstractConanCLI {
         final HelpFormatter helpFormatter = new HelpFormatter();
         helpFormatter.printHelp(
                 writer,
-                120,
+                95,
                 title,
                 description,
                 options,
