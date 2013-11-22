@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.conan.core.task;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.conan.core.context.DefaultExecutionContext;
@@ -176,7 +177,10 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
         // check the current state for execution
         checkState();
 
-        log.debug("Executing task '" + getId() + "'");
+        StopWatch stopWatchTotal = new StopWatch();
+        stopWatchTotal.start();
+
+        log.info("Executing task '" + getId() + "'");
         try {
             // do processes in order
             while (!isPaused() && getCurrentProcess() != null) {
@@ -185,6 +189,12 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
                     throw new InterruptedException();
                 }
 
+                StopWatch stopWatchProcess = new StopWatch();
+                stopWatchProcess.start();
+
+                String processName = getCurrentProcess().getName();
+                String pipelineName = getId();
+
                 // extract only those parameters we need
                 Map<ConanParameter, String> nextProcessParams = new HashMap<ConanParameter, String>();
                 for (ConanParameter param : getCurrentProcess().getParameters()) {
@@ -192,8 +202,8 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
                 }
 
                 // increment the execution index and fire an event as we're about to start
-                log.debug("Process being executed for task '" + getId() + "' is '" +
-                        getCurrentProcess().getName() + "', supplying parameters: " +
+                log.debug("Process being executed for task '" + pipelineName + "' is '" +
+                        processName + "', supplying parameters: " +
                         nextProcessParams);
                 fireProcessStartedEvent();
 
@@ -202,6 +212,9 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
 
                 // once finished, update the end date
                 fireProcessEndedEvent();
+
+                stopWatchProcess.stop();
+                log.debug("Process '" + (processName == null ? "?" : processName) + "' runtime: " + stopWatchProcess.toString());
             }
 
             // finalise task execution
@@ -241,7 +254,9 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
             if (getCurrentState() == ConanTask.State.COMPLETED || getCurrentState() == ConanTask.State.ABORTED) {
                 setListeners(Collections.<ConanTaskListener>emptySet());
             }
-            log.debug("Task '" + getId() + "' execution ended");
+
+            stopWatchTotal.stop();
+            log.info("Task '" + getId() + "' execution ended.  Runtime: " + stopWatchTotal.toString());
         }
     }
 
