@@ -356,11 +356,12 @@ public abstract class AbstractConanCLI {
      * Executes this application
      * @param conanUser
      * @param priority
+     * @param executionContext
      * @throws InterruptedException
      * @throws TaskExecutionException
      * @throws IOException
      */
-    public void execute(ConanUser conanUser, ConanTask.Priority priority)
+    public void execute(ConanUser conanUser, ConanTask.Priority priority, ExecutionContext executionContext)
             throws InterruptedException, TaskExecutionException, IOException {
 
         if (this.help) {
@@ -374,11 +375,6 @@ public abstract class AbstractConanCLI {
 
             // Creates the argument map containing the settings for this pipeline
             Map<ConanParameter, String> argMap = this.createArgMap();
-
-            // Execute the pipeline
-            // Build execution context from configuration files
-            ExecutionContext executionContext = this.buildExecutionContext();
-            log.debug("Created execution context");
 
             // Create the RAMPART task
             ConanTask conanTask = new DefaultTaskFactory().createTask(

@@ -180,18 +180,41 @@ public class DefaultProcessService implements ConanProcessService {
         this.waitFor(condition, executionContext);
     }
 
+    /**
+     * There maybe better ways to do this, but what this method does is add any pre-commands that are found in the
+     * execution context, and then uses the unix 'which' command to see if anything sensible comes back.
+     * @param conanProcess The process to check the status of.
+     * @param executionContext The execution context this process will run in. This is important because if additional
+     *                         pre-commands are normally added to this process, they may be required here to determine
+     *                         if the process is operational
+     * @return
+     */
     @Override
-    public boolean isLocalProcessOperational(ConanProcess conanProcess) {
+    public boolean isLocalProcessOperational(ConanProcess conanProcess, ExecutionContext executionContext) {
 
-        throw new UnsupportedOperationException("Not implemented yet");
+        String preCommand = "";
 
-        //TODO This still requires some changes to ConanX.
-        // What I'd like to do here is just do a "which" command on the exe of the process and see if we get output.
-        // If so then this process is probably operational
+        if (executionContext.getExternalProcessConfiguration() != null) {
+            String extPreCommand = executionContext.getExternalProcessConfiguration().getCommand(conanProcess.getName());
 
-        //this.conanProcessService.execute("which " + conanProcessExe + " > " + tempDir + "/process_test/" + conanProcessExe,
-        // new DefaultExecutionContext(new Local(), null, null));
+            if (extPreCommand != null && !extPreCommand.isEmpty()) {
+                preCommand += extPreCommand + "; ";
+                log.debug("Added precommand \"" + extPreCommand + "\" from external process configuration file to process " +
+                            "\"" + conanProcess.getName() + "\", which has an executable called: \"" + conanProcess.getExecutable() + "\"");
+            }
+        }
 
-        //return true;
+        ExecutionResult result = null;
+        try {
+            result = this.execute(preCommand + "which " + conanProcess.getExecutable(), executionContext);
+        } catch (Exception e) {
+            log.error("Error occurred trying to determine if process was operational: " + e.getMessage());
+            return false;
+        }
+
+        if (result.getOutput().length == 0)
+            return false;
+
+        return !(result.getOutput()[0].contains(" no ") && result.getOutput()[0].contains(" in "));
     }
 }

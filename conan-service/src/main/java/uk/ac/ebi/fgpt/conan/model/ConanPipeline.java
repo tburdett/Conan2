@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.conan.model;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 
 import java.io.Serializable;
@@ -71,4 +72,13 @@ public interface ConanPipeline extends Serializable {
      * @return the set of parameters that must be supplied in order to execute this pipeline
      */
     List<ConanParameter> getAllRequiredParameters();
+
+    /**
+     * A method to check whether this pipeline is currently in a state where it should run in the current execution context
+     *
+     * @param executionContext The execution context within which to execute this <code>ConanProcess</code>
+     *
+     * @return True if this pipeline should run in this execution context, false otherwise.
+     */
+    boolean isOperational(ExecutionContext executionContext);
 }

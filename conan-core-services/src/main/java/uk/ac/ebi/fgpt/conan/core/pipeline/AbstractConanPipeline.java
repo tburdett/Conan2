@@ -4,6 +4,7 @@ import uk.ac.ebi.fgpt.conan.core.process.AbstractConanProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanUser;
+import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 import uk.ac.ebi.fgpt.conan.service.ConanProcessService;
 import uk.ac.ebi.fgpt.conan.service.DefaultProcessService;
@@ -65,6 +66,13 @@ public abstract class AbstractConanPipeline implements ConanPipeline {
         this.processList.add(process);
     }
 
+    public void addProcesses(List<AbstractConanProcess> processes) {
+
+        for(AbstractConanProcess process : processes) {
+            this.addProcess(process);
+        }
+    }
+
     @Override
     public String getName() {
         return this.name;
@@ -83,6 +91,18 @@ public abstract class AbstractConanPipeline implements ConanPipeline {
     @Override
     public boolean isDaemonized() {
         return this.isDaemonized;
+    }
+
+    @Override
+    public boolean isOperational(ExecutionContext executionContext) {
+
+        for(ConanProcess process : this.getProcesses()) {
+            if (!process.isOperational(executionContext)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override

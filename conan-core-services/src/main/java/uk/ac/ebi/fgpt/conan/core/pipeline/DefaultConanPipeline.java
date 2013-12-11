@@ -2,9 +2,11 @@ package uk.ac.ebi.fgpt.conan.core.pipeline;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.conan.core.process.AbstractConanProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanUser;
+import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
 
 import java.util.ArrayList;
@@ -89,5 +91,17 @@ public class DefaultConanPipeline implements ConanPipeline {
 
     public List<ConanParameter> getAllRequiredParameters() {
         return allRequiredParameters;
+    }
+
+    @Override
+    public boolean isOperational(ExecutionContext executionContext) {
+
+        for(ConanProcess process : this.getProcesses()) {
+            if (!process.isOperational(executionContext)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

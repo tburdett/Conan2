@@ -79,6 +79,11 @@ public abstract class AbstractConanProcess implements ConanProcess {
         this.conanProcessService = conanProcessService;
     }
 
+    @Override
+    public String getExecutable() {
+        return this.executable;
+    }
+
     public ProcessArgs getProcessArgs() {
         return processArgs;
     }
@@ -235,4 +240,8 @@ public abstract class AbstractConanProcess implements ConanProcess {
         return this.jobId;
     }
 
+    @Override
+    public boolean isOperational(ExecutionContext executionContext) {
+        return this.conanProcessService.isLocalProcessOperational(this, executionContext);
+    }
 }

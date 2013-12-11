@@ -35,6 +35,13 @@ public interface ConanProcess extends Serializable {
 
 
     /**
+     * Get the name of the executable represented by this process.
+     *
+     * @return The name of the executable, or null or empty string if this process doesn't wrap an external tool.
+     */
+    String getExecutable();
+
+    /**
      * Get the command to execute for this <code>ConanProcess</code>
      *
      * @return The command to execute
@@ -137,4 +144,13 @@ public interface ConanProcess extends Serializable {
      */
     int getJobId();
 
+
+    /**
+     * A method to check whether this process is currently in a state where it should run in the current execution context
+     *
+     * @param executionContext The execution context within which to execute this <code>ConanProcess</code>
+     *
+     * @return True if this process should run in this execution context, false otherwise.
+     */
+    boolean isOperational(ExecutionContext executionContext);
 }

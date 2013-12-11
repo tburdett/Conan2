@@ -1,6 +1,7 @@
 package uk.ac.ebi.fgpt.conan.core.process;
 
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
+import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
 
 /**
  * A implementation of a {@link ConanProcess} that decorates the underlying process with a display name that is distinct
@@ -19,7 +20,17 @@ public class DisplayNameProcessDecorator extends AbstractProcessDecorator {
     }
 
     @Override
+    public String getExecutable() {
+        return "";
+    }
+
+    @Override
     public String getName() {
         return displayName;
+    }
+
+    @Override
+    public boolean isOperational(ExecutionContext executionContext) {
+        return true;
     }
 }

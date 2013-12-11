@@ -114,7 +114,10 @@ public interface ConanProcessService {
     /**
      * Returns true if this process is currently operational.  False otherwise.
      * @param conanProcess The process to check the status of.
-     * @return
+     * @param executionContext The execution context this process will run in. This is important because if additional
+     *                         pre-commands are normally added to this process, they may be required here to determine
+     *                         if the process is operational
+     * @return True if the process is operational, false otherwise.
      */
-    boolean isLocalProcessOperational(ConanProcess conanProcess);
+    boolean isLocalProcessOperational(ConanProcess conanProcess, ExecutionContext executionContext);
 }
