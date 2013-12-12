@@ -106,19 +106,19 @@ public abstract class AbstractConanCLI {
 
         this.environmentConfig = commandLine.hasOption(OPT_ENV_CONFIG) ?
                 new File(commandLine.getOptionValue(OPT_ENV_CONFIG)) :
-                new File(defaultSettingsDir, DEFAULT_ENV_CONFIG_FILENAME);
+                this.environmentConfig;
 
         this.logConfig = commandLine.hasOption(OPT_LOG_CONFIG) ?
                 new File(commandLine.getOptionValue(OPT_LOG_CONFIG)) :
-                new File(defaultSettingsDir, DEFAULT_LOG_CONFIG_FILENAME);
+                this.logConfig;
 
         this.outputDir = commandLine.hasOption(OPT_OUTPUT_DIR) ?
                 new File(commandLine.getOptionValue(OPT_OUTPUT_DIR)) :
-                currentWorkingDir();
+                this.outputDir;
 
         this.jobPrefix = commandLine.hasOption(OPT_JOB_PREFIX) ?
                 commandLine.getOptionValue(OPT_JOB_PREFIX) :
-                appName + createTimestamp();
+                this.jobPrefix;
 
         this.verbose = commandLine.hasOption(OPT_VERBOSE);
         this.help = commandLine.hasOption(OPT_HELP);
@@ -271,11 +271,11 @@ public abstract class AbstractConanCLI {
 
         options.addOption(OptionBuilder.withArgName("file").withLongOpt(OPT_ENV_CONFIG).hasArg()
                         .withDescription("The environment configuration file.  Default: " +
-                                new File(this.defaultSettingsDir, DEFAULT_ENV_CONFIG_FILENAME).getAbsolutePath()).create("e"));
+                                this.environmentConfig.getAbsolutePath()).create("e"));
 
         options.addOption(OptionBuilder.withArgName("file").withLongOpt(OPT_LOG_CONFIG).hasArg()
-                        .withDescription("The logging configuration file.  Default: "
-                                + new File(this.defaultSettingsDir, DEFAULT_LOG_CONFIG_FILENAME).getAbsolutePath()).create("l"));
+                        .withDescription("The logging configuration file.  Default: " +
+                                this.logConfig.getAbsolutePath()).create("l"));
 
         options.addOption(OptionBuilder.withArgName("file").withLongOpt(OPT_OUTPUT_DIR).hasArg()
                         .withDescription("The directory to put output from this job.").create("o"));
