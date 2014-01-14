@@ -17,8 +17,6 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.param;
 
-import org.springframework.util.StringUtils;
-
 /**
  * @author Dan Mapleson
  */
@@ -31,11 +29,14 @@ public class PathParameter extends DefaultConanParameter {
     }
 
     public PathParameter(String name, String description, boolean isOptional) {
-        super(name, description, false, isOptional, false);
+        super();
+
+        this.name = name;
+        this.description = description;
+        this.isOption = true;
+        this.isOptional = true;
+        this.isFlag = false;
+        this.argValidator = ArgValidator.PATH;
     }
 
-    @Override
-    public boolean validateParameterValue(String value) {
-        return !StringUtils.containsWhitespace(value) && !value.contains("~");
-    }
 }

@@ -1,6 +1,8 @@
 
 package uk.ac.ebi.fgpt.conan.model.param;
 
+import uk.ac.ebi.fgpt.conan.service.exception.ConanParameterException;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -16,6 +18,7 @@ public interface ProcessArgs {
 
     /**
      * Parses a string containing the process arguments into this argument object.
+     *
      * @param args The arguments in string form to parse
      */
     void parse(String args) throws IOException;
@@ -23,16 +26,21 @@ public interface ProcessArgs {
     /**
      * Converts this arguments class into a Map of ConanParameters to String values, which can then be used for processing in
      * the Conan Engine.
+     *
      * @return Map of conan parameters to string values
      */
-    Map<ConanParameter, String> getArgMap();
+    ParamMap getArgMap();
 
     /**
      * Converts a Map of ConanParameters to String values into this object
-     * @param pvp
+     *
+     * @param pvp The parameter to value map
+     *
      * @throws IOException May throw an IOException if there was any trouble reading or writing data to disk.  Most processes
      * are unlikely to attempt to write to disk but if the process tries to load its settings from a configuration file
      * it is possible errors could occur here.
+     *
+     * @throws ConanParameterException Thrown if there were issues processing any of the parameters.
      */
-    void setFromArgMap(Map<ConanParameter, String> pvp) throws IOException;
+    void setFromArgMap(ParamMap pvp) throws IOException, ConanParameterException;
 }

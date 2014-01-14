@@ -40,7 +40,7 @@ public class UserCreatedConanTask<P extends ConanPipeline> extends AbstractConan
     public String getName() {
         // is once of our parameter values an accession?
         for (ConanParameter parameter : getParameterValues().keySet()) {
-            if (parameter.getName().contains("Accession")) {
+            if (parameter.getShortName().contains("Accession")) {
                 return getParameterValues().get(parameter);
             }
         }

@@ -4,6 +4,7 @@ import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
 import uk.ac.ebi.fgpt.conan.model.context.ExitStatus;
+import uk.ac.ebi.fgpt.conan.service.exception.ConanParameterException;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.io.File;
@@ -47,7 +48,7 @@ public interface ConanProcessService {
      * @throws uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException Thrown if there were any problems initialising the job or with the job output
      */
     ExecutionResult execute(ConanProcess conanProcess, ExecutionContext executionContext)
-            throws InterruptedException, ProcessExecutionException;
+            throws InterruptedException, ProcessExecutionException, ConanParameterException;
 
     /**
      * Execute a command in the shell.  The proc may be executed in the foreground or the background depending

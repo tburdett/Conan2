@@ -3,6 +3,7 @@ package uk.ac.ebi.fgpt.conan.core.process;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
+import uk.ac.ebi.fgpt.conan.service.exception.ConanParameterException;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.util.Collection;
@@ -35,12 +36,12 @@ public abstract class AbstractProcessDecorator implements ConanProcess {
     }
 
     @Override
-    public String getCommand() {
+    public String getCommand() throws ConanParameterException {
         return process.getCommand();
     }
 
     @Override
-    public String getFullCommand() {
+    public String getFullCommand() throws ConanParameterException {
         return process.getFullCommand();
     }
 

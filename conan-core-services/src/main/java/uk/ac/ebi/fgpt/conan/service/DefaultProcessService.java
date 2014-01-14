@@ -9,6 +9,7 @@ import uk.ac.ebi.fgpt.conan.core.context.locality.Local;
 import uk.ac.ebi.fgpt.conan.dao.ConanProcessDAO;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.*;
+import uk.ac.ebi.fgpt.conan.service.exception.ConanParameterException;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.io.File;
@@ -59,7 +60,15 @@ public class DefaultProcessService implements ConanProcessService {
             }
         }
 
-        return this.execute(process.getFullCommand(), executionContext);
+        String command;
+        try {
+            command = process.getFullCommand();
+        }
+        catch(ConanParameterException cpe) {
+            throw new ProcessExecutionException(3, "Could not build command from supplied parameters", cpe);
+        }
+
+        return this.execute(command, executionContext);
     }
 
     @Override

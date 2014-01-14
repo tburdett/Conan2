@@ -183,13 +183,13 @@ public class DefaultDaemonService implements ConanDaemonService {
                             "using DAO to obtain daemon mode inputs");
                     // got a dao that returns the right type of param, so get available input values
                     List<String> inputValues = dao.getParameterValues();
-                    getLog().debug("There are " + inputValues.size() + " " + requiredInputType.getName() + "s " +
+                    getLog().debug("There are " + inputValues.size() + " " + requiredInputType.getShortName() + "s " +
                             "available for submission to daemon mode.");
                     for (String inputValue : inputValues) {
                         // create a new task for each
                         if (i < MAXIMUM_SUBMISSION_BATCH_SIZE) {
                             Map<String, String> inputMap = new HashMap<String, String>();
-                            inputMap.put(requiredInputType.getName(), inputValue);
+                            inputMap.put(requiredInputType.getShortName(), inputValue);
                             try {
                                 tasks.add(getTaskService().createNewTask(pipeline.getName(),
                                         0,

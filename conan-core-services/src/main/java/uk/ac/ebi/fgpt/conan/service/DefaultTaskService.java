@@ -336,14 +336,14 @@ public class DefaultTaskService implements ConanTaskService {
                                        ConanProcess process) {
         for (ConanParameter param : process.getParameters()) {
             // validate our request by checking we have this param value supplied
-            if (inputValues.get(param.getName()) == null) {
+            if (inputValues.get(param.getShortName()) == null) {
                 throw new MissingRequiredParameterException(
-                        "Required parameter '" + param.getName() + "' not supplied, " +
+                        "Required parameter '" + param.getShortName() + "' not supplied, " +
                                 "required for process '" + process.getName() + "'");
             }
             else {
                 if (!parameters.containsKey(param)) {
-                    parameters.put(param, inputValues.get(param.getName()));
+                    parameters.put(param, inputValues.get(param.getShortName()));
                 }
             }
         }

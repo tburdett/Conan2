@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.Assert;
+import uk.ac.ebi.fgpt.conan.core.param.ArgValidator;
+import uk.ac.ebi.fgpt.conan.core.param.DefaultConanParameter;
 import uk.ac.ebi.fgpt.conan.core.pipeline.DefaultConanPipeline;
 import uk.ac.ebi.fgpt.conan.core.process.DefaultProcessRun;
 import uk.ac.ebi.fgpt.conan.core.task.AbstractConanTask;
@@ -252,7 +254,7 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
             Map<ConanParameter, String> params = conanTask.getParameterValues();
             for (ConanParameter conanParameter : params.keySet()) {
                 getJdbcTemplate().update(PARAMETER_INSERT,
-                        conanParameter.getName(),
+                        conanParameter.getShortName(),
                         params.get(conanParameter),
                         taskID);
             }
@@ -278,7 +280,7 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
             Map<ConanParameter, String> params = conanTask.getParameterValues();
             for (ConanParameter conanParameter : params.keySet()) {
                 getJdbcTemplate().update(PARAMETER_INSERT,
-                        conanParameter.getName(), params.get(conanParameter), conanTask.getId());
+                        conanParameter.getShortName(), params.get(conanParameter), conanTask.getId());
             }
 
         }
@@ -801,7 +803,7 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
                 DatabaseRecoveredConanTask taskDB = tasksByID.get(taskID);
                 if (taskDB.getPipeline() != null) {
                     for (ConanParameter nextParam : taskDB.getPipeline().getAllRequiredParameters()) {
-                        if (nextParam.getName().equals(parameter.getName())) {
+                        if (nextParam.getShortName().equals(parameter.getShortName())) {
                             taskDB.addParameterValue(nextParam, parameter.getValue());
                         }
                     }
@@ -813,33 +815,25 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
         }
     }
 
-    public class DatabaseConanParameter implements ConanParameter {
-        private String name;
-        private String value;
+    public class DatabaseConanParameter extends DefaultConanParameter {
+
         private String ID;
+        private String value;
 
         DatabaseConanParameter(String ID, String name, String value) {
             this.name = name;
             this.value = value;
             this.ID = ID;
+
+            this.isOption = true;
+            this.isOptional = true;
+            this.isFlag = false;
+            this.argValidator = ArgValidator.OFF;
         }
 
+        @Override
         public String getDescription() {
             return "Parameter stored in database";
-        }
-
-        public boolean isBoolean() {
-            return false;
-        }
-
-        public boolean validateParameterValue(String value) {
-            // always returns true - this value should not have been inserted without being validated first
-            // todo - maybe check this assumption?
-            return true;
-        }
-
-        public String getName() {
-            return name;
         }
 
         public String getID() {
