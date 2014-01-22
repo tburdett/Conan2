@@ -1,9 +1,6 @@
 package uk.ac.ebi.fgpt.conan.core.process;
 
-import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
-import uk.ac.ebi.fgpt.conan.model.param.ParamMap;
-import uk.ac.ebi.fgpt.conan.model.param.ParamMapEntry;
-import uk.ac.ebi.fgpt.conan.model.param.ProcessArgs;
+import uk.ac.ebi.fgpt.conan.model.param.*;
 import uk.ac.ebi.fgpt.conan.service.exception.ConanParameterException;
 
 import java.io.IOException;
@@ -16,6 +13,12 @@ import java.io.IOException;
  * To change this template use File | Settings | File Templates.
  */
 public abstract class AbstractProcessArgs implements ProcessArgs {
+
+    protected ProcessParams params;
+
+    public AbstractProcessArgs(ProcessParams params) {
+        this.params = params;
+    }
 
     protected abstract void setOptionFromMapEntry(ConanParameter param, String value);
 

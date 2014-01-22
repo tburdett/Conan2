@@ -63,7 +63,7 @@ public abstract class AbstractConanProcess implements ConanProcess {
         this("", null, null);
     }
 
-    protected AbstractConanProcess(String executable, ProcessArgs args, ProcessParams params) {
+    public AbstractConanProcess(String executable, ProcessArgs args, ProcessParams params) {
         this.processArgs = args;
         this.processParams = params;
         this.executable = executable;
