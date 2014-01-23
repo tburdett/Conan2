@@ -25,12 +25,12 @@ import uk.ac.ebi.fgpt.conan.core.context.DefaultExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
-import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
-import uk.ac.ebi.fgpt.conan.model.param.ProcessArgs;
-import uk.ac.ebi.fgpt.conan.model.param.ProcessParams;
+import uk.ac.ebi.fgpt.conan.model.param.*;
 import uk.ac.ebi.fgpt.conan.service.ConanProcessService;
+import uk.ac.ebi.fgpt.conan.service.exception.ConanParameterException;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -55,6 +55,7 @@ public abstract class AbstractConanProcess implements ConanProcess {
     private List<String> preCommands;
     private List<String> postCommands;
     private String executable;
+    private String mode;
 
     private int jobId;
 
@@ -62,12 +63,13 @@ public abstract class AbstractConanProcess implements ConanProcess {
         this("", null, null);
     }
 
-    protected AbstractConanProcess(String executable, ProcessArgs args, ProcessParams params) {
+    public AbstractConanProcess(String executable, ProcessArgs args, ProcessParams params) {
         this.processArgs = args;
         this.processParams = params;
         this.executable = executable;
-        this.preCommands = new ArrayList<String>();
-        this.postCommands = new ArrayList<String>();
+        this.mode = "";
+        this.preCommands = new ArrayList<>();
+        this.postCommands = new ArrayList<>();
         this.jobId = -1;
     }
 
@@ -82,6 +84,14 @@ public abstract class AbstractConanProcess implements ConanProcess {
     @Override
     public String getExecutable() {
         return this.executable;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
     }
 
     public ProcessArgs getProcessArgs() {
@@ -115,7 +125,7 @@ public abstract class AbstractConanProcess implements ConanProcess {
     @Override
     public void addPreCommand(String preCommand) {
         if (this.preCommands == null) {
-            this.preCommands = new ArrayList<String>();
+            this.preCommands = new ArrayList<>();
         }
         this.preCommands.add(preCommand);
     }
@@ -137,7 +147,7 @@ public abstract class AbstractConanProcess implements ConanProcess {
     }
 
     @Override
-    public String getFullCommand() {
+    public String getFullCommand() throws ConanParameterException {
 
         List<String> commands = new ArrayList<String>();
 
@@ -157,44 +167,43 @@ public abstract class AbstractConanProcess implements ConanProcess {
     }
 
 
-    protected String getCommand(ProcessArgs args) {
-        return getCommand(args, false);
-    }
-
-    protected String getCommand(ProcessArgs args, boolean build) {
-        return getCommand(args, build, "--", " ");
+    @Override
+    public String getCommand() throws ConanParameterException {
+        return getCommand(CommandLineFormat.POSIX);
     }
 
     /**
      * Creates a command line to execute from the supplied proc args.  The are various means of constructing the command
-     * line to suit various use cases.  See the param listings for more details.  The command line will be wrapped by
-     * any pre and post commands already stored in this object.
+     * line to suit various use cases.  See the param listings for more details.
      *
-     * @param args        The proc arguments from which to build a command line to execute.
-     * @param build       If true, the paramPrefix and keyValSep args are used to construct each arg in the following way:
-     *                    [paramPrefix][paramName][keyValSep][argValue]. If false, it is assumed the the arg values contains all
-     *                    the complete argument string.
-     * @param paramPrefix The prefix to apply before each argument.  e.g. "--" is used for long posix style arguments.
-     * @param keyValSep   The string that separates the param name from the arg value. e.g. " " is used for posix style arguments.
-     * @return A complete command to execute, including any pre or post commands.
+     * @param format      The format to apply to the command line options.
+     * @return The command to execute, excluding any pre or post commands.
      */
-    protected String getCommand(ProcessArgs args, boolean build, String paramPrefix, String keyValSep) {
+    protected String getCommand(CommandLineFormat format) throws ConanParameterException {
 
-        List<String> commands = new ArrayList<String>();
+        // Ensure all parameters are valid before we try to make a command
+        this.processArgs.getArgMap().validate(this.processParams);
+
+        List<String> commands = new ArrayList<>();
 
         StringBuilder sb = new StringBuilder();
         sb.append(this.executable);
-        sb.append(" ");
-        for (Map.Entry<ConanParameter, String> param : args.getArgMap().entrySet()) {
-            if (build) {
-                sb.append(paramPrefix);
-                sb.append(param.getKey());
-            }
-            if (!param.getKey().isBoolean()) {
-                sb.append(keyValSep);
-                sb.append(param.getValue());
-            }
-            sb.append(" ");
+
+        // Add the mode, if this process has one.
+        if (!this.mode.isEmpty()) {
+            sb.append(" ").append(this.mode);
+        }
+
+        // Add the options
+        String options = this.processArgs.getArgMap().buildOptionString(format).trim();
+        if (!options.isEmpty()) {
+            sb.append(" ").append(options);
+        }
+
+        // Add the arguments
+        String args = this.processArgs.getArgMap().buildArgString().trim();
+        if (!args.isEmpty()) {
+            sb.append(" ").append(args);
         }
 
         commands.add(sb.toString().trim());
@@ -212,7 +221,14 @@ public abstract class AbstractConanProcess implements ConanProcess {
     @Override
     public boolean execute(ExecutionContext executionContext) throws ProcessExecutionException, InterruptedException {
 
-        ExecutionResult result = this.conanProcessService.execute(this, executionContext);
+        ExecutionResult result;
+
+        try {
+            result = this.conanProcessService.execute(this, executionContext);
+        }
+        catch(ConanParameterException cpe) {
+            throw new ProcessExecutionException(3, "Could not process supplied parameters for this process", cpe);
+        }
 
         this.jobId = result.getJobId();
 
@@ -244,4 +260,5 @@ public abstract class AbstractConanProcess implements ConanProcess {
     public boolean isOperational(ExecutionContext executionContext) {
         return this.conanProcessService.isLocalProcessOperational(this, executionContext);
     }
+
 }

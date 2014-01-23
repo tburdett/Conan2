@@ -104,7 +104,7 @@ public class BatchController {
         String pipelineParamName = "";
         if (p.getAllRequiredParameters().size() == 1) {
             pipelineAcceptsBatches = true;
-            pipelineParamName = p.getAllRequiredParameters().get(0).getName();
+            pipelineParamName = p.getAllRequiredParameters().get(0).getShortName();
         }
 
         // now tokenize our string to extract parameters
@@ -193,7 +193,7 @@ public class BatchController {
             String pipelineParamName = "";
             if (p.getAllRequiredParameters().size() == 1) {
                 pipelineAcceptsBatches = true;
-                pipelineParamName = p.getAllRequiredParameters().get(0).getName();
+                pipelineParamName = p.getAllRequiredParameters().get(0).getShortName();
             }
 
             // now, read the contents of our file to extract accessions

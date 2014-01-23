@@ -1,6 +1,7 @@
 package uk.ac.ebi.fgpt.conan.model.param;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+import uk.ac.ebi.fgpt.conan.service.exception.ConanParameterException;
 
 import java.io.Serializable;
 
@@ -22,12 +23,28 @@ import java.io.Serializable;
  */
 @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
 public interface ConanParameter extends Serializable {
+
+
     /**
-     * Returns the name of this parameter
+     * Returns an identifier that describes this parameter.  This maybe automatically generated or user defined.
      *
-     * @return the parameter name
+     * @return An human readable indentifier for this parameter.
      */
-    String getName();
+    String getIdentifier() throws ConanParameterException;
+
+    /**
+     * Returns the short name of this parameter
+     *
+     * @return the short parameter name
+     */
+    String getShortName();
+
+    /**
+     * Returns the long name of this parameter
+     *
+     * @return the long parameter name
+     */
+    String getLongName();
 
     /**
      * Returns the description of this parameter
@@ -44,6 +61,52 @@ public interface ConanParameter extends Serializable {
      * @return true if this parameter accepts boolean strings "true" or "false", false otherwise
      */
     boolean isBoolean();
+
+    /**
+     * A flag indicating whether this parameter should take any arguments or not.  This is essentially, the inverse of
+     * "isBoolean".
+     *
+     * @return True if this parameter takes an argument.  False if not (i.e. this param represents a flag).
+     */
+    boolean hasArg();
+
+    /**
+     * A flag indicating whether this parameter represents an option or not.  This should return the inverse of "isRequired".
+     *
+     * @return True if this parameter is optional.
+     */
+    boolean isOptional();
+
+    /**
+     * A flag indicating whether or not this parameter is required. This should return the inverse of "isOptional".
+     *
+     * @return True if this parameter is required.
+     */
+    boolean isRequired();
+
+    /**
+     * A flag indicating whether or not this parameter is an option (i.e. it HAS a name and is NOT order dependent).
+     * This should return the opposite of "isArgument".
+     *
+     * @return True if this parameter represents an argument
+     */
+    boolean isOption();
+
+    /**
+     * A flag indicating whether or not this parameter is an argument (i.e. it has no name and is order dependent).
+     * This should return the opposite of "isOption".
+     *
+     * @return True if this parameter represents an argument
+     */
+    boolean isArgument();
+
+    /**
+     * If this parameter represents a program argument (i.e. it has no name and is order dependent).  Then this method
+     * should return the 0-based index of the argument.  For example, 0 would be the first argument, 1 second and so on.
+     *
+     * @return The 0-based index of where the argument should be.  Or -1 if this parameter represents an option.
+     */
+    int getArgumentIndex();
 
     /**
      * Validates a parameter value to ensure that it is legal for submissions.  Typically, this may check if the

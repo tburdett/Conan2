@@ -4,6 +4,7 @@ package uk.ac.ebi.fgpt.conan.model;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
+import uk.ac.ebi.fgpt.conan.service.exception.ConanParameterException;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import java.io.Serializable;
@@ -45,15 +46,17 @@ public interface ConanProcess extends Serializable {
      * Get the command to execute for this <code>ConanProcess</code>
      *
      * @return The command to execute
+     *
+     * @throws ConanParameterException if there was any problems building the command line options
      */
-    String getCommand();
+    String getCommand() throws ConanParameterException;
 
     /**
      * Get the command to execute including and pre and post commands as a single compound command to execute
      *
      * @return The full compound command to execute for this <code>ConanProcess</code>
      */
-    String getFullCommand();
+    String getFullCommand() throws ConanParameterException;
 
     /**
      * Add an additional command to execute before running the main proc.  The order in which the command is added is

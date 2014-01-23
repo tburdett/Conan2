@@ -2,7 +2,6 @@ package uk.ac.ebi.fgpt.conan.core.pipeline;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.fgpt.conan.core.process.AbstractConanProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanPipeline;
 import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.ConanUser;
@@ -59,9 +58,9 @@ public class DefaultConanPipeline implements ConanPipeline {
         // once we've added processes, cache all required parameters to play nice with json serialization
         for (ConanProcess process : getProcesses()) {
             for (ConanParameter parameter : process.getParameters()) {
-                getLog().trace("Next parameter for process " + getName() + " = " + parameter.getName());
+                getLog().trace("Next parameter for process " + getName() + " = " + parameter.getShortName());
                 if (!allRequiredParameters.contains(parameter)) {
-                    getLog().trace("'" + parameter.getName() + "' is a required parameter for pipelines containing " +
+                    getLog().trace("'" + parameter.getShortName() + "' is a required parameter for pipelines containing " +
                             "'" + getName() + "'");
                     allRequiredParameters.add(parameter);
                 }

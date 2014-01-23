@@ -31,11 +31,14 @@ public class FlagParameter extends DefaultConanParameter {
     }
 
     public FlagParameter(String name, String description) {
-        super(name, description, true, true, false);
+        super();
+
+        this.name = name;
+        this.description = description;
+        this.isFlag = true;
+        this.isOption = true;
+        this.isOptional = true;
+        this.argValidator = ArgValidator.OFF;
     }
 
-    @Override
-    public boolean validateParameterValue(String value) {
-        return true;
-    }
 }

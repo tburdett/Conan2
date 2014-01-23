@@ -17,8 +17,6 @@
  **/
 package uk.ac.ebi.fgpt.conan.core.param;
 
-import org.apache.commons.lang.StringUtils;
-
 public class NumericParameter extends DefaultConanParameter {
 
     private static final long serialVersionUID = -4971687444263920744L;
@@ -28,11 +26,15 @@ public class NumericParameter extends DefaultConanParameter {
     }
 
     public NumericParameter(String name, String description, boolean isOptional) {
-        super(name, description, false, isOptional, false);
+
+        super();
+
+        this.name = name;
+        this.description = description;
+        this.isOption = true;
+        this.isOptional = isOptional;
+        this.isFlag = false;
+        this.argValidator = ArgValidator.FLOAT;
     }
 
-    @Override
-    public boolean validateParameterValue(String value) {
-        return StringUtils.isNumeric(value);
-    }
 }

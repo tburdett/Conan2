@@ -28,6 +28,7 @@ import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
 import uk.ac.ebi.fgpt.conan.model.context.Locality;
 import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
+import uk.ac.ebi.fgpt.conan.service.exception.ConanParameterException;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
 import static org.junit.Assert.assertTrue;
@@ -108,7 +109,7 @@ public class DefaultProcessServiceTest {
 
 
     @Test
-    public void executeProcessTest() throws ProcessExecutionException, InterruptedException {
+    public void executeProcessTest() throws ProcessExecutionException, InterruptedException, ConanParameterException {
 
         when(ec.usingScheduler()).thenReturn(false);
         when(ec.isForegroundJob()).thenReturn(true);

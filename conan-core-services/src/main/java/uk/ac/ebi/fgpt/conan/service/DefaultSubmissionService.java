@@ -273,7 +273,7 @@ public class DefaultSubmissionService implements ConanSubmissionService {
                             if (paramValues2.containsKey(param)) {
                                 // get the values for this key and check
                                 getLog().debug(
-                                        "Compared tasks have parameter type " + param.getName() + " in common, " +
+                                        "Compared tasks have parameter type " + param.getShortName() + " in common, " +
                                                 "checking values...");
                                 String val1 = paramValues1.get(param);
                                 String val2 = paramValues2.get(param);
