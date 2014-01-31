@@ -23,6 +23,14 @@ public class DefaultExecutorService implements ConanExecutorService {
     protected ConanProcessService conanProcessService;
     protected ExecutionContext executionContext;
 
+    public DefaultExecutorService() {
+        this(null, null);
+    }
+
+    public DefaultExecutorService(ConanProcessService conanProcessService, ExecutionContext executionContext) {
+        this.initialise(conanProcessService, executionContext);
+    }
+
     @Override
     public void initialise(ConanProcessService conanProcessService, ExecutionContext executionContext) {
         this.conanProcessService = conanProcessService;
@@ -56,5 +64,36 @@ public class DefaultExecutorService implements ConanExecutorService {
         }
 
         return this.conanProcessService.execute(process, executionContextCopy);
+    }
+
+    @Override
+    public ExecutionResult executeProcess(String command, File outputDir, String jobName, int threads, int memoryMb, boolean runParallel) throws InterruptedException, ProcessExecutionException, ConanParameterException {
+
+        ExecutionContext executionContextCopy = this.executionContext.copy();
+        executionContextCopy.setContext(jobName, !runParallel,
+                new File(outputDir, jobName + ".log"));
+
+        if (executionContextCopy.usingScheduler()) {
+            SchedulerArgs sArgs = executionContext.getScheduler().getArgs();
+            sArgs.setThreads(threads);
+            sArgs.setMemoryMB(memoryMb);
+        }
+
+        return this.conanProcessService.execute(command, executionContextCopy);
+    }
+
+    @Override
+    public boolean usingScheduler() {
+        return this.executionContext.usingScheduler();
+    }
+
+    @Override
+    public ExecutionContext getExecutionContext() {
+        return this.executionContext;
+    }
+
+    @Override
+    public ConanProcessService getConanProcessService() {
+        return this.conanProcessService;
     }
 }

@@ -19,6 +19,7 @@ import uk.ac.ebi.fgpt.conan.model.context.ExternalProcessConfiguration;
 import uk.ac.ebi.fgpt.conan.model.context.Locality;
 import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
 import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
+import uk.ac.ebi.fgpt.conan.model.param.ParamMap;
 import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 import uk.ac.ebi.fgpt.conan.service.exception.TaskExecutionException;
 
@@ -344,7 +345,7 @@ public abstract class AbstractConanCLI {
      * Create the argument map that describes the values for the conan parameters used in this pipeline
      * @return
      */
-    protected abstract Map<ConanParameter, String> createArgMap();
+    protected abstract ParamMap createArgMap();
 
     /**
      * Create the conan pipeline that is to be executed
@@ -374,7 +375,7 @@ public abstract class AbstractConanCLI {
             log.debug("Created pipeline: " + conanPipeline.getName());
 
             // Creates the argument map containing the settings for this pipeline
-            Map<ConanParameter, String> argMap = this.createArgMap();
+            ParamMap argMap = this.createArgMap();
 
             // Create the RAMPART task
             ConanTask conanTask = new DefaultTaskFactory().createTask(

@@ -63,4 +63,44 @@ public interface ConanExecutorService {
     ExecutionResult executeProcess(ConanProcess process, File outputDir, String jobName, int threads,
                                    int memoryMb, boolean runParallel)
             throws InterruptedException, ProcessExecutionException, ConanParameterException;
+
+    /**
+     * Executes a command within the defined execution context.  We can supply resource data for use by the
+     * scheduler (if requested).  The runParallel options allows us to execute this job in parallel with other jobs.  i.e
+     * we don't wait for the job to complete before returning.  In this case the method returns an ExecutionResult object
+     * which will contain the allocated jobId which the client can manually track and use with the executeScheduledWait
+     * command to control where the program flow should pause until the job's completion.
+     * @param command The command to execute
+     * @param outputDir Where output from this process should go
+     * @param jobName The schedulers job name
+     * @param threads The threads to request from the scheduler
+     * @param memoryMb The memory to request from the scheduler
+     * @param runParallel Whether to run this job in the foreground or the background
+     * @return An executionResult object containing the job id (if run on a scheduler) and the jobs standard output.
+     * @throws InterruptedException
+     * @throws ProcessExecutionException
+     * @throws ConanParameterException
+     */
+    ExecutionResult executeProcess(String command, File outputDir, String jobName, int threads,
+                                   int memoryMb, boolean runParallel)
+            throws InterruptedException, ProcessExecutionException, ConanParameterException;
+
+    /**
+     * Returns true if the managed execution context is configured to use a scheduling system
+     * @return True if executing processes using a scheduler, false otherwise
+     */
+    boolean usingScheduler();
+
+
+    /**
+     * Retrieves the execution context that is managed by this conan executor
+     * @return The managed execution context
+     */
+    ExecutionContext getExecutionContext();
+
+    /**
+     * Retrieves the conan process service that is managed by this conan executor
+     * @return The managed ConanProcessService
+     */
+    ConanProcessService getConanProcessService();
 }
