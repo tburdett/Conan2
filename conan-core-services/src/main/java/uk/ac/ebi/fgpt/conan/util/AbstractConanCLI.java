@@ -279,7 +279,7 @@ public abstract class AbstractConanCLI {
                                 this.logConfig.getAbsolutePath()).create("l"));
 
         options.addOption(OptionBuilder.withArgName("file").withLongOpt(OPT_OUTPUT_DIR).hasArg()
-                        .withDescription("The directory to put output from this job.").create("o"));
+                        .withDescription("The directory to put output from this job.  Default: " + currentWorkingDir().getAbsolutePath()).create("o"));
 
         options.addOption(OptionBuilder.withArgName("string").withLongOpt(OPT_JOB_PREFIX).hasArg()
                         .withDescription("The job prefix descriptor to use when scheduling.  " +
