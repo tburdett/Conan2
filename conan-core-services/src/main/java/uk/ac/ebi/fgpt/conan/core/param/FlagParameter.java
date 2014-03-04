@@ -36,7 +36,7 @@ public class FlagParameter extends DefaultConanParameter {
         this.name = name;
         this.description = description;
         this.isFlag = true;
-        this.isOption = true;
+        this.paramType = ParamType.OPTION;
         this.isOptional = true;
         this.argValidator = ArgValidator.OFF;
     }

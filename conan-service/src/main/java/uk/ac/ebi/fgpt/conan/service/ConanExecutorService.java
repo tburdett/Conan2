@@ -58,11 +58,31 @@ public interface ConanExecutorService {
      * @return An executionResult object containing the job id (if run on a scheduler) and the jobs standard output.
      * @throws InterruptedException
      * @throws ProcessExecutionException
-     * @throws ConanParameterException
      */
     ExecutionResult executeProcess(ConanProcess process, File outputDir, String jobName, int threads,
                                    int memoryMb, boolean runParallel)
-            throws InterruptedException, ProcessExecutionException, ConanParameterException;
+            throws InterruptedException, ProcessExecutionException;
+
+    /**
+     * Executes a conan process within the defined execution context.  We can supply resource data for use by the
+     * scheduler (if requested).  The runParallel options allows us to execute this job in parallel with other jobs.  i.e
+     * we don't wait for the job to complete before returning.  In this case the method returns an ExecutionResult object
+     * which will contain the allocated jobId which the client can manually track and use with the executeScheduledWait
+     * command to control where the program flow should pause until the job's completion.
+     * @param process The process to execute
+     * @param outputDir Where output from this process should go
+     * @param jobName The schedulers job name
+     * @param threads The threads to request from the scheduler
+     * @param memoryMb The memory to request from the scheduler
+     * @param runParallel Whether to run this job in the foreground or the background
+     * @param dependentJobs The list of jobs that should complete (one way or another) before this job should start
+     * @return An executionResult object containing the job id (if run on a scheduler) and the jobs standard output.
+     * @throws InterruptedException
+     * @throws ProcessExecutionException
+     */
+    ExecutionResult executeProcess(ConanProcess process, File outputDir, String jobName, int threads,
+                                   int memoryMb, boolean runParallel, List<Integer> dependentJobs)
+            throws InterruptedException, ProcessExecutionException;
 
     /**
      * Executes a command within the defined execution context.  We can supply resource data for use by the
@@ -79,11 +99,10 @@ public interface ConanExecutorService {
      * @return An executionResult object containing the job id (if run on a scheduler) and the jobs standard output.
      * @throws InterruptedException
      * @throws ProcessExecutionException
-     * @throws ConanParameterException
      */
     ExecutionResult executeProcess(String command, File outputDir, String jobName, int threads,
                                    int memoryMb, boolean runParallel)
-            throws InterruptedException, ProcessExecutionException, ConanParameterException;
+            throws InterruptedException, ProcessExecutionException;
 
     /**
      * Returns true if the managed execution context is configured to use a scheduling system
@@ -103,4 +122,10 @@ public interface ConanExecutorService {
      * @return The managed ConanProcessService
      */
     ConanProcessService getConanProcessService();
+
+    /**
+     * Sets the conan process service that is managed by this conan executor
+     * @param conanProcessService The conan process service to use for this executor
+     */
+    void setConanProcessService(ConanProcessService conanProcessService);
 }

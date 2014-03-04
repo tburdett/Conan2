@@ -61,6 +61,20 @@ public class DefaultParamMap extends LinkedHashMap<ConanParameter, String> imple
         return args;
     }
 
+    @Override
+    public List<ParamMapEntry> getRedirectionList() {
+
+        List<ParamMapEntry> redirects = new ArrayList<>(this.getNbRedirects());
+
+        for(Map.Entry<ConanParameter, String> entry : this.entrySet()) {
+            if (entry.getKey().isRedirect()) {
+                redirects.add(new DefaultParamMapEntry(entry.getKey(), entry.getValue()));
+            }
+        }
+
+        return redirects;
+    }
+
     public int getNbArgs() {
 
         int nbArgs = 0;
@@ -71,6 +85,18 @@ public class DefaultParamMap extends LinkedHashMap<ConanParameter, String> imple
         }
 
         return nbArgs;
+    }
+
+    public int getNbRedirects() {
+
+        int nbRedirects = 0;
+        for(ConanParameter param : this.keySet()) {
+            if (param.isRedirect()) {
+                nbRedirects++;
+            }
+        }
+
+        return nbRedirects;
     }
 
     @Override
@@ -132,6 +158,25 @@ public class DefaultParamMap extends LinkedHashMap<ConanParameter, String> imple
         }
 
         return argsString.toString();
+    }
+
+    @Override
+    public String buildRedirectionString() {
+
+        StringBuilder redirectString = new StringBuilder();
+
+        List<ParamMapEntry> args = this.getRedirectionList();
+
+        if (args.size() > 1) {
+            throw new IllegalArgumentException("Can only redirect output to a single file");
+        }
+
+        if (!args.isEmpty()) {
+
+            redirectString.append(args.get(0).getValue());
+        }
+
+        return redirectString.toString();
     }
 
     @Override

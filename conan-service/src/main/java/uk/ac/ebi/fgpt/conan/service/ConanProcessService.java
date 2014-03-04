@@ -48,7 +48,7 @@ public interface ConanProcessService {
      * @throws uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException Thrown if there were any problems initialising the job or with the job output
      */
     ExecutionResult execute(ConanProcess conanProcess, ExecutionContext executionContext)
-            throws InterruptedException, ProcessExecutionException, ConanParameterException;
+            throws InterruptedException, ProcessExecutionException;
 
     /**
      * Execute a command in the shell.  The proc may be executed in the foreground or the background depending
@@ -121,4 +121,22 @@ public interface ConanProcessService {
      * @return True if the process is operational, false otherwise.
      */
     boolean isLocalProcessOperational(ConanProcess conanProcess, ExecutionContext executionContext);
+
+
+    /**
+     * Returns true if this executable is found on the path
+     * @param executable The executable to look for
+     * @param executionContext The execution context this process will run in.
+     * @return True if the executable is found on the path, false otherwise.
+     */
+    boolean executableOnPath(String executable, ExecutionContext executionContext);
+
+    /**
+     * Returns true if this executable is found on the path
+     * @param executable The executable to look for
+     * @param preCommand Any precommand required to bring the executable onto the path
+     * @param executionContext The execution context this process will run in.
+     * @return True if the executable is found on the path, false otherwise.
+     */
+    boolean executableOnPath(String executable, String preCommand, ExecutionContext executionContext);
 }

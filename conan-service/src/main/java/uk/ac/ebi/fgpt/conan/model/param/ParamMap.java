@@ -18,21 +18,29 @@ public interface ParamMap extends Map<ConanParameter, String> {
      *
      * @return The entries in this map.
      */
-    public Set<ParamMapEntry> paramEntrySet();
+    Set<ParamMapEntry> paramEntrySet();
 
     /**
      * Returns a list of the options in this map in no particular order
      *
      * @return A list of the options in this map
      */
-    public List<ParamMapEntry> getOptionList();
+    List<ParamMapEntry> getOptionList();
 
     /**
      * Returns a list of the arguments (i.e. options with no name that are order dependent) in this map
      *
      * @return A list of arguments returned in the appropriate order.
      */
-    public List<ParamMapEntry> getArgList();
+    List<ParamMapEntry> getArgList();
+
+
+    /**
+     * Returns a list of the redirects in this map
+     *
+     * @return A list of redirects returned in the appropriate order.
+     */
+    List<ParamMapEntry> getRedirectionList();
 
     /**
      * Builds a string representing the options in this map
@@ -43,7 +51,7 @@ public interface ParamMap extends Map<ConanParameter, String> {
      *
      * @throws ConanParameterException Thrown if there was a problem building the option string
      */
-    public String buildOptionString(CommandLineFormat format) throws ConanParameterException;
+    String buildOptionString(CommandLineFormat format) throws ConanParameterException;
 
     /**
      * Builds a string representing the options in this map.  Options found in the exception list are excluded from
@@ -57,14 +65,24 @@ public interface ParamMap extends Map<ConanParameter, String> {
      *
      * @throws ConanParameterException Thrown if there was a problem building the option string
      */
-    public String buildOptionString(CommandLineFormat format, List<ConanParameter> exceptions) throws ConanParameterException;
+    String buildOptionString(CommandLineFormat format, List<ConanParameter> exceptions) throws ConanParameterException;
 
     /**
      * Builds a string representing the arguments in this map.  Order dependent.
      *
      * @return The arguments found in this map, represented in string form.
      */
-    public String buildArgString();
+    String buildArgString();
+
+    /**
+     * Builds a string representing the redirections in this map.  Currently we only support a single redirection, so
+     * if this param map contains more than one redirection an IllegalArgumentException is thrown
+     *
+     * @return The redirection found in this map, if present, empty string otherwise, represented in string form.
+     *
+     * @throws java.lang.IllegalArgumentException If this parammap contains more than one redirection
+     */
+    String buildRedirectionString();
 
     /**
      * Validates that all the values in this map pass the corresponding parameters validation routine.
@@ -73,5 +91,5 @@ public interface ParamMap extends Map<ConanParameter, String> {
      *
      * @throws ConanParameterException Thrown if the map is invalid.
      */
-    public void validate(ProcessParams allParams) throws ConanParameterException;
+    void validate(ProcessParams allParams) throws ConanParameterException;
 }

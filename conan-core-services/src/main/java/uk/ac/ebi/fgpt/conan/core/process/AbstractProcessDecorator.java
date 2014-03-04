@@ -57,17 +57,25 @@ public abstract class AbstractProcessDecorator implements ConanProcess {
 
     @Override
     public boolean execute(Map<ConanParameter, String> parameters)
-            throws ProcessExecutionException, IllegalArgumentException, InterruptedException {
+            throws ProcessExecutionException, InterruptedException, ConanParameterException {
         return process.execute(parameters);
     }
 
     @Override
-    public boolean execute(ExecutionContext executionContext) throws ProcessExecutionException, InterruptedException {
+    public boolean execute(ExecutionContext executionContext)
+            throws ProcessExecutionException, InterruptedException, ConanParameterException {
         return process.execute(executionContext);
     }
 
     @Override
-    public boolean execute(Map<ConanParameter, String> parameters, ExecutionContext executionContext) throws ProcessExecutionException, InterruptedException {
+    public boolean execute()
+            throws ProcessExecutionException, InterruptedException, ConanParameterException {
+        return process.execute();
+    }
+
+    @Override
+    public boolean execute(Map<ConanParameter, String> parameters, ExecutionContext executionContext)
+            throws ProcessExecutionException, InterruptedException, ConanParameterException {
         return process.execute(parameters, executionContext);
     }
 

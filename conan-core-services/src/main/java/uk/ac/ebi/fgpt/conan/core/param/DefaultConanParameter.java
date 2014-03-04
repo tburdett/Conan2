@@ -24,11 +24,17 @@ import uk.ac.ebi.fgpt.conan.service.exception.ConanParameterException;
 @JsonSerialize(as = ConanParameter.class)
 public class DefaultConanParameter implements ConanParameter {
 
+    public static enum ParamType {
+        OPTION,
+        ARGUMENT,
+        REDIRECTION
+    }
+
     protected String name;
     protected String longName;
     protected String description;
     protected boolean isFlag;
-    protected boolean isOption;
+    protected ParamType paramType;
     protected boolean isOptional;
     protected int argIndex;
     protected ArgValidator argValidator;
@@ -41,7 +47,7 @@ public class DefaultConanParameter implements ConanParameter {
         this.longName = "";
         this.description = "";
         this.isFlag = false;
-        this.isOption = true;
+        this.paramType = ParamType.OPTION;
         this.isOptional = true;
         this.argIndex = -1;
         this.argValidator = ArgValidator.DEFAULT;
@@ -63,6 +69,7 @@ public class DefaultConanParameter implements ConanParameter {
         this.name = name;
         this.description = description;
         this.isFlag = isFlag;
+        this.paramType = ParamType.OPTION;
     }
 
 
@@ -87,7 +94,7 @@ public class DefaultConanParameter implements ConanParameter {
     @Override
     public String getIdentifier() throws ConanParameterException {
 
-        if (this.isOption) {
+        if (this.paramType == ParamType.OPTION) {
             if (this.longName != null && !this.longName.isEmpty()) {
                 return "Option name: " + longName;
             }
@@ -98,9 +105,14 @@ public class DefaultConanParameter implements ConanParameter {
                 throw new ConanParameterException("Option parameter has been created without a name.");
             }
         }
-        else {
-            return"Arg index: " + Integer.toString(this.argIndex);
+        else if (this.paramType == ParamType.ARGUMENT) {
+            return "Arg index: " + Integer.toString(this.argIndex);
         }
+        else if (this.paramType == ParamType.REDIRECTION) {
+            return "Redirect";
+        }
+
+        throw new UnsupportedOperationException("Unknown param type set: " + this.paramType.toString());
     }
 
     @Override
@@ -140,12 +152,17 @@ public class DefaultConanParameter implements ConanParameter {
 
     @Override
     public boolean isOption() {
-        return this.isOption;
+        return this.paramType == ParamType.OPTION;
     }
 
     @Override
     public boolean isArgument() {
-        return !this.isOption;
+        return this.paramType == ParamType.ARGUMENT;
+    }
+
+    @Override
+    public boolean isRedirect() {
+        return this.paramType == ParamType.REDIRECTION;
     }
 
     @Override
@@ -172,7 +189,7 @@ public class DefaultConanParameter implements ConanParameter {
                 .append(longName, other.longName)
                 .append(description, other.description)
                 .append(isFlag, other.isFlag)
-                .append(isOption, other.isOption)
+                .append(paramType, other.paramType)
                 .append(isOptional, other.isOptional)
                 .append(argIndex, other.argIndex)
                 .append(argValidator, other.argValidator)
@@ -186,7 +203,7 @@ public class DefaultConanParameter implements ConanParameter {
                 .append(longName)
                 .append(description)
                 .append(isFlag)
-                .append(isOption)
+                .append(paramType)
                 .append(isOptional)
                 .append(argIndex)
                 .append(argValidator)
@@ -197,9 +214,17 @@ public class DefaultConanParameter implements ConanParameter {
     @Override
     public String toString() {
 
-        return this.isOption ?
-                "Short name: " + name + "; Long name: " + longName + "; Description: " + this.description +
-                        "; Is required: " + Boolean.toString(this.isRequired()) + "; Arg required: " + Boolean.toString(this.hasArg()) :
-                "Arg index: " + argIndex + "; Description: " + description + "; Is required: " + Boolean.toString(this.isRequired());
+        if (this.paramType == ParamType.OPTION) {
+            return "Short name: " + name + "; Long name: " + longName + "; Description: " + this.description +
+                        "; Is required: " + Boolean.toString(this.isRequired()) + "; Arg required: " + Boolean.toString(this.hasArg());
+        }
+        else if (this.paramType == ParamType.ARGUMENT) {
+            return "Arg index: " + argIndex + "; Description: " + description + "; Is required: " + Boolean.toString(this.isRequired());
+        }
+        else if (this.paramType == ParamType.REDIRECTION) {
+            return "Redirection";
+        }
+
+        throw new UnsupportedOperationException("Unknown param type set: " + this.paramType.toString());
     }
 }

@@ -26,7 +26,9 @@ import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
 import uk.ac.ebi.fgpt.conan.model.param.*;
+import uk.ac.ebi.fgpt.conan.service.ConanExecutorService;
 import uk.ac.ebi.fgpt.conan.service.ConanProcessService;
+import uk.ac.ebi.fgpt.conan.service.DefaultExecutorService;
 import uk.ac.ebi.fgpt.conan.service.exception.ConanParameterException;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
@@ -46,7 +48,7 @@ import java.util.Map;
 public abstract class AbstractConanProcess implements ConanProcess {
 
     @Autowired
-    protected ConanProcessService conanProcessService;
+    protected ConanExecutorService conanExecutorService;
 
 
     private ProcessArgs processArgs;
@@ -64,6 +66,10 @@ public abstract class AbstractConanProcess implements ConanProcess {
     }
 
     public AbstractConanProcess(String executable, ProcessArgs args, ProcessParams params) {
+        this(executable, args, params, new DefaultExecutorService());
+    }
+
+    public AbstractConanProcess(String executable, ProcessArgs args, ProcessParams params, ConanExecutorService conanExecutorService) {
         this.processArgs = args;
         this.processParams = params;
         this.executable = executable;
@@ -71,14 +77,15 @@ public abstract class AbstractConanProcess implements ConanProcess {
         this.preCommands = new ArrayList<>();
         this.postCommands = new ArrayList<>();
         this.jobId = -1;
+        this.conanExecutorService = conanExecutorService;
     }
 
     public ConanProcessService getConanProcessService() {
-        return conanProcessService;
+        return this.conanExecutorService.getConanProcessService();
     }
 
     public void setConanProcessService(ConanProcessService conanProcessService) {
-        this.conanProcessService = conanProcessService;
+        this.conanExecutorService.setConanProcessService(conanProcessService);
     }
 
     @Override
@@ -206,6 +213,12 @@ public abstract class AbstractConanProcess implements ConanProcess {
             sb.append(" ").append(args);
         }
 
+        // Add redirection string
+        String redirection = this.processArgs.getArgMap().buildRedirectionString().trim();
+        if (!redirection.isEmpty()) {
+            sb.append(" > ").append(redirection);
+        }
+
         commands.add(sb.toString().trim());
 
         String command = StringUtils.join(commands, "; ");
@@ -219,16 +232,17 @@ public abstract class AbstractConanProcess implements ConanProcess {
     }
 
     @Override
-    public boolean execute(ExecutionContext executionContext) throws ProcessExecutionException, InterruptedException {
+    public boolean execute()
+            throws ProcessExecutionException, InterruptedException {
 
-        ExecutionResult result;
+        return this.execute(this.conanExecutorService.getExecutionContext());
+    }
 
-        try {
-            result = this.conanProcessService.execute(this, executionContext);
-        }
-        catch(ConanParameterException cpe) {
-            throw new ProcessExecutionException(3, "Could not process supplied parameters for this process", cpe);
-        }
+    @Override
+    public boolean execute(ExecutionContext executionContext)
+            throws ProcessExecutionException, InterruptedException {
+
+        ExecutionResult result = this.conanExecutorService.getConanProcessService().execute(this, executionContext);;
 
         this.jobId = result.getJobId();
 
@@ -236,7 +250,8 @@ public abstract class AbstractConanProcess implements ConanProcess {
     }
 
     @Override
-    public boolean execute(Map<ConanParameter, String> parameters) throws ProcessExecutionException, InterruptedException {
+    public boolean execute(Map<ConanParameter, String> parameters)
+            throws ProcessExecutionException, InterruptedException {
 
         return this.execute(parameters, new DefaultExecutionContext());
     }
@@ -258,7 +273,7 @@ public abstract class AbstractConanProcess implements ConanProcess {
 
     @Override
     public boolean isOperational(ExecutionContext executionContext) {
-        return this.conanProcessService.isLocalProcessOperational(this, executionContext);
+        return this.getConanProcessService().isLocalProcessOperational(this, executionContext);
     }
 
 }

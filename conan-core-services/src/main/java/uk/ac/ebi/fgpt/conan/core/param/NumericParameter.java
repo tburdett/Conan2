@@ -31,7 +31,7 @@ public class NumericParameter extends DefaultConanParameter {
 
         this.name = name;
         this.description = description;
-        this.isOption = true;
+        this.paramType = ParamType.OPTION;
         this.isOptional = isOptional;
         this.isFlag = false;
         this.argValidator = ArgValidator.FLOAT;

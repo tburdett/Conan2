@@ -43,6 +43,19 @@ public abstract class AbstractConanCLI {
 
     private static Logger log = LoggerFactory.getLogger(AbstractConanCLI.class);
 
+    /**
+     * Gets the likely root of the application on the file system.  Warning: use this with caution!
+     */
+    public static final File APPLICATION_DIR =
+            new File(AbstractConanCLI.class.getProtectionDomain().getCodeSource().getLocation().getPath())
+                    .getParentFile()
+                    .getParentFile()
+                    .getParentFile()
+                    .getParentFile()
+                    .getParentFile()
+                    .getParentFile()
+                    .getParentFile()
+                    .getParentFile();
 
     // **** Option parameter names ****
     public static final String OPT_ENV_CONFIG = "env_config";

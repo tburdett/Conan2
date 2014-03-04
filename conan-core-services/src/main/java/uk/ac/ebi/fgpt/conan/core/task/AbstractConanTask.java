@@ -11,9 +11,11 @@ import uk.ac.ebi.fgpt.conan.model.ConanProcessRun;
 import uk.ac.ebi.fgpt.conan.model.ConanTask;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
+import uk.ac.ebi.fgpt.conan.service.exception.ConanParameterException;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 import uk.ac.ebi.fgpt.conan.service.exception.TaskExecutionException;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -181,7 +183,9 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
         stopWatchTotal.start();
 
         log.info("Executing task '" + getId() + "'");
+
         try {
+
             // do processes in order
             while (!isPaused() && getCurrentProcess() != null) {
                 if (Thread.interrupted()) {
@@ -205,7 +209,21 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
                 log.debug("Process being executed for task '" + pipelineName + "' is '" +
                         processName + "', supplying parameters: " +
                         nextProcessParams);
+
+                // Notify that event has started
                 fireProcessStartedEvent();
+
+                // Ensure there is a valid path for the monitor file if required
+                if (executionContext.usingScheduler() && executionContext.getMonitorFile() == null) {
+
+                    String jobName = this.getName() + "_" + this.currentExecutionIndex + "_" + getCurrentProcess().getName();
+
+                    if (executionContext.getJobName() == null || executionContext.getJobName().isEmpty()) {
+                        executionContext.getScheduler().getArgs().setJobName(jobName);
+                    }
+
+                    executionContext.getScheduler().getArgs().setMonitorFile(new File(jobName + ".log"));
+                }
 
                 // now execute
                 getCurrentProcess().execute(nextProcessParams, executionContext);
@@ -220,11 +238,16 @@ public abstract class AbstractConanTask<P extends ConanPipeline> implements Cona
             // finalise task execution
             return checkExitStatus();
         }
+        catch (ConanParameterException e) {
+            log.error("Process '" + getCurrentProcess().getName() + "' did not start due to invalid parameters");
+            fireProcessFailedEvent(2);
+            throw new TaskExecutionException(e);
+        }
         catch (ProcessExecutionException e) {
             // log this exception
             log.error("Process '" + getCurrentProcess().getName() + "' failed to execute, " +
                     "exit code: " + e.getExitValue());
-            log.debug("Execution exception follows", e);
+            log.error("Execution exception follows", e);
             log.debug("Is this event to abort: " + e.causesAbort() + " Output: " + e.getProcessOutput());
             if (e.causesAbort()) {
                 // critical fail, should cause instant abort

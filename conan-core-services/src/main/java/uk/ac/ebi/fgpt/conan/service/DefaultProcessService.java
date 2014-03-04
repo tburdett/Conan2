@@ -72,7 +72,8 @@ public class DefaultProcessService implements ConanProcessService {
     }
 
     @Override
-    public ExecutionResult execute(String command, ExecutionContext executionContext) throws InterruptedException, ProcessExecutionException {
+    public ExecutionResult execute(String command, ExecutionContext executionContext)
+            throws InterruptedException, ProcessExecutionException {
 
         Locality locality = executionContext.getLocality();
 
@@ -213,9 +214,21 @@ public class DefaultProcessService implements ConanProcessService {
             }
         }
 
+        return this.executableOnPath(conanProcess.getExecutable(), preCommand, executionContext);
+    }
+
+    @Override
+    public boolean executableOnPath(String executable, ExecutionContext executionContext) {
+
+        return this.executableOnPath(executable, "", executionContext);
+    }
+
+    @Override
+    public boolean executableOnPath(String executable, String preCommand, ExecutionContext executionContext) {
+
         ExecutionResult result = null;
         try {
-            result = this.execute(preCommand + "which " + conanProcess.getExecutable(), executionContext);
+            result = this.execute(preCommand + "which " + executable, executionContext);
         } catch (Exception e) {
             log.error("Error occurred trying to determine if process was operational: " + e.getMessage());
             return false;

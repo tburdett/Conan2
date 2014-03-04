@@ -24,13 +24,17 @@ public abstract class AbstractProcessArgs implements ProcessArgs {
 
     protected abstract void setArgFromMapEntry(ConanParameter param, String value);
 
+    protected void setRedirectFromMapEntry(ConanParameter param, String value) {
+
+    }
+
     @Override
     public void setFromArgMap(ParamMap pvp) throws IOException, ConanParameterException {
 
         for(ParamMapEntry entry : pvp.getOptionList()) {
 
             if (!entry.getKey().validateParameterValue(entry.getValue())) {
-                throw new ConanParameterException("Parameter invalid: " + entry.getKey().getIdentifier() + " : " + entry.getValue());
+                throw new ConanParameterException("Option parameter invalid: " + entry.getKey().getIdentifier() + " : " + entry.getValue());
             }
 
             this.setOptionFromMapEntry(entry.getKey(), entry.getValue().trim());
@@ -39,10 +43,19 @@ public abstract class AbstractProcessArgs implements ProcessArgs {
         for(ParamMapEntry entry : pvp.getArgList()) {
 
             if (!entry.getKey().validateParameterValue(entry.getValue())) {
-                throw new ConanParameterException("Parameter invalid: " + entry.getKey().getIdentifier() + " : " + entry.getValue());
+                throw new ConanParameterException("Argument parameter invalid: " + entry.getKey().getIdentifier() + " : " + entry.getValue());
             }
 
             this.setArgFromMapEntry(entry.getKey(), entry.getValue().trim());
+        }
+
+        for(ParamMapEntry entry : pvp.getRedirectionList()) {
+
+            if (!entry.getKey().validateParameterValue(entry.getValue())) {
+                throw new ConanParameterException("Redirect parameter invalid: " + entry.getKey().getIdentifier() + " : " + entry.getValue());
+            }
+
+            this.setRedirectFromMapEntry(entry.getKey(), entry.getValue().trim());
         }
     }
 }

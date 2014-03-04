@@ -40,7 +40,7 @@ public class ParameterBuilder {
     }
 
     public ParameterBuilder isOption(boolean isOption) {
-        this.parameter.isOption = isOption;
+        this.parameter.paramType = isOption ? DefaultConanParameter.ParamType.OPTION : DefaultConanParameter.ParamType.ARGUMENT;
         return this;
     }
 
@@ -56,6 +56,11 @@ public class ParameterBuilder {
 
     public ParameterBuilder argValidator(ArgValidator argValidator) {
         this.parameter.argValidator = argValidator;
+        return this;
+    }
+
+    public ParameterBuilder type(DefaultConanParameter.ParamType type) {
+        this.parameter.paramType = type;
         return this;
     }
 }
