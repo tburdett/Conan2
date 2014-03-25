@@ -825,7 +825,7 @@ public class DatabaseConanTaskDAO implements ConanTaskDAO {
             this.value = value;
             this.ID = ID;
 
-            this.isOption = true;
+            this.paramType = ParamType.OPTION;
             this.isOptional = true;
             this.isFlag = false;
             this.argValidator = ArgValidator.OFF;

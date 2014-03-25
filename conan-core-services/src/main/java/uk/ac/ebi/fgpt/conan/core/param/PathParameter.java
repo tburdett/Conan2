@@ -33,7 +33,7 @@ public class PathParameter extends DefaultConanParameter {
 
         this.name = name;
         this.description = description;
-        this.isOption = true;
+        this.paramType = ParamType.OPTION;
         this.isOptional = true;
         this.isFlag = false;
         this.argValidator = ArgValidator.PATH;

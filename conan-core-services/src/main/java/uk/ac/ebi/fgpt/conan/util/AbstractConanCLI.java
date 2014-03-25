@@ -19,6 +19,7 @@ import uk.ac.ebi.fgpt.conan.model.context.ExternalProcessConfiguration;
 import uk.ac.ebi.fgpt.conan.model.context.Locality;
 import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
 import uk.ac.ebi.fgpt.conan.model.param.ConanParameter;
+import uk.ac.ebi.fgpt.conan.model.param.ParamMap;
 import uk.ac.ebi.fgpt.conan.properties.ConanProperties;
 import uk.ac.ebi.fgpt.conan.service.exception.TaskExecutionException;
 
@@ -42,6 +43,19 @@ public abstract class AbstractConanCLI {
 
     private static Logger log = LoggerFactory.getLogger(AbstractConanCLI.class);
 
+    /**
+     * Gets the likely root of the application on the file system.  Warning: use this with caution!
+     */
+    public static final File APPLICATION_DIR =
+            new File(AbstractConanCLI.class.getProtectionDomain().getCodeSource().getLocation().getPath())
+                    .getParentFile()
+                    .getParentFile()
+                    .getParentFile()
+                    .getParentFile()
+                    .getParentFile()
+                    .getParentFile()
+                    .getParentFile()
+                    .getParentFile();
 
     // **** Option parameter names ****
     public static final String OPT_ENV_CONFIG = "env_config";
@@ -278,7 +292,7 @@ public abstract class AbstractConanCLI {
                                 this.logConfig.getAbsolutePath()).create("l"));
 
         options.addOption(OptionBuilder.withArgName("file").withLongOpt(OPT_OUTPUT_DIR).hasArg()
-                        .withDescription("The directory to put output from this job.").create("o"));
+                        .withDescription("The directory to put output from this job.  Default: " + currentWorkingDir().getAbsolutePath()).create("o"));
 
         options.addOption(OptionBuilder.withArgName("string").withLongOpt(OPT_JOB_PREFIX).hasArg()
                         .withDescription("The job prefix descriptor to use when scheduling.  " +
@@ -344,7 +358,7 @@ public abstract class AbstractConanCLI {
      * Create the argument map that describes the values for the conan parameters used in this pipeline
      * @return
      */
-    protected abstract Map<ConanParameter, String> createArgMap();
+    protected abstract ParamMap createArgMap();
 
     /**
      * Create the conan pipeline that is to be executed
@@ -374,7 +388,7 @@ public abstract class AbstractConanCLI {
             log.debug("Created pipeline: " + conanPipeline.getName());
 
             // Creates the argument map containing the settings for this pipeline
-            Map<ConanParameter, String> argMap = this.createArgMap();
+            ParamMap argMap = this.createArgMap();
 
             // Create the RAMPART task
             ConanTask conanTask = new DefaultTaskFactory().createTask(

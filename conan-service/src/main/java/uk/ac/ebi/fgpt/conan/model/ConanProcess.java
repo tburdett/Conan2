@@ -75,13 +75,23 @@ public interface ConanProcess extends Serializable {
     void addPostCommand(String postCommand);
 
     /**
-     * Executes this process within a defined {@link uk.ac.ebi.fgpt.conan.model.context.ExecutionContext}.  Assumes the process arguments have all been
-     * set
+     * Executes this process with the managed {@link uk.ac.ebi.fgpt.conan.model.context.ExecutionContext}.  Assumes the
+     * process arguments have all been set
+     *
+     * @return Whether this <code>ConanProcess</code> executed successfully or not.
+     */
+    boolean execute()
+            throws ProcessExecutionException, InterruptedException, ConanParameterException;
+
+    /**
+     * Executes this process within a defined {@link uk.ac.ebi.fgpt.conan.model.context.ExecutionContext}.  Assumes the
+     * process arguments have all been set
      *
      * @param executionContext The execution context within which to execute this <code>ConanProcess</code>
      * @return Whether this <code>ConanProcess</code> executed successfully or not.
      */
-    boolean execute(ExecutionContext executionContext) throws ProcessExecutionException, InterruptedException;
+    boolean execute(ExecutionContext executionContext)
+            throws ProcessExecutionException, InterruptedException, ConanParameterException;
 
     /**
      * Executes this process within a defined {@link ExecutionContext}, provides the process with arguments.
@@ -90,7 +100,7 @@ public interface ConanProcess extends Serializable {
      * @return Whether this <code>ConanProcess</code> executed successfully or not.
      */
     boolean execute(Map<ConanParameter, String> params, ExecutionContext executionContext)
-            throws ProcessExecutionException, InterruptedException;
+            throws ProcessExecutionException, InterruptedException, ConanParameterException;
 
     /**
      * Executes this process with the supplied parameters.  The thread in which a <code>ConanProcess</code> is running
@@ -122,7 +132,7 @@ public interface ConanProcess extends Serializable {
      *                                   early
      */
     boolean execute(Map<ConanParameter, String> parameters)
-            throws ProcessExecutionException, IllegalArgumentException, InterruptedException;
+            throws ProcessExecutionException, IllegalArgumentException, InterruptedException, ConanParameterException;
 
     /**
      * Returns the name of this process.  This should be something human-readable, as this process name is what the
