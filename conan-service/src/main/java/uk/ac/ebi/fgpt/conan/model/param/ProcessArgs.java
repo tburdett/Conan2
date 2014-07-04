@@ -24,6 +24,15 @@ public interface ProcessArgs {
     void parse(String args) throws IOException;
 
     /**
+     * This mechanism allows the user to create a conan process without having to define all the options.  By using the
+     * unchecked args the user can ask put these additional arguments into the command line of the process.  However,
+     * they are completely unchecked so it is the user's responsibility to ensure these are valid arguments / options
+     * and won't cause the process to fail.
+     * @return
+     */
+    String getUncheckedArgs();
+
+    /**
      * Converts this arguments class into a Map of ConanParameters to String values, which can then be used for processing in
      * the Conan Engine.
      *

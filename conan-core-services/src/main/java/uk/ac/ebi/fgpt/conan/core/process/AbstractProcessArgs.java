@@ -15,9 +15,12 @@ import java.io.IOException;
 public abstract class AbstractProcessArgs implements ProcessArgs {
 
     protected ProcessParams params;
+    protected String uncheckedArgs;
 
     public AbstractProcessArgs(ProcessParams params) {
+
         this.params = params;
+        this.uncheckedArgs = null;
     }
 
     protected abstract void setOptionFromMapEntry(ConanParameter param, String value);
@@ -26,6 +29,15 @@ public abstract class AbstractProcessArgs implements ProcessArgs {
 
     protected void setRedirectFromMapEntry(ConanParameter param, String value) {
 
+    }
+
+    @Override
+    public String getUncheckedArgs() {
+        return uncheckedArgs;
+    }
+
+    public void setUncheckedArgs(String uncheckedArgs) {
+        this.uncheckedArgs = uncheckedArgs;
     }
 
     @Override

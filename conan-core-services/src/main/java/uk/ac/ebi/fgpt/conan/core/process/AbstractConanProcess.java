@@ -207,6 +207,10 @@ public abstract class AbstractConanProcess implements ConanProcess {
             sb.append(" ").append(options);
         }
 
+        if(this.processArgs.getUncheckedArgs() != null && !this.processArgs.getUncheckedArgs().trim().isEmpty()) {
+            sb.append(" ").append(this.processArgs.getUncheckedArgs().trim());
+        }
+
         // Add the arguments
         String args = this.processArgs.getArgMap().buildArgString().trim();
         if (!args.isEmpty()) {
