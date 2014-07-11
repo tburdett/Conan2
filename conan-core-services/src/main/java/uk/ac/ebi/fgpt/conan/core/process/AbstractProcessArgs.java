@@ -77,6 +77,9 @@ public abstract class AbstractProcessArgs implements ProcessArgs {
     @Override
     public void parse(String args) throws IOException {
 
+        if (args == null || args.trim().isEmpty())
+            return;
+
         String[] splitArgs = new String("exe " + args.trim()).split(" ");
         CommandLine cmdLine = null;
         try {
