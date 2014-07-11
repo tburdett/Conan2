@@ -102,12 +102,12 @@ public class DefaultProcessService implements ConanProcessService {
                         "Output from this command can be found at: \"" + result.getOutputFile().getAbsolutePath() + "\"" :
                         "Output: \n" + StringUtils.join(result.getOutput(), "\n") + "\n";
 
-                log.info("Finished executing command [" + command + "].  " + details);
+                log.debug("Finished executing command [" + command + "].  " + details);
             }
             else {
                 log.info("Running scheduled command in background [" + commandToExecute + "].");
                 result = locality.dispatch(commandToExecute, scheduler);
-                log.info("Successfully dispatched command [" + command + "].  Output:\n" +
+                log.debug("Successfully dispatched command [" + command + "].  Output:\n" +
                         StringUtils.join(result.getOutput(), "\n") + "\n");
             }
         }
@@ -130,7 +130,7 @@ public class DefaultProcessService implements ConanProcessService {
                         "Output from this command can be found at: \"" + result.getOutputFile().getAbsolutePath() + "\"" :
                         "Output: \n" + StringUtils.join(result.getOutput(), "\n") + "\n";
 
-                log.info("Finished executing command [" + command + "].  " + details);
+                log.debug("Finished executing command [" + command + "].  " + details);
             }
             else {
                 throw new UnsupportedOperationException("Can't dispatch unscheduled commands yet");
