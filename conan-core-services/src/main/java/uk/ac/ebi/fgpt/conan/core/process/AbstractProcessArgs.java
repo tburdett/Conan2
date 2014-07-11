@@ -1,5 +1,8 @@
 package uk.ac.ebi.fgpt.conan.core.process;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import uk.ac.ebi.fgpt.conan.model.param.*;
 import uk.ac.ebi.fgpt.conan.service.exception.ConanParameterException;
 
@@ -70,4 +73,23 @@ public abstract class AbstractProcessArgs implements ProcessArgs {
             this.setRedirectFromMapEntry(entry.getKey(), entry.getValue().trim());
         }
     }
+
+    @Override
+    public void parse(String args) throws IOException {
+
+        String[] splitArgs = new String("exe " + args.trim()).split(" ");
+        CommandLine cmdLine = null;
+        try {
+            cmdLine = new PosixParser().parse(this.params.createCommandLineOptions(), splitArgs);
+        } catch (ParseException e) {
+            throw new IOException(e);
+        }
+
+        if (cmdLine == null)
+            return;
+
+        this.parseCommandLine(cmdLine);
+    }
+
+    protected abstract void parseCommandLine(CommandLine commandLine);
 }
