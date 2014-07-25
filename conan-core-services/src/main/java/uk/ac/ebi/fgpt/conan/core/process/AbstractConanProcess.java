@@ -58,6 +58,7 @@ public abstract class AbstractConanProcess implements ConanProcess {
     private List<String> postCommands;
     private String executable;
     private String mode;
+    private CommandLineFormat format;
 
     private int jobId;
 
@@ -78,6 +79,7 @@ public abstract class AbstractConanProcess implements ConanProcess {
         this.postCommands = new ArrayList<>();
         this.jobId = -1;
         this.conanExecutorService = conanExecutorService;
+        this.format = CommandLineFormat.POSIX;
     }
 
     public ConanProcessService getConanProcessService() {
@@ -129,6 +131,22 @@ public abstract class AbstractConanProcess implements ConanProcess {
         this.preCommands = preCommands;
     }
 
+    public CommandLineFormat getFormat() {
+        return format;
+    }
+
+    public void setFormat(CommandLineFormat format) {
+        this.format = format;
+    }
+
+    @Override
+    public void prependPreCommand(String preCommand) {
+        if (this.preCommands == null) {
+            this.preCommands = new ArrayList<>();
+        }
+        this.preCommands.add(0, preCommand);
+    }
+
     @Override
     public void addPreCommand(String preCommand) {
         if (this.preCommands == null) {
@@ -146,9 +164,17 @@ public abstract class AbstractConanProcess implements ConanProcess {
     }
 
     @Override
+    public void prependPostCommand(String postCommand) {
+        if (this.postCommands == null) {
+            this.postCommands = new ArrayList<>();
+        }
+        this.postCommands.add(0, postCommand);
+    }
+
+    @Override
     public void addPostCommand(String postCommand) {
         if (this.postCommands == null) {
-            this.postCommands = new ArrayList<String>();
+            this.postCommands = new ArrayList<>();
         }
         this.postCommands.add(postCommand);
     }
@@ -156,7 +182,7 @@ public abstract class AbstractConanProcess implements ConanProcess {
     @Override
     public String getFullCommand() throws ConanParameterException {
 
-        List<String> commands = new ArrayList<String>();
+        List<String> commands = new ArrayList<>();
 
         if (this.preCommands != null && !this.preCommands.isEmpty()) {
             commands.add(this.getPreCommand());
@@ -176,7 +202,7 @@ public abstract class AbstractConanProcess implements ConanProcess {
 
     @Override
     public String getCommand() throws ConanParameterException {
-        return getCommand(CommandLineFormat.POSIX);
+        return getCommand(this.format);
     }
 
     /**

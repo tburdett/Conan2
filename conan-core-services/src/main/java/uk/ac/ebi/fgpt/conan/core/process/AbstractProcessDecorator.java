@@ -56,6 +56,16 @@ public abstract class AbstractProcessDecorator implements ConanProcess {
     }
 
     @Override
+    public void prependPreCommand(String preCommand) {
+        this.process.prependPreCommand(preCommand);
+    }
+
+    @Override
+    public void prependPostCommand(String postCommand) {
+        this.prependPostCommand(postCommand);
+    }
+
+    @Override
     public boolean execute(Map<ConanParameter, String> parameters)
             throws ProcessExecutionException, InterruptedException, ConanParameterException {
         return process.execute(parameters);

@@ -59,16 +59,32 @@ public interface ConanProcess extends Serializable {
     String getFullCommand() throws ConanParameterException;
 
     /**
-     * Add an additional command to execute before running the main proc.  The order in which the command is added is
-     * down to the implementation.
+     * Add an additional command to execute before running the main proc.  This command should be prepended to the list
+     * of pre-commands, so that it occurs first.
+     *
+     * @param preCommand The command to execute before running this proc.
+     */
+    void prependPreCommand(String preCommand);
+
+    /**
+     * Add an additional command to execute before running the main proc.  This pre-command will be appended to the end
+     * of the pre-command list
      *
      * @param preCommand The command to execute before running this proc.
      */
     void addPreCommand(String preCommand);
 
     /**
-     * Add an additional command to execute after running the main proc.  The order in which the command is added is
-     * down to the implementation.
+     * Add an additional command to execute after running the main proc.  This command should be prepended to the list
+     * of post-commands, so that it occurs before all other post-commands.
+     *
+     * @param postCommand The command to execute after running this proc.
+     */
+    void prependPostCommand(String postCommand);
+
+    /**
+     * Add an additional command to execute after running the main proc.  This post-command will be appended to the end
+     * of the post-command list
      *
      * @param postCommand The command to execute after running this proc.
      */
