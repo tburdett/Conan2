@@ -8,6 +8,7 @@ import uk.ac.ebi.fgpt.conan.model.context.SchedulerArgs;
 import uk.ac.ebi.fgpt.conan.service.exception.ConanParameterException;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
+import javax.naming.OperationNotSupportedException;
 import java.io.File;
 import java.util.List;
 
@@ -46,6 +47,31 @@ public class DefaultExecutorService implements ConanExecutorService {
         executionContextCopy.setContext(jobName, true, new File(outputDir, jobName + ".log"));
 
         this.conanProcessService.executeScheduledWait(jobIds, waitCondition, exitStatusType, executionContextCopy);
+    }
+
+    @Override
+    public ExecutionResult executeJobArray(String command, File outputDir, String jobArrayName,
+                                           SchedulerArgs.JobArrayArgs jobArrayArgs,
+                                           int threadsPerJob, int memPerJob)
+            throws ProcessExecutionException, InterruptedException {
+
+        if (!this.usingScheduler()) {
+            throw new UnsupportedOperationException("Can't run a job array in an unscheduled environment.");
+        }
+
+        ExecutionContext executionContextCopy = this.executionContext.copy();
+        executionContextCopy.setContext(jobArrayName, true,
+                new File(outputDir, jobArrayName + ".log"));
+
+        SchedulerArgs sArgs = executionContextCopy.getScheduler().getArgs();
+        sArgs.setThreads(threadsPerJob);
+        sArgs.setMemoryMB(memPerJob);
+        sArgs.setJobArrayArgs(jobArrayArgs);
+
+        String modifiedCommand = command.replace(CONAN_JOB_INDEX, executionContextCopy.getScheduler().getJobIndexString());
+
+        return this.conanProcessService.execute(modifiedCommand, executionContextCopy);
+
     }
 
     @Override

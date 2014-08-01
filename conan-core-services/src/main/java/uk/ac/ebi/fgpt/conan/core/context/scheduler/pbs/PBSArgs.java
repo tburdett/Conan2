@@ -50,13 +50,35 @@ public class PBSArgs extends SchedulerArgs {
 
         StringJoiner joiner = new StringJoiner(" ");
 
+        if (this.getJobArrayArgs() == null) {
+
+            if (this.getMonitorFile() != null) {
+                joiner.add("-o", new File(this.getMonitorFile().getParentFile(), this.getMonitorFile().getName() + ".stdout"));
+                joiner.add("-e", new File(this.getMonitorFile().getParentFile(), this.getMonitorFile().getName() + ".stderr"));
+            }
+        }
+        else {
+
+            JobArrayArgs ja = this.getJobArrayArgs();
+            StringBuilder sb = new StringBuilder();
+            sb.append(ja.getMinIndex()).append("-").append(ja.getMaxIndex());
+
+            if (ja.getStepIndex() > 1) {
+                sb.append(":").append(ja.getStepIndex());
+            }
+
+            joiner.add("-J", sb.toString());
+
+            if (this.getMonitorFile() != null) {
+                joiner.add("-o", new File(this.getMonitorFile().getParentFile(), this.getMonitorFile().getName() + ".stdout"));
+                joiner.add("-e", new File(this.getMonitorFile().getParentFile(), this.getMonitorFile().getName() + ".stderr"));
+            }
+        }
+
         joiner.add("-N", compressJobName(this.getJobName()));
         joiner.add("-q", this.getQueueName());
         joiner.add("-P", this.getProjectName());
-        if (this.getMonitorFile() != null) {
-            joiner.add("-o", new File(this.getMonitorFile().getParentFile(), this.getMonitorFile().getName() + ".stdout"));
-            joiner.add("-e", new File(this.getMonitorFile().getParentFile(), this.getMonitorFile().getName() + ".stderr"));
-        }
+
         joiner.add(this.getExtraArgs());
 
         // -V retains the users environment variables

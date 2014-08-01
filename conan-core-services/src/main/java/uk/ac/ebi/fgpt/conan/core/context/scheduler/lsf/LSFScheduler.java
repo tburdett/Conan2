@@ -145,4 +145,9 @@ public class LSFScheduler extends AbstractScheduler {
         return Integer.parseInt(trimmed);
     }
 
+    @Override
+    public String getJobIndexString() {
+        return "\\$LSB_JOBINDEX";
+    }
+
 }

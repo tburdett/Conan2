@@ -33,6 +33,7 @@ public class DefaultExecutionContext implements ExecutionContext {
     private boolean foregroundJob;
     private File monitorFile;
     private String jobName;
+    private File applicationDir;
 
     public DefaultExecutionContext() {
         this(new Local(), null, null);
@@ -62,6 +63,8 @@ public class DefaultExecutionContext implements ExecutionContext {
                 copy.foregroundJob,
                 copy.monitorFile != null ? new File(copy.monitorFile.getAbsolutePath()) : null
         );
+
+        this.applicationDir = copy.applicationDir != null ? new File(copy.getApplicationDir().getAbsolutePath()) : null;
     }
 
     @Override
@@ -116,6 +119,15 @@ public class DefaultExecutionContext implements ExecutionContext {
     @Override
     public ExecutionContext copy() {
         return new DefaultExecutionContext(this);
+    }
+
+    @Override
+    public File getApplicationDir() {
+        return this.applicationDir;
+    }
+
+    public void setApplicationDir(File applicationDir) {
+        this.applicationDir = applicationDir;
     }
 
     public void setLocality(Locality locality) {

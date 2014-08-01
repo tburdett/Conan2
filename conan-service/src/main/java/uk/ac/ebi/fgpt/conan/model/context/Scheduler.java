@@ -66,6 +66,14 @@ public interface Scheduler {
     ProcessAdapter createProcessAdapter();
 
     /**
+     * Creates a <code>ProcessAdapter</code> specific to this scheduler.  Automatically, uses the monitor file and interval stored in
+     * this object.  Keys the monitor file based on the provided job array index.
+     *
+     * @return A <code>ProcessAdapter</code> that monitors progress of a scheduled proc in a job array.
+     */
+    ProcessAdapter createProcessAdapter(int jobArrayIndex);
+
+    /**
      * Creates a <code>ProcessAdapter</code> specific to this scheduler.  Uses a custom monitor file and interval.
      *
      * @param monitorFile     The file that this adapter will monitor.
@@ -73,7 +81,6 @@ public interface Scheduler {
      * @return A proc adapter specific to this scheduler.
      */
     ProcessAdapter createProcessAdapter(File monitorFile, int monitorInterval);
-
 
     /**
      * Creates a wait condition for this architecture, using a job name pattern
@@ -127,4 +134,10 @@ public interface Scheduler {
      * @return
      */
     int extractJobIdFromOutput(String line);
+
+    /**
+     * Returns the string that should be replaced by a job array index in a command line
+     * @return The string that represent the job array index for this scheduler.
+     */
+    String getJobIndexString();
 }

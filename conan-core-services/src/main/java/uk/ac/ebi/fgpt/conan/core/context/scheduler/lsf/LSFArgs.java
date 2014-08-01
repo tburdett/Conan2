@@ -40,9 +40,35 @@ public class LSFArgs extends SchedulerArgs {
 
         StringJoiner joiner = new StringJoiner(" ");
 
-        joiner.add("-J", this.getJobName());
+        if (this.getJobArrayArgs() == null) {
+            joiner.add("-J", this.getJobName());
+            joiner.add("-oo", this.getMonitorFile());
+        }
+        else {
+            JobArrayArgs ja = this.getJobArrayArgs();
+            StringBuilder sb = new StringBuilder();
+            sb.append(this.getJobName());
+            sb.append("[");
+            sb.append(ja.getMinIndex()).append("-").append(ja.getMaxIndex());
+
+            if (ja.getStepIndex() > 1) {
+                sb.append(":").append(ja.getStepIndex());
+            }
+
+            sb.append("]");
+
+            if (ja.getMaxSimultaneousJobs() > 1) {
+                sb.append("%").append(ja.getMaxSimultaneousJobs());
+            }
+
+            joiner.add("-J", sb.toString());
+
+            if (this.getMonitorFile() != null) {
+                joiner.add("-oo", this.getMonitorFile().getAbsolutePath() + ".%I");
+            }
+        }
+
         joiner.add("-q", this.getQueueName());
-        joiner.add("-oo", this.getMonitorFile());
         joiner.add("-w ", this.getWaitCondition());
         joiner.add(this.getThreads() > 1, "-n", String.valueOf(this.getThreads()));
         joiner.add("-P", this.getProjectName());

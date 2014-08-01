@@ -23,6 +23,8 @@ import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
 import uk.ac.ebi.fgpt.conan.model.context.SchedulerArgs;
 import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
 
+import java.io.File;
+
 public abstract class AbstractScheduler implements Scheduler {
 
     private static Logger log = LoggerFactory.getLogger(AbstractScheduler.class);
@@ -70,6 +72,17 @@ public abstract class AbstractScheduler implements Scheduler {
     @Override
     public ProcessAdapter createProcessAdapter() {
         return createProcessAdapter(this.args.getMonitorFile(), this.args.getMonitorInterval());
+    }
+
+    /**
+     * Creates a proc adapter specific to this scheduler.  Automatically, uses the monitor file and interval stored in
+     * this object.
+     *
+     * @return
+     */
+    @Override
+    public ProcessAdapter createProcessAdapter(int jobArrayIndex) {
+        return createProcessAdapter(new File(this.args.getMonitorFile().getAbsolutePath() + "." + jobArrayIndex), this.args.getMonitorInterval());
     }
 
 }

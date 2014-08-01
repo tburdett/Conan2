@@ -130,4 +130,9 @@ public class OGEScheduler extends AbstractScheduler {
         throw new UnsupportedOperationException("Don't know if we can extract job ids from submission output yet");
     }
 
+    @Override
+    public String getJobIndexString() {
+        return "${SGE_TASK_ID}";
+    }
+
 }

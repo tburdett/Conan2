@@ -24,6 +24,7 @@ import uk.ac.ebi.fgpt.conan.core.process.monitor.InvocationTrackingProcessListen
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
 import uk.ac.ebi.fgpt.conan.model.context.Locality;
 import uk.ac.ebi.fgpt.conan.model.context.Scheduler;
+import uk.ac.ebi.fgpt.conan.model.context.SchedulerArgs;
 import uk.ac.ebi.fgpt.conan.model.monitor.ProcessAdapter;
 import uk.ac.ebi.fgpt.conan.model.monitor.ProcessListener;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
@@ -33,6 +34,11 @@ import uk.ac.ebi.fgpt.conan.utils.ProcessRunner;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.*;
 
 /**
  * This environment is used to execute code on the localhost. If the localhost
@@ -99,10 +105,21 @@ public class Local implements Locality {
             //if (!recoveryMode) {
 
                 // Create the proc monitor if scheduler requires it
-                ProcessAdapter processAdapter = null;
+                List<ProcessAdapter> processAdapters = new ArrayList<>();
                 if (scheduler.usesFileMonitor()) {
-                    processAdapter = scheduler.createProcessAdapter();
-                    processAdapter.createMonitor();
+                    SchedulerArgs.JobArrayArgs jaa = scheduler.getArgs().getJobArrayArgs();
+                    if (jaa != null) {
+                        for(int i = jaa.getMinIndex(); i <= jaa.getMaxIndex(); i += jaa.getStepIndex()) {
+                            processAdapters.add(scheduler.createProcessAdapter(i));
+                        }
+                    }
+                    else {
+                        processAdapters.add(scheduler.createProcessAdapter());
+                    }
+
+                    for(ProcessAdapter pa : processAdapters) {
+                        pa.createMonitor();
+                    }
                 }
 
                 // Execute the proc (this is a scheduled proc so it should run in the background, managed by the scheduler,
@@ -115,9 +132,41 @@ public class Local implements Locality {
 
                 // Wait for the proc to complete by using the proc monitor
                 if (scheduler.usesFileMonitor()) {
+                    if (scheduler.getArgs().getJobArrayArgs() != null) {
 
-                    // Override result with info from the wait command.
-                    result = this.waitFor(processAdapter, new InvocationTrackingProcessListener());
+                        ExecutorService pool = Executors.newFixedThreadPool(processAdapters.size());
+                        Set<Future<ExecutionResult>> set = new HashSet<>();
+                        SchedulerArgs.JobArrayArgs jaa = scheduler.getArgs().getJobArrayArgs();
+                        for(ProcessAdapter pa : processAdapters) {
+                            set.add(pool.submit(new ProcessAdaptorCallable(pa)));
+                        }
+
+                        int exitCode = 0;
+                        int errorCount = 0;
+                        String[] message = new String[]{"All jobs in array completed successfully."};
+                        for(Future<ExecutionResult> res : set) {
+                            try {
+                                if (res.get().getExitCode() != 0) {
+                                    exitCode = 1;
+                                    errorCount++;
+                                }
+                            }
+                            catch (ExecutionException e) {
+                                exitCode = 2;
+                                errorCount++;
+                            }
+                        }
+
+                        if (exitCode != 0) {
+                            message = new String[] {"Job Array Error: " + errorCount + " out of " + processAdapters.size() + " jobs failed in the array."};
+                        }
+
+                        result = new DefaultExecutionResult(exitCode, message, scheduler.getArgs().getMonitorFile());
+                    }
+                    else {
+                        // Override result with info from the wait command.
+                        result = this.waitFor(processAdapters.get(0), new InvocationTrackingProcessListener());
+                    }
                 }
 
                 return result;
@@ -129,6 +178,34 @@ public class Local implements Locality {
 
         // Hopefully we don't reach here but if we do then just return exit code 1 to signal an error.
         //return 1;
+    }
+
+    private static class ProcessAdaptorCallable
+            implements Callable<ExecutionResult> {
+        private ProcessAdapter pa;
+        private ProcessListener pl;
+        public ProcessAdaptorCallable(ProcessAdapter pa) {
+            this.pa = pa;
+            this.pl = new InvocationTrackingProcessListener();
+        }
+        public ExecutionResult call() {
+            pa.addTaskListener(pl);
+
+            // proc exit value, initialise to -1
+            int exitValue = -1;
+
+            // proc monitoring
+            try {
+                log.debug("Monitoring proc, waiting for completion...");
+                exitValue = this.pl.waitFor();
+                log.debug("Process completed with exit value: " + exitValue);
+
+                return new DefaultExecutionResult(exitValue, pa.getProcessOutput(), pa.getFile());
+            }
+            catch(InterruptedException e) {
+                return null;
+            }
+        }
     }
 
 

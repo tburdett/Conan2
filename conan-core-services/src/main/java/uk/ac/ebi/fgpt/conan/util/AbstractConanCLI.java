@@ -265,7 +265,9 @@ public abstract class AbstractConanCLI {
             log.info("Execution Context: Scheduler Args: \"" + extraArgs + "\"");
         }
 
-        return new DefaultExecutionContext(locality, scheduler, externalProcessConfiguration);
+        DefaultExecutionContext dec = new DefaultExecutionContext(locality, scheduler, externalProcessConfiguration);
+        dec.setApplicationDir(APPLICATION_DIR);
+        return dec;
     }
 
 

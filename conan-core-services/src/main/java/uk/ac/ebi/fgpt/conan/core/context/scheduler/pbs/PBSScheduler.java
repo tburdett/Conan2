@@ -131,4 +131,9 @@ public class PBSScheduler extends AbstractScheduler {
         throw new IllegalArgumentException("Could not extract PBS job id from: " + line);
     }
 
+    @Override
+    public String getJobIndexString() {
+        return "${PBS_ARRAY_INDEX}";
+    }
+
 }

@@ -71,4 +71,10 @@ public interface ExecutionContext {
      * @return
      */
     ExecutionContext copy();
+
+    /**
+     * Returns the directory where this software was installed
+     * @return
+     */
+    File getApplicationDir();
 }

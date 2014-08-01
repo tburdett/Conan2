@@ -19,6 +19,7 @@ public abstract class SchedulerArgs {
     private String waitCondition;
     private File monitorFile;
     private int monitorInterval;
+    private JobArrayArgs jobArrayArgs;
 
     protected SchedulerArgs() {
         this.jobName = "";
@@ -30,6 +31,7 @@ public abstract class SchedulerArgs {
         this.openmpi = false;
         this.monitorFile = null;
         this.monitorInterval = 15;
+        this.jobArrayArgs = null;
     }
 
     protected SchedulerArgs(SchedulerArgs args) {
@@ -43,6 +45,7 @@ public abstract class SchedulerArgs {
         this.waitCondition = args.getWaitCondition();
         this.monitorFile = args.getMonitorFile();
         this.monitorInterval = args.getMonitorInterval();
+        this.jobArrayArgs = args.getJobArrayArgs() == null ? null : new JobArrayArgs(args.getJobArrayArgs());
     }
 
     public String getJobName() {
@@ -130,4 +133,50 @@ public abstract class SchedulerArgs {
     }
 
     public abstract SchedulerArgs copy();
+
+    public JobArrayArgs getJobArrayArgs() {
+        return jobArrayArgs;
+    }
+
+    public void setJobArrayArgs(JobArrayArgs jobArrayArgs) {
+        this.jobArrayArgs = jobArrayArgs;
+    }
+
+    public static class JobArrayArgs {
+        private int minIndex;
+        private int maxIndex;
+        private int stepIndex;
+        private int maxSimultaneousJobs;
+
+        public JobArrayArgs() {
+            this(1, 1, 1, 1);
+        }
+
+        public JobArrayArgs(int minIndex, int maxIndex, int stepIndex, int maxSimultaneousJobs) {
+            this.minIndex = minIndex;
+            this.maxIndex = maxIndex;
+            this.stepIndex = stepIndex;
+            this.maxSimultaneousJobs = maxSimultaneousJobs;
+        }
+
+        public JobArrayArgs(JobArrayArgs args) {
+            this(args.minIndex, args.maxIndex, args.stepIndex, args.maxSimultaneousJobs);
+        }
+
+        public int getMinIndex() {
+            return minIndex;
+        }
+
+        public int getMaxIndex() {
+            return maxIndex;
+        }
+
+        public int getStepIndex() {
+            return stepIndex;
+        }
+
+        public int getMaxSimultaneousJobs() {
+            return maxSimultaneousJobs;
+        }
+    }
 }

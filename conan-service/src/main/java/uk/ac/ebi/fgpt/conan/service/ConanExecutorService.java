@@ -4,6 +4,7 @@ import uk.ac.ebi.fgpt.conan.model.ConanProcess;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionContext;
 import uk.ac.ebi.fgpt.conan.model.context.ExecutionResult;
 import uk.ac.ebi.fgpt.conan.model.context.ExitStatus;
+import uk.ac.ebi.fgpt.conan.model.context.SchedulerArgs;
 import uk.ac.ebi.fgpt.conan.service.exception.ConanParameterException;
 import uk.ac.ebi.fgpt.conan.service.exception.ProcessExecutionException;
 
@@ -17,6 +18,8 @@ import java.util.List;
  * until the child processes have finished by using the executeScheduledWait method
  */
 public interface ConanExecutorService {
+
+    static String CONAN_JOB_INDEX = "$CONAN_JOB_INDEX";
 
     /**
      * Initialises this executor.  Needs a process service and an execution context.
@@ -41,6 +44,25 @@ public interface ConanExecutorService {
      */
     void executeScheduledWait(List<Integer> jobIds, String waitCondition, ExitStatus.Type exitStatusType,
                               String jobName, File outputDir)
+            throws ProcessExecutionException, InterruptedException;
+
+    /**
+     * Executes a command as a job array.  The command must contain conan specific tokens that should be replaced by
+     * scheduler specific tokens before execution on the system.  For example: $CONAN_JOB_INDEX, might be auto replaced with
+     * $LSB_JOBINDEX on LSF or $PBS_ARRAY_INDEX on PBS.
+     * @param command The command to execute as a job array
+     * @param outputDir The directory output, such as scheduler logs, should be located.
+     * @param jobArrayName The name of the job array
+     * @param jobArrayArgs The job array indices
+     * @param threadsPerJob The threads to request per job from the scheduler
+     * @param memPerJob The memory to request per job from the scheduler
+     * @return  An executionResult object containing the job array id and the jobs standard output.
+     * @throws ProcessExecutionException
+     * @throws InterruptedException
+     */
+    ExecutionResult executeJobArray(String command, File outputDir, String jobArrayName,
+                                    SchedulerArgs.JobArrayArgs jobArrayArgs,
+                                    int threadsPerJob, int memPerJob)
             throws ProcessExecutionException, InterruptedException;
 
     /**
