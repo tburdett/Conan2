@@ -70,7 +70,13 @@ public class LSFFileProcessAdapter extends AbstractFileProcessAdapter {
                     exitValStr = exitValStr.replace(".", "");
                     log.debug("Munged string to remove full stop is now " + exitValStr);
                 }
-                this.setExitValue(Integer.valueOf(exitValStr));
+                try {
+                    this.setExitValue(Integer.valueOf(exitValStr));
+                }
+                catch(NumberFormatException e) {
+                    log.error("Could not determine exit value from process.  Setting exit value to 1");
+                    this.setExitValue(1);
+                }
                 log.debug("Exit value: " + this.getExitValue());
             } else {
                 this.setExitValue(1);
